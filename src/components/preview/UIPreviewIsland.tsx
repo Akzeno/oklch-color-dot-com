@@ -6,7 +6,7 @@ import {
   generateFullScaleForRole,
   type ColorRole,
 } from '../../stores/cartStore';
-import { formatOklch, getWcagContrast, getApcaContrast, createOklchColor } from '../../utils/color';
+import { formatOklch, getWcagContrast, getApcaContrast, createOklchColor, type ShadeStep } from '../../utils/color';
 
 export default function UIPreviewIsland() {
   const cart = useStore(cartStore);
@@ -15,15 +15,15 @@ export default function UIPreviewIsland() {
   // Helper to extract CSS color for a role & step, falling back gracefully
   const getRoleColorCss = (roleId: string, preferredStep: number = 500, fallbackHex: string = '#3b82f6'): { css: string; hex: string } => {
     const role = cart.roles[roleId];
-    if (role && role.shades[preferredStep as any]) {
-      const col = role.shades[preferredStep as any]!.color;
+    if (role && role.shades[preferredStep as ShadeStep]) {
+      const col = role.shades[preferredStep as ShadeStep]!.color;
       return { css: formatOklch(col), hex: col.hex };
     }
     // Try any available shade in that role
     if (role) {
       const keys = Object.keys(role.shades);
       if (keys.length > 0) {
-        const first = role.shades[Number(keys[0]) as any]!.color;
+        const first = role.shades[Number(keys[0]) as ShadeStep]!.color;
         return { css: formatOklch(first), hex: first.hex };
       }
     }
