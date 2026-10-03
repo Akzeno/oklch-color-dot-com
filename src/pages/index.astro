@@ -1,11 +1,184 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import AppLayout from '../layouts/AppLayout.astro';
+import ColorPickerIsland from '../components/picker/ColorPickerIsland';
+import { getNavItemByPath } from '../config/navigation';
+import { getBuildTimeColorTable } from '../utils/seoTables';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const navItem = getNavItemByPath('/');
+const seo = navItem?.seo || {
+  title: 'OKLCH Color Picker & Converter | Real-time P3 & sRGB Gamut',
+  metaDescription: 'Interactive OKLCH color picker with live visual slider tracks, Display-P3 gamut clipping boundaries, sRGB fallback, and role-based design token collection.',
+  h1: 'OKLCH Color Picker',
+  keywords: ['oklch color picker', 'oklch picker', 'css oklch', 'display-p3 color picker'],
+  schemaType: 'WebApplication',
+};
+
+const examplesTable = getBuildTimeColorTable();
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  keywords={seo.keywords}
+  canonicalPath="/"
+  schemaType={seo.schemaType}
+>
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-12">
+    <!-- Page Header & H1 -->
+    <div class="space-y-2">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+        {seo.h1}
+      </h1>
+      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+        Explore perceptual color with live dynamic slider tracks, wide Display-P3 gamut monitoring, and persistent design-token collection for Tailwind CSS v4.
+      </p>
+    </div>
+
+    <!-- Above-The-Fold Interactive Tool -->
+    <section aria-label="Interactive OKLCH Color Picker">
+      <ColorPickerIsland client:load />
+    </section>
+
+    <!-- Unique SEO & Educational Content Below The Fold -->
+    <div class="space-y-10 pt-6 border-t border-[#1f1f1f]">
+      <!-- 1. Intro Section -->
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          Why Choose the OKLCH Color Space?
+        </h2>
+        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+          The OKLCH color space (Oklab Lightness, Chroma, Hue) solves the historic flaws of RGB and HSL. In HSL, blue and yellow with 50% lightness appear vastly different in perceived brightness to human eyes. OKLCH guarantees perceptual uniformity: 60% lightness looks equally bright regardless of hue angle, making accessible UI themes, dark modes, and dynamic color systems predictable and effortless.
+        </p>
+      </section>
+
+      <!-- 2. How to Use Steps -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          How to Pick and Export Colors
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+          <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 space-y-2">
+            <span class="text-xs font-bold text-[#06b6d4]">01. Adjust Lightness & Hue</span>
+            <p class="text-[#a3a3a3] leading-normal">
+              Move the sliders to set your base hue and lightness. The dynamic slider tracks render real-time color spectra along each individual axis.
+            </p>
+          </div>
+          <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 space-y-2">
+            <span class="text-xs font-bold text-[#22c55e]">02. Collect into Roles</span>
+            <p class="text-[#a3a3a3] leading-normal">
+              Click <strong class="text-white">Add to Cart</strong> to assign your color to a semantic token role (<code class="text-white">--color-trusty-button-500</code>). Colors auto-slot into shade steps 50 to 950.
+            </p>
+          </div>
+          <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 space-y-2">
+            <span class="text-xs font-bold text-[#f59e0b]">03. Export to Tailwind v4</span>
+            <p class="text-[#a3a3a3] leading-normal">
+              Open the Export page to copy a ready-to-use <code class="text-white">@theme</code> block or download a custom CSS variable stylesheet with VS Code inline color decorators.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Build-Time Examples Reference Table -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-[#f5f5f5]">
+            Popular Color Swatches & OKLCH Equivalents
+          </h2>
+          <span class="text-[11px] font-mono text-[#737373]">Build-Time Computed</span>
+        </div>
+
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-[#181818] border-b border-[#262626] text-[#737373] uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">Color Swatch</th>
+                  <th class="p-3">Name</th>
+                  <th class="p-3">HEX Code</th>
+                  <th class="p-3">OKLCH CSS Value</th>
+                  <th class="p-3 text-right">Gamut Profile</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#1f1f1f]">
+                {examplesTable.slice(0, 10).map((row) => (
+                  <tr class="hover:bg-[#1a1a1a] transition-colors">
+                    <td class="p-3">
+                      <div
+                        class="w-6 h-6 rounded border border-white/20 shadow-sm"
+                        style={`background-color: ${row.oklch};`}
+                      />
+                    </td>
+                    <td class="p-3 text-[#f5f5f5] font-medium">{row.name}</td>
+                    <td class="p-3 text-[#a3a3a3]">{row.hex}</td>
+                    <td class="p-3 text-[#86efac]">{row.oklch}</td>
+                    <td class="p-3 text-right">
+                      <span class="px-2 py-0.5 rounded text-[10px] bg-[#1f1f1f] text-[#a3a3a3]">
+                        {row.isP3 ? 'Display-P3' : 'sRGB'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Gotchas & Technical Notes -->
+      <section class="space-y-4 bg-[#141414] border border-[#262626] rounded-xl p-5 md:p-6">
+        <h2 class="text-base font-semibold text-[#f5f5f5]">
+          Important Gotchas: Gamut Clipping & Browser Fallbacks
+        </h2>
+        <ul class="space-y-2 text-xs font-mono text-[#a3a3a3] list-disc list-inside">
+          <li>
+            <strong class="text-[#f5f5f5]">Display-P3 Gamut:</strong> OKLCH can describe colors outside the standard sRGB triangle. On displays that support P3, colors will appear more vivid. On older screens, modern browsers clamp chroma automatically.
+          </li>
+          <li>
+            <strong class="text-[#f5f5f5]">Lightness Rounding:</strong> Lightness in CSS OKLCH can be expressed as a percentage (<code class="text-white">62%</code>) or decimal (<code class="text-white">0.62</code>). Both represent identical optical lightness.
+          </li>
+          <li>
+            <strong class="text-[#f5f5f5]">Tailwind v4 @theme:</strong> When exported to Tailwind v4, custom CSS variables prefixed with <code class="text-white">--color-&#123;role&#125;-&#123;step&#125;</code> instantly become utilities like <code class="text-white">bg-trusty-button-500</code>.
+          </li>
+        </ul>
+      </section>
+
+      <!-- 5. FAQ Section (Visible Content) -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          Frequently Asked Questions
+        </h2>
+        <div class="space-y-3 font-mono text-xs">
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">What is the difference between OKLCH and HSL?</h3>
+            <p class="text-[#a3a3a3] leading-relaxed">
+              HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.
+            </p>
+          </div>
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">Do all modern browsers support CSS oklch()?</h3>
+            <p class="text-[#a3a3a3] leading-relaxed">
+              Yes! Chrome 111+, Safari 15.4+, Firefox 113+, and Edge 111+ support <code class="text-white">oklch()</code> natively, representing over 93% global browser adoption.
+            </p>
+          </div>
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">How does the color cart work?</h3>
+            <p class="text-[#a3a3a3] leading-relaxed">
+              Whenever you click "Add to Cart" or tap a swatch from our palettes, that exact single color is placed into your chosen UI role (e.g. Primary, Trusty Button, Danger). It automatically slots into the closest shade step (50–950), which you can then preview on real dummy UI components or export to Tailwind v4.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Internal Links Footer Strip -->
+      <section class="pt-4 border-t border-[#1f1f1f] flex items-center justify-between flex-wrap gap-4 text-xs font-mono text-[#737373]">
+        <div class="flex items-center gap-4">
+          <a href="/oklch-colors" class="hover:text-[#f5f5f5] transition-colors">Palette Library →</a>
+          <a href="/oklch-color-palette-generator" class="hover:text-[#f5f5f5] transition-colors">Palette Generator →</a>
+          <a href="/hex-to-oklch" class="hover:text-[#f5f5f5] transition-colors">HEX Converter →</a>
+          <a href="/learn/what-is-oklch" class="hover:text-[#f5f5f5] transition-colors">Learn Guide →</a>
+        </div>
+        <span>oklchcolors.com &copy; 2026</span>
+      </section>
+    </div>
+  </div>
+</AppLayout>

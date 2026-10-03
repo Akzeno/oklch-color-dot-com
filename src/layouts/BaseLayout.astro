@@ -1,0 +1,80 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  keywords?: string[];
+  canonicalPath?: string;
+  schemaType?: 'WebApplication' | 'CollectionPage' | 'Article';
+}
+
+const {
+  title,
+  description,
+  keywords = ['oklch', 'color picker', 'css oklch', 'tailwind v4 theme', 'color palettes'],
+  canonicalPath = Astro.url.pathname,
+  schemaType = 'WebApplication',
+} = Astro.props;
+
+const canonicalUrl = new URL(canonicalPath, Astro.site || 'https://oklchcolors.com').href;
+
+// WebApplication JSON-LD Schema
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': schemaType,
+  name: 'OKLCH Colors Studio',
+  url: canonicalUrl,
+  description: description,
+  applicationCategory: 'DesignApplication',
+  operatingSystem: 'All',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(', ')} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body class="bg-[#0a0a0a] text-[#f5f5f5] min-h-screen flex flex-col selection:bg-[#262626] selection:text-white">
+    <slot />
+  </body>
+</html>

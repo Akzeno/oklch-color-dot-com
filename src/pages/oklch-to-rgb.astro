@@ -1,0 +1,84 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import ConverterIsland from '../components/converters/ConverterIsland';
+import { getNavItemByPath } from '../config/navigation';
+import { getBuildTimeColorTable } from '../utils/seoTables';
+
+const navItem = getNavItemByPath('/oklch-to-rgb');
+const seo = navItem?.seo || {
+  title: 'OKLCH to RGB Converter | Gamut-Accurate Conversion',
+  metaDescription: 'Convert OKLCH colors to rgb() and rgba() with high precision and Display-P3 wide color gamut compatibility.',
+  h1: 'OKLCH to RGB Converter',
+  keywords: ['oklch to rgb', 'oklch to rgba', 'oklch to srgb converter'],
+  schemaType: 'WebApplication',
+};
+
+const examplesTable = getBuildTimeColorTable();
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  keywords={seo.keywords}
+  canonicalPath="/oklch-to-rgb"
+  schemaType={seo.schemaType}
+>
+  <div class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-10">
+    <div class="space-y-2">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+        {seo.h1}
+      </h1>
+      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+        Convert modern CSS OKLCH values into standard <code class="text-white">rgb(r, g, b)</code> syntax for legacy CSS and canvas rendering contexts.
+      </p>
+    </div>
+
+    <section aria-label="OKLCH to RGB Converter Tool">
+      <ConverterIsland client:load initialMode="oklch-to-rgb" />
+    </section>
+
+    <div class="space-y-10 pt-8 border-t border-[#1f1f1f]">
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">Converting OKLCH to RGB Syntax</h2>
+        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+          When interfacing with legacy JavaScript libraries or 2D HTML Canvas graphics that lack native color space awareness, converting OKLCH to RGB strings is essential. Our engine applies exact matrix transformations through the Oklab LMS cone response matrices.
+        </p>
+      </section>
+
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">Reference Conversion Table</h2>
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-[#181818] border-b border-[#262626] text-[#737373] text-[11px] uppercase">
+                <tr>
+                  <th class="p-3">Swatch</th>
+                  <th class="p-3">OKLCH Input</th>
+                  <th class="p-3">Color Name</th>
+                  <th class="p-3">RGB Output</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#1f1f1f]">
+                {examplesTable.slice(0, 10).map((row) => (
+                  <tr class="hover:bg-[#1a1a1a] transition-colors">
+                    <td class="p-3">
+                      <div class="w-6 h-6 rounded border border-white/20" style={`background-color: ${row.oklch};`} />
+                    </td>
+                    <td class="p-3 text-[#86efac]">{row.oklch}</td>
+                    <td class="p-3 text-[#f5f5f5] font-medium">{row.name}</td>
+                    <td class="p-3 text-[#a3a3a3]">{row.hex}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div class="pt-4 border-t border-[#1f1f1f] flex items-center gap-4 text-xs font-mono text-[#737373]">
+        <a href="/rgb-to-oklch" class="hover:text-[#f5f5f5]">RGB to OKLCH Converter →</a>
+        <a href="/oklch-to-hex" class="hover:text-[#f5f5f5]">OKLCH to HEX Converter →</a>
+      </div>
+    </div>
+  </div>
+</AppLayout>

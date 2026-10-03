@@ -1,0 +1,139 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import ConverterIsland from '../components/converters/ConverterIsland';
+import { getNavItemByPath } from '../config/navigation';
+import { getBuildTimeColorTable } from '../utils/seoTables';
+
+const navItem = getNavItemByPath('/oklch-to-hex');
+const seo = navItem?.seo || {
+  title: 'OKLCH to HEX Converter | Precise Gamut-Aware Conversion',
+  metaDescription: 'Convert OKLCH color values to standard 6-digit or 8-digit HEX with gamut clipping warnings and sRGB fallback computation.',
+  h1: 'OKLCH to HEX Converter',
+  keywords: ['oklch to hex', 'oklch to hex converter', 'oklch to rgb hex'],
+  schemaType: 'WebApplication',
+};
+
+const examplesTable = getBuildTimeColorTable();
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  keywords={seo.keywords}
+  canonicalPath="/oklch-to-hex"
+  schemaType={seo.schemaType}
+>
+  <div class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-10">
+    <!-- Header -->
+    <div class="space-y-2">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+        {seo.h1}
+      </h1>
+      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+        Convert CSS <code class="text-white">oklch()</code> strings into standard 6-digit or 8-digit HEX format with automatic sRGB gamut clamping and wide Display-P3 detection.
+      </p>
+    </div>
+
+    <!-- Above-The-Fold Interactive Tool -->
+    <section aria-label="OKLCH to HEX Converter Tool">
+      <ConverterIsland client:load initialMode="oklch-to-hex" />
+    </section>
+
+    <!-- Unique Content Below The Fold -->
+    <div class="space-y-10 pt-8 border-t border-[#1f1f1f]">
+      <!-- 1. Intro -->
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          Converting OKLCH to Legacy HEX Formats
+        </h2>
+        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+          While modern browsers and CSS frameworks like Tailwind v4 natively support OKLCH, legacy tools (such as older image software, email templates, or SVG renderers) still demand hexadecimal values. Our converter maps OKLCH values into standard HEX, providing an exact clamped fallback for wide-gamut Display-P3 colors.
+        </p>
+      </section>
+
+      <!-- 2. Reverse Reference Table -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-[#f5f5f5]">
+            OKLCH to HEX Reference Table
+          </h2>
+          <span class="text-[11px] font-mono text-[#737373]">Build-Time Computed</span>
+        </div>
+
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-[#181818] border-b border-[#262626] text-[#737373] uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">Swatch</th>
+                  <th class="p-3">OKLCH Input Value</th>
+                  <th class="p-3">Color Label</th>
+                  <th class="p-3">Calculated HEX</th>
+                  <th class="p-3 text-right">Gamut Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#1f1f1f]">
+                {examplesTable.map((row) => (
+                  <tr class="hover:bg-[#1a1a1a] transition-colors">
+                    <td class="p-3">
+                      <div
+                        class="w-6 h-6 rounded border border-white/20 shadow-sm"
+                        style={`background-color: ${row.oklch};`}
+                      />
+                    </td>
+                    <td class="p-3 text-[#86efac]">{row.oklch}</td>
+                    <td class="p-3 text-[#f5f5f5] font-medium">{row.name}</td>
+                    <td class="p-3 text-[#a3a3a3]">{row.hex}</td>
+                    <td class="p-3 text-right">
+                      <span class="px-2 py-0.5 rounded text-[10px] bg-[#1f1f1f] text-[#737373]">
+                        Exact Match
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Gamut Clipping Gotchas -->
+      <section class="space-y-3 bg-[#141414] border border-[#262626] rounded-xl p-5 md:p-6">
+        <h2 class="text-base font-semibold text-[#f5f5f5]">
+          Understanding Gamut Clipping when Converting to HEX
+        </h2>
+        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+          Because HEX is physically confined to sRGB, high-chroma OKLCH colors (such as vibrant cyans or punchy greens with <code class="text-white">C &gt; 0.22</code>) cannot be rendered accurately in HEX. Our tool calculates the closest possible in-gamut chroma without distorting the perceptual hue angle, ensuring your fallback hex colors look harmonious.
+        </p>
+      </section>
+
+      <!-- 4. FAQ -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          Frequently Asked Questions
+        </h2>
+        <div class="space-y-3 font-mono text-xs">
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">What happens if my OKLCH color is in Display-P3?</h3>
+            <p class="text-[#a3a3a3]">
+              If the color exceeds sRGB boundaries, our engine alerts you with a Display-P3 badge and automatically provides the optimal clamped sRGB HEX code as a graceful fallback.
+            </p>
+          </div>
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">How do I export HEX fallbacks in CSS?</h3>
+            <p class="text-[#a3a3a3]">
+              On our Export page, switch to the "HEX Fallback + OKLCH" tab to generate twin variable lines, ensuring full backward compatibility on legacy browsers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Internal Links -->
+      <div class="pt-4 border-t border-[#1f1f1f] flex items-center gap-4 text-xs font-mono text-[#737373] flex-wrap">
+        <a href="/hex-to-oklch" class="hover:text-[#f5f5f5]">HEX to OKLCH Converter →</a>
+        <a href="/rgb-to-oklch" class="hover:text-[#f5f5f5]">RGB to OKLCH Converter →</a>
+        <a href="/oklch-colors" class="hover:text-[#f5f5f5]">Palette Library →</a>
+      </div>
+    </div>
+  </div>
+</AppLayout>

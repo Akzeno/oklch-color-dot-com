@@ -1,0 +1,146 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { getNavItemByPath } from '../../config/navigation';
+
+const navItem = getNavItemByPath('/learn/what-is-oklch');
+const seo = navItem?.seo || {
+  title: 'What is OKLCH? | The Definitive Guide to Perceptual CSS Colors',
+  metaDescription: 'Learn why OKLCH is superior to RGB and HSL: perceptual lightness uniformity, wide Display-P3 gamut coverage, smooth color blending, and CSS Color Module 4 syntax.',
+  h1: 'What is OKLCH? The Modern CSS Color Space',
+};
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  canonicalPath="/learn/what-is-oklch"
+  schemaType="Article"
+>
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-[#737373]" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#f5f5f5]">Home</a>
+      <span>/</span>
+      <span class="text-[#a3a3a3]">Learn</span>
+      <span>/</span>
+      <span class="text-[#f5f5f5]">What is OKLCH</span>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="space-y-3">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+        {seo.h1}
+      </h1>
+      <p class="text-sm font-mono text-[#a3a3a3] leading-relaxed">
+        OKLCH is a modern cylindrical representation of the Oklab color space designed specifically for human vision. It fixes the mathematical flaws of RGB and HSL by ensuring that identical numerical lightness values look equally bright across all hues.
+      </p>
+    </div>
+
+    <!-- 1. The Core Problem with HSL vs OKLCH -->
+    <section class="space-y-4 bg-[#141414] border border-[#262626] rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-[#f5f5f5]">
+        1. The HSL Lie: Why 50% Lightness is Not Equal
+      </h2>
+      <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+        In traditional HSL (<code class="text-[#f5f5f5]">hsl(hue, sat%, light%)</code>), pure yellow (<code class="text-[#f5f5f5]">hsl(60, 100%, 50%)</code>) and pure blue (<code class="text-[#f5f5f5]">hsl(240, 100%, 50%)</code>) both claim to have 50% lightness. However, the human eye perceives yellow as overwhelmingly bright and blue as very dark.
+      </p>
+
+      {/* Visual Comparison Box */}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+        <div class="bg-[#0a0a0a] border border-[#262626] rounded-lg p-3 space-y-2">
+          <div class="text-[11px] font-mono text-[#ef4444] font-semibold">❌ Legacy HSL (Flawed Lightness)</div>
+          <div class="flex h-12 rounded overflow-hidden">
+            <div class="flex-1 bg-[#ffff00] flex items-center justify-center text-[11px] font-mono text-black font-bold">
+              Yellow (50% L)
+            </div>
+            <div class="flex-1 bg-[#0000ff] flex items-center justify-center text-[11px] font-mono text-white font-bold">
+              Blue (50% L)
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-[#737373] block">
+            Notice how blinding yellow is compared to blue despite having the exact same "50% lightness" parameter.
+          </span>
+        </div>
+
+        <div class="bg-[#0a0a0a] border border-[#262626] rounded-lg p-3 space-y-2">
+          <div class="text-[11px] font-mono text-[#22c55e] font-semibold">✔ Modern OKLCH (Perceptually Uniform)</div>
+          <div class="flex h-12 rounded overflow-hidden">
+            <div
+              class="flex-1 flex items-center justify-center text-[11px] font-mono text-black font-bold"
+              style="background-color: oklch(70% 0.15 100);"
+            >
+              Yellow (70% L)
+            </div>
+            <div
+              class="flex-1 flex items-center justify-center text-[11px] font-mono text-white font-bold"
+              style="background-color: oklch(70% 0.15 255);"
+            >
+              Blue (70% L)
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-[#737373] block">
+            In OKLCH, 70% lightness produces identical optical luminance across any hue angle.
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Anatomy of the CSS OKLCH Function -->
+    <section class="space-y-4 bg-[#141414] border border-[#262626] rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-[#f5f5f5]">
+        2. Anatomy of the <code class="text-[#06b6d4]">oklch()</code> CSS Function
+      </h2>
+      <p class="text-xs font-mono text-[#a3a3a3]">
+        Standardized in CSS Color Module Level 4 and supported across all modern browsers:
+      </p>
+
+      <div class="p-4 rounded-lg bg-[#0a0a0a] border border-[#262626] font-mono text-sm text-[#f5f5f5]">
+        oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-[#06b6d4]">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-[#737373]">[/ Alpha]</span>)
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+        <div class="bg-[#171717] border border-[#262626] p-3 rounded-lg space-y-1">
+          <span class="text-[#fde047] font-bold block">L (Lightness)</span>
+          <span class="text-[#a3a3a3] block">0% to 100% (or 0.0 to 1.0). 0 is absolute black, 100% is pure white.</span>
+        </div>
+        <div class="bg-[#171717] border border-[#262626] p-3 rounded-lg space-y-1">
+          <span class="text-[#06b6d4] font-bold block">C (Chroma)</span>
+          <span class="text-[#a3a3a3] block">Color saturation/purity. 0 is neutral gray, 0.37+ represents vivid gamut peaks.</span>
+        </div>
+        <div class="bg-[#171717] border border-[#262626] p-3 rounded-lg space-y-1">
+          <span class="text-[#a78bfa] font-bold block">H (Hue)</span>
+          <span class="text-[#a3a3a3] block">0° to 360° on the color wheel (0° = pink/red, 90° = yellow, 140° = green, 255° = blue).</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Wide Gamut Display-P3 Support -->
+    <section class="space-y-4 bg-[#141414] border border-[#262626] rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-[#f5f5f5]">
+        3. Native Access to Display-P3 Wide Gamut
+      </h2>
+      <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+        HEX codes and legacy <code class="text-[#f5f5f5]">rgb()</code> values are locked to the sRGB color gamut from 1996. Modern iPhone, Mac, and OLED displays can render Display-P3, which offers ~50% more visible colors.
+      </p>
+      <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+        With OKLCH, you can unlock vibrant neons and rich greens in Display-P3 simply by increasing the Chroma <code class="text-[#f5f5f5]">C</code>. If a user's display does not support P3, modern CSS automatically tone-maps the color to the nearest displayable sRGB equivalent without abrupt clipping.
+      </p>
+    </section>
+
+    <!-- Navigation CTAs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+      <a
+        href="/"
+        class="touch-target p-4 rounded-xl bg-[#141414] hover:bg-[#1a1a1a] border border-[#262626] text-xs font-mono text-[#f5f5f5] flex items-center justify-between"
+      >
+        <span>← Try the OKLCH Color Picker</span>
+      </a>
+      <a
+        href="/oklch-colors"
+        class="touch-target p-4 rounded-xl bg-[#141414] hover:bg-[#1a1a1a] border border-[#262626] text-xs font-mono text-[#f5f5f5] flex items-center justify-between"
+      >
+        <span>Explore Curated Palettes →</span>
+      </a>
+    </div>
+  </div>
+</AppLayout>

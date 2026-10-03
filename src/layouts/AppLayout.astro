@@ -1,0 +1,50 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import SidebarIsland from '../components/layout/SidebarIsland';
+import MobileTabBar from '../components/layout/MobileTabBar';
+import CartDrawerIsland from '../components/cart/CartDrawerIsland';
+import Toast from '../components/common/Toast';
+
+interface Props {
+  title: string;
+  description: string;
+  keywords?: string[];
+  canonicalPath?: string;
+  schemaType?: 'WebApplication' | 'CollectionPage' | 'Article';
+}
+
+const { title, description, keywords, canonicalPath, schemaType } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  keywords={keywords}
+  canonicalPath={canonicalPath}
+  schemaType={schemaType}
+>
+  <!-- Global App Header -->
+  <Header />
+
+  <!-- Layout Container: Sidebar + Main Content -->
+  <div class="flex-1 flex min-h-[calc(100vh-3.5rem)]">
+    <!-- Desktop Collapsible Sidebar -->
+    <SidebarIsland client:load currentPath={currentPath} />
+
+    <!-- Main Workspace -->
+    <main class="flex-1 min-w-0 pb-20 md:pb-10 overflow-x-hidden">
+      <slot />
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Tab Bar -->
+  <MobileTabBar client:load currentPath={currentPath} />
+
+  <!-- Global Slide-Over / Bottom-Sheet Cart Island -->
+  <CartDrawerIsland client:load />
+
+  <!-- Global Micro-Toast Notification Island -->
+  <Toast client:load />
+</BaseLayout>

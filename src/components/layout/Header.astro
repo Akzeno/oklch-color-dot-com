@@ -1,0 +1,55 @@
+---
+import CartTriggerButton from '../cart/CartTriggerButton';
+---
+
+<header class="h-14 border-b border-[#262626] bg-[#0a0a0a]/90 backdrop-blur-md sticky top-0 z-30 px-4 flex items-center justify-between">
+  <!-- Brand / Logo -->
+  <a href="/" class="flex items-center gap-2.5 text-[#f5f5f5] hover:opacity-90 transition-opacity">
+    <div class="w-6 h-6 rounded-md bg-gradient-to-tr from-[#06b6d4] via-[#22c55e] to-[#f59e0b] p-[1.5px] shadow-sm flex items-center justify-center">
+      <div class="w-full h-full bg-[#0a0a0a] rounded-[4px] flex items-center justify-center">
+        <span class="text-[10px] font-bold font-mono text-[#f5f5f5]">ok</span>
+      </div>
+    </div>
+    <span class="text-sm font-semibold tracking-tight text-[#f5f5f5]">
+      oklch<span class="text-[#a3a3a3] font-normal">colors</span>
+    </span>
+  </a>
+
+  <!-- Header Right Actions: Theme Toggle, Lang Switcher, Cart Button -->
+  <div class="flex items-center gap-2">
+    <!-- Language Switcher -->
+    <div class="relative group">
+      <button
+        class="touch-target px-2 py-1 rounded-md text-xs font-mono text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#141414] transition-colors flex items-center gap-1"
+        aria-label="Language selector"
+        id="lang-selector-btn"
+      >
+        <span>EN</span>
+        <svg class="w-3 h-3 text-[#737373]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </button>
+      <div class="absolute right-0 top-full mt-1 hidden group-hover:block bg-[#141414] border border-[#262626] rounded-md shadow-xl py-1 w-24 text-xs font-mono z-50">
+        <a href="/" class="block px-3 py-1 text-[#f5f5f5] bg-[#1f1f1f]">English</a>
+        <a href="/es" class="block px-3 py-1 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a]">Español</a>
+        <a href="/de" class="block px-3 py-1 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a]">Deutsch</a>
+        <a href="/fr" class="block px-3 py-1 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a]">Français</a>
+      </div>
+    </div>
+
+    <!-- Theme Toggle (Perceptually neutral dark is default, toggle for light preview testing) -->
+    <button
+      class="touch-target p-2 rounded-md text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#141414] transition-colors"
+      aria-label="Toggle theme"
+      id="theme-toggle-btn"
+      onclick="document.documentElement.classList.toggle('light-theme')"
+    >
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+      </svg>
+    </button>
+
+    <!-- Cart Trigger Button Island -->
+    <CartTriggerButton client:load />
+  </div>
+</header>

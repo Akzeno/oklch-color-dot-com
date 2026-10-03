@@ -1,0 +1,75 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import PaletteCard from '../../components/palettes/PaletteCard.astro';
+import { PALETTES, CATEGORIES } from '../../data/palettes';
+import { getNavItemByPath } from '../../config/navigation';
+
+const navItem = getNavItemByPath('/oklch-colors');
+const seo = navItem?.seo || {
+  title: 'OKLCH Color Palettes | Curated Design Token Scales',
+  metaDescription: 'Browse curated OKLCH color palettes across brand, neutral, success, danger, and dark mode categories. Single-click swatches to collect into your UI roles.',
+  h1: 'OKLCH Color Palettes',
+  keywords: ['oklch color palettes', 'oklch colors', 'radix oklch', 'tailwind v4 palettes'],
+  schemaType: 'CollectionPage',
+};
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  keywords={seo.keywords}
+  canonicalPath="/oklch-colors"
+  schemaType={seo.schemaType}
+>
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+          {seo.h1}
+        </h1>
+        <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+          Curated 11-step (50–950) OKLCH color scales. Click any individual swatch to copy its value and add that single color to your cart.
+        </p>
+      </div>
+
+      <!-- Quick Stats Pill -->
+      <div class="flex items-center gap-2 self-start md:self-auto">
+        <span class="px-3 py-1 rounded-full text-xs font-mono bg-[#141414] border border-[#262626] text-[#a3a3a3]">
+          {PALETTES.length} palettes &bull; 11 shades each
+        </span>
+      </div>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar border-b border-[#1f1f1f]">
+      {CATEGORIES.map((cat) => (
+        <a
+          href={cat.id === 'all' ? '/oklch-colors' : `/oklch-colors#${cat.id}`}
+          class="px-3 py-1.5 rounded-full text-xs font-mono bg-[#141414] hover:bg-[#1f1f1f] text-[#a3a3a3] hover:text-[#f5f5f5] border border-[#262626] transition-colors whitespace-nowrap"
+        >
+          {cat.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Palette Cards Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {PALETTES.map((palette) => (
+        <div id={palette.category}>
+          <PaletteCard palette={palette} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Educational & Architectural Note -->
+    <section class="mt-12 p-6 rounded-2xl bg-[#141414] border border-[#262626] space-y-4">
+      <h2 class="text-base font-semibold text-[#f5f5f5]">
+        Why Single-Color Collection Matters for Design Tokens
+      </h2>
+      <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+        Unlike other palette tools that force you to import entire 12-color scales wholesale, oklchcolors.com lets you cherry-pick only the precise shade step you need (e.g. step 500 for a primary CTA button, step 100 for an alert background). Your selections are immediately routed to your persistent Design Token Cart, allowing you to preview how individual swatches look side-by-side in real components before generating a clean Tailwind v4 <code class="text-white">@theme</code> block.
+      </p>
+    </section>
+  </div>
+</AppLayout>

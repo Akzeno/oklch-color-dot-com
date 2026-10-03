@@ -1,0 +1,171 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import ConverterIsland from '../components/converters/ConverterIsland';
+import { getNavItemByPath } from '../config/navigation';
+import { getBuildTimeColorTable } from '../utils/seoTables';
+
+const navItem = getNavItemByPath('/hex-to-oklch');
+const seo = navItem?.seo || {
+  title: 'HEX to OKLCH Color Converter | Accurate P3 & sRGB',
+  metaDescription: 'Convert HEX color codes to CSS OKLCH format with real-time conversion, gamut verification, and Tailwind v4 CSS variable generation.',
+  h1: 'HEX to OKLCH Converter',
+  keywords: ['hex to oklch', 'hex to oklch converter', 'convert hex to oklch', 'css oklch converter'],
+  schemaType: 'WebApplication',
+};
+
+const examplesTable = getBuildTimeColorTable();
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  keywords={seo.keywords}
+  canonicalPath="/hex-to-oklch"
+  schemaType={seo.schemaType}
+>
+  <div class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-10">
+    <!-- Header -->
+    <div class="space-y-2">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+        {seo.h1}
+      </h1>
+      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+        Convert 3-digit, 6-digit, or 8-digit hexadecimal colors into standard CSS <code class="text-white">oklch()</code> notation with perceptual accuracy and live gamut detection.
+      </p>
+    </div>
+
+    <!-- Above-The-Fold Interactive Converter -->
+    <section aria-label="HEX to OKLCH Converter Tool">
+      <ConverterIsland client:load initialMode="hex-to-oklch" />
+    </section>
+
+    <!-- Unique SEO Content Below The Fold -->
+    <div class="space-y-10 pt-8 border-t border-[#1f1f1f]">
+      <!-- 1. Intro Section -->
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          Why Convert HEX Colors to OKLCH?
+        </h2>
+        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+          Hexadecimal color codes (<code class="text-white">#RRGGBB</code>) have served the web for decades, but they are tied to device-dependent sRGB color spaces. When building dynamic design systems, tweaking the brightness of a HEX color requires complex, inaccurate math. In contrast, OKLCH separates lightness, chroma, and hue into independent parameters: you can change lightness from 40% to 80% without affecting the chromatic purity or shifting the hue angle.
+        </p>
+      </section>
+
+      <!-- 2. How to Use -->
+      <section class="space-y-3 bg-[#141414] border border-[#262626] rounded-xl p-6">
+        <h2 class="text-base font-semibold text-[#f5f5f5]">
+          Step-by-Step: Converting HEX to OKLCH
+        </h2>
+        <ol class="space-y-2 text-xs font-mono text-[#a3a3a3] list-decimal list-inside">
+          <li>Type or paste any HEX value (e.g. <code class="text-white">#3b82f6</code> or with alpha <code class="text-white">#3b82f680</code>) into the input field above.</li>
+          <li>Our engine immediately calculates the exact perceptual Lightness (<code class="text-white">L</code>), Chroma (<code class="text-white">C</code>), and Hue (<code class="text-white">H</code>).</li>
+          <li>Click <strong class="text-white">Copy</strong> to copy the output or <strong class="text-white">+ Cart</strong> to store this token into your role collection.</li>
+        </ol>
+      </section>
+
+      <!-- 3. Precomputed Examples Table -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-[#f5f5f5]">
+            Popular HEX Codes & Their OKLCH Equivalents
+          </h2>
+          <span class="text-[11px] font-mono text-[#737373]">Build-Time Generated</span>
+        </div>
+
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-[#181818] border-b border-[#262626] text-[#737373] uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">Color</th>
+                  <th class="p-3">Color Name</th>
+                  <th class="p-3">HEX Input</th>
+                  <th class="p-3">OKLCH Equivalent</th>
+                  <th class="p-3 text-right">Gamut Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#1f1f1f]">
+                {examplesTable.map((row) => (
+                  <tr class="hover:bg-[#1a1a1a] transition-colors">
+                    <td class="p-3">
+                      <div
+                        class="w-6 h-6 rounded border border-white/20 shadow-sm"
+                        style={`background-color: ${row.oklch};`}
+                      />
+                    </td>
+                    <td class="p-3 text-[#f5f5f5] font-medium">{row.name}</td>
+                    <td class="p-3 text-[#a3a3a3]">{row.hex}</td>
+                    <td class="p-3 text-[#86efac]">{row.oklch}</td>
+                    <td class="p-3 text-right">
+                      <span class="px-2 py-0.5 rounded text-[10px] bg-[#1f1f1f] text-[#737373]">
+                        sRGB Safe
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Gotchas & Notes -->
+      <section class="space-y-3 bg-[#141414] border border-[#262626] rounded-xl p-5 md:p-6">
+        <h2 class="text-base font-semibold text-[#f5f5f5]">
+          Technical Notes on HEX Conversion
+        </h2>
+        <ul class="space-y-2 text-xs font-mono text-[#a3a3a3] list-disc list-inside">
+          <li>
+            <strong class="text-[#f5f5f5]">sRGB Gamut Bounds:</strong> Because all standard HEX codes exist inside sRGB, converting from HEX to OKLCH is always 100% gamut-safe and will never produce out-of-gamut clipping warnings.
+          </li>
+          <li>
+            <strong class="text-[#f5f5f5]">8-Digit Alpha Support:</strong> If you input an 8-character HEX code (e.g. <code class="text-white">#3b82f6cc</code>), the alpha channel is converted into a standard slash parameter: <code class="text-white">oklch(62% 0.19 255 / 0.80)</code>.
+          </li>
+        </ul>
+      </section>
+
+      <!-- 5. Tailwind v4 Integration Snippet -->
+      <section class="space-y-3 bg-[#141414] border border-[#262626] rounded-xl p-5">
+        <h2 class="text-sm font-semibold text-[#f5f5f5]">
+          How to Use the Converted Color in Tailwind CSS v4
+        </h2>
+        <pre class="bg-[#0a0a0a] border border-[#262626] p-4 rounded-lg font-mono text-xs text-[#a3a3a3] overflow-x-auto">
+<code>@theme &#123;
+  --color-brand-blue: oklch(62.3% 0.19 255.4);
+&#125;
+
+/* Utility classes automatically generated: */
+/* bg-brand-blue, text-brand-blue, border-brand-blue */</code></pre>
+      </section>
+
+      <!-- 6. Visible FAQ -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+          Frequently Asked Questions
+        </h2>
+        <div class="space-y-3 font-mono text-xs">
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">Are HEX to OKLCH conversions reversible without loss?</h3>
+            <p class="text-[#a3a3a3]">
+              Yes. Because sRGB is a mathematical subset of OKLCH, converting a HEX value into OKLCH and then back to HEX yields the exact original 6-digit hexadecimal code.
+            </p>
+          </div>
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">Can I paste 3-digit shorthand HEX codes?</h3>
+            <p class="text-[#a3a3a3]">
+              Yes! Our converter natively parses shorthand codes like <code class="text-white">#fff</code> or <code class="text-white">#f00</code> and expands them correctly.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Internal Links -->
+      <div class="pt-4 border-t border-[#1f1f1f] flex items-center gap-4 text-xs font-mono text-[#737373] flex-wrap">
+        <a href="/oklch-to-hex" class="hover:text-[#f5f5f5]">OKLCH to HEX Converter →</a>
+        <a href="/rgb-to-oklch" class="hover:text-[#f5f5f5]">RGB to OKLCH Converter →</a>
+        <a href="/hsl-to-oklch" class="hover:text-[#f5f5f5]">HSL to OKLCH Converter →</a>
+        <a href="/oklch-colors" class="hover:text-[#f5f5f5]">Palette Library →</a>
+      </div>
+    </div>
+  </div>
+</AppLayout>
