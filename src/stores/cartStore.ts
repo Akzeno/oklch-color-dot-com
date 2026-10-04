@@ -463,11 +463,18 @@ export function clearAllScales() {
   showToast(`Cleared all ${total} colors from every role`);
 }
 
-// Rename an existing role
-export function renameRole(oldRoleId: string, newName: string) {
+/**
+ * Rename an existing role. Returns whether the rename happened.
+ *
+ * `false` means it was refused (unknown role, or a name already taken) and
+ * nothing changed. Callers with a live text editor need that distinction: closing
+ * the editor on a refusal would throw away what the user just typed and make
+ * them start over, while applying it anyway is the overwrite this guards.
+ */
+export function renameRole(oldRoleId: string, newName: string): boolean {
   const current = cartStore.get();
   const role = current.roles[oldRoleId];
-  if (!role) return;
+  if (!role) return false;
 
   // Convert to valid CSS identifier (kebab-case)
   const newRoleId = newName
@@ -485,7 +492,20 @@ export function renameRole(oldRoleId: string, newName: string) {
         [oldRoleId]: { ...role, name: newName },
       },
     });
-    return;
+    return true;
+  }
+
+  // Refuse a name that is already taken.
+  //
+  // Without this, renaming a custom role to "Primary" *replaces* the Primary
+  // role — key, colours and all — because the branch below assigns by the new id.
+  // That is unrecoverable: there is no undo for a rename, and the colours that
+  // vanished were never part of what the user asked to remove. The check belongs
+  // here rather than in each caller because the export page and the two carts all
+  // reach this function, and none of them can undo the overwrite.
+  if (current.roles[newRoleId]) {
+    showToast(`A role named ${newRoleId} already exists`, 'info');
+    return false;
   }
 
   const updatedRoles = { ...current.roles };
@@ -502,6 +522,7 @@ export function renameRole(oldRoleId: string, newName: string) {
   });
 
   showToast(`Renamed role to --color-${newRoleId}-*`);
+  return true;
 }
 
 // Create a new custom role
