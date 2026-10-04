@@ -8,6 +8,7 @@ import {
 import { PALETTES } from '../../data/palettes';
 import { useCart } from '../../hooks/useCart';
 import { Paintbrush, Palette as PaletteIcon, Sparkles, Trash2, X } from 'lucide-preact';
+import ColorSwatch from '../common/ColorSwatch';
 
 interface ColorActionPopoverProps {
   /** Viewport coordinates of the click that opened this popover. */
@@ -191,10 +192,21 @@ export default function ColorActionPopover({
     >
       {/* Header: what am I acting on? */}
       <div class="px-3 py-2.5 border-b border-hairline flex items-center gap-2.5 shrink-0">
-        <div
-          class="w-7 h-7 rounded-md border border-hairline flex-shrink-0 checker-bg"
-          style={{ backgroundColor: targetColor ? formatOklch(targetColor) : '#262626' }}
-          aria-hidden="true"
+        <ColorSwatch
+          color={targetColor}
+          fallbackCss="#262626"
+          onClick={() => onOpenInPicker(targetColor)}
+          class="w-7 h-7 rounded-md border border-hairline flex-shrink-0 hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
+          title={
+            targetColor
+              ? `${formatOklch(targetColor)} — click to edit in the color picker`
+              : `Click to author --color-${targetRoleId}-${targetStep}`
+          }
+          ariaLabel={
+            targetColor
+              ? `Edit ${targetRole?.name ?? targetRoleId} ${targetStep} in the color picker`
+              : `Create ${targetRole?.name ?? targetRoleId} ${targetStep} in the color picker`
+          }
         />
         <div class="min-w-0 flex-1">
           <p class="text-label text-ink truncate">

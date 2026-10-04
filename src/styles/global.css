@@ -572,7 +572,23 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   display: none;
 }
 
-/* Checkerboard for alpha / transparent swatches. */
+/*
+   Checkerboard for genuinely translucent swatches.
+
+   NEVER put this on the same element as an inline `background-color`.
+
+   `background-image` paints ON TOP of `background-color`, and these gradients use
+   an opaque `--color-canvas-elevated` rather than a translucent one — so pairing
+   the class with a fill covers half of every swatch in dark grey and makes a
+   fully opaque colour look transparent. That is exactly what it looked like on
+   the palette generator, the converter field, the picker banner and the preview
+   popover before they were rebuilt on `components/common/ColorSwatch.tsx`.
+
+   The correct arrangement is the one that component implements: the checkerboard
+   goes on an element with no fill of its own, and a translucent colour goes on a
+   layer above it. Opaque colours get no background-image at all — use
+   `ColorSwatch`, which picks between the two.
+*/
 .checker-bg {
   background-image:
     linear-gradient(45deg, var(--color-canvas-elevated) 25%, transparent 25%),

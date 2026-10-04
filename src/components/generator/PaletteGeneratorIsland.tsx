@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'preact/hooks';
-import { Plus } from 'lucide-preact';
+import { Paintbrush, Plus } from 'lucide-preact';
 import {
   createOklchColor,
   formatOklch,
@@ -17,6 +17,8 @@ import {
   showToast,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
+import { useOpenInPicker } from '../../hooks/useOpenInPicker';
+import ColorSwatch from '../common/ColorSwatch';
 import SwatchStrip from '../palettes/SwatchStrip';
 
 const PRESETS = [
@@ -36,6 +38,17 @@ export default function PaletteGeneratorIsland() {
     () => parseAnyToOklch(baseHex) || createOklchColor(0.55, 0.22, 255),
     [baseHex]
   );
+
+  /**
+   * "Change this colour" for the base swatch and the harmony swatches.
+   *
+   * The base colour is component state, not a cart token, so this opens the
+   * picker in `'free'` mode: saving hands the colour back to `setBaseHex`
+   * instead of writing a `--color-*` variable the page never mentions. Clicking
+   * the swatch therefore preloads the picker with exactly the colour under the
+   * cursor rather than the picker's own default.
+   */
+  const openInPicker = useOpenInPicker((picked) => setBaseHex(formatOklch(picked)));
 
   const fullScale = useMemo(() => generateFullScaleFromColor(baseColor), [baseColor]);
   const harmonies = useMemo(() => generateHarmonies(baseColor), [baseColor]);
@@ -94,11 +107,21 @@ export default function PaletteGeneratorIsland() {
         </div>
 
         <div class="grid sm:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] gap-2 items-center">
-          <span
-            class="w-10 h-10 rounded-md border border-hairline checker-bg"
-            style={{ backgroundColor: formatOklch(baseColor) }}
-            aria-hidden="true"
-          />
+          <ColorSwatch
+            color={baseColor}
+            onClick={() => openInPicker(baseColor)}
+            class="w-10 h-10 rounded-md border border-hairline hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
+            title={`${formatOklch(baseColor)} — click to change this colour`}
+            ariaLabel="Open the color picker to change the base colour"
+          >
+            {/* Painted on hover only, so the affordance is discoverable without
+                ever tinting the colour the user is judging. Plain `:hover` works
+                here rather than `group-hover`: the overlay is `inset-0`, so it
+                covers the whole swatch and there is no gap to hover past it. */}
+            <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
+              <Paintbrush class="w-4 h-4 text-ink" aria-hidden="true" strokeWidth={2} />
+            </span>
+          </ColorSwatch>
 
           <div class="hud flex items-center gap-2">
             <input

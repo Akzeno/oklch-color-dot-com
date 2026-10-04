@@ -600,8 +600,39 @@ export function getCartTotalCount(state: CartState): number {
 /* ─────────────────── Picker handoff (UI preview → picker page) ─────────────────── */
 
 const PICKER_HANDOFF_KEY = 'oklch_picker_handoff_v1';
+const PICKER_RESULT_KEY = 'oklch_picker_result_v1';
+
+/**
+ * What the picker should DO with the colour the user saves.
+ *
+ *  - `'token'` writes into `--color-<roleId>-<step>`. The original and still
+ *    common case: the swatch that was clicked *is* a token slot.
+ *  - `'free'` writes nothing to the cart and instead hands the colour back to
+ *    `returnTo` through `consumePickerResult()`.
+ *
+ * WHY `'free'` IS NEEDED
+ *
+ * Not every swatch on the site is backed by a cart token. The palette
+ * generator's base colour and a converter's input field are both plain component
+ * state that a user is invited to click and change. Pointing those at a token
+ * slot would be a lie twice over: it would file the colour into a `--color-*`
+ * variable the page never mentions, and it would reload the generator showing a
+ * base colour that had silently become a different token's colour.
+ *
+ * So the picker needs to be able to *return* a colour rather than *store* one.
+ * `'token'` stays the default so every existing caller keeps its exact
+ * behaviour, and an absent or unrecognised value degrades to it rather than
+ * being rejected — a payload too old to know about `mode` is still a valid
+ * token handoff.
+ */
+export type PickerHandoffMode = 'token' | 'free';
 
 export interface PickerHandoff {
+  /**
+   * Omitted by `'token'` callers for backwards compatibility; see above.
+   * Defaults to `'token'` on read.
+   */
+  mode?: PickerHandoffMode;
   roleId: string;
   step: ShadeStep;
   /**
@@ -677,7 +708,14 @@ export function consumePickerHandoff(): PickerHandoff | null {
     if (typeof parsed.roleId !== 'string' || !SHADE_STEPS.includes(step)) return null;
     // A missing/invalid colour is legitimate now: it means an empty slot, and
     // the role + step are still enough to target the write-back precisely.
+    //
+    // `mode` is allow-listed rather than trusted. It arrives from sessionStorage,
+    // which any script on the origin can write to, and it decides whether saving
+    // mutates the cart or merely returns a colour. An unrecognised value degrades
+    // to `'token'` — the behaviour every caller had before `mode` existed — so a
+    // malformed payload can never silently downgrade a token write.
     return {
+      mode: parsed.mode === 'free' ? 'free' : 'token',
       roleId: parsed.roleId,
       step,
       color: parsed.color ? sanitizeColor(parsed.color) : null,
@@ -693,6 +731,63 @@ export function clearPickerHandoff() {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.removeItem(PICKER_HANDOFF_KEY);
+  } catch {
+    /* no-op */
+  }
+}
+
+/* ─────────────────── Picker result ('free' mode: colour → originating page) ─────────────────── */
+
+/**
+ * Park the colour the user saved in a `'free'`-mode handoff so the page that
+ * sent them to the picker can pick it up on arrival.
+ *
+ * `returnTo` travels with the colour instead of being trusted from the URL,
+ * because the receiving page is the one that has to answer "was this meant for
+ * me?" — the picker knows where it is sending them, not what they will do with
+ * the value once they get there.
+ */
+export function savePickerResult(result: { color: ColorModel; returnTo: string | null }) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(
+      PICKER_RESULT_KEY,
+      JSON.stringify({ color: result.color, returnTo: sanitizeReturnTo(result.returnTo) })
+    );
+  } catch {
+    /* private mode / quota — the page keeps whatever it already had */
+  }
+}
+
+/**
+ * Read + clear the colour saved by a `'free'`-mode picker session.
+ *
+ * Returns the colour only when `returnTo` names this page, so a stale result
+ * cannot leak into an unrelated page that happens to be open. Call exactly once,
+ * after mount.
+ */
+export function consumePickerResult(currentPath: string): ColorModel | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(PICKER_RESULT_KEY);
+    if (!raw) return null;
+    // Cleared before the `returnTo` check, not after: a result addressed to some
+    // other page is still spent, and leaving it behind would let it be applied
+    // later by whichever page it was actually meant for.
+    sessionStorage.removeItem(PICKER_RESULT_KEY);
+    const parsed = JSON.parse(raw) as { color?: unknown; returnTo?: unknown };
+    if (sanitizeReturnTo(parsed.returnTo) !== currentPath) return null;
+    return parsed.color ? sanitizeColor(parsed.color) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Discard a pending result (used when the user cancels inside the picker). */
+export function clearPickerResult() {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(PICKER_RESULT_KEY);
   } catch {
     /* no-op */
   }

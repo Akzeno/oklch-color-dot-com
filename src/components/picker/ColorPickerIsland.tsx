@@ -22,9 +22,12 @@ import {
   showToast,
   consumePickerHandoff,
   clearPickerHandoff,
+  savePickerResult,
+  clearPickerResult,
   type PickerHandoff,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
+import ColorSwatch from '../common/ColorSwatch';
 
 /** Copies then confirms, so the flash is tied to the value that was copied. */
 function copyValue(value: string, label: string) {
@@ -41,9 +44,12 @@ export default function ColorPickerIsland() {
   const [alpha, setAlpha] = useState(1);
 
   /**
-   * Handoff coming from the UI preview ("Color Picker" action on a clicked
-   * element). When present the sliders open preloaded with that token's color
-   * and saving writes back to the exact --color-<role>-<step> slot.
+   * Handoff coming from a swatch click ("Color Picker" action on a clicked
+   * element). When present the sliders open preloaded with that colour.
+   *
+   * `'token'` writes back to the exact `--color-<role>-<step>` slot on save.
+   * `'free'` writes no slot — the colour is handed back to the page that sent it,
+   * because that swatch was never a token to begin with (see `useOpenInPicker`).
    */
   const [handoff, setHandoff] = useState<PickerHandoff | null>(null);
 
@@ -51,7 +57,9 @@ export default function ColorPickerIsland() {
     const pending = consumePickerHandoff();
     if (!pending) return;
     setHandoff(pending);
-    setActiveRole(pending.roleId);
+    // 'free' has no slot, so claiming the active role would silently re-point
+    // the picker's own "Add to cart" at whatever role was last touched.
+    if (pending.mode !== 'free') setActiveRole(pending.roleId);
 
     if (pending.color) {
       setL(pending.color.l);
@@ -135,20 +143,36 @@ export default function ColorPickerIsland() {
     setH(Math.round(Math.random() * 360));
   };
 
+  /**
+   * Abandon the pending edit.
+   *
+   * Both channels are cleared, not just the one in play: leaving a stale result
+   * parked would hand a colour to the next page that happened to be addressed,
+   * long after the user abandoned this one.
+   */
   const cancelHandoff = () => {
     setHandoff(null);
     clearPickerHandoff();
+    clearPickerResult();
   };
 
   const handleAddToCart = () => {
     if (handoff) {
-      // Handoff: write to the exact slot the color came from
-      setRoleShade(handoff.roleId, handoff.step, color);
-      // Where the picker was opened from, so the user lands back on the token
+      // Where the picker was opened from, so the user lands back on the element
       // they just edited instead of stranded on the picker. Read before
       // clearing — `returnTo` is null when the picker was opened directly, in
       // which case saving keeps them here.
       const destination = handoff.returnTo;
+
+      if (handoff.mode === 'free') {
+        // No slot to write: hand the colour back to the originating page, which
+        // decides where it goes. Writing a token here would put a colour into a
+        // `--color-*` variable the user never asked for and never sees.
+        savePickerResult({ color, returnTo: destination });
+      } else {
+        setRoleShade(handoff.roleId, handoff.step, color);
+      }
+
       setHandoff(null);
       clearPickerHandoff();
       if (destination) goTo(destination);
@@ -160,6 +184,10 @@ export default function ColorPickerIsland() {
   const handoffRole = handoff ? cart.roles[handoff.roleId] : undefined;
   const handoffReturnTo = handoff?.returnTo ?? null;
   const activeRole = cart.roles[cart.activeRoleId] || Object.values(cart.roles)[0];
+
+  /** 'free' handoffs have no slot to name, so they get their own wording. */
+  const handoffIsFree = handoff?.mode === 'free';
+  const handoffActionLabel = handoffIsFree ? 'Use colour' : handoffReturnTo ? 'Save & return' : 'Save';
 
   const gamut = color.inSRGB
     ? { dot: 'bg-copy-success', text: 'sRGB' }
@@ -193,15 +221,20 @@ export default function ColorPickerIsland() {
       */}
       {handoff && (
         <div class="card !py-2.5 flex items-center gap-3 flex-wrap">
-          <span
-            class="w-6 h-6 rounded-md border border-hairline flex-shrink-0 checker-bg"
-            style={{ backgroundColor: oklchString }}
-            aria-hidden="true"
-          />
+          <ColorSwatch color={color} class="w-6 h-6 rounded-md border border-hairline flex-shrink-0" />
           <span class="font-mono text-label text-body min-w-0 truncate">
-            {handoff.color ? 'Editing' : 'Creating'}{' '}
-            <span class="text-ink">--color-{handoff.roleId}-{handoff.step}</span>
-            <span class="text-faint"> · {handoffRole?.name ?? handoff.roleId}</span>
+            {handoffIsFree ? (
+              <>
+                Editing{' '}
+                <span class="text-ink">colour sent from {handoffReturnTo ?? 'this page'}</span>
+              </>
+            ) : (
+              <>
+                {handoff.color ? 'Editing' : 'Creating'}{' '}
+                <span class="text-ink">--color-{handoff.roleId}-{handoff.step}</span>
+                <span class="text-faint"> · {handoffRole?.name ?? handoff.roleId}</span>
+              </>
+            )}
           </span>
 
           <div class="flex items-center gap-1.5 ml-auto">
@@ -217,7 +250,7 @@ export default function ColorPickerIsland() {
             </button>
             <button onClick={handleAddToCart} class="btn btn-primary !min-h-8 !px-3">
               <Check class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2.5} />
-              {handoffReturnTo ? 'Save & return' : 'Save'}
+              {handoffActionLabel}
             </button>
           </div>
         </div>
@@ -226,12 +259,11 @@ export default function ColorPickerIsland() {
       <div class="grid lg:grid-cols-12 gap-4">
         {/* ── Canvas ── */}
         <div class="lg:col-span-7">
-          <div
-            class="relative h-56 md:h-72 rounded-lg border border-hairline overflow-hidden checker-bg"
-            id="picker-swatch-canvas"
+          <ColorSwatch
+            color={color}
+            class="h-56 md:h-72 rounded-lg border border-hairline"
+            {...{ id: 'picker-swatch-canvas' }}
           >
-            <div class="absolute inset-0" style={{ backgroundColor: oklchString }} />
-
             {/* Gamut + nearest step, and randomize. Two badges, both answering
                 "what am I looking at?" — the removed third one restated the
                 lightness that the L slider already displays. */}
@@ -265,7 +297,7 @@ export default function ColorPickerIsland() {
                 <Copy class="w-3.5 h-3.5 text-ink" aria-hidden="true" strokeWidth={2} />
               </button>
             </div>
-          </div>
+          </ColorSwatch>
         </div>
 
         {/* ── Sliders ── */}
@@ -397,12 +429,14 @@ export default function ColorPickerIsland() {
             id="picker-add-to-cart-btn"
             title={
               handoff
-                ? `Write to --color-${handoff.roleId}-${handoff.step}`
+                ? handoffIsFree
+                  ? `Use this colour back on ${handoffReturnTo ?? 'the page you came from'}`
+                  : `Write to --color-${handoff.roleId}-${handoff.step}`
                 : `Save as ${activeRole?.name}-${nearestStep}`
             }
           >
             <Plus class="w-4 h-4" aria-hidden="true" strokeWidth={2.5} />
-            {handoff ? 'Save token' : `Add ${activeRole?.name}-${nearestStep}`}
+            {handoff ? handoffActionLabel : `Add ${activeRole?.name}-${nearestStep}`}
           </button>
         </div>
       </div>

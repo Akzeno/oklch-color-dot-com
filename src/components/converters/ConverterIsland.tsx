@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'preact/hooks';
-import { Copy, Plus } from 'lucide-preact';
+import { Paintbrush, Copy, Plus } from 'lucide-preact';
 import {
   createOklchColor,
   formatOklch,
@@ -10,6 +10,8 @@ import {
 } from '../../utils/color';
 import { addColorToCart, showToast } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
+import { useOpenInPicker } from '../../hooks/useOpenInPicker';
+import ColorSwatch from '../common/ColorSwatch';
 
 export type ConverterMode =
   | 'hex-to-oklch'
@@ -60,6 +62,29 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
   const parsedColor: ColorModel = useMemo(
     () => parseAnyToOklch(inputValue) || createOklchColor(0.62, 0.19, 255),
     [inputValue]
+  );
+
+  /**
+   * "Change this colour" for the input swatch and the preview canvas.
+   *
+   * The typed value is component state, not a cart token, so this runs in the
+   * picker's `'free'` mode: saving hands the colour back into the field rather
+   * than filing it into a `--color-*` variable this page never mentions.
+   *
+   * The result is written back in the notation the current direction *reads*,
+   * so switching direction afterwards still works — round-tripping a
+   * `hex-to-oklch` field through the picker and landing an `rgb()` string in it
+   * would leave the chip and the field disagreeing about what was typed.
+   */
+  const formatForSource = (color: ColorModel, source: 'oklch' | 'hex' | 'rgb' | 'hsl'): string => {
+    if (source === 'hex') return color.hex;
+    if (source === 'rgb') return oklchToRgbString(color);
+    if (source === 'hsl') return oklchToHslString(color);
+    return formatOklch(color);
+  };
+
+  const openInPicker = useOpenInPicker((picked) =>
+    setInputValue(formatForSource(picked, INPUT_SOURCE[initialMode]))
   );
 
   const oklchOutput = formatOklch(parsedColor);
@@ -128,11 +153,17 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
       {/* Input. The swatch rides inside the field so the user always sees what
           they typed without scrolling up to the preview. */}
       <div class="hud flex items-center gap-3">
-        <span
-          class="w-5 h-5 rounded-[5px] border border-hairline flex-shrink-0 checker-bg"
-          style={{ backgroundColor: oklchOutput }}
-          aria-hidden="true"
-        />
+        <ColorSwatch
+          color={parsedColor}
+          onClick={() => openInPicker(parsedColor)}
+          class="w-5 h-5 rounded-[5px] border border-hairline flex-shrink-0 hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
+          title={`${oklchOutput} — click to change this colour`}
+          ariaLabel="Open the color picker to change this colour"
+        >
+          <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
+            <Paintbrush class="w-3 h-3 text-ink" aria-hidden="true" strokeWidth={2} />
+          </span>
+        </ColorSwatch>
         <input
           type="text"
           value={inputValue}
@@ -147,20 +178,26 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
       </div>
 
       {/* Preview canvas. Wide and saturated on purpose — this is where gamut
-          clipping becomes visible rather than being something to read about. */}
-      <div
-        class="relative h-28 rounded-md border border-hairline overflow-hidden checker-bg"
-        aria-hidden="true"
+          clipping becomes visible rather than being something to read about.
+          Clickable because a canvas you are already judging is the most
+          natural place to reach for "make it a different colour". */}
+      <ColorSwatch
+        color={parsedColor}
+        onClick={() => openInPicker(parsedColor)}
+        class="w-full h-28 rounded-md border border-hairline hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
+        title={`${oklchOutput} — click to change this colour`}
+        ariaLabel="Open the color picker to change this colour"
       >
-        <div class="absolute inset-0" style={{ backgroundColor: oklchOutput }} />
-
-        <div class="absolute top-2 left-2">
+        <span class="absolute top-2 left-2">
           <span class="pill !bg-black/60 backdrop-blur-md !border-white/10">
             <span class={`w-1.5 h-1.5 rounded-full ${gamut.dot}`} />
             {gamut.text}
           </span>
-        </div>
-      </div>
+        </span>
+        <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
+          <Paintbrush class="w-4 h-4 text-ink" aria-hidden="true" strokeWidth={2} />
+        </span>
+      </ColorSwatch>
 
       {/* All representations. The row matching the current direction is marked,
           which is the only emphasis this list needs. */}
