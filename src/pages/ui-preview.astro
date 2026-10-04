@@ -1,6 +1,7 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import UIPreviewIsland from '../components/preview/UIPreviewIsland';
+import CartSidebar from '../components/preview/CartSidebar';
 import { getNavItemByPath } from '../config/navigation';
 
 const navItem = getNavItemByPath('/ui-preview');
@@ -20,20 +21,49 @@ const seo = navItem?.seo || {
   canonicalPath="/ui-preview"
   schemaType={seo.schemaType}
 >
-  <div class="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 space-y-8 lg:space-y-12">
-    <div class="space-y-2">
-      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
-        {seo.h1}
-      </h1>
-      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
-        Preview your persistent cart roles live across real-world dummy UI components with WCAG 2.1 AA/AAA and APCA contrast scoring.
-      </p>
-    </div>
+  <!--
+    `lg:pt-0`: the workspace row starts hard against the navbar at desktop, so
+    the token panel's top edge is the top edge of the workspace — flush with the
+    nav rail beside it, and with nothing above it but the 56px header. The page's
+    own top padding moves onto the left column, where the heading needs it; the
+    panel is an instrument, not a paragraph, and its `max-h` is
+    `100vh - 3.5rem` — which only fits the fold exactly if it starts at 0.
+  -->
+  <div class="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 lg:pt-0 space-y-8 lg:space-y-12">
+    <!--
+      Title and token panel share one row.
 
-    <!-- Above-The-Fold Interactive UI Preview -->
-    <section aria-label="Dynamic UI Component Preview Island">
-      <UIPreviewIsland client:load />
-    </section>
+      The panel used to sit *below* this intro block, which put ~150px of dead
+      heading between it and the navbar, and — because the preview column is far
+      taller than the panel — left it stranded in the middle of the page while
+      the thing it drives scrolled past it. Sharing the row puts its top edge at
+      the top of the workspace, and its own `sticky top-14` holds that line while
+      the frames below it scroll.
+
+      The grid lives here rather than inside the island because the island is the
+      preview column, and this row is a property of the page. `auto` for the
+      second track so the panel keeps owning its width (360/400px) instead of the
+      page hardcoding it in two places.
+    -->
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-6 items-start">
+      <div class="min-w-0 space-y-4 lg:space-y-6 lg:pt-10">
+        <div class="space-y-2">
+          <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+            {seo.h1}
+          </h1>
+          <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+            Preview your persistent cart roles live across real-world dummy UI components with WCAG 2.1 AA/AAA and APCA contrast scoring.
+          </p>
+        </div>
+
+        <!-- Above-The-Fold Interactive UI Preview -->
+        <section aria-label="Dynamic UI Component Preview Island">
+          <UIPreviewIsland client:load />
+        </section>
+      </div>
+
+      <CartSidebar client:load />
+    </div>
 
     <!-- Accessibility Guidance -->
     <div class="space-y-6 pt-6 border-t border-[#1f1f1f]">

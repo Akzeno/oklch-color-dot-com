@@ -120,7 +120,17 @@ export default function CartSidebar() {
   };
 
   return (
-    <div class="w-full lg:w-[360px] xl:w-[400px] shrink-0 bg-canvas-sunken border-l border-hairline flex flex-col lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] overflow-hidden">
+    /*
+     * `lg:top-14` and `lg:max-h-[calc(100vh-3.5rem)]` are one decision: the
+     * header is 56px, so those two together make the panel span exactly
+     * navbar-to-viewport-bottom and hold that line while the frames scroll —
+     * the same pair the nav rail uses. `top-6` was wrong against a 56px header
+     * in both directions: 32px of the panel's own header (the totals line and
+     * New role) sat *behind* the navbar, and the 3rem max height left the last
+     * role card hanging past the fold. Where the panel starts in the first
+     * place is the page's business — see `/ui-preview`.
+     */
+    <div class="w-full lg:w-[360px] xl:w-[400px] shrink-0 bg-canvas-sunken border-l border-hairline flex flex-col lg:sticky lg:top-14 lg:max-h-[calc(100vh-3.5rem)] overflow-hidden">
       {/* Header — the only place the totals appear. */}
       <div class="px-3 py-3 border-b border-hairline-subtle shrink-0">
         <div class="flex items-center justify-between gap-2 mb-2.5">

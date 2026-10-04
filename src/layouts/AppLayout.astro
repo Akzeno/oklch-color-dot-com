@@ -33,12 +33,19 @@ const currentPath = Astro.url.pathname;
     <SidebarIsland client:load currentPath={currentPath} />
 
     <!--
-      `overflow-x-hidden` only. Clamping the axis matters here because a wide
+      `overflow-x-clip` only. Clamping the axis matters here because a wide
       colour table or code block would otherwise push the whole page sideways
-      and drag the sticky header and rail off-screen with it. Vertical scroll is
-      left alone — the sticky children need it to position against.
+      and drag the sticky header and rail off-screen with it.
+
+      `clip`, not `hidden`, and that is load-bearing rather than cosmetic. With
+      `overflow-x: hidden` the vertical axis's `visible` *computes* to `auto`,
+      which makes this element a scroll container — so every sticky child
+      (the preview tab strip, the token panel) resolves its sticky rectangle
+      against this box instead of against the viewport. This box never scrolls
+      vertically, so they simply never stuck. `clip` clips the same pixels and
+      leaves the vertical axis genuinely `visible`.
     -->
-    <main class="flex-1 min-w-0 pb-16 md:pb-10 overflow-x-hidden">
+    <main class="flex-1 min-w-0 pb-16 md:pb-10 overflow-x-clip">
       <slot />
     </main>
   </div>

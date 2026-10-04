@@ -10,7 +10,6 @@ import {
 import { useCart } from '../../hooks/useCart';
 import type { ShadeStep, ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
-import CartSidebar from './CartSidebar';
 import ColorActionPopover from './ColorActionPopover';
 import { createPaint, type Theme, type Paint } from './preview/slots';
 import { GROUPS, DEFAULT_GROUP, findGroup, isGroupId, type GroupId } from './preview/groups';
@@ -19,7 +18,7 @@ import { ButtonsGroup } from './preview/groups/ButtonsGroup';
 import { FormsGroup } from './preview/groups/FormsGroup';
 
 /**
- * The preview shell: tab strip, URL sync, click routing, and the sidebar.
+ * The preview shell: tab strip, URL sync, and click routing.
  *
  * It holds no colours of its own. Everything painted inside the preview column
  * comes from a `Swatch` wrapping a slot resolved by `createPaint`, which is what
@@ -31,6 +30,11 @@ import { FormsGroup } from './preview/groups/FormsGroup';
  * that for free by going through `Swatch`, which writes those attributes from the
  * same value it used to resolve the colour — so the tooltip, the popover target
  * and the painted pixel cannot drift apart.
+ *
+ * The Design Tokens panel is not in this file. `/ui-preview` puts it in a row
+ * beside the page title so it can start at the top of the workspace rather than
+ * below the intro block, which means the row — and the column widths — belong to
+ * the page. See `CartSidebar`.
  */
 
 /* ─────────────────────── URL sync ─────────────────────── */
@@ -352,65 +356,68 @@ export default function UIPreviewIsland() {
 
   return (
     <div class="space-y-4">
-      {/* ─────── Split Layout: Preview + Sidebar ─────── */}
+      {/* ─────── Main Preview Area ───────
+            Container context for the frames grid below, and the boundary of the
+            click contract.
+
+            The Design Tokens panel used to be the second child of a flex row
+            that wrapped both columns, so the click routing had to be attached
+            to something wider than the preview. It is a sibling of this island
+            now (the page owns the row, because the panel shares it with the
+            page title) and it paints no slots of its own — so the handlers
+            belong here, on the only subtree that can contain one. */}
       <div
-        class="flex flex-col lg:flex-row gap-4 lg:gap-6"
+        class="min-w-0 space-y-4 @container"
         onClick={handlePreviewClick}
         onContextMenu={handlePreviewContextMenu}
       >
-        {/* Main Preview Area — container context for the frames grid below */}
-        <div class="flex-1 min-w-0 space-y-4 @container">
-          {/*
-            Controls row.
+        {/*
+          Controls row.
 
-            The title and the two-line explanation this used to carry are gone.
-            "Every coloured element is a token slot — click one to swap it…" is
-            the page's one real instruction, so it belongs in the page header
-            where it is read once, not in a card above every tab. What is left
-            here is the row's actual content: which surface the canvas is
-            previewed on, and the shortcut to the role list.
-          */}
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center gap-1 p-0.5 rounded-full border border-hairline bg-canvas-card">
-              {(['dark', 'light'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  aria-pressed={previewTheme === t}
-                  onClick={() => setPreviewTheme(t)}
-                  class={`chip border-0 ${previewTheme === t ? '' : 'text-mute hover:text-body'}`}
-                >
-                  {t === 'dark' ? 'Dark' : 'Light'}
-                </button>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => isCartOpenStore.set(true)}
-              class="btn btn-quiet h-8"
-            >
-              Manage roles
-            </button>
+          The title and the two-line explanation this used to carry are gone.
+          "Every coloured element is a token slot — click one to swap it…" is
+          the page's one real instruction, so it belongs in the page header
+          where it is read once, not in a card above every tab. What is left
+          here is the row's actual content: which surface the canvas is
+          previewed on, and the shortcut to the role list.
+        */}
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="flex items-center gap-1 p-0.5 rounded-full border border-hairline bg-canvas-card">
+            {(['dark', 'light'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                aria-pressed={previewTheme === t}
+                onClick={() => setPreviewTheme(t)}
+                class={`chip border-0 ${previewTheme === t ? '' : 'text-mute hover:text-body'}`}
+              >
+                {t === 'dark' ? 'Dark' : 'Light'}
+              </button>
+            ))}
           </div>
 
-          <TabStrip active={activeGroup} onSelect={selectGroup} />
-
-          {/* ─────── Component Frames ───────
-                Two columns are driven by the *width available to the preview
-                column* (`@3xl` = 48rem), not the viewport. A viewport `2xl:`
-                breakpoint fired at 1536px while the nav rail left the preview
-                only ~750px, splitting into two cramped ~366px cards. A container
-                query also reacts when the rail collapses. */}
-          <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-4 @3xl:gap-5 items-start">
-            {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
-            {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
-            {activeGroup === 'forms' && <FormsGroup paint={paint} />}
-          </div>
+          <button
+            type="button"
+            onClick={() => isCartOpenStore.set(true)}
+            class="btn btn-quiet h-8"
+          >
+            Manage roles
+          </button>
         </div>
 
-        {/* Sidebar - Cart Colors */}
-        <CartSidebar />
+        <TabStrip active={activeGroup} onSelect={selectGroup} />
+
+        {/* ─────── Component Frames ───────
+              Two columns are driven by the *width available to the preview
+              column* (`@3xl` = 48rem), not the viewport. A viewport `2xl:`
+              breakpoint fired at 1536px while the nav rail left the preview
+              only ~750px, splitting into two cramped ~366px cards. A container
+              query also reacts when the rail collapses. */}
+        <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-4 @3xl:gap-5 items-start">
+          {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
+          {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
+          {activeGroup === 'forms' && <FormsGroup paint={paint} />}
+        </div>
       </div>
 
       {/* Action popover shown when a coloured element is clicked / right-clicked */}
