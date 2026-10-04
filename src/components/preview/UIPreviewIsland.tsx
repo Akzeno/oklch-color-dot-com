@@ -4,10 +4,12 @@ import {
   cartStore,
   isCartOpenStore,
   generateFullScaleForRole,
+  showToast,
   type ColorRole,
 } from '../../stores/cartStore';
 import { formatOklch, getWcagContrast, getApcaContrast, createOklchColor, type ShadeStep } from '../../utils/color';
 import CartSidebar from './CartSidebar';
+import ContextMenu from './ContextMenu';
 
 /* ─────────────────────── PreviewFrame ─────────────────────── */
 function PreviewFrame({
@@ -118,6 +120,56 @@ export default function UIPreviewIsland() {
     return getApcaContrast(primary.hex, canvasBg);
   }, [primary.hex, canvasBg]);
 
+  // Context menu state
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; roleId: string; step: ShadeStep } | null>(null);
+
+  const handleContextMenu = (e: MouseEvent) => {
+    const target = (e.target as HTMLElement).closest('[data-context-role]') as HTMLElement | null;
+    if (!target) return;
+    e.preventDefault();
+    const roleId = target.dataset.contextRole!;
+    const step = Number(target.dataset.contextStep) || 500;
+    setCtxMenu({ x: e.clientX, y: e.clientY, roleId, step: step as ShadeStep });
+  };
+
+  const handleCtxColorSelect = (sourceRoleId: string, sourceStep: ShadeStep) => {
+    if (!ctxMenu) return;
+    const current = cartStore.get();
+    const sourceRole = current.roles[sourceRoleId];
+    if (!sourceRole?.shades[sourceStep]) return;
+    const color = sourceRole.shades[sourceStep]!.color;
+    const targetRole = current.roles[ctxMenu.roleId];
+    if (!targetRole) return;
+
+    const updatedShades = {
+      ...targetRole.shades,
+      [ctxMenu.step]: {
+        id: `${ctxMenu.roleId}-${ctxMenu.step}-${Date.now()}`,
+        step: ctxMenu.step,
+        color,
+      },
+    };
+
+    const newState = {
+      ...current,
+      roles: {
+        ...current.roles,
+        [ctxMenu.roleId]: {
+          ...targetRole,
+          shades: updatedShades,
+        },
+      },
+    };
+
+    cartStore.set(newState);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('oklch_cart_v1', JSON.stringify(newState));
+    }
+
+    showToast(`Applied ${sourceRole.name} ${sourceStep} → ${targetRole.name} ${ctxMenu.step}`);
+    setCtxMenu(null);
+  };
+
   return (
     <div class="space-y-6">
       {/* ── Inline keyframes (scoped to this island) ── */}
@@ -129,10 +181,18 @@ export default function UIPreviewIsland() {
         .animate-frame-in {
           animation: frameIn 0.35s ease-out both;
         }
+        [data-context-role] {
+          cursor: context-menu;
+          position: relative;
+        }
+        [data-context-role]:hover {
+          outline: 2px dashed rgba(255, 255, 255, 0.3);
+          outline-offset: 2px;
+        }
       `}</style>
 
       {/* ─────── Split Layout: Preview + Sidebar ─────── */}
-      <div class="flex flex-col lg:flex-row gap-6">
+      <div class="flex flex-col lg:flex-row gap-6" onContextMenu={handleContextMenu}>
         {/* Main Preview Area */}
         <div class="flex-1 min-w-0 space-y-6">
           {/* ─────── Controls Bar ─────── */}
@@ -140,7 +200,8 @@ export default function UIPreviewIsland() {
         <div>
           <h2 class="text-sm font-semibold text-[#f5f5f5]">Component Showcase</h2>
           <p class="text-xs font-mono text-[#737373] mt-0.5">
-            Each section below is an isolated canvas rendered with your active Cart roles.
+            Each section below is an isolated canvas rendered with your active Cart roles.{' '}
+            <span class="text-[#a3a3a3]">Right-click any element to change its color.</span>
           </p>
         </div>
 
@@ -192,6 +253,8 @@ export default function UIPreviewIsland() {
               <div
                 class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow"
                 style={{ backgroundColor: primary.css }}
+                data-context-role="primary"
+                data-context-step="500"
               >
                 U
               </div>
@@ -202,6 +265,8 @@ export default function UIPreviewIsland() {
               <button
                 class="px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm transition-transform active:scale-95"
                 style={{ backgroundColor: trustyBtn.css }}
+                data-context-role="trusty-button"
+                data-context-step="500"
               >
                 Primary Action
               </button>
@@ -222,6 +287,8 @@ export default function UIPreviewIsland() {
             <button
               class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90 active:scale-95"
               style={{ backgroundColor: trustyBtn.css }}
+              data-context-role="trusty-button"
+              data-context-step="500"
             >
               Trusty Button (Solid)
             </button>
@@ -229,6 +296,8 @@ export default function UIPreviewIsland() {
             <button
               class="px-4 py-2 rounded-lg text-xs font-medium border transition-all hover:bg-black/5 active:scale-95"
               style={{ borderColor: trustyBtn.css, color: trustyBtn.css }}
+              data-context-role="trusty-button"
+              data-context-step="500"
             >
               Trusty Outline
             </button>
@@ -236,6 +305,8 @@ export default function UIPreviewIsland() {
             <button
               class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90"
               style={{ backgroundColor: success.css }}
+              data-context-role="success"
+              data-context-step="500"
             >
               Confirm (Success)
             </button>
@@ -243,6 +314,8 @@ export default function UIPreviewIsland() {
             <button
               class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90"
               style={{ backgroundColor: danger.css }}
+              data-context-role="danger"
+              data-context-step="500"
             >
               Delete (Danger)
             </button>
@@ -272,6 +345,8 @@ export default function UIPreviewIsland() {
                 backgroundColor: previewTheme === 'dark' ? 'rgba(16, 185, 129, 0.1)' : successBg.hex,
                 borderColor: success.css,
               }}
+              data-context-role="success"
+              data-context-step="500"
             >
               <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: success.css }} />
               <div>
@@ -289,6 +364,8 @@ export default function UIPreviewIsland() {
                 backgroundColor: previewTheme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : dangerBg.hex,
                 borderColor: danger.css,
               }}
+              data-context-role="danger"
+              data-context-step="500"
             >
               <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: danger.css }} />
               <div>
@@ -306,6 +383,8 @@ export default function UIPreviewIsland() {
                 backgroundColor: previewTheme === 'dark' ? 'rgba(245, 158, 11, 0.1)' : warningBg.hex,
                 borderColor: warning.css,
               }}
+              data-context-role="warning"
+              data-context-step="500"
             >
               <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: warning.css }} />
               <div>
@@ -323,6 +402,8 @@ export default function UIPreviewIsland() {
                 backgroundColor: previewTheme === 'dark' ? 'rgba(6, 182, 212, 0.1)' : infoBg.hex,
                 borderColor: info.css,
               }}
+              data-context-role="info"
+              data-context-step="500"
             >
               <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: info.css }} />
               <div>
@@ -351,6 +432,8 @@ export default function UIPreviewIsland() {
               <span
                 class="px-2 py-0.5 rounded-full text-[11px] font-mono text-white font-medium"
                 style={{ backgroundColor: primary.css }}
+                data-context-role="primary"
+                data-context-step="500"
               >
                 Active
               </span>
@@ -380,12 +463,16 @@ export default function UIPreviewIsland() {
               <span
                 class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold"
                 style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', color: primary.css }}
+                data-context-role="primary"
+                data-context-step="500"
               >
                 v4.0.0
               </span>
               <span
                 class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold"
                 style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: success.css }}
+                data-context-role="success"
+                data-context-step="500"
               >
                 Production
               </span>
@@ -474,6 +561,18 @@ export default function UIPreviewIsland() {
         {/* Sidebar - Cart Colors */}
         <CartSidebar />
       </div>
+
+      {/* Context Menu for right-click color changing */}
+      {ctxMenu && (
+        <ContextMenu
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          targetRoleId={ctxMenu.roleId}
+          targetStep={ctxMenu.step}
+          onSelect={handleCtxColorSelect}
+          onClose={() => setCtxMenu(null)}
+        />
+      )}
     </div>
   );
 }
