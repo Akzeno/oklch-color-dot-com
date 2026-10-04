@@ -111,7 +111,25 @@ export default function ColorActionPopover({
     setPos({ left, top });
   }, [x, y]);
 
-  /* Close on outside click, Escape, resize or any scroll of an ancestor */
+  /*
+   * Close on outside click, Escape, resize, or a scroll from outside.
+   *
+   * WHY THE SCROLL LISTENER IS CAPTURED
+   *
+   * Because it has to be: a scroll event does not bubble, so a bubbling listener
+   * on `document` would only ever hear the page scroll and miss every nested
+   * scroller. Capturing it hears all of them — including, fatally, the popover's
+   * own body. That body is a real scroller (nine palettes are ~1570px of swatches
+   * in a ~420px box), so scrolling toward a palette fired the handler and
+   * unmounted the panel mid-scroll, leaving `scrollTop` back at 0. Reaching
+   * anything past the fold was impossible.
+   *
+   * Hence the one carve-out: a scroll whose target is inside the panel is the
+   * user reading the panel, not the anchor sliding out from under it, so it is
+   * ignored. Every other scroll still dismisses, because the popover is pinned to
+   * a viewport coordinate taken from the click — scroll the page and that
+   * coordinate no longer points at the element it acts on.
+   */
   useEffect(() => {
     const onPointerDown = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
@@ -121,17 +139,22 @@ export default function ColorActionPopover({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    const onScrollOrResize = () => onClose();
+    const onScroll = (e: Event) => {
+      const panel = panelRef.current;
+      if (panel && e.target instanceof Node && panel.contains(e.target)) return;
+      onClose();
+    };
+    const onResize = () => onClose();
 
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
-    window.addEventListener('resize', onScrollOrResize);
-    document.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onResize);
+    document.addEventListener('scroll', onScroll, true);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('resize', onScrollOrResize);
-      document.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onResize);
+      document.removeEventListener('scroll', onScroll, true);
     };
   }, [onClose]);
 
