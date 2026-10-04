@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
-import { cartStore, showToast } from '../../stores/cartStore';
+import { showToast } from '../../stores/cartStore';
 import { formatOklch, SHADE_STEPS, type ShadeStep } from '../../utils/color';
+import { useCart } from '../../hooks/useCart';
 
 export type ExportFormat = 'tailwind-v4' | 'css-variables' | 'css-fallback' | 'json';
 
@@ -14,7 +14,7 @@ interface CodeLineItem {
 }
 
 export default function ExportIsland() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const [activeFormat, setActiveFormat] = useState<ExportFormat>('tailwind-v4');
   const [wrapLines, setWrapLines] = useState(false);
 

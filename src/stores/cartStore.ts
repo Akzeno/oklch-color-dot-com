@@ -42,8 +42,10 @@ export const DEFAULT_ROLES: ColorRole[] = [
   { id: 'text', name: 'Text', isDefault: true, shades: {} },
 ];
 
-// Helper to seed a starter cart with a few representative tokens
-function getInitialCartState(): CartState {
+// Pure default cart (NO localStorage access) so the server-rendered markup and
+// the first client render are always identical. Reading localStorage at module
+// init time would make the two diverge and break hydration on every refresh.
+function getDefaultCartState(): CartState {
   const rolesRecord: Record<string, ColorRole> = {};
   DEFAULT_ROLES.forEach((r) => {
     rolesRecord[r.id] = { ...r, shades: {} };
@@ -73,28 +75,101 @@ function getInitialCartState(): CartState {
     color: teal500,
   };
 
-  if (typeof window !== 'undefined') {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.roles) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.warn('Could not read cart from localStorage', e);
-    }
-  }
-
   return {
     activeRoleId: 'trusty-button',
     roles: rolesRecord,
   };
 }
 
-// Global cart store
-export const cartStore = atom<CartState>(getInitialCartState());
+// Global cart store — starts from the deterministic defaults above.
+export const cartStore = atom<CartState>(getDefaultCartState());
+
+// Defensive coercion: localStorage is user-writable, so a malformed/legacy
+// payload must never be able to crash a render.
+function sanitizeColor(input: unknown): ColorModel | null {
+  if (!input || typeof input !== 'object') return null;
+  const raw = input as Record<string, unknown>;
+  const l = Number(raw.l);
+  const c = Number(raw.c);
+  const h = Number(raw.h);
+  if (!Number.isFinite(l) || !Number.isFinite(c) || !Number.isFinite(h)) return null;
+
+  const alpha = Number(raw.alpha);
+  return {
+    l: Math.min(1, Math.max(0, l)),
+    c: Math.min(0.4, Math.max(0, c)),
+    h: ((h % 360) + 360) % 360,
+    alpha: Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1,
+    hex: typeof raw.hex === 'string' ? raw.hex : '#000000',
+    inSRGB: Boolean(raw.inSRGB),
+    inP3: Boolean(raw.inP3),
+  };
+}
+
+function sanitizeShades(input: unknown): Partial<Record<ShadeStep, RoleColorToken>> {
+  const out: Partial<Record<ShadeStep, RoleColorToken>> = {};
+  if (!input || typeof input !== 'object') return out;
+
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    const step = Number(key) as ShadeStep;
+    if (!SHADE_STEPS.includes(step)) continue;
+    const token = value as Partial<RoleColorToken> | null;
+    const color = sanitizeColor(token?.color);
+    if (!color) continue;
+    out[step] = {
+      id: typeof token?.id === 'string' ? token.id : `${key}`,
+      step,
+      color,
+    };
+  }
+  return out;
+}
+
+let hasHydratedCart = false;
+
+/**
+ * Merge the persisted cart into the store. MUST be called after mount (an
+ * effect), never during render, otherwise the first client paint disagrees
+ * with the server HTML and Preact's hydration corrupts the UI.
+ */
+export function hydrateCartFromStorage() {
+  if (hasHydratedCart || typeof window === 'undefined') return;
+  hasHydratedCart = true;
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return;
+
+    const parsed = JSON.parse(stored);
+    if (!parsed || !parsed.roles || typeof parsed.roles !== 'object') return;
+
+    const defaults = getDefaultCartState();
+    const mergedRoles: Record<string, ColorRole> = { ...defaults.roles };
+
+    for (const [roleId, value] of Object.entries(parsed.roles as Record<string, unknown>)) {
+      if (!value || typeof value !== 'object') continue;
+      const storedRole = value as Partial<ColorRole>;
+      const base = mergedRoles[roleId];
+
+      mergedRoles[roleId] = {
+        id: roleId,
+        name: typeof storedRole.name === 'string' && storedRole.name.trim()
+          ? storedRole.name
+          : base?.name ?? roleId,
+        isDefault: base ? base.isDefault : false,
+        shades: sanitizeShades(storedRole.shades),
+      };
+    }
+
+    const storedActive = typeof parsed.activeRoleId === 'string' ? parsed.activeRoleId : '';
+    cartStore.set({
+      activeRoleId: mergedRoles[storedActive] ? storedActive : 'trusty-button',
+      roles: mergedRoles,
+    });
+  } catch (e) {
+    console.warn('Could not read cart from localStorage', e);
+  }
+}
 
 // UI state: whether Cart drawer/bottom-sheet is open
 export const isCartOpenStore = atom<boolean>(false);

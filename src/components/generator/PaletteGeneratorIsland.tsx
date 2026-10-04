@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
 import {
   createOklchColor,
   formatOklch,
@@ -11,16 +10,16 @@ import {
   type ShadeStep,
 } from '../../utils/color';
 import {
-  cartStore,
   addColorToCart,
   generateFullScaleForRole,
   setActiveRole,
   isCartOpenStore,
   showToast,
 } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 
 export default function PaletteGeneratorIsland() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
 
   // Base color state
   const [baseHex, setBaseHex] = useState('#2563eb');

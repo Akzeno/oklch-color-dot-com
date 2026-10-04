@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
 import {
   createOklchColor,
   formatOklch,
@@ -9,10 +8,10 @@ import {
   type ColorModel,
 } from '../../utils/color';
 import {
-  cartStore,
   addColorToCart,
   showToast,
 } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 
 export type ConverterMode =
   | 'hex-to-oklch'
@@ -27,7 +26,7 @@ interface ConverterIslandProps {
 }
 
 export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: ConverterIslandProps) {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const [mode, setMode] = useState<ConverterMode>(initialMode);
   const [inputValue, setInputValue] = useState(() => {
     switch (initialMode) {

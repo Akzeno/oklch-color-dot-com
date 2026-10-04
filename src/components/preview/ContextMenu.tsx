@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
-import { cartStore } from '../../stores/cartStore';
 import { formatOklch, SHADE_STEPS, type ShadeStep } from '../../utils/color';
+import { useCart } from '../../hooks/useCart';
 
 interface ContextMenuProps {
   x: number;
@@ -13,7 +12,7 @@ interface ContextMenuProps {
 }
 
 export default function ContextMenu({ x, y, targetRoleId, targetStep, onSelect, onClose }: ContextMenuProps) {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click, Escape, or scroll

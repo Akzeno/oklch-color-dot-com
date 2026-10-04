@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
 import {
   createOklchColor,
   formatOklch,
@@ -11,15 +10,15 @@ import {
   type ColorModel,
 } from '../../utils/color';
 import {
-  cartStore,
   addColorToCart,
   setActiveRole,
   isCartOpenStore,
   showToast,
 } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 
 export default function ColorPickerIsland() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
 
   // Picker internal state
   const [l, setL] = useState(0.62);

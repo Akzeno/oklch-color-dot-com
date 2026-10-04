@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 import { useStore } from '@nanostores/preact';
 import {
-  cartStore,
   isCartOpenStore,
   generateFullScaleForRole,
   removeShadeFromRole,
@@ -12,9 +11,10 @@ import {
   showToast,
 } from '../../stores/cartStore';
 import { SHADE_STEPS, formatOklch, type ShadeStep } from '../../utils/color';
+import { useCart } from '../../hooks/useCart';
 
 export default function CartDrawerIsland() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const isOpen = useStore(isCartOpenStore);
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
   const [roleInputName, setRoleInputName] = useState('');

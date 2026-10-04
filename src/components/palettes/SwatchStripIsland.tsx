@@ -1,5 +1,4 @@
 import { useState } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
 import {
   type ColorModel,
   type ShadeStep,
@@ -7,10 +6,10 @@ import {
   formatOklch,
 } from '../../utils/color';
 import {
-  cartStore,
   addColorToCart,
   showToast,
 } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 
 interface SwatchStripIslandProps {
   shades: Record<ShadeStep, ColorModel>;
@@ -18,7 +17,7 @@ interface SwatchStripIslandProps {
 }
 
 export default function SwatchStripIsland({ shades, paletteName }: SwatchStripIslandProps) {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const [hoveredStep, setHoveredStep] = useState<ShadeStep | null>(null);
 
   const handleSwatchClick = (color: ColorModel, step: ShadeStep) => {

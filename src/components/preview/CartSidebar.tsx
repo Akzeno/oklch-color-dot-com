@@ -1,5 +1,4 @@
 import { useState } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
 import {
   cartStore,
   generateFullScaleForRole,
@@ -10,10 +9,11 @@ import {
   setActiveRole,
   addColorToCart,
 } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 import { SHADE_STEPS, formatOklch, parseAnyToOklch, type ShadeStep, type ColorModel } from '../../utils/color';
 
 export default function CartSidebar() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
   const [roleInputName, setRoleInputName] = useState('');
   const [newRoleInput, setNewRoleInput] = useState('');
@@ -195,10 +195,26 @@ export default function CartSidebar() {
                   : 'border-[#262626] bg-[#141414] hover:border-[#333333]'
               }`}
             >
-              {/* Role Header */}
-              <button
+              {/* Role Header
+                  NOTE: must NOT be a <button>. It contains the rename/save/cancel/delete
+                  buttons, and the HTML parser auto-closes an outer <button> as soon as it
+                  meets a nested one — which detaches those action buttons from the header
+                  and breaks both the layout and hydration on refresh. A div with
+                  role="button" keeps them as real, nested-safe buttons. */}
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label={`Activate role ${role.name}`}
+                aria-pressed={isActive}
                 onClick={() => setActiveRole(role.id)}
-                class="w-full px-3 py-2.5 flex items-center justify-between text-left"
+                onKeyDown={(e) => {
+                  if (editingRoleId === role.id) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setActiveRole(role.id);
+                  }
+                }}
+                class="w-full px-3 py-2.5 flex items-center justify-between text-left cursor-pointer"
               >
                 <div class="flex items-center gap-2 min-w-0 flex-1">
                   {editingRoleId === role.id ? (
@@ -206,6 +222,7 @@ export default function CartSidebar() {
                       type="text"
                       value={roleInputName}
                       onInput={(e) => setRoleInputName((e.target as HTMLInputElement).value)}
+                      onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && roleInputName.trim()) {
                           renameRole(role.id, roleInputName.trim());
@@ -283,7 +300,7 @@ export default function CartSidebar() {
                     </button>
                   )}
                 </div>
-              </button>
+              </div>
 
               {/* CSS Variable Prefix */}
               <div class="px-3 pb-2 border-b border-[#1f1f1f] text-[10px] font-mono text-[#525252]">

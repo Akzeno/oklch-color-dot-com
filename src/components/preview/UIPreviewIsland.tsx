@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
 import {
   cartStore,
   isCartOpenStore,
@@ -7,6 +6,7 @@ import {
   showToast,
   type ColorRole,
 } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 import { formatOklch, getWcagContrast, getApcaContrast, createOklchColor, type ShadeStep } from '../../utils/color';
 import CartSidebar from './CartSidebar';
 import ContextMenu from './ContextMenu';
@@ -67,7 +67,7 @@ function PreviewFrame({
 
 /* ─────────────────────── Main Island ──────────────────────── */
 export default function UIPreviewIsland() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const [previewTheme, setPreviewTheme] = useState<'dark' | 'light'>('dark');
 
   // Helper to extract CSS color for a role & step, falling back gracefully

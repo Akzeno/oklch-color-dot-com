@@ -1,8 +1,8 @@
-import { useStore } from '@nanostores/preact';
-import { cartStore, isCartOpenStore, getCartTotalCount } from '../../stores/cartStore';
+import { isCartOpenStore, getCartTotalCount } from '../../stores/cartStore';
+import { useCart } from '../../hooks/useCart';
 
 export default function CartTriggerButton() {
-  const cart = useStore(cartStore);
+  const cart = useCart();
   const totalCount = getCartTotalCount(cart);
 
   return (
