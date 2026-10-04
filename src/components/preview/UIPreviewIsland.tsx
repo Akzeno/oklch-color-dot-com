@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import {
   isCartOpenStore,
   showToast,
@@ -6,313 +6,305 @@ import {
   setRoleShade,
   removeShadeFromRole,
   clearRoleScale,
-  type CartState,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
-import {
-  formatOklch,
-  getWcagContrast,
-  getApcaContrast,
-  SHADE_STEPS,
-  TARGET_LIGHTNESS,
-  type ShadeStep,
-  type ColorModel,
-} from '../../utils/color';
+import type { ShadeStep, ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
 import CartSidebar from './CartSidebar';
 import ColorActionPopover from './ColorActionPopover';
+import { createPaint, type Theme, type Paint } from './preview/slots';
+import { GROUPS, DEFAULT_GROUP, findGroup, isGroupId, type GroupId } from './preview/groups';
+import { PreviewFrame } from './preview/PreviewFrame';
+import { ButtonsGroup } from './preview/groups/ButtonsGroup';
+import { FormsGroup } from './preview/groups/FormsGroup';
 
-/* ─────────────────────── Token resolution ─────────────────────── */
+/**
+ * The preview shell: tab strip, URL sync, click routing, and the sidebar.
+ *
+ * It holds no colours of its own. Everything painted inside the preview column
+ * comes from a `Swatch` wrapping a slot resolved by `createPaint`, which is what
+ * makes "every element is selectable" a structural property rather than a
+ * convention each group has to remember.
+ *
+ * The one thing this file does own is the click contract: any element carrying
+ * `data-context-role` opens the colour popover for that exact slot. Groups get
+ * that for free by going through `Swatch`, which writes those attributes from the
+ * same value it used to resolve the colour — so the tooltip, the popover target
+ * and the painted pixel cannot drift apart.
+ */
 
-interface ResolvedToken {
-  css: string;
-  hex: string;
-  color: ColorModel;
-  /** The step actually used — differs from the requested one when substituted. */
-  step: ShadeStep;
-  /** True when the exact requested step was empty and another one was used. */
-  substituted: boolean;
+/* ─────────────────────── URL sync ─────────────────────── */
+
+/**
+ * Read `?group=` from the URL.
+ *
+ * Only accepts an id the registry knows, so a hand-edited or stale URL falls back
+ * to the default rather than rendering nothing. That matters because the island
+ * rehydrates on every `ClientRouter` navigation: a `?group=buttons` deep link that
+ * lost its query string must not strand the user on a blank panel.
+ *
+ * Client-only by design. The *initial* group comes in as a prop from the page so
+ * that the server renders the same group the client will — reading `location`
+ * during render would make every shared link server-render the default and then
+ * swap groups after hydration.
+ */
+function readGroupFromUrl(): GroupId {
+  if (typeof window === 'undefined') return DEFAULT_GROUP;
+  const raw = new URLSearchParams(window.location.search).get('group');
+  return isGroupId(raw) ? raw : DEFAULT_GROUP;
 }
 
 /**
- * Resolve one design token for the showcase.
+ * Write `?group=` without navigating.
  *
- * Returns `null` when the slot is genuinely empty. It never invents a colour:
- * the preview has to show the tokens the user actually owns, not a stock
- * Tailwind palette masquerading as their design system.
- *
- * When the exact step is missing we fall back deterministically — 500 first,
- * then the available shade whose target lightness is nearest — and flag it as
- * `substituted` so the UI can disclose it instead of quietly lying.
+ * `replaceState`, not `pushState`: switching tabs is a view change inside the
+ * page, not a history entry, and pushing would make the back button walk through
+ * every tab the user glanced at before leaving. It also keeps the tab shareable —
+ * a bookmark reopens the group you were looking at.
  */
-function resolveToken(cart: CartState, roleId: string, step: ShadeStep): ResolvedToken | null {
-  const role = cart.roles[roleId];
-  if (!role) return null;
+function writeGroupToUrl(id: GroupId) {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  if (id === DEFAULT_GROUP) url.searchParams.delete('group');
+  else url.searchParams.set('group', id);
+  window.history.replaceState(window.history.state, '', url);
+}
 
-  const exact = role.shades[step];
-  if (exact) {
-    return { css: formatOklch(exact.color), hex: exact.color.hex, color: exact.color, step, substituted: false };
-  }
+/* ─────────────────────── Tab strip ─────────────────────── */
 
-  const available = SHADE_STEPS.filter((s) => role.shades[s]);
-  if (available.length === 0) return null;
+/**
+ * Horizontal tab strip.
+ *
+ * A strip rather than a left rail because the preview column is already narrow:
+ * the sidebar takes ~300px, and a second 200px rail would squeeze the canvases
+ * into the two-column breakpoint's worst case. The strip scrolls instead, so all
+ * nine groups stay reachable without taking width from the thing being judged.
+ *
+ * Arrow keys, Home and End are wired because this is a tablist: a strip that
+ * only responds to clicks is unusable by keyboard, and silently is worse than
+ * absent.
+ */
+function TabStrip({
+  active,
+  onSelect,
+}: {
+  active: GroupId;
+  onSelect: (id: GroupId) => void;
+}) {
+  const strip = useRef<HTMLDivElement>(null);
 
-  const pick = available.includes(500)
-    ? 500
-    : available.reduce((best, s) =>
-        Math.abs(TARGET_LIGHTNESS[s] - TARGET_LIGHTNESS[step]) <
-        Math.abs(TARGET_LIGHTNESS[best] - TARGET_LIGHTNESS[step])
-          ? s
-          : best
-      );
+  const onKeyDown = (e: KeyboardEvent) => {
+    const i = GROUPS.findIndex((g) => g.id === active);
+    let next: number | null = null;
 
-  const token = role.shades[pick]!;
-  return {
-    css: formatOklch(token.color),
-    hex: token.color.hex,
-    color: token.color,
-    step: pick,
-    substituted: true,
+    if (e.key === 'ArrowRight') next = (i + 1) % GROUPS.length;
+    else if (e.key === 'ArrowLeft') next = (i - 1 + GROUPS.length) % GROUPS.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = GROUPS.length - 1;
+    if (next === null) return;
+
+    e.preventDefault();
+    const id = GROUPS[next]!.id;
+    onSelect(id);
+    // Move focus with the selection, so a second arrow press continues from
+    // where the user is looking rather than from the previously focused tab.
+    strip.current?.querySelector<HTMLElement>(`[data-group="${id}"]`)?.focus();
   };
+
+  return (
+    <div
+      ref={strip}
+      role="tablist"
+      aria-label="Preview groups"
+      onKeyDown={onKeyDown}
+      class="flex items-center gap-1 overflow-x-auto sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#0e0e0e]/95 backdrop-blur border-b border-[#262626]"
+    >
+      {GROUPS.map((g) => {
+        const on = g.id === active;
+        return (
+          <button
+            key={g.id}
+            type="button"
+            role="tab"
+            data-group={g.id}
+            aria-selected={on}
+            // Roving tabindex: one stop in the tab order, arrows move within.
+            tabIndex={on ? 0 : -1}
+            onClick={() => onSelect(g.id)}
+            title={g.blurb}
+            class={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap transition-colors ${
+              on
+                ? 'bg-[#1f1f1f] text-[#f5f5f5] border border-[#404040]'
+                : 'text-[#737373] hover:text-[#a3a3a3] border border-transparent hover:border-[#262626]'
+            }`}
+          >
+            {g.label}
+            {!g.implemented && (
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-[#404040] flex-shrink-0"
+                title="Planned — shows what it will cover, not yet built"
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
-/** Same token at a low alpha, for tinted alert backgrounds. */
-function tokenTint(token: ResolvedToken | null, alpha: number) {
-  if (!token) return 'transparent';
-  return formatOklch({ ...token.color, alpha });
-}
+/* ─────────────────────── Planned panel ─────────────────────── */
 
 /**
- * Alert banner whose tint, border and dot all come from one role token.
+ * Shown for a group that is registered but not built yet.
  *
- * Both the light and dark tint are derived from the *same* `--color-<role>-500`
- * slot (just at different alphas). Deriving the light-mode fill from a separate
- * 100 slot meant clicking the alert updated the border while the background kept
- * the old colour — the token and its tint fighting each other.
+ * Deliberately not a blank canvas. Six of the nine groups do not exist in this
+ * slice, and an empty panel is indistinguishable from a group that failed to
+ * load — which would read as a bug rather than as "not built". Listing what the
+ * group will cover, and which of its slots are currently set, keeps the
+ * information architecture reviewable before the components exist.
  */
-function TokenAlert({
-  role,
-  title,
-  children,
-  token,
-  theme,
-  textMain,
-  textMuted,
-}: {
-  role: string;
-  title: string;
-  children: any;
-  token: ResolvedToken | null;
-  theme: 'dark' | 'light';
-  textMain: string;
-  textMuted: string;
-}) {
-  const unsetLine = theme === 'dark' ? '#525252' : '#d4d4d8';
+function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
+  const group = findGroup(id);
+
+  // Look up this group's slots in the shared inventory, so the panel reports the
+  // real state of each one instead of restating that the group is missing.
+  const slots = group.slots.map((role) => {
+    const entries = paint.inventory.filter((i) => i.role === role);
+    const set = entries.filter((i) => i.state === 'set').length;
+    return { role, total: entries.length, set };
+  });
 
   return (
-    <div
-      class={`p-3.5 rounded-xl border flex items-start gap-3 ${token ? '' : 'border-dashed'}`}
-      style={{
-        backgroundColor: tokenTint(token, theme === 'dark' ? 0.16 : 0.12),
-        borderColor: token ? token.css : unsetLine,
-      }}
-      data-context-role={role}
-      data-context-step="500"
-      title={token ? `--color-${role}-500 · ${token.css}` : `Click to set --color-${role}-500`}
+    <PreviewFrame
+      label={group.label}
+      description="Planned — not built in this slice."
+      hint="coming next"
+      canvasBg={paint.canvas?.css ?? '#0f0f0f'}
+      borderCol={paint.border?.css ?? '#262626'}
+      index={0}
+      span
     >
-      <div
-        class="w-2 h-2 rounded-full mt-1 flex-shrink-0"
-        style={
-          token
-            ? { backgroundColor: token.css }
-            : { backgroundColor: 'transparent', border: `1px dashed ${unsetLine}` }
-        }
-      />
-      <div>
-        <span class="font-semibold block" style={{ color: token ? textMain : textMuted }}>
-          {title}
-        </span>
-        <span style={{ color: textMuted }}>{children}</span>
+      <div class="py-6 text-center max-w-xl mx-auto">
+        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">{group.blurb}</p>
+
+        <div class="mt-5 pt-5 border-t border-[#262626]">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-[#525252] mb-3">
+            Slots this group needs
+          </div>
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            {slots.map((s) => (
+              <span
+                key={s.role}
+                class={`px-2.5 py-1.5 rounded-lg text-[11px] font-mono border ${
+                  s.set > 0 ? 'border-emerald-500/30 text-emerald-400' : 'border-dashed border-[#404040] text-[#525252]'
+                }`}
+                title={
+                  s.set > 0
+                    ? `--color-${s.role}: ${s.set} of ${s.total} steps set`
+                    : `--color-${s.role} is not set at all`
+                }
+              >
+                {s.role}
+                <span class="text-[#404040] ml-1.5">
+                  {s.set}/{s.total}
+                </span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <p class="mt-5 text-[10px] font-mono text-[#404040]">
+          Buttons and Forms are built so far.
+        </p>
       </div>
-    </div>
-  );
-}
-
-/* ─────────────────────── Contrast matrix row ─────────────────────── */
-
-type GradeTone = 'pass' | 'warn' | 'info';
-
-/**
- * One contrast row. When `ratio` is `null` the token isn't set, so the row says
- * "Token unset" instead of grading a placeholder colour — a confident-looking
- * "AA Pass" on a colour the user never picked is worse than no score at all.
- */
-function ContrastRow({
-  label,
-  value,
-  ratio,
-  badge,
-  tone,
-  surface,
-}: {
-  label: string;
-  value: string;
-  ratio: number | null;
-  badge: string | null;
-  tone: GradeTone;
-  surface: string;
-}) {
-  return (
-    <div
-      class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
-      style={{ backgroundColor: surface }}
-    >
-      <span class="truncate" title={label}>
-        {label}
-      </span>
-      <span class="text-center font-bold" style={ratio === null ? { color: '#737373' } : undefined}>
-        {value}
-      </span>
-      <span class="text-right">
-        {badge === null ? (
-          <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#262626] text-[#737373]">
-            Token unset
-          </span>
-        ) : (
-          <span
-            class={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              tone === 'pass'
-                ? 'bg-emerald-500/15 text-emerald-400'
-                : tone === 'info'
-                  ? 'bg-sky-500/15 text-sky-400'
-                  : 'bg-amber-500/15 text-amber-400'
-            }`}
-          >
-            {badge}
-          </span>
-        )}
-      </span>
-    </div>
-  );
-}
-
-/* ─────────────────────── PreviewFrame ─────────────────────── */
-function PreviewFrame({
-  label,
-  hint,
-  hintPass,
-  canvasBg,
-  borderCol,
-  index,
-  span = false,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  hintPass?: boolean;
-  canvasBg: string;
-  borderCol: string;
-  index: number;
-  /** Stretch across both columns once the frames grid goes two-up. */
-  span?: boolean;
-  children: any;
-}) {
-  return (
-    <div
-      class={`space-y-2.5 animate-frame-in ${span ? '@3xl:col-span-2' : ''}`}
-      style={{ animationDelay: `${index * 60}ms` }}
-    >
-      {/* Section Label */}
-      <div class="flex items-center justify-between px-1 gap-3">
-        <span class="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#525252]">
-          {label}
-        </span>
-        {hint && (
-          <span
-            class={`text-[11px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap ${
-              hintPass === true
-                ? 'bg-emerald-500/10 text-emerald-400'
-                : hintPass === false
-                  ? 'bg-amber-500/10 text-amber-400'
-                  : 'text-[#404040]'
-            }`}
-          >
-            {hint}
-          </span>
-        )}
-      </div>
-
-      {/* Canvas */}
-      <div
-        class="rounded-2xl border p-5 md:p-6 transition-colors duration-200 shadow-lg shadow-black/20"
-        style={{ backgroundColor: canvasBg, borderColor: borderCol }}
-      >
-        {children}
-      </div>
-    </div>
+    </PreviewFrame>
   );
 }
 
 /* ─────────────────────── Main Island ──────────────────────── */
 export default function UIPreviewIsland() {
   const cart = useCart();
-  const [previewTheme, setPreviewTheme] = useState<'dark' | 'light'>('dark');
+  const [previewTheme, setPreviewTheme] = useState<Theme>('dark');
+  /**
+   * Seeded with the default, never with `window.location`.
+   *
+   * The site is statically prerendered, so `Astro.url` arrives with no query
+   * string — a `?group=forms` link genuinely cannot be server-rendered as Forms
+   * without an SSR adapter. Seeding from the URL during render would therefore
+   * disagree with the server's markup on every shared link: a hydration
+   * mismatch on the tab strip's `aria-selected`, plus a re-render that throws
+   * away and rebuilds every swatch. The layout effect below adopts the real URL
+   * before the browser paints, so the swap is never seen.
+   */
+  const [activeGroup, setActiveGroup] = useState<GroupId>(DEFAULT_GROUP);
 
-  // Every token the showcase paints from. A `null` entry means "you have not
-  // set this slot" and is rendered as an explicit unset state — never as a
-  // placeholder colour, so the preview can't lie about your design system.
-  //
-  // Tints (alert backgrounds, pill fills) are derived from these same 500 slots
-  // at a low alpha rather than from separate 100 slots, so clicking a token
-  // updates everything painted from it at once.
-  const primary = resolveToken(cart, 'primary', 500);
-  const trustyBtn = resolveToken(cart, 'trusty-button', 500);
-  const success = resolveToken(cart, 'success', 500);
-  const danger = resolveToken(cart, 'danger', 500);
-  const warning = resolveToken(cart, 'warning', 500);
-  const info = resolveToken(cart, 'info', 500);
+  /**
+   * Every slot, resolved once per render.
+   *
+   * Memoised because `createPaint` runs `formatOklch` through culori for each
+   * slot, and the page paints well over a hundred elements from them. Resolving
+   * per element meant re-formatting the same `--color-*` value dozens of times
+   * per render for no benefit.
+   */
+  const paint = useMemo(() => createPaint(cart, previewTheme), [cart, previewTheme]);
 
-  /** "500" or "500 → 400" when a step had to be substituted. */
-  const stepNote = (t: ResolvedToken | null, requested: ShadeStep) =>
-    !t ? `${requested} unset` : t.substituted ? `${requested} → ${t.step}` : String(requested);
+  /**
+   * Adopt the real URL, before paint.
+   *
+   * Two jobs, and the timing matters for both:
+   *
+   *  - A shared `?group=forms` link lands on Forms instead of the default.
+   *  - A `ClientRouter` swap restores a history entry whose query string only
+   *    exists once Astro has settled the final URL.
+   *
+   * `useLayoutEffect`, not `useEffect`: it runs after the DOM is reconciled but
+   * before the browser paints, so neither the initial group nor a route change
+   * is ever visible in the wrong state. `popstate` is kept because
+   * `replaceState` does not fire it, but the back button still has to work.
+   */
+  useLayoutEffect(() => {
+    const sync = () => setActiveGroup(readGroupFromUrl());
+    sync();
+    window.addEventListener('popstate', sync);
+    return () => window.removeEventListener('popstate', sync);
+  }, []);
 
-  // Surface & Text
-  const canvasBg = previewTheme === 'dark' ? '#0f0f0f' : '#ffffff';
-  const cardBg = previewTheme === 'dark' ? '#181818' : '#f9fafb';
-  const textMain = previewTheme === 'dark' ? '#f5f5f5' : '#111827';
-  const textMuted = previewTheme === 'dark' ? '#a3a3a3' : '#6b7280';
-  const borderCol = previewTheme === 'dark' ? '#262626' : '#e5e7eb';
+  const selectGroup = useCallback((id: GroupId) => {
+    setActiveGroup(id);
+    writeGroupToUrl(id);
+  }, []);
 
-  // Contrast evaluations. `null` means the token isn't set — scoring a
-  // placeholder colour here would report a confident, meaningless AA/AAA grade.
-  const btnTextContrast = useMemo(
-    () => (trustyBtn ? getWcagContrast('#ffffff', trustyBtn.hex) : null),
-    [trustyBtn?.hex]
-  );
+  const active = findGroup(activeGroup);
 
-  const alertContrast = useMemo(
-    () => (danger ? getWcagContrast(danger.hex, canvasBg) : null),
-    [danger?.hex, canvasBg]
-  );
+  /* ── Popover: opened by left- or right-click on any coloured element ── */
 
-  const apcaDelta = useMemo(
-    () => (primary ? getApcaContrast(primary.hex, canvasBg) : null),
-    [primary?.hex, canvasBg]
-  );
+  const [popover, setPopover] = useState<{
+    x: number;
+    y: number;
+    roleId: string;
+    step: ShadeStep;
+  } | null>(null);
 
-  // Action popover state (opened by left- or right-click on any colored element)
-  const [popover, setPopover] = useState<{ x: number; y: number; roleId: string; step: ShadeStep } | null>(null);
-
+  /**
+   * Route a click to the slot it landed on.
+   *
+   * `closest()` rather than `target.dataset`, because painted elements nest: a
+   * solid button is a fill swatch containing a label swatch for the `on-*`
+   * step. The innermost match wins, which is the one the user aimed at — and
+   * for the nested case it is the `on-*` slot, the one most worth editing.
+   *
+   * `preventDefault` only fires when a slot was actually hit, so ordinary
+   * clicks elsewhere on the page are untouched.
+   */
   const openPopoverFromEvent = (e: MouseEvent) => {
     const target = (e.target as HTMLElement).closest('[data-context-role]') as HTMLElement | null;
     if (!target) return;
     e.preventDefault();
     const roleId = target.dataset.contextRole!;
-    const step = Number(target.dataset.contextStep) || 500;
-    setPopover({ x: e.clientX, y: e.clientY, roleId, step: step as ShadeStep });
+    const step = (Number(target.dataset.contextStep) || 500) as ShadeStep;
+    setPopover({ x: e.clientX, y: e.clientY, roleId, step });
   };
 
-  // Left click opens the action popover; right click keeps the legacy behaviour
   const handlePreviewClick = (e: MouseEvent) => {
     if (e.button !== 0) return;
     openPopoverFromEvent(e);
@@ -323,7 +315,7 @@ export default function UIPreviewIsland() {
     openPopoverFromEvent(e);
   };
 
-  // Apply a picked color (from cart or palette library) to the clicked token
+  // Apply a picked colour (from cart or palette library) to the clicked slot
   const handleApplyColor = (color: ColorModel, sourceLabel: string) => {
     if (!popover) return;
     setRoleShade(popover.roleId, popover.step, color, { silent: true });
@@ -331,7 +323,7 @@ export default function UIPreviewIsland() {
     setPopover(null);
   };
 
-  // Delete only the clicked color token
+  // Delete only the clicked colour token
   const handleDeleteShade = () => {
     if (!popover) return;
     removeShadeFromRole(popover.roleId, popover.step);
@@ -339,15 +331,15 @@ export default function UIPreviewIsland() {
     setPopover(null);
   };
 
-  // Delete every color of the parent role (its full 50–950 scale)
+  // Delete every colour of the parent role (its full 50–950 scale)
   const handleDeleteFullScale = () => {
     if (!popover) return;
     clearRoleScale(popover.roleId);
     setPopover(null);
   };
 
-  // Hand the exact token slot over to the full color picker page. Works for an
-  // unset slot too (`color: null`), which the picker treats as "author new".
+  // Hand the exact slot over to the full colour picker page. Works for an unset
+  // slot too (`color: null`), which the picker treats as "author new".
   // `returnTo` brings the user back here after they save.
   const handleOpenInPicker = (color: ColorModel | null) => {
     if (!popover) return;
@@ -363,7 +355,7 @@ export default function UIPreviewIsland() {
 
   return (
     <div class="space-y-6 lg:space-y-8">
-      {/* ── Inline keyframes (scoped to this island) ── */}
+      {/* ── Inline keyframes + hover affordance (scoped to this island) ── */}
       <style>{`
         @keyframes frameIn {
           from { opacity: 0; transform: translateY(6px); }
@@ -389,389 +381,72 @@ export default function UIPreviewIsland() {
         onContextMenu={handlePreviewContextMenu}
       >
         {/* Main Preview Area — container context for the frames grid below */}
-        <div class="flex-1 min-w-0 space-y-6 @container">
+        <div class="flex-1 min-w-0 space-y-5 @container">
           {/* ─────── Controls Bar ─────── */}
-      <div class="flex items-center justify-between flex-wrap gap-3 bg-[#141414] border border-[#262626] p-4 rounded-xl">
-        <div>
-          <h2 class="text-sm font-semibold text-[#f5f5f5]">Component Showcase</h2>
-          <p class="text-xs font-mono text-[#737373] mt-0.5">
-            Each section below is an isolated canvas rendered with your active Cart roles.{' '}
-            <span class="text-[#a3a3a3]">Click any colored element to swap it from your cart or a palette, open it in the picker, or delete it.</span>
-          </p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          {/* Light / Dark Mode Toggle for the Preview Canvas */}
-          <div class="flex items-center bg-[#171717] border border-[#262626] rounded-lg p-1 text-xs font-mono">
-            <button
-              onClick={() => setPreviewTheme('dark')}
-              class={`px-2.5 py-1 rounded transition-colors ${
-                previewTheme === 'dark' ? 'bg-[#262626] text-white font-medium' : 'text-[#737373] hover:text-[#f5f5f5]'
-              }`}
-            >
-              Dark Surface
-            </button>
-            <button
-              onClick={() => setPreviewTheme('light')}
-              class={`px-2.5 py-1 rounded transition-colors ${
-                previewTheme === 'light' ? 'bg-[#f5f5f5] text-black font-medium' : 'text-[#737373] hover:text-[#f5f5f5]'
-              }`}
-            >
-              Light Surface
-            </button>
-          </div>
-
-          <button
-            onClick={() => isCartOpenStore.set(true)}
-            class="touch-target px-3 py-1.5 rounded-lg bg-[#1f1f1f] hover:bg-[#262626] border border-[#262626] text-xs font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
-          >
-            Manage Roles
-          </button>
-        </div>
-      </div>
-
-      {/* ─────── Component Frames ───────
-            Two columns are driven by the *width available to the preview
-            column* (`@3xl` = 48rem), not the viewport. A viewport `2xl:`
-            breakpoint fired at 1536px while the 240px nav rail left the preview
-            only ~750px, splitting into two cramped ~366px cards. A container
-            query also reacts when the rail collapses. */}
-      <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-5 @3xl:gap-6 items-start">
-
-        {/* ── 1. Navigation Bar ── */}
-        <PreviewFrame
-          label="Navigation Bar"
-          canvasBg={canvasBg}
-          borderCol={borderCol}
-          index={0}
-          span
-        >
-          <div
-            class="flex items-center justify-between p-4 rounded-xl border"
-            style={{ backgroundColor: cardBg, borderColor: borderCol, color: textMain }}
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
-                  primary ? 'text-white shadow' : 'border border-dashed'
-                }`}
-                style={primary ? { backgroundColor: primary.css } : { borderColor: textMuted, color: textMuted }}
-                data-context-role="primary"
-                data-context-step="500"
-                title={stepNote(primary, 500)}
-              >
-                U
-              </div>
-              <span class="font-semibold text-sm">Dashboard UI</span>
+          <div class="flex items-center justify-between flex-wrap gap-3 bg-[#141414] border border-[#262626] p-4 rounded-xl">
+            <div>
+              <h2 class="text-sm font-semibold text-[#f5f5f5]">Component Showcase</h2>
+              <p class="text-xs font-mono text-[#737373] mt-0.5">
+                Every coloured element is a token slot —{' '}
+                <span class="text-[#a3a3a3]">
+                  click one to swap it from your cart or a palette, open it in the
+                  picker, or delete it.
+                </span>
+              </p>
             </div>
 
             <div class="flex items-center gap-2">
+              {/* Light / dark toggle for the preview canvas */}
+              <div class="flex items-center bg-[#171717] border border-[#262626] rounded-lg p-1 text-xs font-mono">
+                {(['dark', 'light'] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    aria-pressed={previewTheme === t}
+                    onClick={() => setPreviewTheme(t)}
+                    class={`px-2.5 py-1 rounded transition-colors ${
+                      previewTheme === t
+                        ? t === 'dark'
+                          ? 'bg-[#262626] text-white font-medium'
+                          : 'bg-[#f5f5f5] text-black font-medium'
+                        : 'text-[#737373] hover:text-[#f5f5f5]'
+                    }`}
+                  >
+                    {t === 'dark' ? 'Dark Surface' : 'Light Surface'}
+                  </button>
+                ))}
+              </div>
+
               <button
-                class={`px-3 py-1.5 rounded-lg text-xs font-medium transition-transform active:scale-95 ${
-                  trustyBtn ? 'text-white shadow-sm' : 'border border-dashed'
-                }`}
-                style={
-                  trustyBtn
-                    ? { backgroundColor: trustyBtn.css }
-                    : { borderColor: textMuted, color: textMuted }
-                }
-                data-context-role="trusty-button"
-                data-context-step="500"
-                title={stepNote(trustyBtn, 500)}
+                type="button"
+                onClick={() => isCartOpenStore.set(true)}
+                class="touch-target px-3 py-1.5 rounded-lg bg-[#1f1f1f] hover:bg-[#262626] border border-[#262626] text-xs font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
               >
-                Primary Action
+                Manage Roles
               </button>
             </div>
           </div>
-        </PreviewFrame>
 
-        {/* ── 2. Button Variants ── */}
-        <PreviewFrame
-          label="Button Variants"
-          hint={
-            btnTextContrast === null
-              ? 'Set trusty-button-500 to score'
-              : `Trusty btn contrast: ${btnTextContrast}:1 ${btnTextContrast >= 4.5 ? '· AA Pass' : '· Low'}`
-          }
-          hintPass={btnTextContrast === null ? undefined : btnTextContrast >= 4.5}
-          canvasBg={canvasBg}
-          borderCol={borderCol}
-          index={1}
-        >
-          <div class="flex items-center gap-3 flex-wrap" style={{ color: textMain }}>
-            <button
-              class={`px-4 py-2 rounded-lg text-xs font-medium transition-all active:scale-95 ${
-                trustyBtn ? 'text-white shadow hover:opacity-90' : 'border border-dashed'
-              }`}
-              style={
-                trustyBtn
-                  ? { backgroundColor: trustyBtn.css }
-                  : { borderColor: textMuted, color: textMuted }
-              }
-              data-context-role="trusty-button"
-              data-context-step="500"
-              title={stepNote(trustyBtn, 500)}
-            >
-              Trusty Button (Solid)
-            </button>
+          <TabStrip active={activeGroup} onSelect={selectGroup} />
 
-            <button
-              class="px-4 py-2 rounded-lg text-xs font-medium border transition-all hover:bg-black/5 active:scale-95"
-              style={
-                trustyBtn
-                  ? { borderColor: trustyBtn.css, color: trustyBtn.css }
-                  : { borderStyle: 'dashed', borderColor: textMuted, color: textMuted }
-              }
-              data-context-role="trusty-button"
-              data-context-step="500"
-              title={stepNote(trustyBtn, 500)}
-            >
-              Trusty Outline
-            </button>
-
-            <button
-              class={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-                success ? 'text-white shadow hover:opacity-90' : 'border border-dashed'
-              }`}
-              style={
-                success ? { backgroundColor: success.css } : { borderColor: textMuted, color: textMuted }
-              }
-              data-context-role="success"
-              data-context-step="500"
-              title={stepNote(success, 500)}
-            >
-              Confirm (Success)
-            </button>
-
-            <button
-              class={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-                danger ? 'text-white shadow hover:opacity-90' : 'border border-dashed'
-              }`}
-              style={danger ? { backgroundColor: danger.css } : { borderColor: textMuted, color: textMuted }}
-              data-context-role="danger"
-              data-context-step="500"
-              title={stepNote(danger, 500)}
-            >
-              Delete (Danger)
-            </button>
-
-            <button
-              disabled
-              class="px-4 py-2 rounded-lg text-xs font-medium opacity-40 cursor-not-allowed border"
-              style={{ borderColor: borderCol, color: textMuted }}
-            >
-              Disabled Action
-            </button>
+          {/* ─────── Component Frames ───────
+                Two columns are driven by the *width available to the preview
+                column* (`@3xl` = 48rem), not the viewport. A viewport `2xl:`
+                breakpoint fired at 1536px while the nav rail left the preview
+                only ~750px, splitting into two cramped ~366px cards. A container
+                query also reacts when the rail collapses. */}
+          <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-5 @3xl:gap-6 items-start">
+            {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
+            {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
+            {activeGroup === 'forms' && <FormsGroup paint={paint} />}
           </div>
-        </PreviewFrame>
-
-        {/* ── 3. Alert Banners ── */}
-        <PreviewFrame
-          label="Alert Banners"
-          canvasBg={canvasBg}
-          borderCol={borderCol}
-          index={2}
-        >
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" style={{ color: textMain }}>
-            <TokenAlert
-              role="success"
-              title="Operation Successful"
-              token={success}
-              theme={previewTheme}
-              textMain={textMain}
-              textMuted={textMuted}
-            >
-              Your tokens were safely synthesized and added to the design catalog.
-            </TokenAlert>
-
-            <TokenAlert
-              role="danger"
-              title="Destructive Warning"
-              token={danger}
-              theme={previewTheme}
-              textMain={textMain}
-              textMuted={textMuted}
-            >
-              This action will permanently purge the selected cache buffer.
-            </TokenAlert>
-
-            <TokenAlert
-              role="warning"
-              title="Attention Required"
-              token={warning}
-              theme={previewTheme}
-              textMain={textMain}
-              textMuted={textMuted}
-            >
-              Lightness step is approaching Display-P3 wide gamut limits.
-            </TokenAlert>
-
-            <TokenAlert
-              role="info"
-              title="System Telemetry"
-              token={info}
-              theme={previewTheme}
-              textMain={textMain}
-              textMuted={textMuted}
-            >
-              Tailwind v4 @theme export is active and live-updating.
-            </TokenAlert>
-          </div>
-        </PreviewFrame>
-
-        {/* ── 4. Card & Form Elements ── */}
-        <PreviewFrame
-          label="Card & Form Elements"
-          canvasBg={canvasBg}
-          borderCol={borderCol}
-          index={3}
-        >
-          <div
-            class="p-5 rounded-xl border space-y-4 shadow-sm"
-            style={{ backgroundColor: cardBg, borderColor: borderCol, color: textMain }}
-          >
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-semibold">Project Settings</span>
-              <span
-                class={`px-2 py-0.5 rounded-full text-[11px] font-mono font-medium ${
-                  primary ? 'text-white' : 'border border-dashed text-[#737373]'
-                }`}
-                style={primary ? { backgroundColor: primary.css } : { borderColor: '#525252' }}
-                data-context-role="primary"
-                data-context-step="500"
-                title={stepNote(primary, 500)}
-              >
-                Active
-              </span>
-            </div>
-
-            <div class="space-y-2">
-              <label class="text-xs font-mono block" style={{ color: textMuted }}>
-                Design Token Namespace
-              </label>
-              <input
-                type="text"
-                value="--color-trusty-button-500"
-                readOnly
-                class="w-full px-3 py-2 rounded-lg text-xs font-mono border focus:outline-none"
-                style={{
-                  backgroundColor: previewTheme === 'dark' ? '#121212' : '#ffffff',
-                  borderColor: borderCol,
-                  color: textMain,
-                }}
-              />
-            </div>
-
-            <div class="flex items-center gap-2 pt-2">
-              <span class="text-xs font-mono" style={{ color: textMuted }}>
-                Pill Badges:
-              </span>
-              <span
-                class={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
-                  primary ? '' : 'border border-dashed opacity-60'
-                }`}
-                style={
-                  primary
-                    ? { backgroundColor: tokenTint(primary, 0.2), color: primary.css }
-                    : { borderColor: '#525252', color: textMuted }
-                }
-                data-context-role="primary"
-                data-context-step="500"
-                title={stepNote(primary, 500)}
-              >
-                v4.0.0
-              </span>
-              <span
-                class={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
-                  success ? '' : 'border border-dashed opacity-60'
-                }`}
-                style={
-                  success
-                    ? { backgroundColor: tokenTint(success, 0.2), color: success.css }
-                    : { borderColor: '#525252', color: textMuted }
-                }
-                data-context-role="success"
-                data-context-step="500"
-                title={stepNote(success, 500)}
-              >
-                Production
-              </span>
-            </div>
-          </div>
-        </PreviewFrame>
-
-        {/* ── 5. Accessibility Contrast Matrix ── */}
-        <PreviewFrame
-          label="Accessibility Contrast Matrix"
-          hint="WCAG 2.1 + APCA"
-          canvasBg={canvasBg}
-          borderCol={borderCol}
-          index={4}
-        >
-          <div class="space-y-2" style={{ color: textMain }}>
-            {/* Table header */}
-            <div
-              class="grid grid-cols-3 gap-2 text-[10px] font-mono uppercase tracking-wider px-3 pb-1"
-              style={{ color: textMuted }}
-            >
-              <span>Pair</span>
-              <span class="text-center">Ratio</span>
-              <span class="text-right">Result</span>
-            </div>
-
-            <ContrastRow
-              label="Trusty Button · White text"
-              ratio={btnTextContrast}
-              value={btnTextContrast === null ? '—' : `${btnTextContrast}:1`}
-              badge={
-                btnTextContrast === null
-                  ? null
-                  : btnTextContrast >= 7
-                    ? 'AAA'
-                    : btnTextContrast >= 4.5
-                      ? 'AA'
-                      : 'Fail'
-              }
-              tone={btnTextContrast !== null && btnTextContrast >= 4.5 ? 'pass' : 'warn'}
-              surface={previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
-            />
-
-            <ContrastRow
-              label="Danger · Surface canvas"
-              ratio={alertContrast}
-              value={alertContrast === null ? '—' : `${alertContrast}:1`}
-              badge={
-                alertContrast === null
-                  ? null
-                  : alertContrast >= 7
-                    ? 'AAA'
-                    : alertContrast >= 4.5
-                      ? 'AA'
-                      : 'Fail'
-              }
-              tone={alertContrast !== null && alertContrast >= 4.5 ? 'pass' : 'warn'}
-              surface={previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
-            />
-
-            <ContrastRow
-              label="Primary · Surface (APCA)"
-              ratio={apcaDelta}
-              value={apcaDelta === null ? '—' : `${apcaDelta} Lc`}
-              badge={apcaDelta === null ? null : 'Perceptual'}
-              tone="info"
-              surface={previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
-            />
-          </div>
-        </PreviewFrame>
-
-      </div>
         </div>
 
         {/* Sidebar - Cart Colors */}
         <CartSidebar />
       </div>
 
-      {/* Action popover shown when a colored element is clicked / right-clicked */}
+      {/* Action popover shown when a coloured element is clicked / right-clicked */}
       {popover && (
         <ColorActionPopover
           x={popover.x}

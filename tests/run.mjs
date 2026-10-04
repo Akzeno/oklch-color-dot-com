@@ -34,6 +34,7 @@ const SUITES = [
   'swatch-quick-actions.mjs',
   // Reads dist/, so the build must run first — hence `astro build && npm test`.
   'island-hydration.mjs',
+  'preview-groups.mjs',
 ];
 
 let failed = 0;
