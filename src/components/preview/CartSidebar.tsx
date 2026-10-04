@@ -2,14 +2,14 @@ import { useState } from 'preact/hooks';
 import {
   cartStore,
   generateFullScaleForRole,
-  removeShadeFromRole,
   clearRoleScale,
   clearAllScales,
   renameRole,
   createCustomRole,
   deleteRole,
   setActiveRole,
-  addColorToCart,
+  savePickerHandoff,
+  removeShadeWithUndo,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
 import { SHADE_STEPS, formatOklch, parseAnyToOklch, type ShadeStep, type ColorModel } from '../../utils/color';
@@ -26,6 +26,19 @@ export default function CartSidebar() {
 
   const filledShadesCount = Object.values(cart.roles).reduce((sum, r) => sum + Object.keys(r.shades).length, 0);
   const rolesArray = Object.values(cart.roles);
+
+  /**
+   * Send an exact token slot to the full color picker page.
+   *
+   * `color` is `null` for an empty slot, which tells the picker to author a new
+   * token there (seeding lightness from the step and hue from the role's 500)
+   * instead of preloading an existing colour. Either way the picker writes back
+   * to this very slot, never a nearest-lightness one.
+   */
+  const openPicker = (roleId: string, step: ShadeStep, color: ColorModel | null) => {
+    savePickerHandoff({ roleId, step, color });
+    window.location.href = '/';
+  };
 
   const updateShadeColor = (roleId: string, step: ShadeStep, newColor: ColorModel) => {
     const current = cartStore.get();
@@ -95,13 +108,6 @@ export default function CartSidebar() {
     };
 
     updateShadeColor(roleId, step, newColor);
-  };
-
-  const getShadeCss = (role: typeof rolesArray[0], step: ShadeStep): string => {
-    if (role.shades[step]) {
-      return formatOklch(role.shades[step]!.color);
-    }
-    return '';
   };
 
   const hasAnyShades = (role: typeof rolesArray[0]): boolean => {
@@ -319,32 +325,61 @@ export default function CartSidebar() {
                     const hex = token ? token.color.hex : '';
                     const isEditing = editingShade?.roleId === role.id && editingShade?.step === step;
 
+                    /* Both the empty and the filled branch render the SAME wrapper element with the
+                       same classes. They used to differ (`flex items-center
+                       justify-center` vs `relative group`) while sharing one
+                       `key`, so any partial reconciliation left a filled swatch
+                       sitting inside an empty-slot flex row — which stretched
+                       its `w-full` swatch across the whole cell. Keeping the
+                       wrapper identical means the slot's box is never borrowed. */
                     if (!token) {
                       return (
-                        <div
-                          key={step}
-                          class="h-10 rounded-lg bg-[#0a0a0a] border border-[#262626] flex items-center justify-center cursor-pointer hover:border-[#333333] transition-colors"
-                          onClick={() => {
-                            const current = cartStore.get();
-                            const activeRole = current.roles[current.activeRoleId];
-                            if (activeRole && activeRole.shades[500]) {
-                              addColorToCart(activeRole.shades[500]!.color, role.id);
-                            }
-                          }}
-                          title="Click to add color"
-                        >
-                          <span class="text-[10px] font-mono text-[#333333]">{step}</span>
+                        <div key={step} class="relative group min-w-0">
+                          <div
+                            class="h-10 w-full rounded-lg bg-[#0a0a0a] border border-[#262626] flex items-center justify-center cursor-pointer hover:border-[#333333] transition-colors"
+                            onClick={() => openPicker(role.id, step, null)}
+                            title={`Pick a color for step ${step}`}
+                          >
+                            <span class="text-[10px] font-mono text-[#333333]">{step}</span>
+                          </div>
+                          <div class="text-[10px] font-mono text-[#525252] mt-1 text-center">{step}</div>
                         </div>
                       );
                     }
 
                     return (
-                      <div key={step} class="relative group">
-                        {/* Color Swatch */}
+                      <div key={step} class="relative group min-w-0">
+                        {/* Color Swatch. `min-w-0` on this grid item is what keeps
+                            the swatch pinned to its track: without it the item's
+                            automatic minimum size is the full `truncate`d OKLCH
+                            string below (~144px vs an ~80px track), so filled
+                            swatches burst out of their box and overlap the next
+                            column while empty slots stayed fine. */}
                         <div
                           class="h-10 w-full rounded-lg border border-[#262626] relative overflow-hidden"
                           style={{ backgroundColor: css || hex }}
                         >
+                          {/* Click the swatch to reopen the picker on this exact
+                              slot (preloaded with its current colour). Right-click
+                              removes it with an Undo toast. The edit/copy/remove
+                              row below calls stopPropagation, so those still work. */}
+                          {!isEditing && (
+                            <button
+                              type="button"
+                              class="absolute inset-0 z-0 cursor-pointer"
+                              aria-label={`Edit --color-${role.id}-${step} in the color picker`}
+                              title={`Edit --color-${role.id}-${step} · right-click to remove`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openPicker(role.id, step, token.color);
+                              }}
+                              onContextMenu={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeShadeWithUndo(role.id, step);
+                              }}
+                            />
+                          )}
                           {token.color.inP3 && !token.color.inSRGB && (
                             <span class="absolute top-1 right-1 text-[8px] font-mono font-bold px-1 py-0.5 rounded bg-black/40 text-[#06b6d4] backdrop-blur-sm">
                               P3
@@ -366,7 +401,7 @@ export default function CartSidebar() {
                                   }
                                 }}
                                 onBlur={() => setEditingShade(null)}
-                                class="px-2 py-1 bg-[#0e0e0e] border border-[#3b82f6] rounded text-xs font-mono text-[#f5f5f5] focus:outline-none w-[120px]"
+                                class="w-full min-w-0 px-1 py-1 bg-[#0e0e0e] border border-[#3b82f6] rounded text-[10px] font-mono text-[#f5f5f5] focus:outline-none"
                                 autoFocus
                               />
                             </div>
@@ -402,10 +437,10 @@ export default function CartSidebar() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              removeShadeFromRole(role.id, step);
+                              removeShadeWithUndo(role.id, step);
                             }}
                             class="p-1 rounded bg-black/50 hover:bg-black/70 text-[#a3a3a3] hover:text-red-400 transition-colors pointer-events-auto"
-                            title="Remove shade"
+                            title="Remove shade (undoable)"
                           >
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                           </button>
@@ -413,11 +448,15 @@ export default function CartSidebar() {
 
                         {/* Inline LCH Editor */}
                         {isEditing && (
-                          <div class="mt-2 space-y-1 px-1">
+                          <div class="mt-2 space-y-1 px-1 min-w-0">
                             <div class="grid grid-cols-3 gap-1 text-[10px] font-mono text-[#737373]">
                               <span>L</span><span class="text-center">C</span><span class="text-right">H</span>
                             </div>
-                            <div class="grid grid-cols-3 gap-1">
+                            {/* `min-w-0` on the track and `w-full` on each input let
+                                the three number fields shrink into the ~80px swatch
+                                column; the spinners are hidden because they alone
+                                consume more width than the whole track. */}
+                            <div class="grid grid-cols-3 gap-1 min-w-0">
                               <input
                                 type="number"
                                 step="0.01"
@@ -425,7 +464,7 @@ export default function CartSidebar() {
                                 max="1"
                                 value={token.color.l.toFixed(2)}
                                 onChange={(e) => handleLCHChange(role.id, step, 'l', (e.target as HTMLInputElement).value)}
-                                class="px-1.5 py-1 bg-[#171717] border border-[#262626] rounded text-[11px] font-mono text-[#f5f5f5] focus:outline-none focus:border-[#3b82f6]"
+                                class="w-full min-w-0 px-1 py-1 bg-[#171717] border border-[#262626] rounded text-[11px] font-mono text-[#f5f5f5] focus:outline-none focus:border-[#3b82f6] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                               />
                               <input
                                 type="number"
@@ -434,7 +473,7 @@ export default function CartSidebar() {
                                 max="0.4"
                                 value={token.color.c.toFixed(2)}
                                 onChange={(e) => handleLCHChange(role.id, step, 'c', (e.target as HTMLInputElement).value)}
-                                class="px-1.5 py-1 bg-[#171717] border border-[#262626] rounded text-[11px] font-mono text-[#f5f5f5] focus:outline-none focus:border-[#3b82f6]"
+                                class="w-full min-w-0 px-1 py-1 bg-[#171717] border border-[#262626] rounded text-[11px] font-mono text-[#f5f5f5] focus:outline-none focus:border-[#3b82f6] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                               />
                               <input
                                 type="number"
@@ -443,7 +482,7 @@ export default function CartSidebar() {
                                 max="360"
                                 value={Math.round(token.color.h)}
                                 onChange={(e) => handleLCHChange(role.id, step, 'h', (e.target as HTMLInputElement).value)}
-                                class="px-1.5 py-1 bg-[#171717] border border-[#262626] rounded text-[11px] font-mono text-[#f5f5f5] focus:outline-none focus:border-[#3b82f6]"
+                                class="w-full min-w-0 px-1 py-1 bg-[#171717] border border-[#262626] rounded text-[11px] font-mono text-[#f5f5f5] focus:outline-none focus:border-[#3b82f6] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                               />
                             </div>
                           </div>
@@ -451,7 +490,7 @@ export default function CartSidebar() {
 
                         {/* OKLCH Value Display */}
                         {!isEditing && (
-                          <div class="mt-1 text-[10px] font-mono text-[#525252] truncate">{css}</div>
+                          <div class="mt-1 w-full min-w-0 text-[10px] font-mono text-[#525252] truncate">{css}</div>
                         )}
                       </div>
                     );

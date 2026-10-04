@@ -6,11 +6,194 @@ import {
   setRoleShade,
   removeShadeFromRole,
   clearRoleScale,
+  type CartState,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
-import { formatOklch, getWcagContrast, getApcaContrast, type ShadeStep, type ColorModel } from '../../utils/color';
+import {
+  formatOklch,
+  getWcagContrast,
+  getApcaContrast,
+  SHADE_STEPS,
+  TARGET_LIGHTNESS,
+  type ShadeStep,
+  type ColorModel,
+} from '../../utils/color';
 import CartSidebar from './CartSidebar';
 import ColorActionPopover from './ColorActionPopover';
+
+/* ─────────────────────── Token resolution ─────────────────────── */
+
+interface ResolvedToken {
+  css: string;
+  hex: string;
+  color: ColorModel;
+  /** The step actually used — differs from the requested one when substituted. */
+  step: ShadeStep;
+  /** True when the exact requested step was empty and another one was used. */
+  substituted: boolean;
+}
+
+/**
+ * Resolve one design token for the showcase.
+ *
+ * Returns `null` when the slot is genuinely empty. It never invents a colour:
+ * the preview has to show the tokens the user actually owns, not a stock
+ * Tailwind palette masquerading as their design system.
+ *
+ * When the exact step is missing we fall back deterministically — 500 first,
+ * then the available shade whose target lightness is nearest — and flag it as
+ * `substituted` so the UI can disclose it instead of quietly lying.
+ */
+function resolveToken(cart: CartState, roleId: string, step: ShadeStep): ResolvedToken | null {
+  const role = cart.roles[roleId];
+  if (!role) return null;
+
+  const exact = role.shades[step];
+  if (exact) {
+    return { css: formatOklch(exact.color), hex: exact.color.hex, color: exact.color, step, substituted: false };
+  }
+
+  const available = SHADE_STEPS.filter((s) => role.shades[s]);
+  if (available.length === 0) return null;
+
+  const pick = available.includes(500)
+    ? 500
+    : available.reduce((best, s) =>
+        Math.abs(TARGET_LIGHTNESS[s] - TARGET_LIGHTNESS[step]) <
+        Math.abs(TARGET_LIGHTNESS[best] - TARGET_LIGHTNESS[step])
+          ? s
+          : best
+      );
+
+  const token = role.shades[pick]!;
+  return {
+    css: formatOklch(token.color),
+    hex: token.color.hex,
+    color: token.color,
+    step: pick,
+    substituted: true,
+  };
+}
+
+/** Same token at a low alpha, for tinted alert backgrounds. */
+function tokenTint(token: ResolvedToken | null, alpha: number) {
+  if (!token) return 'transparent';
+  return formatOklch({ ...token.color, alpha });
+}
+
+/**
+ * Alert banner whose tint, border and dot all come from one role token.
+ *
+ * Both the light and dark tint are derived from the *same* `--color-<role>-500`
+ * slot (just at different alphas). Deriving the light-mode fill from a separate
+ * 100 slot meant clicking the alert updated the border while the background kept
+ * the old colour — the token and its tint fighting each other.
+ */
+function TokenAlert({
+  role,
+  title,
+  children,
+  token,
+  theme,
+  textMain,
+  textMuted,
+}: {
+  role: string;
+  title: string;
+  children: any;
+  token: ResolvedToken | null;
+  theme: 'dark' | 'light';
+  textMain: string;
+  textMuted: string;
+}) {
+  const unsetLine = theme === 'dark' ? '#525252' : '#d4d4d8';
+
+  return (
+    <div
+      class={`p-3.5 rounded-xl border flex items-start gap-3 ${token ? '' : 'border-dashed'}`}
+      style={{
+        backgroundColor: tokenTint(token, theme === 'dark' ? 0.16 : 0.12),
+        borderColor: token ? token.css : unsetLine,
+      }}
+      data-context-role={role}
+      data-context-step="500"
+      title={token ? `--color-${role}-500 · ${token.css}` : `Click to set --color-${role}-500`}
+    >
+      <div
+        class="w-2 h-2 rounded-full mt-1 flex-shrink-0"
+        style={
+          token
+            ? { backgroundColor: token.css }
+            : { backgroundColor: 'transparent', border: `1px dashed ${unsetLine}` }
+        }
+      />
+      <div>
+        <span class="font-semibold block" style={{ color: token ? textMain : textMuted }}>
+          {title}
+        </span>
+        <span style={{ color: textMuted }}>{children}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────── Contrast matrix row ─────────────────────── */
+
+type GradeTone = 'pass' | 'warn' | 'info';
+
+/**
+ * One contrast row. When `ratio` is `null` the token isn't set, so the row says
+ * "Token unset" instead of grading a placeholder colour — a confident-looking
+ * "AA Pass" on a colour the user never picked is worse than no score at all.
+ */
+function ContrastRow({
+  label,
+  value,
+  ratio,
+  badge,
+  tone,
+  surface,
+}: {
+  label: string;
+  value: string;
+  ratio: number | null;
+  badge: string | null;
+  tone: GradeTone;
+  surface: string;
+}) {
+  return (
+    <div
+      class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
+      style={{ backgroundColor: surface }}
+    >
+      <span class="truncate" title={label}>
+        {label}
+      </span>
+      <span class="text-center font-bold" style={ratio === null ? { color: '#737373' } : undefined}>
+        {value}
+      </span>
+      <span class="text-right">
+        {badge === null ? (
+          <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#262626] text-[#737373]">
+            Token unset
+          </span>
+        ) : (
+          <span
+            class={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              tone === 'pass'
+                ? 'bg-emerald-500/15 text-emerald-400'
+                : tone === 'info'
+                  ? 'bg-sky-500/15 text-sky-400'
+                  : 'bg-amber-500/15 text-amber-400'
+            }`}
+          >
+            {badge}
+          </span>
+        )}
+      </span>
+    </div>
+  );
+}
 
 /* ─────────────────────── PreviewFrame ─────────────────────── */
 function PreviewFrame({
@@ -29,13 +212,13 @@ function PreviewFrame({
   canvasBg: string;
   borderCol: string;
   index: number;
-  /** Stretch across both columns on ultra-wide layouts. */
+  /** Stretch across both columns once the frames grid goes two-up. */
   span?: boolean;
   children: any;
 }) {
   return (
     <div
-      class={`space-y-2.5 animate-frame-in ${span ? '2xl:col-span-2' : ''}`}
+      class={`space-y-2.5 animate-frame-in ${span ? '@3xl:col-span-2' : ''}`}
       style={{ animationDelay: `${index * 60}ms` }}
     >
       {/* Section Label */}
@@ -74,35 +257,23 @@ export default function UIPreviewIsland() {
   const cart = useCart();
   const [previewTheme, setPreviewTheme] = useState<'dark' | 'light'>('dark');
 
-  // Helper to extract CSS color for a role & step, falling back gracefully
-  const getRoleColorCss = (roleId: string, preferredStep: number = 500, fallbackHex: string = '#3b82f6'): { css: string; hex: string } => {
-    const role = cart.roles[roleId];
-    if (role && role.shades[preferredStep as ShadeStep]) {
-      const col = role.shades[preferredStep as ShadeStep]!.color;
-      return { css: formatOklch(col), hex: col.hex };
-    }
-    // Try any available shade in that role
-    if (role) {
-      const keys = Object.keys(role.shades);
-      if (keys.length > 0) {
-        const first = role.shades[Number(keys[0]) as ShadeStep]!.color;
-        return { css: formatOklch(first), hex: first.hex };
-      }
-    }
-    return { css: fallbackHex, hex: fallbackHex };
-  };
+  // Every token the showcase paints from. A `null` entry means "you have not
+  // set this slot" and is rendered as an explicit unset state — never as a
+  // placeholder colour, so the preview can't lie about your design system.
+  //
+  // Tints (alert backgrounds, pill fills) are derived from these same 500 slots
+  // at a low alpha rather than from separate 100 slots, so clicking a token
+  // updates everything painted from it at once.
+  const primary = resolveToken(cart, 'primary', 500);
+  const trustyBtn = resolveToken(cart, 'trusty-button', 500);
+  const success = resolveToken(cart, 'success', 500);
+  const danger = resolveToken(cart, 'danger', 500);
+  const warning = resolveToken(cart, 'warning', 500);
+  const info = resolveToken(cart, 'info', 500);
 
-  const primary = getRoleColorCss('primary', 500, '#3b82f6');
-  const primaryLight = getRoleColorCss('primary', 100, '#dbeafe');
-  const trustyBtn = getRoleColorCss('trusty-button', 500, '#2563eb');
-  const success = getRoleColorCss('success', 500, '#10b981');
-  const successBg = getRoleColorCss('success', 100, '#d1fae5');
-  const danger = getRoleColorCss('danger', 500, '#ef4444');
-  const dangerBg = getRoleColorCss('danger', 100, '#fee2e2');
-  const warning = getRoleColorCss('warning', 500, '#f59e0b');
-  const warningBg = getRoleColorCss('warning', 100, '#fef3c7');
-  const info = getRoleColorCss('info', 500, '#06b6d4');
-  const infoBg = getRoleColorCss('info', 100, '#cffafe');
+  /** "500" or "500 → 400" when a step had to be substituted. */
+  const stepNote = (t: ResolvedToken | null, requested: ShadeStep) =>
+    !t ? `${requested} unset` : t.substituted ? `${requested} → ${t.step}` : String(requested);
 
   // Surface & Text
   const canvasBg = previewTheme === 'dark' ? '#0f0f0f' : '#ffffff';
@@ -111,18 +282,22 @@ export default function UIPreviewIsland() {
   const textMuted = previewTheme === 'dark' ? '#a3a3a3' : '#6b7280';
   const borderCol = previewTheme === 'dark' ? '#262626' : '#e5e7eb';
 
-  // Contrast evaluations
-  const btnTextContrast = useMemo(() => {
-    return getWcagContrast('#ffffff', trustyBtn.hex);
-  }, [trustyBtn.hex]);
+  // Contrast evaluations. `null` means the token isn't set — scoring a
+  // placeholder colour here would report a confident, meaningless AA/AAA grade.
+  const btnTextContrast = useMemo(
+    () => (trustyBtn ? getWcagContrast('#ffffff', trustyBtn.hex) : null),
+    [trustyBtn?.hex]
+  );
 
-  const alertContrast = useMemo(() => {
-    return getWcagContrast(danger.hex, canvasBg);
-  }, [danger.hex, canvasBg]);
+  const alertContrast = useMemo(
+    () => (danger ? getWcagContrast(danger.hex, canvasBg) : null),
+    [danger?.hex, canvasBg]
+  );
 
-  const apcaDelta = useMemo(() => {
-    return getApcaContrast(primary.hex, canvasBg);
-  }, [primary.hex, canvasBg]);
+  const apcaDelta = useMemo(
+    () => (primary ? getApcaContrast(primary.hex, canvasBg) : null),
+    [primary?.hex, canvasBg]
+  );
 
   // Action popover state (opened by left- or right-click on any colored element)
   const [popover, setPopover] = useState<{ x: number; y: number; roleId: string; step: ShadeStep } | null>(null);
@@ -171,7 +346,9 @@ export default function UIPreviewIsland() {
   };
 
   // Hand the color over to the full color picker page
-  const handleOpenInPicker = (color: ColorModel) => {
+  // Hand the exact token slot over to the full color picker page. Works for an
+  // unset slot too (`color: null`), which the picker treats as "author new".
+  const handleOpenInPicker = (color: ColorModel | null) => {
     if (!popover) return;
     savePickerHandoff({ roleId: popover.roleId, step: popover.step, color });
     setPopover(null);
@@ -205,8 +382,8 @@ export default function UIPreviewIsland() {
         onClick={handlePreviewClick}
         onContextMenu={handlePreviewContextMenu}
       >
-        {/* Main Preview Area */}
-        <div class="flex-1 min-w-0 space-y-6">
+        {/* Main Preview Area — container context for the frames grid below */}
+        <div class="flex-1 min-w-0 space-y-6 @container">
           {/* ─────── Controls Bar ─────── */}
       <div class="flex items-center justify-between flex-wrap gap-3 bg-[#141414] border border-[#262626] p-4 rounded-xl">
         <div>
@@ -247,8 +424,13 @@ export default function UIPreviewIsland() {
         </div>
       </div>
 
-      {/* ─────── Component Frames (single column, two columns on 2xl) ─────── */}
-      <div class="grid grid-cols-1 2xl:grid-cols-2 gap-5 2xl:gap-6 items-start">
+      {/* ─────── Component Frames ───────
+            Two columns are driven by the *width available to the preview
+            column* (`@3xl` = 48rem), not the viewport. A viewport `2xl:`
+            breakpoint fired at 1536px while the 240px nav rail left the preview
+            only ~750px, splitting into two cramped ~366px cards. A container
+            query also reacts when the rail collapses. */}
+      <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-5 @3xl:gap-6 items-start">
 
         {/* ── 1. Navigation Bar ── */}
         <PreviewFrame
@@ -264,10 +446,13 @@ export default function UIPreviewIsland() {
           >
             <div class="flex items-center gap-3">
               <div
-                class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow"
-                style={{ backgroundColor: primary.css }}
+                class={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
+                  primary ? 'text-white shadow' : 'border border-dashed'
+                }`}
+                style={primary ? { backgroundColor: primary.css } : { borderColor: textMuted, color: textMuted }}
                 data-context-role="primary"
                 data-context-step="500"
+                title={stepNote(primary, 500)}
               >
                 U
               </div>
@@ -276,10 +461,17 @@ export default function UIPreviewIsland() {
 
             <div class="flex items-center gap-2">
               <button
-                class="px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm transition-transform active:scale-95"
-                style={{ backgroundColor: trustyBtn.css }}
+                class={`px-3 py-1.5 rounded-lg text-xs font-medium transition-transform active:scale-95 ${
+                  trustyBtn ? 'text-white shadow-sm' : 'border border-dashed'
+                }`}
+                style={
+                  trustyBtn
+                    ? { backgroundColor: trustyBtn.css }
+                    : { borderColor: textMuted, color: textMuted }
+                }
                 data-context-role="trusty-button"
                 data-context-step="500"
+                title={stepNote(trustyBtn, 500)}
               >
                 Primary Action
               </button>
@@ -290,45 +482,69 @@ export default function UIPreviewIsland() {
         {/* ── 2. Button Variants ── */}
         <PreviewFrame
           label="Button Variants"
-          hint={`Trusty btn contrast: ${btnTextContrast}:1 ${btnTextContrast >= 4.5 ? '· AA Pass' : '· Low'}`}
-          hintPass={btnTextContrast >= 4.5}
+          hint={
+            btnTextContrast === null
+              ? 'Set trusty-button-500 to score'
+              : `Trusty btn contrast: ${btnTextContrast}:1 ${btnTextContrast >= 4.5 ? '· AA Pass' : '· Low'}`
+          }
+          hintPass={btnTextContrast === null ? undefined : btnTextContrast >= 4.5}
           canvasBg={canvasBg}
           borderCol={borderCol}
           index={1}
         >
           <div class="flex items-center gap-3 flex-wrap" style={{ color: textMain }}>
             <button
-              class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: trustyBtn.css }}
+              class={`px-4 py-2 rounded-lg text-xs font-medium transition-all active:scale-95 ${
+                trustyBtn ? 'text-white shadow hover:opacity-90' : 'border border-dashed'
+              }`}
+              style={
+                trustyBtn
+                  ? { backgroundColor: trustyBtn.css }
+                  : { borderColor: textMuted, color: textMuted }
+              }
               data-context-role="trusty-button"
               data-context-step="500"
+              title={stepNote(trustyBtn, 500)}
             >
               Trusty Button (Solid)
             </button>
 
             <button
               class="px-4 py-2 rounded-lg text-xs font-medium border transition-all hover:bg-black/5 active:scale-95"
-              style={{ borderColor: trustyBtn.css, color: trustyBtn.css }}
+              style={
+                trustyBtn
+                  ? { borderColor: trustyBtn.css, color: trustyBtn.css }
+                  : { borderStyle: 'dashed', borderColor: textMuted, color: textMuted }
+              }
               data-context-role="trusty-button"
               data-context-step="500"
+              title={stepNote(trustyBtn, 500)}
             >
               Trusty Outline
             </button>
 
             <button
-              class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90"
-              style={{ backgroundColor: success.css }}
+              class={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                success ? 'text-white shadow hover:opacity-90' : 'border border-dashed'
+              }`}
+              style={
+                success ? { backgroundColor: success.css } : { borderColor: textMuted, color: textMuted }
+              }
               data-context-role="success"
               data-context-step="500"
+              title={stepNote(success, 500)}
             >
               Confirm (Success)
             </button>
 
             <button
-              class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90"
-              style={{ backgroundColor: danger.css }}
+              class={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                danger ? 'text-white shadow hover:opacity-90' : 'border border-dashed'
+              }`}
+              style={danger ? { backgroundColor: danger.css } : { borderColor: textMuted, color: textMuted }}
               data-context-role="danger"
               data-context-step="500"
+              title={stepNote(danger, 500)}
             >
               Delete (Danger)
             </button>
@@ -351,81 +567,49 @@ export default function UIPreviewIsland() {
           index={2}
         >
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" style={{ color: textMain }}>
-            {/* Success Alert */}
-            <div
-              class="p-3.5 rounded-xl border flex items-start gap-3"
-              style={{
-                backgroundColor: previewTheme === 'dark' ? 'rgba(16, 185, 129, 0.1)' : successBg.hex,
-                borderColor: success.css,
-              }}
-              data-context-role="success"
-              data-context-step="500"
+            <TokenAlert
+              role="success"
+              title="Operation Successful"
+              token={success}
+              theme={previewTheme}
+              textMain={textMain}
+              textMuted={textMuted}
             >
-              <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: success.css }} />
-              <div>
-                <span class="font-semibold block">Operation Successful</span>
-                <span style={{ color: textMuted }}>
-                  Your tokens were safely synthesized and added to the design catalog.
-                </span>
-              </div>
-            </div>
+              Your tokens were safely synthesized and added to the design catalog.
+            </TokenAlert>
 
-            {/* Danger Alert */}
-            <div
-              class="p-3.5 rounded-xl border flex items-start gap-3"
-              style={{
-                backgroundColor: previewTheme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : dangerBg.hex,
-                borderColor: danger.css,
-              }}
-              data-context-role="danger"
-              data-context-step="500"
+            <TokenAlert
+              role="danger"
+              title="Destructive Warning"
+              token={danger}
+              theme={previewTheme}
+              textMain={textMain}
+              textMuted={textMuted}
             >
-              <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: danger.css }} />
-              <div>
-                <span class="font-semibold block">Destructive Warning</span>
-                <span style={{ color: textMuted }}>
-                  This action will permanently purge the selected cache buffer.
-                </span>
-              </div>
-            </div>
+              This action will permanently purge the selected cache buffer.
+            </TokenAlert>
 
-            {/* Warning Alert */}
-            <div
-              class="p-3.5 rounded-xl border flex items-start gap-3"
-              style={{
-                backgroundColor: previewTheme === 'dark' ? 'rgba(245, 158, 11, 0.1)' : warningBg.hex,
-                borderColor: warning.css,
-              }}
-              data-context-role="warning"
-              data-context-step="500"
+            <TokenAlert
+              role="warning"
+              title="Attention Required"
+              token={warning}
+              theme={previewTheme}
+              textMain={textMain}
+              textMuted={textMuted}
             >
-              <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: warning.css }} />
-              <div>
-                <span class="font-semibold block">Attention Required</span>
-                <span style={{ color: textMuted }}>
-                  Lightness step is approaching Display-P3 wide gamut limits.
-                </span>
-              </div>
-            </div>
+              Lightness step is approaching Display-P3 wide gamut limits.
+            </TokenAlert>
 
-            {/* Info Alert */}
-            <div
-              class="p-3.5 rounded-xl border flex items-start gap-3"
-              style={{
-                backgroundColor: previewTheme === 'dark' ? 'rgba(6, 182, 212, 0.1)' : infoBg.hex,
-                borderColor: info.css,
-              }}
-              data-context-role="info"
-              data-context-step="500"
+            <TokenAlert
+              role="info"
+              title="System Telemetry"
+              token={info}
+              theme={previewTheme}
+              textMain={textMain}
+              textMuted={textMuted}
             >
-              <div class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: info.css }} />
-              <div>
-                <span class="font-semibold block">System Telemetry</span>
-                <span style={{ color: textMuted }}>
-                  Tailwind v4 @theme export is active and live-updating.
-                </span>
-              </div>
-            </div>
+              Tailwind v4 @theme export is active and live-updating.
+            </TokenAlert>
           </div>
         </PreviewFrame>
 
@@ -443,10 +627,13 @@ export default function UIPreviewIsland() {
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold">Project Settings</span>
               <span
-                class="px-2 py-0.5 rounded-full text-[11px] font-mono text-white font-medium"
-                style={{ backgroundColor: primary.css }}
+                class={`px-2 py-0.5 rounded-full text-[11px] font-mono font-medium ${
+                  primary ? 'text-white' : 'border border-dashed text-[#737373]'
+                }`}
+                style={primary ? { backgroundColor: primary.css } : { borderColor: '#525252' }}
                 data-context-role="primary"
                 data-context-step="500"
+                title={stepNote(primary, 500)}
               >
                 Active
               </span>
@@ -474,18 +661,32 @@ export default function UIPreviewIsland() {
                 Pill Badges:
               </span>
               <span
-                class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold"
-                style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', color: primary.css }}
+                class={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                  primary ? '' : 'border border-dashed opacity-60'
+                }`}
+                style={
+                  primary
+                    ? { backgroundColor: tokenTint(primary, 0.2), color: primary.css }
+                    : { borderColor: '#525252', color: textMuted }
+                }
                 data-context-role="primary"
                 data-context-step="500"
+                title={stepNote(primary, 500)}
               >
                 v4.0.0
               </span>
               <span
-                class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold"
-                style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: success.css }}
+                class={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                  success ? '' : 'border border-dashed opacity-60'
+                }`}
+                style={
+                  success
+                    ? { backgroundColor: tokenTint(success, 0.2), color: success.css }
+                    : { borderColor: '#525252', color: textMuted }
+                }
                 data-context-role="success"
                 data-context-step="500"
+                title={stepNote(success, 500)}
               >
                 Production
               </span>
@@ -512,59 +713,48 @@ export default function UIPreviewIsland() {
               <span class="text-right">Result</span>
             </div>
 
-            {/* Row 1: Trusty Button vs White */}
-            <div
-              class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
-              style={{ backgroundColor: previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
-            >
-              <span>Trusty Button · White text</span>
-              <span class="text-center font-bold">{btnTextContrast}:1</span>
-              <span class="text-right">
-                <span
-                  class={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    btnTextContrast >= 4.5
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-amber-500/15 text-amber-400'
-                  }`}
-                >
-                  {btnTextContrast >= 7 ? 'AAA' : btnTextContrast >= 4.5 ? 'AA' : 'Fail'}
-                </span>
-              </span>
-            </div>
+            <ContrastRow
+              label="Trusty Button · White text"
+              ratio={btnTextContrast}
+              value={btnTextContrast === null ? '—' : `${btnTextContrast}:1`}
+              badge={
+                btnTextContrast === null
+                  ? null
+                  : btnTextContrast >= 7
+                    ? 'AAA'
+                    : btnTextContrast >= 4.5
+                      ? 'AA'
+                      : 'Fail'
+              }
+              tone={btnTextContrast !== null && btnTextContrast >= 4.5 ? 'pass' : 'warn'}
+              surface={previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
+            />
 
-            {/* Row 2: Danger vs Surface */}
-            <div
-              class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
-              style={{ backgroundColor: previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
-            >
-              <span>Danger · Surface canvas</span>
-              <span class="text-center font-bold">{alertContrast}:1</span>
-              <span class="text-right">
-                <span
-                  class={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    alertContrast >= 4.5
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-amber-500/15 text-amber-400'
-                  }`}
-                >
-                  {alertContrast >= 7 ? 'AAA' : alertContrast >= 4.5 ? 'AA' : 'Fail'}
-                </span>
-              </span>
-            </div>
+            <ContrastRow
+              label="Danger · Surface canvas"
+              ratio={alertContrast}
+              value={alertContrast === null ? '—' : `${alertContrast}:1`}
+              badge={
+                alertContrast === null
+                  ? null
+                  : alertContrast >= 7
+                    ? 'AAA'
+                    : alertContrast >= 4.5
+                      ? 'AA'
+                      : 'Fail'
+              }
+              tone={alertContrast !== null && alertContrast >= 4.5 ? 'pass' : 'warn'}
+              surface={previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
+            />
 
-            {/* Row 3: APCA Delta */}
-            <div
-              class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
-              style={{ backgroundColor: previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
-            >
-              <span>Primary · Surface (APCA)</span>
-              <span class="text-center font-bold text-emerald-400">{apcaDelta} Lc</span>
-              <span class="text-right">
-                <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-400">
-                  Perceptual
-                </span>
-              </span>
-            </div>
+            <ContrastRow
+              label="Primary · Surface (APCA)"
+              ratio={apcaDelta}
+              value={apcaDelta === null ? '—' : `${apcaDelta} Lc`}
+              badge={apcaDelta === null ? null : 'Perceptual'}
+              tone="info"
+              surface={previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
+            />
           </div>
         </PreviewFrame>
 

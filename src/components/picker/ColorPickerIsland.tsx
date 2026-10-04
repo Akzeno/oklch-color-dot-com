@@ -7,10 +7,12 @@ import {
   oklchToHslString,
   findMaxChromaInSRGB,
   getNearestShadeStep,
+  TARGET_LIGHTNESS,
   type ColorModel,
 } from '../../utils/color';
 import {
   addColorToCart,
+  cartStore,
   setActiveRole,
   setRoleShade,
   isCartOpenStore,
@@ -41,11 +43,26 @@ export default function ColorPickerIsland() {
     const pending = consumePickerHandoff();
     if (!pending) return;
     setHandoff(pending);
-    setL(pending.color.l);
-    setC(pending.color.c);
-    setH(pending.color.h);
-    setAlpha(pending.color.alpha);
     setActiveRole(pending.roleId);
+
+    if (pending.color) {
+      setL(pending.color.l);
+      setC(pending.color.c);
+      setH(pending.color.h);
+      setAlpha(pending.color.alpha);
+      return;
+    }
+
+    // Empty slot: author a new token that already suits its step, instead of
+    // opening on the picker's arbitrary default (which ignored the slot).
+    // Chroma/hue are inherited from the role's own 500 so a generated scale stays
+    // on-hue; lightness comes from the step so slot 950 opens dark and 50 light.
+    const role = cartStore.get().roles[pending.roleId];
+    const base = role?.shades[500]?.color;
+    setL(TARGET_LIGHTNESS[pending.step]);
+    setC(base ? base.c : 0.12);
+    setH(base ? base.h : 255);
+    setAlpha(base ? base.alpha : 1);
   }, []);
 
   // Current active color model
@@ -132,14 +149,23 @@ export default function ColorPickerIsland() {
             />
             <div class="min-w-0">
               <p class="text-xs font-semibold text-[#f5f5f5] truncate">
-                Editing{' '}
+                {handoff.color ? 'Editing' : 'Creating'}{' '}
                 <span class="font-mono text-[#86efac]">
                   --color-{handoff.roleId}-{handoff.step}
                 </span>
               </p>
               <p class="text-[11px] font-mono text-[#737373] truncate">
-                Loaded from{' '}
-                {handoffRole?.name ?? handoff.roleId} · saving replaces that exact token
+                {handoff.color ? (
+                  <>
+                    Loaded from {handoffRole?.name ?? handoff.roleId} · saving replaces
+                    that exact token
+                  </>
+                ) : (
+                  <>
+                    New token in {handoffRole?.name ?? handoff.roleId} · saving creates
+                    that exact slot
+                  </>
+                )}
               </p>
             </div>
           </div>

@@ -5,7 +5,6 @@ import {
   SHADE_STEPS,
   getNearestShadeStep,
   generateFullScaleFromColor,
-  formatOklch,
   createOklchColor,
 } from '../utils/color';
 
@@ -81,8 +80,19 @@ function getDefaultCartState(): CartState {
   };
 }
 
+/**
+ * The deterministic default cart.
+ *
+ * Exported because it must pin the *first* render of every hydration root, not
+ * just module init. `cartStore` is a singleton shared by all islands on a page,
+ * so by the time a later island hydrates, another island may already have
+ * replaced the store with the persisted cart. `useCart` returns this snapshot
+ * for its first render so client output always matches the server HTML.
+ */
+export const DEFAULT_CART_SNAPSHOT: CartState = getDefaultCartState();
+
 // Global cart store — starts from the deterministic defaults above.
-export const cartStore = atom<CartState>(getDefaultCartState());
+export const cartStore = atom<CartState>(DEFAULT_CART_SNAPSHOT);
 
 // Defensive coercion: localStorage is user-writable, so a malformed/legacy
 // payload must never be able to crash a render.
@@ -175,21 +185,39 @@ export function hydrateCartFromStorage() {
 export const isCartOpenStore = atom<boolean>(false);
 
 // Micro-toast notification store
+export interface ToastAction {
+  label: string;
+  run: () => void;
+}
+
 export interface ToastNotification {
   id: string;
   message: string;
   type?: 'success' | 'info';
+  /**
+   * Optional inline action, e.g. Undo. Required for destructive one-click
+   * actions so the user can always get the token back.
+   */
+  action?: ToastAction;
 }
 export const toastStore = atom<ToastNotification | null>(null);
 
-export function showToast(message: string, type: 'success' | 'info' = 'success') {
+export function showToast(
+  message: string,
+  type: 'success' | 'info' = 'success',
+  action?: ToastAction
+) {
   const id = Math.random().toString(36).substring(2, 9);
-  toastStore.set({ id, message, type });
-  setTimeout(() => {
-    if (toastStore.get()?.id === id) {
-      toastStore.set(null);
-    }
-  }, 2200);
+  toastStore.set({ id, message, type, action });
+  // Give an actionable toast longer to live so Undo stays reachable.
+  setTimeout(
+    () => {
+      if (toastStore.get()?.id === id) {
+        toastStore.set(null);
+      }
+    },
+    action ? 6000 : 2200
+  );
 }
 
 // Persist cart helper
@@ -350,6 +378,39 @@ export function removeShadeFromRole(roleId: string, step: ShadeStep) {
       },
     },
   });
+}
+
+/**
+ * Remove a single shade but keep it recoverable.
+ *
+ * The sidebar's swatch has a one-click remove, and a stray click on a small
+ * target is easy — so this always offers Undo instead of a confirm dialog that
+ * would turn every removal into two clicks. Pass `silent: true` when the caller
+ * shows its own toast (e.g. one that already contains an Undo action).
+ */
+export function removeShadeWithUndo(
+  roleId: string,
+  step: ShadeStep,
+  options: { silent?: boolean } = {}
+) {
+  const current = cartStore.get();
+  const role = current.roles[roleId];
+  const removed = role?.shades[step];
+  if (!role || !removed) return false;
+
+  removeShadeFromRole(roleId, step);
+
+  if (!options.silent) {
+    showToast(`Removed --color-${roleId}-${step}`, 'success', {
+      label: 'Undo',
+      run: () => {
+        setRoleShade(roleId, step, removed.color, { silent: true });
+        showToast(`Restored --color-${roleId}-${step}`);
+      },
+    });
+  }
+
+  return true;
 }
 
 // Delete EVERY shade of a role — i.e. wipe the full 50–950 scale owned by the
@@ -518,13 +579,21 @@ const PICKER_HANDOFF_KEY = 'oklch_picker_handoff_v1';
 export interface PickerHandoff {
   roleId: string;
   step: ShadeStep;
-  color: ColorModel;
+  /**
+   * The token's current colour, or `null` when the slot is still empty.
+   *
+   * `null` means "author a brand-new token in this exact slot": the picker then
+   * seeds itself from the step's canonical lightness and the role's own hue
+   * instead of preloading an existing colour, but still writes back to
+   * `--color-<role>-<step>` rather than a nearest-lightness slot.
+   */
+  color: ColorModel | null;
 }
 
 /**
- * Remember which exact token slot a colour came from before navigating to the
- * color picker page, so the picker can prefill L/C/H and write back to the very
- * same `--color-<role>-<step>` variable instead of a nearest-lightness slot.
+ * Remember which exact token slot to author before navigating to the color
+ * picker page, so the picker can prefill L/C/H and write back to the very same
+ * `--color-<role>-<step>` variable instead of a nearest-lightness slot.
  */
 export function savePickerHandoff(handoff: PickerHandoff) {
   if (typeof window === 'undefined') return;
@@ -543,10 +612,15 @@ export function consumePickerHandoff(): PickerHandoff | null {
     if (!raw) return null;
     sessionStorage.removeItem(PICKER_HANDOFF_KEY);
     const parsed = JSON.parse(raw) as Partial<PickerHandoff>;
-    const color = sanitizeColor(parsed.color);
     const step = Number(parsed.step) as ShadeStep;
-    if (!color || typeof parsed.roleId !== 'string' || !SHADE_STEPS.includes(step)) return null;
-    return { roleId: parsed.roleId, step, color };
+    if (typeof parsed.roleId !== 'string' || !SHADE_STEPS.includes(step)) return null;
+    // A missing/invalid colour is legitimate now: it means an empty slot, and
+    // the role + step are still enough to target the write-back precisely.
+    return {
+      roleId: parsed.roleId,
+      step,
+      color: parsed.color ? sanitizeColor(parsed.color) : null,
+    };
   } catch {
     return null;
   }

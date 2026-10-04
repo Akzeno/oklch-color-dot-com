@@ -21,7 +21,12 @@ interface ColorActionPopoverProps {
   /** Remove every color of the parent role (its full 50–950 scale). */
   onDeleteFullScale: () => void;
   /** Hand the color over to the color picker page. */
-  onOpenInPicker: (color: ColorModel) => void;
+  /**
+   * Hand the token slot over to the full color picker page.
+   * `color` is `null` when the slot is still empty, so the picker can author a
+   * brand-new token for that exact variable instead of refusing to open.
+   */
+  onOpenInPicker: (color: ColorModel | null) => void;
   onClose: () => void;
 }
 
@@ -279,15 +284,18 @@ export default function ColorActionPopover({
         {/* Pickers */}
         <div class="grid grid-cols-2 gap-2">
           <button
-            onClick={() => targetColor && onOpenInPicker(targetColor)}
-            disabled={!targetColor}
-            class="px-2.5 py-2 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] hover:border-[#333333] text-[11px] font-mono text-[#f5f5f5] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Open the full color picker preloaded with this color"
+            onClick={() => onOpenInPicker(targetColor)}
+            class="px-2.5 py-2 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] hover:border-[#333333] text-[11px] font-mono text-[#f5f5f5] transition-colors flex items-center justify-center gap-1.5"
+            title={
+              targetColor
+                ? 'Open the full color picker preloaded with this color'
+                : `Open the full color picker to create --color-${targetRoleId}-${targetStep}`
+            }
           >
             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="m2 22 1-4 12.5-12.5 3 3L6 21l-4 1Z" /><path d="m15 6 3-3 3 3-3 3" /><path d="M9 12 6.5 14.5" />
             </svg>
-            <span class="truncate">Color Picker</span>
+            <span class="truncate">{targetColor ? 'Color Picker' : 'New Color'}</span>
           </button>
           <button
             onClick={() => setTab('palettes')}
