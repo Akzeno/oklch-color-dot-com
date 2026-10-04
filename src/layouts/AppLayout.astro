@@ -25,16 +25,20 @@ const currentPath = Astro.url.pathname;
   canonicalPath={canonicalPath}
   schemaType={schemaType}
 >
-  <!-- Global App Header -->
+  <!-- Header -->
   <Header />
 
-  <!-- Layout Container: Sidebar + Main Content -->
+  <!-- Nav rail + main workspace -->
   <div class="flex-1 flex min-h-[calc(100vh-3.5rem)]">
-    <!-- Desktop Collapsible Sidebar -->
     <SidebarIsland client:load currentPath={currentPath} />
 
-    <!-- Main Workspace -->
-    <main class="flex-1 min-w-0 pb-20 md:pb-10 overflow-x-hidden">
+    <!--
+      `overflow-x-hidden` only. Clamping the axis matters here because a wide
+      colour table or code block would otherwise push the whole page sideways
+      and drag the sticky header and rail off-screen with it. Vertical scroll is
+      left alone — the sticky children need it to position against.
+    -->
+    <main class="flex-1 min-w-0 pb-16 md:pb-10 overflow-x-hidden">
       <slot />
     </main>
   </div>

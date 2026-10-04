@@ -1,5 +1,6 @@
 ---
 import type { PaletteItem } from '../../data/palettes';
+import { SHADE_STEPS } from '../../utils/color';
 import SwatchStripIsland from './SwatchStripIsland';
 
 interface Props {
@@ -7,45 +8,34 @@ interface Props {
 }
 
 const { palette } = Astro.props;
-const stepCount = Object.keys(palette.shades).length;
+const stepCount = SHADE_STEPS.filter((s) => palette.shades[s]).length;
 ---
 
-<article class="bg-[#141414] border border-[#262626] rounded-[14px] p-4 flex flex-col gap-3 hover:border-[#383838] transition-colors duration-150">
-  <!-- 1. Header Row -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <h3 class="text-sm font-semibold tracking-tight text-[#f5f5f5]">
-        <a href={`/oklch-colors/${palette.slug}`} class="hover:underline">
+{/*
+  Compact, self-contained palette unit: header, swatch bar, action bar.
+
+  The header carries the name and a category pill; the swatch bar is the point
+  of the card and gets the space. The action bar lives inside the island so the
+  whole card is one hydration boundary — header chrome stays server-rendered,
+  everything that needs `clipboard` is client-side.
+*/}
+<article class="card !p-4 flex flex-col gap-3 hover:border-border-focus transition-colors duration-150">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h3 class="text-card text-ink">
+        <a href={`/oklch-colors/${palette.slug}`} class="hover:underline decoration-hairline underline-offset-4">
           {palette.name}
         </a>
       </h3>
-      <span class="text-[11px] font-mono text-[#737373] px-2 py-0.5 rounded bg-[#1a1a1a]">
-        {palette.categoryLabel}
-      </span>
+      <span class="block mt-0.5 font-mono text-micro text-mute">{palette.categoryLabel}</span>
     </div>
-    <span class="text-[11px] font-mono text-[#a3a3a3] px-2 py-0.5 rounded-full bg-[#1c1c1c] border border-[#262626]">
-      {stepCount} shades
-    </span>
+    <span class="pill shrink-0">{stepCount} colours</span>
   </div>
 
-  <!-- 2. Swatch Bar (Hero Element, single click adds that exact swatch to active cart role) -->
-  <SwatchStripIsland client:visible shades={palette.shades} paletteName={palette.name} />
-
-  <!-- 3. Footer Action Bar -->
-  <div class="flex items-center justify-between pt-1 text-xs font-mono text-[#a3a3a3]">
-    <span class="text-[11px] text-[#737373] truncate max-w-[200px] sm:max-w-xs">
-      Base: L {(palette.baseColor.l * 100).toFixed(0)}% C {palette.baseColor.c.toFixed(2)} H {palette.baseColor.h.toFixed(0)}°
-    </span>
-    <div class="flex items-center gap-3">
-      <a
-        href={`/oklch-colors/${palette.slug}`}
-        class="hover:text-[#f5f5f5] transition-colors flex items-center gap-1"
-      >
-        <span>Details</span>
-        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </a>
-    </div>
-  </div>
+  <SwatchStripIsland
+    client:visible
+    shades={palette.shades}
+    paletteName={palette.name}
+    paletteSlug={palette.slug}
+  />
 </article>

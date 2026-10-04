@@ -1,43 +1,128 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — Vercel Analysis system (see DESIGN.md)
+
+   The palette is deliberately *perceptually neutral*. Every chrome colour is an
+   unsaturated gray on a black ramp, because a tinted UI (dark blue, deep purple)
+   shifts how the eye reads the OKLCH swatches sitting next to it. Nothing in
+   here is allowed to be "a colour" except the three semantic overlays, which
+   carry meaning — gamut state and copy confirmation — rather than decoration.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @theme {
-  --color-canvas: #0a0a0a;
-  --color-canvas-card: #141414;
-  --color-canvas-elevated: #1f1f1f;
-  --color-canvas-input: #171717;
+  /* Neutral canvas stack — from furthest back to closest to the user. */
+  --color-canvas: #0a0a0a; /* page ground */
+  --color-canvas-sunken: #0e0e0e; /* inset wells: code blocks, side panels */
+  --color-canvas-card: #141414; /* cards, tool surfaces */
+  --color-canvas-raised: #171717; /* inputs, list rows */
+  --color-canvas-elevated: #1f1f1f; /* popovers, tooltips, hover fills */
 
-  --color-hairline: #262626;
-  --color-hairline-subtle: #1a1a1a;
-  --color-border-focus: #525252;
+  /* Borders & divides. */
+  --color-hairline: #262626; /* default 1px structure */
+  --color-hairline-subtle: #1a1a1a; /* inner dividers, table rules */
+  --color-border-focus: #525252; /* hover / focus ring */
 
-  --color-ink: #f5f5f5;
-  --color-body: #a3a3a3;
-  --color-mute: #737373;
-  --color-faint: #404040;
+  /* Ink ladder — the only text colours in the product. */
+  --color-ink: #f5f5f5; /* primary values, headings, active state */
+  --color-body: #a3a3a3; /* secondary copy, labels */
+  --color-mute: #737373; /* icons, meta, inactive */
+  --color-faint: #404040; /* placeholders, disabled */
 
-  --color-gamut-warning: #f59e0b;
-  --color-gamut-p3: #06b6d4;
-  --color-copy-success: #22c55e;
+  /*
+   * Semantic overlays. The ONLY chromatic values allowed outside of the colour
+   * being worked on. Each one answers a question the swatch alone cannot:
+   * "is this displayable?", "is it wider than sRGB?", "did that copy land?".
+   */
+  --color-gamut-warning: #f59e0b; /* outside sRGB — clamped */
+  --color-gamut-p3: #06b6d4; /* inside Display-P3, outside sRGB */
+  --color-copy-success: #22c55e; /* micro-toast confirmation */
 
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /*
+   * Scrim for chrome laid over a colour swatch — the "P3" gamut badge, and the
+   * hover action row. It has to be a dark translucent fill rather than a solid
+   * token, because the swatch underneath is the thing being read.
+   */
+  --color-badge-surface: rgba(0, 0, 0, 0.62);
 
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-full: 9999px;
+  --font-sans: 'Geist', 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    Menlo, Consolas, monospace;
+
+  /*
+   * Type scale, verbatim from DESIGN.md. Note the sizes: this is an instrument
+   * panel, not a marketing page. 24px is the largest text in the product, which
+   * is why an H1 here is *smaller* than a typical blog H1 — the swatches are the
+   * hero, and the heading is a label on the instrument.
+   */
+  --text-display: 24px;
+  --text-display--line-height: 32px;
+  --text-display--letter-spacing: -0.5px;
+  --text-display--font-weight: 600;
+
+  --text-title: 15px;
+  --text-title--line-height: 22px;
+  --text-title--letter-spacing: -0.2px;
+  --text-title--font-weight: 600;
+
+  --text-card: 14px;
+  --text-card--line-height: 20px;
+  --text-card--letter-spacing: -0.2px;
+  --text-card--font-weight: 500;
+
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-label--font-weight: 500;
+
+  --text-hud: 13px;
+  --text-hud--line-height: 18px;
+  --text-hud--font-weight: 400;
+
+  --text-micro: 11px;
+  --text-micro--line-height: 15px;
+  --text-micro--font-weight: 500;
+
+  /*
+   * Readable prose. DESIGN.md's `body-sm` is 12px, which is correct for HUD
+   * captions but genuinely too small for the reference copy under each tool.
+   * This is the documented deviation: same family, one step larger, in the sans
+   * stack rather than mono. Monospaced paragraphs are the single biggest
+   * readability defect this redesign removes.
+   */
+  --text-prose: 13px;
+  --text-prose--line-height: 22px;
+  --text-prose--font-weight: 400;
+
+  /* Radius ramp. */
+  --radius-sm: 6px; /* inputs, badges, copy pills */
+  --radius-md: 10px; /* swatch blocks, slider thumbs */
+  --radius-lg: 14px; /* cards, docked panels */
+
+  /*
+   * A neutral "on ink" ramp. Used for button fills on the light-ink primary,
+   * and for syntax tinting in the code view — where a *categorical* palette
+   * (pink/blue/purple/green keywords) would otherwise compete with the actual
+   * colour swatch sitting two characters away.
+   */
+  --color-ink-inverse: #0a0a0a;
 }
 
 :root {
   color-scheme: dark;
-  --app-bg: #0a0a0a;
-  --app-text: #f5f5f5;
+
+  --dock-surface: rgba(20, 20, 20, 0.85);
+  --dock-blur: 12px;
+
+  /* Shared easing. Everything settles under 150ms so the UI feels attached to
+     the pointer rather than animating at the user. */
+  --ease-tap: cubic-bezier(0.4, 0, 1, 1);
 }
 
-html, body {
-  background-color: var(--app-bg);
-  color: var(--app-text);
+html,
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   min-height: 100vh;
   margin: 0;
@@ -46,42 +131,464 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar matching neutral canvas */
+/* Keyboard focus. One ring, everywhere, so focus is never ambiguous. */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SURFACES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* A tool or content card. Tight 16px padding — the spec calls for 8–16px
+     gaps and explicitly rejects bulky card padding. */
+  .card {
+    background-color: var(--color-canvas-card);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+
+  /* Inset well for code and terminal-style content. Sits *below* card in the
+     stack so it reads as a hole in the surface, not another card on it. */
+  .well {
+    background-color: var(--color-canvas-sunken);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+  }
+
+  /* Floating glass panel — pinned toolbars and popovers. */
+  .dock {
+    background-color: var(--dock-surface);
+    backdrop-filter: blur(var(--dock-blur));
+    -webkit-backdrop-filter: blur(var(--dock-blur));
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+  }
+
+  /*
+   * Value HUD. Every number the user might copy lives in one of these, so the
+   * shape of "this is a value" is learnable in a single glance.
+   */
+  .hud {
+    background-color: var(--color-canvas-raised);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-hud);
+    line-height: 18px;
+    padding: 8px 12px;
+  }
+
+  .hud:focus-within,
+  .hud:focus {
+    border-color: var(--color-border-focus);
+    outline: none;
+  }
+
+  /* Small monospace pill — counts, categories, shade counts. */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: var(--color-canvas-elevated);
+    border: 1px solid var(--color-hairline);
+    border-radius: 9999px;
+    color: var(--color-body);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: 15px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  /* Section eyebrow above a block of content. */
+  .eyebrow {
+    color: var(--color-mute);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /*
+   * Readable body copy. Sans, 13px, generous leading — deliberately *not* the
+   * mono stack, which was making reference prose dense and hard to track
+   * across a line.
+   */
+  .prose-hud {
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    font-size: var(--text-prose);
+    line-height: 22px;
+  }
+  .prose-hud strong {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+  /* Inline code inside prose: monospace, but tinted from the ink ladder so it
+     reads as emphasis rather than as a colour. */
+  .prose-hud code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-ink);
+    background-color: var(--color-canvas-elevated);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+
+  /* Reference tables. One definition, so all six converter pages and both
+     palette pages cannot drift apart. */
+  .ref-table {
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: 16px;
+  }
+  .ref-table thead th {
+    background-color: var(--color-canvas-card);
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-mute);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+  .ref-table tbody td {
+    border-bottom: 1px solid var(--color-hairline-subtle);
+    padding: 8px 12px;
+    color: var(--color-body);
+    white-space: nowrap;
+  }
+  .ref-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .ref-table tbody tr:hover td {
+    background-color: var(--color-canvas-card);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTROLS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Primary action. Ink-on-black, never a chromatic fill: a saturated button
+ * next to a colour preview biases the judgement of that preview.
+ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 120ms var(--ease-tap),
+    border-color 120ms var(--ease-tap),
+    color 120ms var(--ease-tap);
+}
+
+.btn-primary {
+  background-color: var(--color-ink);
+  color: var(--color-ink-inverse);
+}
+.btn-primary:hover {
+  background-color: #ffffff;
+}
+
+.btn-quiet {
+  background-color: var(--color-canvas-raised);
+  border-color: var(--color-hairline);
+  color: var(--color-ink);
+}
+.btn-quiet:hover {
+  background-color: var(--color-canvas-elevated);
+  border-color: var(--color-border-focus);
+}
+
+/* Destructive variant. Desaturated red, and only ever on a control that
+   deletes — never used decoratively. */
+.btn-danger {
+  background-color: var(--color-canvas-raised);
+  border-color: var(--color-hairline);
+  color: #fca5a5;
+}
+.btn-danger:hover {
+  background-color: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fecaca;
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Square icon-only control. 32px keeps it tappable on touch without letting
+   a row of icons dominate a panel. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--color-mute);
+  cursor: pointer;
+  transition:
+    background-color 120ms var(--ease-tap),
+    color 120ms var(--ease-tap);
+}
+.icon-btn:hover {
+  background-color: var(--color-canvas-elevated);
+  color: var(--color-ink);
+}
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.icon-btn:disabled:hover {
+  background-color: transparent;
+  color: var(--color-mute);
+}
+
+/*
+ * Dense variant, for rows whose height is set by something else — a card header
+ * carrying a name plus three of these cannot afford 32px of control.
+ *
+ * A separate class rather than a `w-7 h-7` utility override on purpose: the
+ * rules above are unlayered, and in CSS an unlayered declaration beats every
+ * layered one regardless of source order. A utility class can therefore never
+ * narrow `.icon-btn`, and a "small" that silently stays 32px is worse than no
+ * small at all.
+ */
+.icon-btn-sm {
+  width: 28px;
+  height: 28px;
+}
+
+/* Denser still, for a swatch card whose footer row is the height of one text
+   line. Same reasoning as `.icon-btn-sm`. */
+.icon-btn-xs {
+  width: 24px;
+  height: 24px;
+}
+
+/* Nav / filter pill. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-hairline);
+  background-color: var(--color-canvas-card);
+  color: var(--color-body);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms var(--ease-tap),
+    color 120ms var(--ease-tap),
+    border-color 120ms var(--ease-tap);
+}
+.chip:hover {
+  color: var(--color-ink);
+  border-color: var(--color-border-focus);
+}
+.chip[aria-pressed='true'],
+.chip[data-on='true'] {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-ink-inverse);
+  font-weight: 500;
+}
+
+/* Text action that de-emphasises until hovered. */
+.link-hud {
+  color: var(--color-body);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  transition: color 120ms var(--ease-tap);
+}
+.link-hud:hover {
+  color: var(--color-ink);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COLOUR DATA — swatches carry the page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The hero element: one contiguous bar of colour, spec height 48px. */
+.swatch-strip {
+  display: flex;
+  align-items: stretch;
+  height: 48px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background-color: var(--color-canvas);
+}
+
+.swatch-item {
+  position: relative;
+  flex: 1 1 0%;
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  z-index: 0;
+  transition:
+    transform 150ms var(--ease-tap),
+    z-index 0ms;
+}
+/* Lifts above its neighbours so the hovered step is fully visible rather than
+   half-covered by the next swatch in the row. */
+.swatch-item:hover,
+.swatch-item:focus-visible {
+  transform: scale(1.05);
+  z-index: 10;
+  outline: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SLIDERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * The track is the most important control in the product: it renders the actual
+ * colour spectrum reachable along that axis, so the user picks by eye instead of
+ * by typing numbers. It comes from a CSS custom property set inline per slider.
+ */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-hairline);
+  background: var(--track-gradient, var(--color-canvas-elevated));
+}
+
+input[type='range']::-moz-range-track {
+  height: 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-hairline);
+  background: var(--track-gradient, var(--color-canvas-elevated));
+}
+
+/* The handle. Ink-on-black with a hairline of canvas behind it, so it stays
+   legible over a fully saturated swatch of the same hue. */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background-color: var(--color-ink);
+  border: 2px solid var(--color-canvas);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 100ms var(--ease-tap);
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+}
+
+input[type='range']::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background-color: var(--color-ink);
+  border: 2px solid var(--color-canvas);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 100ms var(--ease-tap);
+}
+
+input[type='range']::-moz-range-thumb:hover {
+  transform: scale(1.12);
+}
+
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(245, 245, 245, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Scrollbar: 6px, neutral, invisible until hovered. */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--color-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: var(--color-hairline);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--color-faint);
 }
 
-/* Touch ergonomic minimum targets */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* Used by the nav rail and the horizontally scrolling filter row. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* Checkerboard background for transparent / alpha swatches */
+/* Checkerboard for alpha / transparent swatches. */
 .checker-bg {
-  background-image: linear-gradient(45deg, #1f1f1f 25%, transparent 25%),
-    linear-gradient(-45deg, #1f1f1f 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #1f1f1f 75%),
-    linear-gradient(-45deg, transparent 75%, #1f1f1f 75%);
+  background-image:
+    linear-gradient(45deg, var(--color-canvas-elevated) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-canvas-elevated) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-canvas-elevated) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-canvas-elevated) 75%);
   background-size: 8px 8px;
-  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
 }
 
-/* VS Code style inline color decorator */
+/* VS Code style inline colour decorator. `aria-hidden` in markup, so it is
+   invisible to assistive tech and excluded from every copy path. */
 .vscode-color-decorator {
   display: inline-block;
   vertical-align: middle;
@@ -101,12 +608,17 @@ html, body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(45deg, #333 25%, transparent 25%),
+  background-image:
+    linear-gradient(45deg, #333 25%, transparent 25%),
     linear-gradient(-45deg, #333 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, #333 75%),
     linear-gradient(-45deg, transparent 75%, #333 75%);
   background-size: 4px 4px;
-  background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+  background-position:
+    0 0,
+    0 2px,
+    2px -2px,
+    -2px 0;
   z-index: 0;
 }
 
@@ -118,57 +630,7 @@ html, body {
   z-index: 1;
 }
 
-/* Range input styling for OKLCH slider tracks */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-  height: 24px;
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 12px;
-  border-radius: 9999px;
-  border: 1px solid #262626;
-  background: var(--track-gradient, #1f1f1f);
-}
-
-input[type="range"]::-moz-range-track {
-  height: 12px;
-  border-radius: 9999px;
-  border: 1px solid #262626;
-  background: var(--track-gradient, #1f1f1f);
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 22px;
-  width: 22px;
-  border-radius: 9999px;
-  background: #f5f5f5;
-  border: 2px solid #0a0a0a;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  margin-top: -5px;
-  transition: transform 100ms ease;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
-
-input[type="range"]::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
-  border-radius: 9999px;
-  background: #f5f5f5;
-  border: 2px solid #0a0a0a;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  transition: transform 100ms ease;
-}
-
-/* Safe area support for modern phones */
+/* Safe area for notched phones. */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -176,11 +638,16 @@ input[type="range"]::-moz-range-thumb {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Cart modal entrance animations */
-@keyframes cartModalIn {
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION
+   Every transition in the product is ≤150ms, so state changes read as a direct
+   consequence of the click rather than as an animation the user waits out.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes dockIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: scale(0.96) translateY(6px);
   }
   to {
     opacity: 1;
@@ -188,7 +655,7 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
-@keyframes cartBackdropIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
   }
@@ -197,7 +664,6 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
-/* Click-action popover used in the UI preview island */
 @keyframes popoverIn {
   from {
     opacity: 0;
@@ -209,9 +675,76 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+.animate-dock-in {
+  animation: dockIn 0.14s var(--ease-tap) both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.14s ease-out both;
+}
 .animate-popover-in {
   animation: popoverIn 0.14s ease-out both;
   transform-origin: top left;
+}
+
+/*
+ * The showcase canvas.
+ *
+ * These three rules used to live in a `<style>` block inside `UIPreviewIsland`.
+ * They were global selectors wearing a local costume: the hover ring, the
+ * pointer cursor and the frame stagger are properties of *any* painted element,
+ * so putting them in the island meant a group component had to be rendered by
+ * that island for its own hover state to exist — and the one file that decides
+ * how painted elements behave was a file about tabs and URL sync.
+ *
+ * They also ran at 350ms, twice the product's transition ceiling. A staggered
+ * entrance is worth having; a stagger you have to wait out before the colours
+ * you came to judge are readable is not.
+ */
+@keyframes frameIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-frame-in {
+  animation: frameIn 0.14s var(--ease-tap) both;
+}
+
+/*
+ * Every painted element is a token slot and therefore a control. The dashed
+ * outline is the affordance; it was 2px dashed at 45% white, which on a pale
+ * swatch disappeared and on a dark one shouted. One hairline-weight solid ring
+ * off the ink ladder reads on both ends of the range.
+ */
+[data-context-role] {
+  cursor: pointer;
+  position: relative;
+}
+
+[data-context-role]:hover {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/*
+ * Global opt-out. Motion here is decorative by definition — every animated
+ * property is either an entrance or a hover acknowledgement — so there is no
+ * state in which losing it costs meaning.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ── Client-side page transitions (<ClientRouter />) ────────────────────────
@@ -221,22 +754,19 @@ input[type="range"]::-moz-range-thumb {
 
    Deliberately a fade with no directional slide: the app shell (header, nav
    rail, cart drawer) is identical on both sides of every hop, so sliding it
-   would move furniture the user never asked to move. Timing is asymmetric —
-   the old page leaves faster than the new one arrives — which reads as
-   forward motion instead of a symmetrical blink.
+   would move furniture the user never asked to move. Timing is asymmetric — the
+   old page leaves faster than the new one arrives — which reads as forward
+   motion instead of a symmetrical blink.
 
    `astroFadeIn`/`astroFadeOut` come from astro/components/viewtransitions.css;
    their `mix-blend-mode: plus-lighter` is what makes overlapping snapshots
-   composite additively, so a mid-transition frame never dips darker than
-   either page on its own. That matters here because this is a *colour* tool:
-   a dip would read as a bug in the palette.
-
-   prefers-reduced-motion is handled in that same stylesheet. */
+   composite additively, so a mid-transition frame never dips darker than either
+   page on its own. That matters here because this is a *colour* tool: a dip
+   would read as a bug in the palette. */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root) {
     animation: 90ms cubic-bezier(0.4, 0, 1, 1) both astroFadeOut;
   }
-
   ::view-transition-new(root) {
     animation: 180ms cubic-bezier(0, 0, 0.2, 1) both astroFadeIn;
   }

@@ -199,7 +199,7 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
             <SolidButton key={role} paint={paint} role={role} label={actionLabel(role)} />
           ))}
           {ready.length === 0 && (
-            <p class="text-xs font-mono text-[#737373]">
+            <p class="prose-hud">
               No accent roles set yet — add one in the Design Tokens panel.
             </p>
           )}
@@ -266,7 +266,7 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
                 step={ACCENT.fill[paint.theme]}
                 pending
                 part="bg"
-                class="px-3 py-1.5 rounded-lg text-[11px] font-mono border"
+                class="px-2.5 py-1.5 rounded-md font-mono text-micro border"
                 style={unsetStyle(paint.theme)}
               >
                 --color-{role}-{ACCENT.fill[paint.theme]}

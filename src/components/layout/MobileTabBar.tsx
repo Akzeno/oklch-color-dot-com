@@ -1,147 +1,169 @@
 import { useState } from 'preact/hooks';
-import { navigationConfig, type NavItem } from '../../config/navigation';
+import {
+  ArrowLeftRight,
+  BookOpen,
+  Code2,
+  LayoutTemplate,
+  MoreHorizontal,
+  Palette,
+  Pipette,
+  Sparkles,
+  X,
+} from 'lucide-preact';
+import type { Icon } from 'lucide-preact';
+import { navigationConfig } from '../../config/navigation';
+
+/**
+ * Mobile navigation.
+ *
+ * Four destinations plus "More". Labels are the shortened tool names — the
+ * mobile bar cannot fit the full nav labels at 10px without truncating, so the
+ * short form is stated here rather than produced by runtime string surgery on
+ * the nav config (`defaultLabel.replace('Color ', '')`, which would silently
+ * mangle any future label that happened to start with those words).
+ */
+const ICONS: Record<string, Icon> = {
+  Pipette,
+  Palette,
+  Sparkles,
+  ArrowLeftRight,
+  LayoutTemplate,
+  Code2,
+  BookOpen,
+};
+
+/** Short labels, authored rather than derived. */
+const SHORT_LABELS: Record<string, string> = {
+  picker: 'Picker',
+  palettes: 'Palettes',
+  converters: 'Convert',
+  preview: 'Preview',
+  generator: 'Generator',
+  export: 'Export',
+  learn: 'Learn',
+};
 
 interface MobileTabBarProps {
   currentPath: string;
 }
 
 export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
-  const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
-  const normalizedCurrent = currentPath.replace(/\/$/, '') || '/';
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const normalize = (p: string) => p.replace(/\/$/, '') || '/';
+  const current = normalize(currentPath);
 
-  // Primary mobile bar items: Picker, Palettes, Converters, Preview
-  const mobileBarItems = navigationConfig
+  const primary = navigationConfig
     .filter((item) => item.showInMobileBar)
-    .sort((a, b) => (a.mobileBarOrder || 0) - (b.mobileBarOrder || 0));
+    .sort((a, b) => (a.mobileBarOrder ?? 0) - (b.mobileBarOrder ?? 0));
 
-  // Items shown in "More" drawer: Generator, Export, Learn + full converters list
-  const moreDrawerItems = navigationConfig.filter((item) => !item.showInMobileBar);
+  /*
+   * Built from the nav config rather than a hand-written list. The previous
+   * copy duplicated all six converter routes inline, so the sheet went stale
+   * the moment a converter was renamed in one place but not the other.
+   */
+  const converterGroup = navigationConfig.find((item) => item.children?.length);
+  const secondary = navigationConfig.filter(
+    (item) => !item.showInMobileBar && !item.children?.length
+  );
 
   return (
     <>
-      {/* Fixed Bottom Tab Bar */}
       <nav
-        class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-lg border-t border-[#262626] pb-safe"
-        aria-label="Mobile Navigation Bar"
+        class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-canvas/95 backdrop-blur-lg border-t border-hairline pb-safe"
+        aria-label="Primary"
       >
-        <div class="flex items-center justify-around h-14 px-2">
-          {mobileBarItems.map((item) => {
-            const isActive = (item.path.replace(/\/$/, '') || '/') === normalizedCurrent;
+        <div class="flex items-stretch h-14 px-1">
+          {primary.map((item) => {
+            const active = normalize(item.path) === current;
+            const Ico = ICONS[item.icon];
             return (
               <a
                 key={item.id}
                 href={item.path}
-                class={`touch-target flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-mono transition-colors ${
-                  isActive ? 'text-[#f5f5f5]' : 'text-[#737373] hover:text-[#a3a3a3]'
+                aria-current={active ? 'page' : undefined}
+                class={`flex flex-col items-center justify-center gap-0.5 flex-1 font-mono text-[10px] transition-colors duration-150 ${
+                  active ? 'text-ink' : 'text-mute'
                 }`}
               >
-                {/* Icons */}
-                {item.id === 'picker' && (
-                  <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z"/>
-                  </svg>
-                )}
-                {item.id === 'palettes' && (
-                  <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
-                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-                  </svg>
-                )}
-                {item.id === 'converters' && (
-                  <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>
-                  </svg>
-                )}
-                {item.id === 'preview' && (
-                  <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect width="18" height="7" x="3" y="3" rx="1"/><rect width="9" height="7" x="3" y="14" rx="1"/><rect width="5" height="7" x="16" y="14" rx="1"/>
-                  </svg>
-                )}
-                <span>{item.defaultLabel.replace('Color ', '').replace('UI ', '')}</span>
+                {Ico && <Ico class="w-5 h-5" aria-hidden="true" strokeWidth={1.75} />}
+                <span>{SHORT_LABELS[item.id] ?? item.defaultLabel}</span>
               </a>
             );
           })}
 
-          {/* "More" Trigger */}
           <button
-            onClick={() => setMoreDrawerOpen(true)}
-            class={`touch-target flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-mono transition-colors ${
-              moreDrawerOpen ? 'text-[#f5f5f5]' : 'text-[#737373] hover:text-[#a3a3a3]'
+            onClick={() => setSheetOpen(true)}
+            aria-expanded={sheetOpen}
+            class={`flex flex-col items-center justify-center gap-0.5 flex-1 font-mono text-[10px] transition-colors duration-150 ${
+              sheetOpen ? 'text-ink' : 'text-mute'
             }`}
-            aria-label="More navigation options"
           >
-            <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
-            </svg>
+            <MoreHorizontal class="w-5 h-5" aria-hidden="true" strokeWidth={1.75} />
             <span>More</span>
           </button>
         </div>
       </nav>
 
-      {/* "More" Bottom Drawer */}
-      {moreDrawerOpen && (
+      {sheetOpen && (
         <div class="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
           <div
-            class="fixed inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setMoreDrawerOpen(false)}
+            class="fixed inset-0 bg-black/70"
+            onClick={() => setSheetOpen(false)}
             aria-hidden="true"
           />
 
           <div
-            class="relative z-10 bg-[#121212] border-t border-[#262626] rounded-t-2xl p-5 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto pb-safe animate-in slide-in-from-bottom duration-200"
+            class="relative z-10 bg-canvas-card border-t border-hairline rounded-t-lg dock-in max-h-[80vh] overflow-y-auto pb-safe"
             role="dialog"
             aria-modal="true"
-            aria-label="More Tools & Settings"
+            aria-label="All tools"
           >
-            <div class="flex items-center justify-between pb-2 border-b border-[#1f1f1f]">
-              <span class="text-xs font-mono uppercase tracking-wider text-[#737373]">Tools & Resources</span>
+            <div class="flex items-center justify-between px-4 py-3 border-b border-hairline-subtle sticky top-0 bg-canvas-card">
+              <span class="eyebrow">All tools</span>
               <button
-                onClick={() => setMoreDrawerOpen(false)}
-                class="touch-target p-1 text-[#a3a3a3] hover:text-[#f5f5f5]"
+                onClick={() => setSheetOpen(false)}
+                class="icon-btn -mr-1"
+                aria-label="Close"
               >
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 6 6 18M6 6l12 12"/>
-                </svg>
+                <X class="w-4 h-4" aria-hidden="true" strokeWidth={2} />
               </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-              {moreDrawerItems.map((item) => (
-                <a
-                  key={item.id}
-                  href={item.path}
-                  onClick={() => setMoreDrawerOpen(false)}
-                  class="p-3 rounded-lg bg-[#171717] hover:bg-[#222222] border border-[#262626] text-xs font-mono text-[#f5f5f5] flex items-center gap-2.5 transition-colors"
-                >
-                  <span>{item.defaultLabel}</span>
-                </a>
-              ))}
-            </div>
-
-            {/* All Converter Presets */}
-            <div class="pt-2">
-              <span class="text-[11px] font-mono uppercase tracking-wider text-[#737373] block mb-2">
-                Color Converters
-              </span>
-              <div class="grid grid-cols-2 gap-1.5">
-                {[
-                  { label: 'HEX → OKLCH', path: '/hex-to-oklch' },
-                  { label: 'OKLCH → HEX', path: '/oklch-to-hex' },
-                  { label: 'RGB → OKLCH', path: '/rgb-to-oklch' },
-                  { label: 'OKLCH → RGB', path: '/oklch-to-rgb' },
-                  { label: 'HSL → OKLCH', path: '/hsl-to-oklch' },
-                  { label: 'OKLCH → HSL', path: '/oklch-to-hsl' },
-                ].map((c) => (
-                  <a
-                    key={c.path}
-                    href={c.path}
-                    onClick={() => setMoreDrawerOpen(false)}
-                    class="px-2.5 py-2 rounded bg-[#171717] hover:bg-[#222222] border border-[#1f1f1f] text-[11px] font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
-                  >
-                    {c.label}
-                  </a>
-                ))}
+            <div class="p-4 space-y-5">
+              <div class="grid grid-cols-2 gap-2">
+                {secondary.map((item) => {
+                  const Ico = ICONS[item.icon];
+                  return (
+                    <a
+                      key={item.id}
+                      href={item.path}
+                      onClick={() => setSheetOpen(false)}
+                      class="flex items-center gap-2.5 px-3 py-2.5 rounded-md border border-hairline bg-canvas-raised text-label text-ink transition-colors duration-150"
+                    >
+                      {Ico && <Ico class="w-4 h-4 text-mute" aria-hidden="true" strokeWidth={1.75} />}
+                      <span class="truncate">{item.defaultLabel}</span>
+                    </a>
+                  );
+                })}
               </div>
+
+              {converterGroup && (
+                <div>
+                  <span class="eyebrow block mb-2">Converters</span>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    {converterGroup.children!.map((child) => (
+                      <a
+                        key={child.id}
+                        href={child.path}
+                        onClick={() => setSheetOpen(false)}
+                        class="px-3 py-2 rounded-md border border-hairline-subtle bg-canvas-raised font-mono text-label text-body transition-colors duration-150"
+                      >
+                        {child.defaultLabel}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

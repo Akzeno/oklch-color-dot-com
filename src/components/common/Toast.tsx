@@ -31,7 +31,7 @@ export default function Toast() {
    */
   return (
     <div
-      class="fixed bottom-20 md:bottom-8 right-6 z-50 pointer-events-none max-w-[calc(100vw-3rem)]"
+      class="fixed bottom-20 md:bottom-8 right-4 md:right-6 z-50 pointer-events-none max-w-[calc(100vw-2rem)]"
       role="status"
       aria-live="polite"
     >
@@ -41,14 +41,25 @@ export default function Toast() {
           // only the text would leave the element in place and the entry
           // animation would not replay for the second toast onwards.
           key={toast.id}
-          class="pointer-events-auto flex items-center gap-2.5 px-3.5 py-2 rounded-md bg-[#1f1f1f] border border-[#262626] text-[#f5f5f5] text-xs font-mono shadow-2xl animate-in fade-in slide-in-from-bottom-2"
+          class="dock pointer-events-auto flex items-center gap-2.5 px-3 py-2 animate-dock-in"
         >
+          {/*
+            The dot is the one thing in the toast allowed a colour, and it means
+            something: green is a confirmation the user just did something, cyan
+            is information. It no longer pulses. A permanent `animate-pulse` on a
+            8px dot is motion that carries no state — the toast already has a
+            dismiss timer, and the pulse just outlasts the user's attention.
+            `info` also matters: an earlier version coloured info cyan and
+            success green with a shape difference of zero, so the two were only
+            separable by hue.
+          */}
           <span
-            class={`w-2 h-2 rounded-full inline-block animate-pulse flex-shrink-0 ${
-              toast.type === 'info' ? 'bg-[#06b6d4]' : 'bg-[#22c55e]'
+            class={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+              toast.type === 'info' ? 'bg-gamut-p3' : 'bg-copy-success'
             }`}
+            aria-hidden="true"
           />
-          <span class="truncate">{toast.message}</span>
+          <span class="font-mono text-micro text-ink truncate">{toast.message}</span>
 
           {/* Undo-style action for destructive one-click operations. */}
           {toast.action && (
@@ -57,7 +68,7 @@ export default function Toast() {
                 toast.action!.run();
                 toastStore.set(null);
               }}
-              class="flex-shrink-0 px-2 py-0.5 rounded bg-[#262626] hover:bg-[#333333] text-[#f5f5f5] font-semibold transition-colors"
+              class="shrink-0 px-2 py-0.5 rounded bg-canvas-elevated hover:bg-canvas-raised border border-hairline font-mono text-micro text-ink transition-colors duration-150"
             >
               {toast.action.label}
             </button>

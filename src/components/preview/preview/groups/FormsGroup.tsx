@@ -1,6 +1,7 @@
 import { PreviewFrame } from '../PreviewFrame';
 import { Swatch, unsetStyle } from '../Swatch';
 import { scorePair, type ContrastPair, type Paint } from '../slots';
+import { Check } from 'lucide-preact';
 
 /**
  * Forms — the group that makes the `background` and `text` roles matter.
@@ -42,18 +43,18 @@ function Field({
     <div class="space-y-1.5">
       <label
         for={id}
-        class="text-xs font-medium block"
+        class="block text-label"
         style={labelSlot ? { color: labelSlot.css } : undefined}
       >
         {label}
       </label>
       {children}
       {error ? (
-        <p class="text-[11px] font-mono" style={{ color: paint.accents.danger.fill?.css }}>
+        <p class="font-mono text-micro" style={{ color: paint.accents.danger.fill?.css }}>
           {error}
         </p>
       ) : hint ? (
-        <p class="text-[11px] font-mono" style={{ color: paint.muted?.css }}>
+        <p class="font-mono text-micro" style={{ color: paint.muted?.css }}>
           {hint}
         </p>
       ) : null}
@@ -96,7 +97,7 @@ function TextInput({
       readOnly
       disabled={disabled}
       tabIndex={focused ? 0 : -1}
-      class={`w-full px-3 py-2 rounded-lg text-xs font-mono ${focused ? 'outline-none' : ''}`}
+      class={`w-full px-3 py-2 rounded-md font-mono text-micro ${focused ? 'outline-none' : ''}`}
       style={{
         backgroundColor: paint.surface?.css,
         color: paint.text?.css,
@@ -116,14 +117,12 @@ function SelectionControls({ paint }: { paint: Paint }) {
   const box = 'w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 border';
 
   return (
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
       {/* Radio */}
       <div class="space-y-2">
-        <span class="text-[10px] font-mono uppercase tracking-wide" style={{ color: paint.muted?.css }}>
-          Radio
-        </span>
+        <span class="eyebrow block">Radio</span>
         {['OKLCH', 'sRGB'].map((label, i) => (
-          <label key={label} class="flex items-center gap-2 text-xs" style={{ color: paint.text?.css }}>
+          <label key={label} class="flex items-center gap-2 text-label" style={{ color: paint.text?.css }}>
             <Swatch
               slot={i === 0 ? accent : paint.border}
               role={i === 0 ? 'primary' : 'background'}
@@ -146,11 +145,9 @@ function SelectionControls({ paint }: { paint: Paint }) {
 
       {/* Checkbox */}
       <div class="space-y-2">
-        <span class="text-[10px] font-mono uppercase tracking-wide" style={{ color: paint.muted?.css }}>
-          Checkbox
-        </span>
+        <span class="eyebrow block">Checkbox</span>
         {['Generate 50–950 scale', 'Gamut clip silently'].map((label, i) => (
-          <label key={label} class="flex items-center gap-2 text-xs" style={{ color: paint.text?.css }}>
+          <label key={label} class="flex items-center gap-2 text-label" style={{ color: paint.text?.css }}>
             <Swatch
               slot={i === 0 ? accent : paint.border}
               role={i === 0 ? 'primary' : 'background'}
@@ -161,17 +158,12 @@ function SelectionControls({ paint }: { paint: Paint }) {
               style={i === 0 && accent ? { backgroundColor: accent.css } : undefined}
             >
               {i === 0 && (
-                <svg
+                <Check
                   class="w-2.5 h-2.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
+                  strokeWidth={3.5}
                   stroke={paint.accents.primary.on?.css ?? '#fff'}
-                  stroke-width="3.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M20 6 9 17l-5-5" />
-                </svg>
+                  aria-hidden="true"
+                />
               )}
             </Swatch>
             <span>{label}</span>
@@ -181,12 +173,10 @@ function SelectionControls({ paint }: { paint: Paint }) {
 
       {/* Switch */}
       <div class="space-y-2">
-        <span class="text-[10px] font-mono uppercase tracking-wide" style={{ color: paint.muted?.css }}>
-          Switch
-        </span>
+        <span class="eyebrow block">Switch</span>
         {[true, false].map((on) => (
           <div key={String(on)} class="flex items-center justify-between gap-3">
-            <span class="text-xs" style={{ color: paint.text?.css }}>
+            <span class="text-label" style={{ color: paint.text?.css }}>
               {on ? 'Enabled' : 'Disabled'}
             </span>
             <Swatch
@@ -197,7 +187,10 @@ function SelectionControls({ paint }: { paint: Paint }) {
               part="bg"
               class="w-9 h-5 rounded-full flex items-center px-0.5"
             >
-              <span class="w-4 h-4 rounded-full bg-white" style={{ transform: `translateX(${on ? 16 : 0}px)` }} />
+              <span
+                class="w-4 h-4 rounded-full bg-white"
+                style={{ transform: `translateX(${on ? 16 : 0}px)` }}
+              />
             </Swatch>
           </div>
         ))}
@@ -234,7 +227,7 @@ export function FormsGroup({ paint }: { paint: Paint }) {
         index={0}
       >
         <div
-          class="p-5 rounded-xl border space-y-4 max-w-md"
+          class="p-4 rounded-lg border space-y-3.5 max-w-md"
           style={{ backgroundColor: paint.surface?.css, borderColor: frameBorder }}
         >
           <Field paint={paint} id="f-namespace" label="Design Token Namespace" hint="Shared prefix for every generated variable.">
@@ -263,7 +256,7 @@ export function FormsGroup({ paint }: { paint: Paint }) {
         index={1}
       >
         <div
-          class="p-5 rounded-xl border"
+          class="p-4 rounded-lg border"
           style={{ backgroundColor: paint.surface?.css, borderColor: frameBorder }}
         >
           <SelectionControls paint={paint} />

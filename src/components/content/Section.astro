@@ -1,0 +1,29 @@
+---
+/**
+ * A titled block of reference copy.
+ *
+ * The unit that every page below the tool is built from, so vertical rhythm and
+ * the heading→body gap are defined once. `prose-hud` carries the body styling:
+ * sans-serif at a readable size, which is the deliberate change from the
+ * monospaced paragraphs these sections used to use.
+ */
+interface Props {
+  title?: string;
+  /** Mono eyebrow above the title, e.g. "Reference", "Notes". */
+  eyebrow?: string;
+  /** Drop the inner card chrome when the section already sits on a well. */
+  bare?: boolean;
+}
+
+const { title, eyebrow, bare = false } = Astro.props;
+---
+
+<section class={bare ? '' : 'card'}>
+  {(eyebrow || title) && (
+    <div class="mb-3">
+      {eyebrow && <span class="eyebrow block mb-1.5">{eyebrow}</span>}
+      {title && <h2 class="text-card text-ink">{title}</h2>}
+    </div>
+  )}
+  <slot />
+</section>

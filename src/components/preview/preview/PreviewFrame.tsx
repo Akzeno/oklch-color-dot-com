@@ -36,26 +36,30 @@ export function PreviewFrame({
 }: PreviewFrameProps) {
   return (
     <div
-      class={`space-y-2.5 animate-frame-in ${span ? '@3xl:col-span-2' : ''}`}
-      style={{ animationDelay: `${index * 60}ms` }}
+      class={`space-y-2 animate-frame-in ${span ? '@3xl:col-span-2' : ''}`}
+      style={{ animationDelay: `${index * 40}ms` }}
     >
-      <div class="flex items-start justify-between px-1 gap-3">
+      <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <span class="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#525252]">
-            {label}
-          </span>
-          {description && (
-            <p class="text-[11px] font-mono text-[#404040] mt-0.5 leading-snug">{description}</p>
-          )}
+          <span class="eyebrow block">{label}</span>
+          {description && <p class="mt-1 prose-hud text-[12px] leading-[17px]">{description}</p>}
         </div>
         {hint && (
+          /*
+            The contrast grade. It was `emerald-400` on green wash for a pass and
+            `amber-400` on amber for a fail — a traffic light, on a page whose
+            subject is judging colour, with amber already meaning "outside sRGB".
+            Two meanings for one hue teaches the reader that the hue is not the
+            message. The grade is now carried by ink weight instead: a failure
+            is ink on a raised fill, a pass is mute on nothing.
+          */
           <span
-            class={`text-[11px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${
-              hintPass === true
-                ? 'bg-emerald-500/10 text-emerald-400'
-                : hintPass === false
-                  ? 'bg-amber-500/10 text-amber-400'
-                  : 'text-[#404040]'
+            class={`pill shrink-0 ${
+              hintPass === false
+                ? 'bg-canvas-elevated border-border-focus text-ink'
+                : hintPass === true
+                  ? 'border-transparent text-mute'
+                  : 'border-transparent text-faint'
             }`}
           >
             {hint}
@@ -64,7 +68,7 @@ export function PreviewFrame({
       </div>
 
       <div
-        class="rounded-2xl border p-5 md:p-6 transition-colors duration-200 shadow-lg shadow-black/20"
+        class="rounded-lg border p-4 md:p-5 transition-colors duration-150"
         style={{ backgroundColor: canvasBg, borderColor: borderCol }}
       >
         {children}

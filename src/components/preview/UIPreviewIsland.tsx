@@ -117,7 +117,7 @@ function TabStrip({
       role="tablist"
       aria-label="Preview groups"
       onKeyDown={onKeyDown}
-      class="flex items-center gap-1 overflow-x-auto sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#0e0e0e]/95 backdrop-blur border-b border-[#262626]"
+      class="sticky top-14 z-30 flex items-center gap-1 overflow-x-auto no-scrollbar -mx-4 px-4 py-2.5 bg-canvas/95 backdrop-blur border-b border-hairline"
     >
       {GROUPS.map((g) => {
         const on = g.id === active;
@@ -132,16 +132,16 @@ function TabStrip({
             tabIndex={on ? 0 : -1}
             onClick={() => onSelect(g.id)}
             title={g.blurb}
-            class={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap transition-colors ${
+            class={`chip shrink-0 ${
               on
-                ? 'bg-[#1f1f1f] text-[#f5f5f5] border border-[#404040]'
-                : 'text-[#737373] hover:text-[#a3a3a3] border border-transparent hover:border-[#262626]'
+                ? 'bg-ink border-ink text-ink-inverse'
+                : 'bg-transparent border-transparent text-mute hover:text-body'
             }`}
           >
             {g.label}
             {!g.implemented && (
               <span
-                class="w-1.5 h-1.5 rounded-full bg-[#404040] flex-shrink-0"
+                class="w-1.5 h-1.5 rounded-full bg-faint flex-shrink-0"
                 title="Planned — shows what it will cover, not yet built"
               />
             )}
@@ -184,20 +184,21 @@ function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
       index={0}
       span
     >
-      <div class="py-6 text-center max-w-xl mx-auto">
-        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">{group.blurb}</p>
+      <div class="py-4 max-w-xl mx-auto">
+        <p class="prose-hud">{group.blurb}</p>
 
-        <div class="mt-5 pt-5 border-t border-[#262626]">
-          <div class="text-[10px] font-mono uppercase tracking-widest text-[#525252] mb-3">
-            Slots this group needs
-          </div>
-          <div class="flex items-center justify-center gap-2 flex-wrap">
+        <div class="mt-4 pt-4 border-t border-hairline">
+          <span class="eyebrow block mb-2">Slots this group needs</span>
+          <div class="flex items-center gap-1.5 flex-wrap">
             {slots.map((s) => (
               <span
                 key={s.role}
-                class={`px-2.5 py-1.5 rounded-lg text-[11px] font-mono border ${
-                  s.set > 0 ? 'border-emerald-500/30 text-emerald-400' : 'border-dashed border-[#404040] text-[#525252]'
-                }`}
+                /* Set slots are ink, unset ones are faint. They used to be
+                   `emerald-400` and `dashed`, which made the coverage report
+                   green-on-black — a third chromatic language on a page whose
+                   whole subject is colour, used here to mean only "you filled
+                   this in", which is what the count already says. */
+                class={`pill ${s.set > 0 ? 'text-ink border-border-focus' : 'text-faint border-dashed'}`}
                 title={
                   s.set > 0
                     ? `--color-${s.role}: ${s.set} of ${s.total} steps set`
@@ -205,17 +206,13 @@ function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
                 }
               >
                 {s.role}
-                <span class="text-[#404040] ml-1.5">
+                <span class="text-faint">
                   {s.set}/{s.total}
                 </span>
               </span>
             ))}
           </div>
         </div>
-
-        <p class="mt-5 text-[10px] font-mono text-[#404040]">
-          Buttons and Forms are built so far.
-        </p>
       </div>
     </PreviewFrame>
   );
@@ -354,77 +351,47 @@ export default function UIPreviewIsland() {
   };
 
   return (
-    <div class="space-y-6 lg:space-y-8">
-      {/* ── Inline keyframes + hover affordance (scoped to this island) ── */}
-      <style>{`
-        @keyframes frameIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .animate-frame-in {
-          animation: frameIn 0.35s ease-out both;
-        }
-        [data-context-role] {
-          cursor: pointer;
-          position: relative;
-        }
-        [data-context-role]:hover {
-          outline: 2px dashed rgba(255, 255, 255, 0.45);
-          outline-offset: 2px;
-        }
-      `}</style>
-
+    <div class="space-y-4">
       {/* ─────── Split Layout: Preview + Sidebar ─────── */}
       <div
-        class="flex flex-col lg:flex-row gap-5 lg:gap-8 2xl:gap-10"
+        class="flex flex-col lg:flex-row gap-4 lg:gap-6"
         onClick={handlePreviewClick}
         onContextMenu={handlePreviewContextMenu}
       >
         {/* Main Preview Area — container context for the frames grid below */}
-        <div class="flex-1 min-w-0 space-y-5 @container">
-          {/* ─────── Controls Bar ─────── */}
-          <div class="flex items-center justify-between flex-wrap gap-3 bg-[#141414] border border-[#262626] p-4 rounded-xl">
-            <div>
-              <h2 class="text-sm font-semibold text-[#f5f5f5]">Component Showcase</h2>
-              <p class="text-xs font-mono text-[#737373] mt-0.5">
-                Every coloured element is a token slot —{' '}
-                <span class="text-[#a3a3a3]">
-                  click one to swap it from your cart or a palette, open it in the
-                  picker, or delete it.
-                </span>
-              </p>
+        <div class="flex-1 min-w-0 space-y-4 @container">
+          {/*
+            Controls row.
+
+            The title and the two-line explanation this used to carry are gone.
+            "Every coloured element is a token slot — click one to swap it…" is
+            the page's one real instruction, so it belongs in the page header
+            where it is read once, not in a card above every tab. What is left
+            here is the row's actual content: which surface the canvas is
+            previewed on, and the shortcut to the role list.
+          */}
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-1 p-0.5 rounded-full border border-hairline bg-canvas-card">
+              {(['dark', 'light'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  aria-pressed={previewTheme === t}
+                  onClick={() => setPreviewTheme(t)}
+                  class={`chip border-0 ${previewTheme === t ? '' : 'text-mute hover:text-body'}`}
+                >
+                  {t === 'dark' ? 'Dark' : 'Light'}
+                </button>
+              ))}
             </div>
 
-            <div class="flex items-center gap-2">
-              {/* Light / dark toggle for the preview canvas */}
-              <div class="flex items-center bg-[#171717] border border-[#262626] rounded-lg p-1 text-xs font-mono">
-                {(['dark', 'light'] as const).map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    aria-pressed={previewTheme === t}
-                    onClick={() => setPreviewTheme(t)}
-                    class={`px-2.5 py-1 rounded transition-colors ${
-                      previewTheme === t
-                        ? t === 'dark'
-                          ? 'bg-[#262626] text-white font-medium'
-                          : 'bg-[#f5f5f5] text-black font-medium'
-                        : 'text-[#737373] hover:text-[#f5f5f5]'
-                    }`}
-                  >
-                    {t === 'dark' ? 'Dark Surface' : 'Light Surface'}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => isCartOpenStore.set(true)}
-                class="touch-target px-3 py-1.5 rounded-lg bg-[#1f1f1f] hover:bg-[#262626] border border-[#262626] text-xs font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
-              >
-                Manage Roles
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => isCartOpenStore.set(true)}
+              class="btn btn-quiet h-8"
+            >
+              Manage roles
+            </button>
           </div>
 
           <TabStrip active={activeGroup} onSelect={selectGroup} />
@@ -435,7 +402,7 @@ export default function UIPreviewIsland() {
                 breakpoint fired at 1536px while the nav rail left the preview
                 only ~750px, splitting into two cramped ~366px cards. A container
                 query also reacts when the rail collapses. */}
-          <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-5 @3xl:gap-6 items-start">
+          <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-4 @3xl:gap-5 items-start">
             {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
             {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
             {activeGroup === 'forms' && <FormsGroup paint={paint} />}

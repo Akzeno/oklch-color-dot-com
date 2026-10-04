@@ -1,80 +1,113 @@
 import { useState } from 'preact/hooks';
-import {
-  type ColorModel,
-  type ShadeStep,
-  SHADE_STEPS,
-  formatOklch,
-} from '../../utils/color';
-import {
-  addColorToCart,
-  showToast,
-} from '../../stores/cartStore';
+import { Check, Copy, Download } from 'lucide-preact';
+import { formatOklch, SHADE_STEPS, type ColorModel, type ShadeStep } from '../../utils/color';
+import { addColorToCart, showToast } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
+import SwatchStrip from './SwatchStrip';
 
 interface SwatchStripIslandProps {
   shades: Record<ShadeStep, ColorModel>;
   paletteName: string;
+  paletteSlug: string;
 }
 
-export default function SwatchStripIsland({ shades, paletteName }: SwatchStripIslandProps) {
+export default function SwatchStripIsland({
+  shades,
+  paletteName,
+  paletteSlug,
+}: SwatchStripIslandProps) {
   const cart = useCart();
-  const [hoveredStep, setHoveredStep] = useState<ShadeStep | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const handleSwatchClick = (color: ColorModel, step: ShadeStep) => {
-    const oklchStr = formatOklch(color);
-    navigator.clipboard.writeText(oklchStr);
-    // Add only this single color into the user's active cart role
+  /**
+   * One click does two things: copy the value, and file it into the active role.
+   *
+   * That double action is the product's core loop, so it stays — but it is now
+   * *stated*. Previously the clipboard write was silent and only the cart side
+   * raised a toast, so a user who clicked to copy got no confirmation and a user
+   * who clicked to file saw a message that never mentioned the copy.
+   *
+   * `addColorToCart` toasts on its own; the toast raised immediately after
+   * supersedes it, so exactly one message appears and it names both outcomes.
+   */
+  const handlePick = (color: ColorModel, step: ShadeStep) => {
+    const value = formatOklch(color);
+    navigator.clipboard.writeText(value);
     const { roleId } = addColorToCart(color, cart.activeRoleId);
-    showToast(`Added ${step} to ${cart.roles[roleId]?.name || roleId}`);
+    showToast(`${value} → ${cart.roles[roleId]?.name ?? roleId}-${step}`);
   };
 
-  const hoveredColor = hoveredStep ? shades[hoveredStep] : null;
+  const cssBlock = `@theme {\n${SHADE_STEPS.map(
+    (s) => `  --color-${paletteSlug}-${s}: ${formatOklch(shades[s])};`
+  ).join('\n')}\n}`;
+
+  const copyCss = () => {
+    navigator.clipboard.writeText(cssBlock);
+    setCopied(true);
+    showToast('@theme block copied');
+    // Back to the copy glyph after the confirmation has been seen.
+    setTimeout(() => setCopied(false), 1400);
+  };
+
+  const downloadJson = () => {
+    const tokens = Object.fromEntries(
+      SHADE_STEPS.map((s) => [String(s), formatOklch(shades[s])])
+    );
+    const blob = new Blob([JSON.stringify({ [paletteSlug]: tokens }, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${paletteSlug}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`${paletteSlug}.json downloaded`);
+  };
 
   return (
-    <div class="relative group/strip">
-      {/* Contiguous Swatch Strip (Height: 48px, rounded 10px, per DESIGN.md) */}
-      <div
-        class="h-12 w-full rounded-[10px] border border-[#262626] overflow-hidden flex items-stretch shadow-md bg-[#0a0a0a]"
-        role="group"
-        aria-label={`Color swatches for ${paletteName}`}
-      >
-        {SHADE_STEPS.map((step) => {
-          const color = shades[step];
-          if (!color) return null;
-          const oklchCss = formatOklch(color);
-          const isHovered = hoveredStep === step;
+    <div class="space-y-3">
+      <SwatchStrip shades={shades} onPick={handlePick} label={`${paletteName} swatches`} />
 
-          return (
-            <button
-              key={step}
-              type="button"
-              onMouseEnter={() => setHoveredStep(step)}
-              onMouseLeave={() => setHoveredStep(null)}
-              onClick={() => handleSwatchClick(color, step)}
-              class="flex-1 h-full cursor-pointer transition-all duration-150 relative focus:outline-none focus:ring-1 focus:ring-white z-0 hover:z-10 hover:scale-y-105 hover:shadow-lg"
-              style={{ backgroundColor: oklchCss }}
-              aria-label={`Step ${step}: ${oklchCss}. Click to copy and add to cart.`}
-            >
-              {/* Gamut alert dot if Display-P3 */}
-              {color.inP3 && !color.inSRGB && (
-                <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#06b6d4] shadow-sm pointer-events-none" />
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {/*
+        Footer actions. Each does one specific thing to the whole scale, which is
+        the level the swatch bar operates at — the previous footer instead showed
+        the base colour's L/C/H as a line of prose, information the strip itself
+        already communicates.
+      */}
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <a href={`/oklch-colors/${paletteSlug}`} class="link-hud flex items-center gap-1.5">
+          <span>All {SHADE_STEPS.length} steps</span>
+          <svg
+            class="w-3 h-3"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        </a>
 
-      {/* Floating Micro-HUD on Hover */}
-      {hoveredColor && hoveredStep && (
-        <div class="absolute -top-10 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1 rounded bg-[#171717]/95 border border-[#262626] shadow-xl text-[11px] font-mono text-[#f5f5f5] flex items-center gap-2 whitespace-nowrap pointer-events-none backdrop-blur-md animate-in fade-in duration-100">
-          <span class="font-bold text-[#a3a3a3]">{hoveredStep}</span>
-          <span class="text-[#f5f5f5]">{formatOklch(hoveredColor)}</span>
-          <span class="text-[#737373]">({hoveredColor.hex})</span>
-          {hoveredColor.inP3 && !hoveredColor.inSRGB && (
-            <span class="text-[#06b6d4] text-[10px] font-bold">P3</span>
-          )}
+        <div class="flex items-center gap-3">
+          <button onClick={copyCss} class="link-hud flex items-center gap-1.5" title="Copy as a Tailwind v4 @theme block">
+            {copied ? (
+              <Check class="w-3.5 h-3.5 text-copy-success" aria-hidden="true" strokeWidth={2.5} />
+            ) : (
+              <Copy class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
+            )}
+            <span>{copied ? 'Copied' : 'Copy CSS'}</span>
+          </button>
+          <button onClick={downloadJson} class="link-hud flex items-center gap-1.5" title="Download as JSON tokens">
+            <Download class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
+            <span>JSON</span>
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }

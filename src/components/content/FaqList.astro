@@ -1,0 +1,42 @@
+---
+/**
+ * Question / answer list.
+ *
+ * Previously six pages each carried their own hand-written copy of this
+ * pattern — same two nested divs, same padding, six chances to drift. The
+ * answers are raw HTML so pages can keep inline `<code>` for CSS syntax.
+ */
+export interface FaqItem {
+  q: string;
+  /** Trusted, author-written markup. */
+  a: string;
+}
+
+interface Props {
+  items: FaqItem[];
+  title?: string;
+}
+
+const { items, title = 'Frequently asked' } = Astro.props;
+---
+
+<div>
+  <div class="mb-3 flex items-baseline justify-between gap-3">
+    <h2 class="text-card text-ink">{title}</h2>
+    <span class="eyebrow">{items.length} answers</span>
+  </div>
+
+  {/* A real <dl>: the questions and answers are a description list, and this is
+      what makes VoiceOver announce "answer 2 of 5" instead of reading an
+      undifferentiated run of divs. */}
+  <dl class="space-y-px">
+    {
+      items.map((item) => (
+        <div class="card !rounded-md">
+          <dt class="text-label font-medium text-ink">{item.q}</dt>
+          <dd class="prose-hud mt-1.5" set:html={item.a} />
+        </div>
+      ))
+    }
+  </dl>
+</div>

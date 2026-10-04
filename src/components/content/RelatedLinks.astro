@@ -1,0 +1,41 @@
+---
+/**
+ * Compact internal-link strip.
+ *
+ * Each item shows a mono route rather than the marketing title. Two reasons:
+ * a reader who is already converting colours is scanning for the *other*
+ * direction of the same conversion, and the route is unambiguous about which
+ * is which. The direction arrow carries the "there is more here" signal.
+ */
+interface Props {
+  links: { label: string; href: string }[];
+}
+
+const { links } = Astro.props;
+---
+
+<nav
+  class="flex items-center gap-x-5 gap-y-2 flex-wrap pt-4 border-t border-hairline-subtle"
+  aria-label="Related tools"
+>
+  {
+    links.map((l) => (
+      <a href={l.href} class="link-hud flex items-center gap-1.5">
+        <span>{l.label}</span>
+        <svg
+          class="w-3 h-3"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </a>
+    ))
+  }
+</nav>

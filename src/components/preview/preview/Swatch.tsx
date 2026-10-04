@@ -202,28 +202,3 @@ export function Swatch(props: SwatchProps) {
 export function unsetStyle(theme: Theme): CSSProperties {
   return { borderStyle: 'dashed', borderColor: theme === 'dark' ? '#525252' : '#d4d4d8' };
 }
-
-/** A compact legend for a slot, used by group headers and the Overview table. */
-export function SlotLabel({ slot, note }: { slot: SlotValue | null; note?: string }) {
-  if (!slot) {
-    return (
-      <span class="text-[11px] font-mono text-[#525252]" title="This slot has no value yet">
-        {note ?? 'unset'}
-      </span>
-    );
-  }
-  return (
-    <span
-      class={`text-[11px] font-mono ${slot.onNeutral ? 'text-amber-400/80' : 'text-[#737373]'}`}
-      title={tooltip(slot, false, note)}
-    >
-      {`--color-${slot.role}-${slot.requested}`}
-      {slot.onNeutral ? ' (placeholder)' : slot.substituted ? ` → ${slot.step}` : ''}
-    </span>
-  );
-}
-
-/** Convenience: the step a `SlotValue` painted, for the popover handoff. */
-export function slotStep(slot: SlotValue): ShadeStep {
-  return slot.requested;
-}

@@ -77,18 +77,24 @@ const jsonLd = {
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
 
-    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <!--
+      Geist / Geist Mono lead the stack per DESIGN.md, which uses them to keep
+      numbers visually distinct from labels at small sizes. Inter and JetBrains
+      Mono remain in the CSS font stack as fallbacks rather than being requested
+      here, so a font-CDN hiccup degrades to the platform UI font instead of
+      leaving every value unstyled.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
-  <body class="bg-[#0a0a0a] text-[#f5f5f5] min-h-screen flex flex-col selection:bg-[#262626] selection:text-white">
+  <body class="min-h-screen flex flex-col bg-canvas text-ink antialiased selection:bg-hairline selection:text-ink">
     <slot />
   </body>
 </html>
