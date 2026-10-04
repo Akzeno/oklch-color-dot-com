@@ -18,6 +18,7 @@ import {
   type ShadeStep,
   type ColorModel,
 } from '../../utils/color';
+import { goTo } from '../../utils/navigate';
 import CartSidebar from './CartSidebar';
 import ColorActionPopover from './ColorActionPopover';
 
@@ -345,14 +346,19 @@ export default function UIPreviewIsland() {
     setPopover(null);
   };
 
-  // Hand the color over to the full color picker page
   // Hand the exact token slot over to the full color picker page. Works for an
   // unset slot too (`color: null`), which the picker treats as "author new".
+  // `returnTo` brings the user back here after they save.
   const handleOpenInPicker = (color: ColorModel | null) => {
     if (!popover) return;
-    savePickerHandoff({ roleId: popover.roleId, step: popover.step, color });
+    savePickerHandoff({
+      roleId: popover.roleId,
+      step: popover.step,
+      color,
+      returnTo: window.location.pathname,
+    });
     setPopover(null);
-    window.location.href = '/';
+    goTo('/');
   };
 
   return (

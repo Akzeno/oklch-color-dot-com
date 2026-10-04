@@ -13,6 +13,7 @@ import {
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
 import { SHADE_STEPS, formatOklch, parseAnyToOklch, type ShadeStep, type ColorModel } from '../../utils/color';
+import { goTo } from '../../utils/navigate';
 
 export default function CartSidebar() {
   const cart = useCart();
@@ -36,8 +37,10 @@ export default function CartSidebar() {
    * to this very slot, never a nearest-lightness one.
    */
   const openPicker = (roleId: string, step: ShadeStep, color: ColorModel | null) => {
-    savePickerHandoff({ roleId, step, color });
-    window.location.href = '/';
+    // `returnTo` sends the user back here after they save, so editing a token
+    // reads as one task instead of a page they have to find their way out of.
+    savePickerHandoff({ roleId, step, color, returnTo: window.location.pathname });
+    goTo('/');
   };
 
   const updateShadeColor = (roleId: string, step: ShadeStep, newColor: ColorModel) => {

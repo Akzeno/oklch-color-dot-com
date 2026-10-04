@@ -1,4 +1,9 @@
 ---
+import { ClientRouter } from 'astro:transitions';
+// Astro's own view-transition keyframes + `prefers-reduced-motion` opt-out.
+// The component does not bundle these, so without this import the router swaps
+// the DOM with no animation and users who ask for reduced motion still get one.
+import 'astro/components/viewtransitions.css';
 import '../styles/global.css';
 
 interface Props {
@@ -42,6 +47,15 @@ const jsonLd = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      Client-side router. Without this, every page change is a full document
+      load (fresh HTML parse, re-download, re-execute the bundle), which is what
+      made moving between pages feel like a hard reload. It intercepts link
+      clicks and `navigate()` from `astro:transitions/client`, swaps the DOM in
+      place and cross-fades the result.
+    -->
+    <ClientRouter />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Primary Meta Tags -->

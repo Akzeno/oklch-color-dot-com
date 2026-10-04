@@ -588,12 +588,48 @@ export interface PickerHandoff {
    * `--color-<role>-<step>` rather than a nearest-lightness slot.
    */
   color: ColorModel | null;
+  /**
+   * Page the picker should send the user back to once the colour is saved,
+   * e.g. `/ui-preview`. `null` means "the picker was opened directly", in which
+   * case saving keeps the user where they are.
+   *
+   * Only ever a same-origin in-app path — `sanitizeReturnTo` enforces that on
+   * read, because this value comes back out of `sessionStorage` and is used as a
+   * navigation target.
+   */
+  returnTo: string | null;
+}
+
+/**
+ * Accept only same-origin, in-app absolute paths as a return target.
+ *
+ * This is attacker-reachable input: it round-trips through `sessionStorage`,
+ * which is writable by any script on the origin and survives the navigation.
+ * A naive `startsWith('/')` check would happily accept `//evil.example` (a
+ * protocol-relative URL that navigates off-site) and `/%5C%5Cevil.example`, so
+ * the check is on the *shape* of the path rather than one prefix test.
+ */
+function sanitizeReturnTo(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length === 0) return null;
+  // Must be an absolute path, and must not be protocol-relative (`//host`).
+  if (!value.startsWith('/') || value.startsWith('//')) return null;
+  // Backslashes are normalised to `/` by browsers, so `/\evil.example` and
+  // `\/evil.example` would both escape the origin after parsing.
+  if (value.includes('\\')) return null;
+  // Any scheme-looking prefix (`/x:`, or an encoded one) can re-enter scheme
+  // resolution once the URL is parsed.
+  if (/^\/?[a-z][a-z0-9+.-]*:/i.test(value)) return null;
+  return value;
 }
 
 /**
  * Remember which exact token slot to author before navigating to the color
  * picker page, so the picker can prefill L/C/H and write back to the very same
  * `--color-<role>-<step>` variable instead of a nearest-lightness slot.
+ *
+ * `returnTo` also lets the picker bounce the user back to the page they came
+ * from once they save, which is what makes the preview → pick → preview trip
+ * feel like one task instead of two pages.
  */
 export function savePickerHandoff(handoff: PickerHandoff) {
   if (typeof window === 'undefined') return;
@@ -620,6 +656,7 @@ export function consumePickerHandoff(): PickerHandoff | null {
       roleId: parsed.roleId,
       step,
       color: parsed.color ? sanitizeColor(parsed.color) : null,
+      returnTo: sanitizeReturnTo(parsed.returnTo),
     };
   } catch {
     return null;

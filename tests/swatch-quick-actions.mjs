@@ -129,7 +129,7 @@ console.log('\n=== Clicking a swatch hands off its own slot + colour ===');
 // Mirrors the swatch's onClick: it must preload the CURRENT colour of THAT slot
 // so the picker reopens on the token being edited, not on the role's 500.
 setRoleShade('warning', 700, createOklchColor(0.44, 0.15, 65), { silent: true });
-savePickerHandoff({ roleId: 'warning', step: 700, color: cartStore.get().roles['warning'].shades[700].color });
+savePickerHandoff({ roleId: 'warning', step: 700, color: cartStore.get().roles['warning'].shades[700].color, returnTo: null });
 const wb = consumePickerHandoff();
 check('handoff targets the clicked step', wb.step === 700, 'got ' + wb.step);
 check('handoff preloads the clicked slot colour, not the 500',

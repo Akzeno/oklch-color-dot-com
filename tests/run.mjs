@@ -27,8 +27,11 @@ const registerHook = pathToFileURL(join(here, 'register-hook.mjs')).href;
 
 const SUITES = [
   'cart-hydration-race.mjs',
+  'hydration-pinning.mjs',
   'picker-handoff.mjs',
   'swatch-quick-actions.mjs',
+  // Reads dist/, so the build must run first — hence `astro build && npm test`.
+  'island-hydration.mjs',
 ];
 
 let failed = 0;

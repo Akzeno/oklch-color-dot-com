@@ -10,6 +10,7 @@ import {
   TARGET_LIGHTNESS,
   type ColorModel,
 } from '../../utils/color';
+import { goTo } from '../../utils/navigate';
 import {
   addColorToCart,
   cartStore,
@@ -125,14 +126,22 @@ export default function ColorPickerIsland() {
     if (handoff) {
       // Handoff: write to the exact slot the color came from
       setRoleShade(handoff.roleId, handoff.step, color);
+      // Where the picker was opened from, so the user lands back on the token
+      // they just edited instead of stranded on the picker. Read before
+      // clearing — `returnTo` is null when the picker was opened directly, in
+      // which case saving keeps them here.
+      const destination = handoff.returnTo;
       setHandoff(null);
       clearPickerHandoff();
+      if (destination) goTo(destination);
       return;
     }
     addColorToCart(color, cart.activeRoleId);
   };
 
   const handoffRole = handoff ? cart.roles[handoff.roleId] : undefined;
+  /** Where Save will take the user, if this picker was opened from a token. */
+  const handoffReturnTo = handoff?.returnTo ?? null;
 
   const activeRole = cart.roles[cart.activeRoleId] || Object.values(cart.roles)[0];
 
@@ -166,12 +175,15 @@ export default function ColorPickerIsland() {
                     that exact slot
                   </>
                 )}
+                {handoffReturnTo ? ' · returns to the preview' : ''}
               </p>
             </div>
           </div>
           <div class="flex items-center gap-2">
+            {/* A real anchor, so the view-transition router intercepts the click
+                instead of the browser performing a full document load. */}
             <a
-              href="/ui-preview"
+              href={handoffReturnTo ?? '/ui-preview'}
               class="px-3 py-1.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] text-[11px] font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
             >
               Back to preview
@@ -188,8 +200,13 @@ export default function ColorPickerIsland() {
             <button
               onClick={handleAddToCart}
               class="px-3 py-1.5 rounded-lg bg-[#f5f5f5] hover:bg-white text-[11px] font-mono font-semibold text-[#0a0a0a] transition-colors shadow-lg shadow-white/5"
+              title={
+                handoffReturnTo
+                  ? `Write to --color-${handoff.roleId}-${handoff.step} and return to the preview`
+                  : `Write to --color-${handoff.roleId}-${handoff.step}`
+              }
             >
-              Save to token
+              {handoffReturnTo ? 'Save & return' : 'Save to token'}
             </button>
           </div>
         </div>

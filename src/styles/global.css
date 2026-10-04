@@ -213,3 +213,31 @@ input[type="range"]::-moz-range-thumb {
   animation: popoverIn 0.14s ease-out both;
   transform-origin: top left;
 }
+
+/* ── Client-side page transitions (<ClientRouter />) ────────────────────────
+   Astro's router swaps the DOM without reloading the document. These rules
+   supply the cross-fade; without them the swap is an instant hard cut, which
+   reads as a glitch rather than as navigation.
+
+   Deliberately a fade with no directional slide: the app shell (header, nav
+   rail, cart drawer) is identical on both sides of every hop, so sliding it
+   would move furniture the user never asked to move. Timing is asymmetric —
+   the old page leaves faster than the new one arrives — which reads as
+   forward motion instead of a symmetrical blink.
+
+   `astroFadeIn`/`astroFadeOut` come from astro/components/viewtransitions.css;
+   their `mix-blend-mode: plus-lighter` is what makes overlapping snapshots
+   composite additively, so a mid-transition frame never dips darker than
+   either page on its own. That matters here because this is a *colour* tool:
+   a dip would read as a bug in the palette.
+
+   prefers-reduced-motion is handled in that same stylesheet. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both astroFadeOut;
+  }
+
+  ::view-transition-new(root) {
+    animation: 180ms cubic-bezier(0, 0, 0.2, 1) both astroFadeIn;
+  }
+}

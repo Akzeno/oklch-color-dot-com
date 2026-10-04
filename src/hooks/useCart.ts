@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'preact/hooks';
-import { useStore } from '@nanostores/preact';
+import { useEffect } from 'preact/hooks';
 import {
   cartStore,
   hydrateCartFromStorage,
   DEFAULT_CART_SNAPSHOT,
   type CartState,
 } from '../stores/cartStore';
+import { useHydratedStore } from './useHydratedStore';
 
 /**
  * Read the cart store and hydrate it from localStorage *after* mount.
@@ -35,15 +35,16 @@ import {
  * returned, so persisted tokens appear as normal.
  */
 export function useCart(): CartState {
-  const cart = useStore(cartStore);
-  const [mounted, setMounted] = useState(false);
+  // The pinning itself lives in `useHydratedStore` — the first render is
+  // reported as `DEFAULT_CART_SNAPSHOT` so it is identical to the server's
+  // markup, whatever the store holds by then.
+  const cart = useHydratedStore(cartStore, DEFAULT_CART_SNAPSHOT);
 
   useEffect(() => {
-    // A no-op when an earlier island already hydrated; `setMounted` must run
-    // regardless so this root is never stranded on the default snapshot.
+    // A no-op when an earlier island already hydrated. Runs after the pin has
+    // been lifted, so the persisted tokens appear in the very first real render.
     hydrateCartFromStorage();
-    setMounted(true);
   }, []);
 
-  return mounted ? cart : DEFAULT_CART_SNAPSHOT;
+  return cart;
 }
