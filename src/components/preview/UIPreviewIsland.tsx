@@ -7,7 +7,63 @@ import {
   type ColorRole,
 } from '../../stores/cartStore';
 import { formatOklch, getWcagContrast, getApcaContrast, createOklchColor, type ShadeStep } from '../../utils/color';
+import CartSidebar from './CartSidebar';
 
+/* ─────────────────────── PreviewFrame ─────────────────────── */
+function PreviewFrame({
+  label,
+  hint,
+  hintPass,
+  canvasBg,
+  borderCol,
+  index,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  hintPass?: boolean;
+  canvasBg: string;
+  borderCol: string;
+  index: number;
+  children: any;
+}) {
+  return (
+    <div
+      class="space-y-2.5 animate-frame-in"
+      style={{ animationDelay: `${index * 60}ms` }}
+    >
+      {/* Section Label */}
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#525252]">
+          {label}
+        </span>
+        {hint && (
+          <span
+            class={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
+              hintPass === true
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : hintPass === false
+                  ? 'bg-amber-500/10 text-amber-400'
+                  : 'text-[#404040]'
+            }`}
+          >
+            {hint}
+          </span>
+        )}
+      </div>
+
+      {/* Canvas */}
+      <div
+        class="rounded-2xl border p-5 md:p-6 transition-colors duration-200 shadow-lg shadow-black/20"
+        style={{ backgroundColor: canvasBg, borderColor: borderCol }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────── Main Island ──────────────────────── */
 export default function UIPreviewIsland() {
   const cart = useStore(cartStore);
   const [previewTheme, setPreviewTheme] = useState<'dark' | 'light'>('dark');
@@ -58,14 +114,33 @@ export default function UIPreviewIsland() {
     return getWcagContrast(danger.hex, canvasBg);
   }, [danger.hex, canvasBg]);
 
+  const apcaDelta = useMemo(() => {
+    return getApcaContrast(primary.hex, canvasBg);
+  }, [primary.hex, canvasBg]);
+
   return (
     <div class="space-y-6">
-      {/* Controls Bar */}
+      {/* ── Inline keyframes (scoped to this island) ── */}
+      <style>{`
+        @keyframes frameIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-frame-in {
+          animation: frameIn 0.35s ease-out both;
+        }
+      `}</style>
+
+      {/* ─────── Split Layout: Preview + Sidebar ─────── */}
+      <div class="flex flex-col lg:flex-row gap-6">
+        {/* Main Preview Area */}
+        <div class="flex-1 min-w-0 space-y-6">
+          {/* ─────── Controls Bar ─────── */}
       <div class="flex items-center justify-between flex-wrap gap-3 bg-[#141414] border border-[#262626] p-4 rounded-xl">
         <div>
-          <h2 class="text-sm font-semibold text-[#f5f5f5]">Live Dummy UI Workbench</h2>
+          <h2 class="text-sm font-semibold text-[#f5f5f5]">Component Showcase</h2>
           <p class="text-xs font-mono text-[#737373] mt-0.5">
-            Components rendered dynamically using your active Cart roles (--color-&#123;role&#125;-*).
+            Each section below is an isolated canvas rendered with your active Cart roles.
           </p>
         </div>
 
@@ -99,55 +174,51 @@ export default function UIPreviewIsland() {
         </div>
       </div>
 
-      {/* Interactive Mockup Container */}
-      <div
-        class="border rounded-2xl p-6 md:p-8 space-y-8 shadow-2xl transition-colors duration-200"
-        style={{ backgroundColor: canvasBg, borderColor: borderCol, color: textMain }}
-      >
-        {/* Mock Navigation Bar */}
-        <div
-          class="flex items-center justify-between p-4 rounded-xl border"
-          style={{ backgroundColor: cardBg, borderColor: borderCol }}
+      {/* ─────── Component Frames ─────── */}
+      <div class="space-y-8">
+
+        {/* ── 1. Navigation Bar ── */}
+        <PreviewFrame
+          label="Navigation Bar"
+          canvasBg={canvasBg}
+          borderCol={borderCol}
+          index={0}
         >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow"
-              style={{ backgroundColor: primary.css }}
-            >
-              U
-            </div>
-            <span class="font-semibold text-sm">Dashboard UI</span>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button
-              class="px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm transition-transform active:scale-95"
-              style={{ backgroundColor: trustyBtn.css }}
-            >
-              Primary Action
-            </button>
-          </div>
-        </div>
-
-        {/* Buttons Suite & Contrast Check */}
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: textMuted }}>
-              Button Variants & WCAG Contrast
-            </span>
-            <div class="text-xs font-mono flex items-center gap-2">
-              <span>Trusty Button Contrast:</span>
-              <span
-                class={`px-2 py-0.5 rounded font-bold ${
-                  btnTextContrast >= 4.5 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                }`}
+          <div
+            class="flex items-center justify-between p-4 rounded-xl border"
+            style={{ backgroundColor: cardBg, borderColor: borderCol, color: textMain }}
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow"
+                style={{ backgroundColor: primary.css }}
               >
-                {btnTextContrast}:1 ({btnTextContrast >= 4.5 ? 'AA Pass' : 'Low Contrast'})
-              </span>
+                U
+              </div>
+              <span class="font-semibold text-sm">Dashboard UI</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                class="px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm transition-transform active:scale-95"
+                style={{ backgroundColor: trustyBtn.css }}
+              >
+                Primary Action
+              </button>
             </div>
           </div>
+        </PreviewFrame>
 
-          <div class="flex items-center gap-3 flex-wrap">
+        {/* ── 2. Button Variants ── */}
+        <PreviewFrame
+          label="Button Variants"
+          hint={`Trusty btn contrast: ${btnTextContrast}:1 ${btnTextContrast >= 4.5 ? '· AA Pass' : '· Low'}`}
+          hintPass={btnTextContrast >= 4.5}
+          canvasBg={canvasBg}
+          borderCol={borderCol}
+          index={1}
+        >
+          <div class="flex items-center gap-3 flex-wrap" style={{ color: textMain }}>
             <button
               class="px-4 py-2 rounded-lg text-xs font-medium text-white shadow transition-all hover:opacity-90 active:scale-95"
               style={{ backgroundColor: trustyBtn.css }}
@@ -156,7 +227,7 @@ export default function UIPreviewIsland() {
             </button>
 
             <button
-              class="px-4 py-2 rounded-lg text-xs font-medium border transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-95"
+              class="px-4 py-2 rounded-lg text-xs font-medium border transition-all hover:bg-black/5 active:scale-95"
               style={{ borderColor: trustyBtn.css, color: trustyBtn.css }}
             >
               Trusty Outline
@@ -179,20 +250,21 @@ export default function UIPreviewIsland() {
             <button
               disabled
               class="px-4 py-2 rounded-lg text-xs font-medium opacity-40 cursor-not-allowed border"
-              style={{ borderColor: borderCol }}
+              style={{ borderColor: borderCol, color: textMuted }}
             >
               Disabled Action
             </button>
           </div>
-        </div>
+        </PreviewFrame>
 
-        {/* Alerts Matrix */}
-        <div class="space-y-3">
-          <span class="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: textMuted }}>
-            Role Alert Banners
-          </span>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        {/* ── 3. Alert Banners ── */}
+        <PreviewFrame
+          label="Alert Banners"
+          canvasBg={canvasBg}
+          borderCol={borderCol}
+          index={2}
+        >
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" style={{ color: textMain }}>
             {/* Success Alert */}
             <div
               class="p-3.5 rounded-xl border flex items-start gap-3"
@@ -261,14 +333,18 @@ export default function UIPreviewIsland() {
               </div>
             </div>
           </div>
-        </div>
+        </PreviewFrame>
 
-        {/* Form Inputs & Badges */}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card Mockup */}
+        {/* ── 4. Card & Form Elements ── */}
+        <PreviewFrame
+          label="Card & Form Elements"
+          canvasBg={canvasBg}
+          borderCol={borderCol}
+          index={3}
+        >
           <div
             class="p-5 rounded-xl border space-y-4 shadow-sm"
-            style={{ backgroundColor: cardBg, borderColor: borderCol }}
+            style={{ backgroundColor: cardBg, borderColor: borderCol, color: textMain }}
           >
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold">Project Settings</span>
@@ -315,34 +391,88 @@ export default function UIPreviewIsland() {
               </span>
             </div>
           </div>
+        </PreviewFrame>
 
-          {/* Contrast Matrix */}
-          <div
-            class="p-5 rounded-xl border space-y-3"
-            style={{ backgroundColor: cardBg, borderColor: borderCol }}
-          >
-            <span class="text-xs font-mono font-semibold uppercase tracking-wider block" style={{ color: textMuted }}>
-              Accessibility & Contrast Matrix (WCAG 2.1)
-            </span>
+        {/* ── 5. Accessibility Contrast Matrix ── */}
+        <PreviewFrame
+          label="Accessibility Contrast Matrix"
+          hint="WCAG 2.1 + APCA"
+          canvasBg={canvasBg}
+          borderCol={borderCol}
+          index={4}
+        >
+          <div class="space-y-2" style={{ color: textMain }}>
+            {/* Table header */}
+            <div
+              class="grid grid-cols-3 gap-2 text-[10px] font-mono uppercase tracking-wider px-3 pb-1"
+              style={{ color: textMuted }}
+            >
+              <span>Pair</span>
+              <span class="text-center">Ratio</span>
+              <span class="text-right">Result</span>
+            </div>
 
-            <div class="space-y-2 text-xs font-mono">
-              <div class="flex items-center justify-between p-2 rounded bg-black/5 dark:bg-white/5">
-                <span>Trusty Button vs White text:</span>
-                <span class="font-bold">{btnTextContrast}:1</span>
-              </div>
-              <div class="flex items-center justify-between p-2 rounded bg-black/5 dark:bg-white/5">
-                <span>Danger vs Surface Canvas:</span>
-                <span class="font-bold">{alertContrast}:1</span>
-              </div>
-              <div class="flex items-center justify-between p-2 rounded bg-black/5 dark:bg-white/5">
-                <span>APCA Delta (Estimated):</span>
-                <span class="font-bold text-emerald-400">
-                  {getApcaContrast(primary.hex, canvasBg)} Lc
+            {/* Row 1: Trusty Button vs White */}
+            <div
+              class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
+              style={{ backgroundColor: previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
+            >
+              <span>Trusty Button · White text</span>
+              <span class="text-center font-bold">{btnTextContrast}:1</span>
+              <span class="text-right">
+                <span
+                  class={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    btnTextContrast >= 4.5
+                      ? 'bg-emerald-500/15 text-emerald-400'
+                      : 'bg-amber-500/15 text-amber-400'
+                  }`}
+                >
+                  {btnTextContrast >= 7 ? 'AAA' : btnTextContrast >= 4.5 ? 'AA' : 'Fail'}
                 </span>
-              </div>
+              </span>
+            </div>
+
+            {/* Row 2: Danger vs Surface */}
+            <div
+              class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
+              style={{ backgroundColor: previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
+            >
+              <span>Danger · Surface canvas</span>
+              <span class="text-center font-bold">{alertContrast}:1</span>
+              <span class="text-right">
+                <span
+                  class={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    alertContrast >= 4.5
+                      ? 'bg-emerald-500/15 text-emerald-400'
+                      : 'bg-amber-500/15 text-amber-400'
+                  }`}
+                >
+                  {alertContrast >= 7 ? 'AAA' : alertContrast >= 4.5 ? 'AA' : 'Fail'}
+                </span>
+              </span>
+            </div>
+
+            {/* Row 3: APCA Delta */}
+            <div
+              class="grid grid-cols-3 gap-2 items-center p-3 rounded-lg text-xs font-mono"
+              style={{ backgroundColor: previewTheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }}
+            >
+              <span>Primary · Surface (APCA)</span>
+              <span class="text-center font-bold text-emerald-400">{apcaDelta} Lc</span>
+              <span class="text-right">
+                <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-400">
+                  Perceptual
+                </span>
+              </span>
             </div>
           </div>
+        </PreviewFrame>
+
+      </div>
         </div>
+
+        {/* Sidebar - Cart Colors */}
+        <CartSidebar />
       </div>
     </div>
   );
