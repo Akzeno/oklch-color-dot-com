@@ -12,7 +12,7 @@ import {
   removeShadeWithUndo,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
-import { SHADE_STEPS, formatOklch, parseAnyToOklch, type ShadeStep, type ColorModel } from '../../utils/color';
+import { SHADE_STEPS, BASE_SHADE_STEP, formatOklch, parseAnyToOklch, type ShadeStep, type ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
 
 export default function CartSidebar() {
@@ -27,6 +27,9 @@ export default function CartSidebar() {
 
   const filledShadesCount = Object.values(cart.roles).reduce((sum, r) => sum + Object.keys(r.shades).length, 0);
   const rolesArray = Object.values(cart.roles);
+
+  /** Exporting a cart with no colors yields an empty stylesheet, so gate on it. */
+  const canExport = filledShadesCount > 0;
 
   /**
    * Send an exact token slot to the full color picker page.
@@ -193,6 +196,85 @@ export default function CartSidebar() {
 
       {/* Role List */}
       <div class="flex-1 overflow-y-auto p-3 space-y-3">
+        {/*
+         * Contextual shortcut to Export & Code, directly above the tokens the
+         * user has just been testing, so "I'm done, ship the CSS variables" is
+         * one click from the thing that finishes the task. The global nav links
+         * here too, but it lives in a fixed app shell a glance away.
+         *
+         * WHY IT LOOKS LOUDER THAN EVERY OTHER CONTROL IN THE PANEL
+         *
+         * The first version of this button was a `text-[10px]` half-width pill in
+         * the app's quiet-control palette (`#1a1a1a` / `#262626` / `#a3a3a3`), and
+         * it read as a caption rather than an action: 10px is the smallest text
+         * in the panel, that palette is the same one the trash and rename icons
+         * use, and it lost the row to a redundant dim "Token Roles" label. Since
+         * this is the terminal action of the whole test-then-ship loop, it now
+         * gets the emphasis instead:
+         *
+         *  - Full width, `text-xs`, the size of the panel's other action buttons.
+         *  - Accent-tinted with `#3b82f6`, the same accent already used for the
+         *    active-role border and the LCH focus rings, so it reads as *the*
+         *    action without inventing a second accent language.
+         *  - Carries the token count, which both explains the action and tells
+         *    the user the export will not be empty.
+         *  - `sticky`, because with six role cards this was otherwise the first
+         *    thing to scroll away. The negative margin lets it span the scroll
+         *    container's padding so cards pass cleanly underneath it; the fill
+         *    must stay `bg-[#0e0e0e]`, the panel's own background, or the cards
+         *    scrolling behind would show through.
+         *
+         * The redundant "Token Roles" label is gone: the panel header already
+         * reads "Design Tokens · N tokens · M roles".
+         *
+         * Disabled, not hidden, while the cart is empty — exporting zero tokens
+         * produces an empty stylesheet, so the button says why it is inert
+         * instead of sending the user to a dead page. `aria-disabled` plus
+         * `preventDefault` rather than a `disabled` attribute, because an <a>
+         * cannot take one — and keeping it a real anchor preserves cmd-click /
+         * open-in-new-tab, which the view-transition router intercepts the same.
+         *
+         * The icon reuses the exact `Code2` paths from the nav's /export item, so
+         * the shortcut and the nav entry are visibly the same destination.
+         */}
+        <div class="sticky top-0 z-10 -mx-3 px-3 pt-3 pb-1 bg-[#0e0e0e]">
+          <a
+            href="/export"
+            aria-disabled={canExport ? undefined : 'true'}
+            onClick={(e) => {
+              if (!canExport) e.preventDefault();
+            }}
+            title={
+              canExport
+                ? `Open Export & Code to copy or download ${filledShadesCount} CSS variable${filledShadesCount === 1 ? '' : 's'}`
+                : 'Add at least one color before exporting'
+            }
+            class={`w-full px-3 py-2.5 rounded-lg border text-xs font-mono flex items-center justify-center gap-2 transition-colors ${
+              canExport
+                ? 'bg-[#3b82f6]/10 border-[#3b82f6]/40 text-[#bfdbfe] hover:bg-[#3b82f6]/20 hover:border-[#3b82f6]/60'
+                : 'bg-[#141414] border-[#1f1f1f] text-[#404040] cursor-not-allowed'
+            }`}
+          >
+            <svg
+              class="w-4 h-4 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m18 16 4-4-4-4" />
+              <path d="m6 8-4 4 4 4" />
+              <path d="m14.5 4-5 16" />
+            </svg>
+            <span>Export & Code</span>
+            {/* Hidden while inert: "0 tokens" would just restate the disabled
+                state, and the tooltip already explains it. */}
+            {canExport && <span class="text-[#60a5fa]">{filledShadesCount} tokens</span>}
+          </a>
+        </div>
+
         {rolesArray.map((role) => {
           const roleShades = Object.keys(role.shades).filter((k) => SHADE_STEPS.includes(Number(k) as ShadeStep)) as unknown as ShadeStep[];
           const isActive = role.id === cart.activeRoleId;
@@ -500,9 +582,30 @@ export default function CartSidebar() {
                   })}
                 </div>
               ) : (
+                /*
+                 * An empty role used to be a dead end: the swatch grid is not
+                 * rendered at all, and the "Full 50–950" / "Delete scale" row is
+                 * gated behind `hasAnyShades`, so the old "click empty slot or
+                 * generate scale" hint pointed at two controls that were both
+                 * absent. This button is the one guaranteed way forward.
+                 *
+                 * It routes through `openPicker` with a null colour, so the picker
+                 * authors a NEW token at BASE_SHADE_STEP seeded from that step's
+                 * target lightness — and `returnTo` brings the user straight back
+                 * here once they save.
+                 */
                 <div class="px-3 py-4 text-center">
                   <p class="text-[11px] text-[#737373] font-mono">No shades yet</p>
-                  <p class="text-[10px] text-[#525252] mt-1">Click empty slot or generate scale</p>
+                  <button
+                    onClick={() => openPicker(role.id, BASE_SHADE_STEP, null)}
+                    title={`Author the base shade (${BASE_SHADE_STEP}) in the color picker`}
+                    class="mt-2.5 w-full px-2 py-1.5 rounded-md bg-[#1a1a1a] border border-[#262626] hover:border-[#333333] text-[11px] font-mono text-[#a3a3a3] hover:text-[#f5f5f5] flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    <span>Add color</span>
+                  </button>
                 </div>
               )}
 

@@ -15,6 +15,23 @@ import {
 export type ShadeStep = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
 export const SHADE_STEPS: ShadeStep[] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
+/**
+ * The step a palette is anchored on.
+ *
+ * Three things independently need to agree on it, and when they each hardcoded
+ * `500` they could silently drift apart:
+ *
+ *  - `generateFullScaleForRole` generates the 50–950 scale *from* this step.
+ *  - The picker inherits hue/chroma/alpha for a new token from this step, so
+ *    every hand-authored shade in a role stays on-hue.
+ *  - The sidebar's "Add color" button for an empty role writes here.
+ *
+ * If these ever disagree, "Add color" on an empty role would seed the picker
+ * from a slot that does not exist, and the result would not match the colour a
+ * subsequent "Full 50–950" generated from.
+ */
+export const BASE_SHADE_STEP: ShadeStep = 500;
+
 export interface ColorModel {
   l: number;       // Lightness: 0 to 1
   c: number;       // Chroma: 0 to 0.4

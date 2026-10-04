@@ -3,6 +3,7 @@ import {
   type ColorModel,
   type ShadeStep,
   SHADE_STEPS,
+  BASE_SHADE_STEP,
   getNearestShadeStep,
   generateFullScaleFromColor,
   createOklchColor,
@@ -275,11 +276,14 @@ export function generateFullScaleForRole(roleId: string, baseColor?: ColorModel)
   const role = current.roles[roleId];
   if (!role) return;
 
-  // Find base color: either passed, or existing 500, or first available shade
+  // Find base color: either passed, or the role's own base step, or first
+  // available shade. `BASE_SHADE_STEP` is the same slot the picker's "Add color"
+  // and the sidebar's empty-role button write to, so a scale generated right
+  // after adding a color is guaranteed to be derived from it.
   let base = baseColor;
   if (!base) {
-    if (role.shades[500]) {
-      base = role.shades[500]!.color;
+    if (role.shades[BASE_SHADE_STEP]) {
+      base = role.shades[BASE_SHADE_STEP]!.color;
     } else {
       const firstKey = Object.keys(role.shades)[0];
       if (firstKey) {

@@ -29,6 +29,8 @@ const SUITES = [
   'cart-hydration-race.mjs',
   'hydration-pinning.mjs',
   'picker-handoff.mjs',
+  'empty-role-add-color.mjs',
+  'export-shortcut.mjs',
   'swatch-quick-actions.mjs',
   // Reads dist/, so the build must run first — hence `astro build && npm test`.
   'island-hydration.mjs',

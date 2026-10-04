@@ -8,6 +8,7 @@ import {
   findMaxChromaInSRGB,
   getNearestShadeStep,
   TARGET_LIGHTNESS,
+  BASE_SHADE_STEP,
   type ColorModel,
 } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
@@ -59,7 +60,7 @@ export default function ColorPickerIsland() {
     // Chroma/hue are inherited from the role's own 500 so a generated scale stays
     // on-hue; lightness comes from the step so slot 950 opens dark and 50 light.
     const role = cartStore.get().roles[pending.roleId];
-    const base = role?.shades[500]?.color;
+    const base = role?.shades[BASE_SHADE_STEP]?.color;
     setL(TARGET_LIGHTNESS[pending.step]);
     setC(base ? base.c : 0.12);
     setH(base ? base.h : 255);
