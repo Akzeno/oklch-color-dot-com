@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useState, useMemo, useEffect } from 'preact/hooks';
 import {
   createOklchColor,
   formatOklch,
@@ -12,8 +12,12 @@ import {
 import {
   addColorToCart,
   setActiveRole,
+  setRoleShade,
   isCartOpenStore,
   showToast,
+  consumePickerHandoff,
+  clearPickerHandoff,
+  type PickerHandoff,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
 
@@ -25,6 +29,24 @@ export default function ColorPickerIsland() {
   const [c, setC] = useState(0.19);
   const [h, setH] = useState(255);
   const [alpha, setAlpha] = useState(1);
+
+  /**
+   * Handoff coming from the UI preview ("Color Picker" action on a clicked
+   * element). When present the sliders open preloaded with that token's color
+   * and saving writes back to the exact --color-<role>-<step> slot.
+   */
+  const [handoff, setHandoff] = useState<PickerHandoff | null>(null);
+
+  useEffect(() => {
+    const pending = consumePickerHandoff();
+    if (!pending) return;
+    setHandoff(pending);
+    setL(pending.color.l);
+    setC(pending.color.c);
+    setH(pending.color.h);
+    setAlpha(pending.color.alpha);
+    setActiveRole(pending.roleId);
+  }, []);
 
   // Current active color model
   const color: ColorModel = useMemo(() => {
@@ -83,13 +105,69 @@ export default function ColorPickerIsland() {
 
   // Add to cart
   const handleAddToCart = () => {
-    const { roleId, step } = addColorToCart(color, cart.activeRoleId);
+    if (handoff) {
+      // Handoff: write to the exact slot the color came from
+      setRoleShade(handoff.roleId, handoff.step, color);
+      setHandoff(null);
+      clearPickerHandoff();
+      return;
+    }
+    addColorToCart(color, cart.activeRoleId);
   };
+
+  const handoffRole = handoff ? cart.roles[handoff.roleId] : undefined;
 
   const activeRole = cart.roles[cart.activeRoleId] || Object.values(cart.roles)[0];
 
   return (
     <div class="space-y-6">
+      {/* Handoff banner: opened from a specific token in the UI preview */}
+      {handoff && (
+        <div class="flex items-center justify-between flex-wrap gap-3 bg-[#141414] border border-[#3b82f6]/40 rounded-xl px-4 py-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div
+              class="w-8 h-8 rounded-lg border border-[#262626] flex-shrink-0"
+              style={{ backgroundColor: oklchString }}
+              aria-hidden="true"
+            />
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-[#f5f5f5] truncate">
+                Editing{' '}
+                <span class="font-mono text-[#86efac]">
+                  --color-{handoff.roleId}-{handoff.step}
+                </span>
+              </p>
+              <p class="text-[11px] font-mono text-[#737373] truncate">
+                Loaded from{' '}
+                {handoffRole?.name ?? handoff.roleId} · saving replaces that exact token
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              href="/ui-preview"
+              class="px-3 py-1.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] text-[11px] font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
+            >
+              Back to preview
+            </a>
+            <button
+              onClick={() => {
+                setHandoff(null);
+                clearPickerHandoff();
+              }}
+              class="px-3 py-1.5 rounded-lg bg-[#1a1a1a] hover:bg-[#262626] border border-[#262626] text-[11px] font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddToCart}
+              class="px-3 py-1.5 rounded-lg bg-[#f5f5f5] hover:bg-white text-[11px] font-mono font-semibold text-[#0a0a0a] transition-colors shadow-lg shadow-white/5"
+            >
+              Save to token
+            </button>
+          </div>
+        </div>
+      )}
       {/* Top Hero Section: Swatch Preview & Primary HUD */}
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Large Color Canvas */}
@@ -191,7 +269,11 @@ export default function ColorPickerIsland() {
                 <svg class="w-4 h-4 text-[#0a0a0a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14M12 5v14"/>
                 </svg>
-                <span>Add to Cart ({activeRole?.name}-{nearestStep})</span>
+                <span>
+                  {handoff
+                    ? `Save to --color-${handoff.roleId}-${handoff.step}`
+                    : `Add to Cart (${activeRole?.name}-${nearestStep})`}
+                </span>
               </button>
               <button
                 onClick={() => isCartOpenStore.set(true)}

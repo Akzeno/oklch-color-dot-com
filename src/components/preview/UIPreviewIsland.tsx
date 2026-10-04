@@ -1,15 +1,16 @@
 import { useState, useMemo } from 'preact/hooks';
 import {
-  cartStore,
   isCartOpenStore,
-  generateFullScaleForRole,
   showToast,
-  type ColorRole,
+  savePickerHandoff,
+  setRoleShade,
+  removeShadeFromRole,
+  clearRoleScale,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
-import { formatOklch, getWcagContrast, getApcaContrast, createOklchColor, type ShadeStep } from '../../utils/color';
+import { formatOklch, getWcagContrast, getApcaContrast, type ShadeStep, type ColorModel } from '../../utils/color';
 import CartSidebar from './CartSidebar';
-import ContextMenu from './ContextMenu';
+import ColorActionPopover from './ColorActionPopover';
 
 /* ─────────────────────── PreviewFrame ─────────────────────── */
 function PreviewFrame({
@@ -19,6 +20,7 @@ function PreviewFrame({
   canvasBg,
   borderCol,
   index,
+  span = false,
   children,
 }: {
   label: string;
@@ -27,21 +29,23 @@ function PreviewFrame({
   canvasBg: string;
   borderCol: string;
   index: number;
+  /** Stretch across both columns on ultra-wide layouts. */
+  span?: boolean;
   children: any;
 }) {
   return (
     <div
-      class="space-y-2.5 animate-frame-in"
+      class={`space-y-2.5 animate-frame-in ${span ? '2xl:col-span-2' : ''}`}
       style={{ animationDelay: `${index * 60}ms` }}
     >
       {/* Section Label */}
-      <div class="flex items-center justify-between px-1">
+      <div class="flex items-center justify-between px-1 gap-3">
         <span class="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#525252]">
           {label}
         </span>
         {hint && (
           <span
-            class={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
+            class={`text-[11px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap ${
               hintPass === true
                 ? 'bg-emerald-500/10 text-emerald-400'
                 : hintPass === false
@@ -120,58 +124,62 @@ export default function UIPreviewIsland() {
     return getApcaContrast(primary.hex, canvasBg);
   }, [primary.hex, canvasBg]);
 
-  // Context menu state
-  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; roleId: string; step: ShadeStep } | null>(null);
+  // Action popover state (opened by left- or right-click on any colored element)
+  const [popover, setPopover] = useState<{ x: number; y: number; roleId: string; step: ShadeStep } | null>(null);
 
-  const handleContextMenu = (e: MouseEvent) => {
+  const openPopoverFromEvent = (e: MouseEvent) => {
     const target = (e.target as HTMLElement).closest('[data-context-role]') as HTMLElement | null;
     if (!target) return;
     e.preventDefault();
     const roleId = target.dataset.contextRole!;
     const step = Number(target.dataset.contextStep) || 500;
-    setCtxMenu({ x: e.clientX, y: e.clientY, roleId, step: step as ShadeStep });
+    setPopover({ x: e.clientX, y: e.clientY, roleId, step: step as ShadeStep });
   };
 
-  const handleCtxColorSelect = (sourceRoleId: string, sourceStep: ShadeStep) => {
-    if (!ctxMenu) return;
-    const current = cartStore.get();
-    const sourceRole = current.roles[sourceRoleId];
-    if (!sourceRole?.shades[sourceStep]) return;
-    const color = sourceRole.shades[sourceStep]!.color;
-    const targetRole = current.roles[ctxMenu.roleId];
-    if (!targetRole) return;
+  // Left click opens the action popover; right click keeps the legacy behaviour
+  const handlePreviewClick = (e: MouseEvent) => {
+    if (e.button !== 0) return;
+    openPopoverFromEvent(e);
+  };
 
-    const updatedShades = {
-      ...targetRole.shades,
-      [ctxMenu.step]: {
-        id: `${ctxMenu.roleId}-${ctxMenu.step}-${Date.now()}`,
-        step: ctxMenu.step,
-        color,
-      },
-    };
+  const handlePreviewContextMenu = (e: MouseEvent) => {
+    if (e.button !== 2) return;
+    openPopoverFromEvent(e);
+  };
 
-    const newState = {
-      ...current,
-      roles: {
-        ...current.roles,
-        [ctxMenu.roleId]: {
-          ...targetRole,
-          shades: updatedShades,
-        },
-      },
-    };
+  // Apply a picked color (from cart or palette library) to the clicked token
+  const handleApplyColor = (color: ColorModel, sourceLabel: string) => {
+    if (!popover) return;
+    setRoleShade(popover.roleId, popover.step, color, { silent: true });
+    showToast(`${sourceLabel} → --color-${popover.roleId}-${popover.step}`);
+    setPopover(null);
+  };
 
-    cartStore.set(newState);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('oklch_cart_v1', JSON.stringify(newState));
-    }
+  // Delete only the clicked color token
+  const handleDeleteShade = () => {
+    if (!popover) return;
+    removeShadeFromRole(popover.roleId, popover.step);
+    showToast(`Removed --color-${popover.roleId}-${popover.step}`);
+    setPopover(null);
+  };
 
-    showToast(`Applied ${sourceRole.name} ${sourceStep} → ${targetRole.name} ${ctxMenu.step}`);
-    setCtxMenu(null);
+  // Delete every color of the parent role (its full 50–950 scale)
+  const handleDeleteFullScale = () => {
+    if (!popover) return;
+    clearRoleScale(popover.roleId);
+    setPopover(null);
+  };
+
+  // Hand the color over to the full color picker page
+  const handleOpenInPicker = (color: ColorModel) => {
+    if (!popover) return;
+    savePickerHandoff({ roleId: popover.roleId, step: popover.step, color });
+    setPopover(null);
+    window.location.href = '/';
   };
 
   return (
-    <div class="space-y-6">
+    <div class="space-y-6 lg:space-y-8">
       {/* ── Inline keyframes (scoped to this island) ── */}
       <style>{`
         @keyframes frameIn {
@@ -182,17 +190,21 @@ export default function UIPreviewIsland() {
           animation: frameIn 0.35s ease-out both;
         }
         [data-context-role] {
-          cursor: context-menu;
+          cursor: pointer;
           position: relative;
         }
         [data-context-role]:hover {
-          outline: 2px dashed rgba(255, 255, 255, 0.3);
+          outline: 2px dashed rgba(255, 255, 255, 0.45);
           outline-offset: 2px;
         }
       `}</style>
 
       {/* ─────── Split Layout: Preview + Sidebar ─────── */}
-      <div class="flex flex-col lg:flex-row gap-6" onContextMenu={handleContextMenu}>
+      <div
+        class="flex flex-col lg:flex-row gap-5 lg:gap-8 2xl:gap-10"
+        onClick={handlePreviewClick}
+        onContextMenu={handlePreviewContextMenu}
+      >
         {/* Main Preview Area */}
         <div class="flex-1 min-w-0 space-y-6">
           {/* ─────── Controls Bar ─────── */}
@@ -201,7 +213,7 @@ export default function UIPreviewIsland() {
           <h2 class="text-sm font-semibold text-[#f5f5f5]">Component Showcase</h2>
           <p class="text-xs font-mono text-[#737373] mt-0.5">
             Each section below is an isolated canvas rendered with your active Cart roles.{' '}
-            <span class="text-[#a3a3a3]">Right-click any element to change its color.</span>
+            <span class="text-[#a3a3a3]">Click any colored element to swap it from your cart or a palette, open it in the picker, or delete it.</span>
           </p>
         </div>
 
@@ -235,8 +247,8 @@ export default function UIPreviewIsland() {
         </div>
       </div>
 
-      {/* ─────── Component Frames ─────── */}
-      <div class="space-y-8">
+      {/* ─────── Component Frames (single column, two columns on 2xl) ─────── */}
+      <div class="grid grid-cols-1 2xl:grid-cols-2 gap-5 2xl:gap-6 items-start">
 
         {/* ── 1. Navigation Bar ── */}
         <PreviewFrame
@@ -244,6 +256,7 @@ export default function UIPreviewIsland() {
           canvasBg={canvasBg}
           borderCol={borderCol}
           index={0}
+          span
         >
           <div
             class="flex items-center justify-between p-4 rounded-xl border"
@@ -562,15 +575,18 @@ export default function UIPreviewIsland() {
         <CartSidebar />
       </div>
 
-      {/* Context Menu for right-click color changing */}
-      {ctxMenu && (
-        <ContextMenu
-          x={ctxMenu.x}
-          y={ctxMenu.y}
-          targetRoleId={ctxMenu.roleId}
-          targetStep={ctxMenu.step}
-          onSelect={handleCtxColorSelect}
-          onClose={() => setCtxMenu(null)}
+      {/* Action popover shown when a colored element is clicked / right-clicked */}
+      {popover && (
+        <ColorActionPopover
+          x={popover.x}
+          y={popover.y}
+          targetRoleId={popover.roleId}
+          targetStep={popover.step}
+          onApplyColor={handleApplyColor}
+          onDeleteShade={handleDeleteShade}
+          onDeleteFullScale={handleDeleteFullScale}
+          onOpenInPicker={handleOpenInPicker}
+          onClose={() => setPopover(null)}
         />
       )}
     </div>

@@ -4,6 +4,7 @@ import {
   isCartOpenStore,
   generateFullScaleForRole,
   removeShadeFromRole,
+  clearRoleScale,
   renameRole,
   createCustomRole,
   deleteRole,
@@ -20,6 +21,7 @@ export default function CartDrawerIsland() {
   const [roleInputName, setRoleInputName] = useState('');
   const [newRoleInput, setNewRoleInput] = useState('');
   const [isCreatingRole, setIsCreatingRole] = useState(false);
+  const [confirmingClearScale, setConfirmingClearScale] = useState(false);
 
   // Close on Escape key
   useEffect(() => {
@@ -31,6 +33,14 @@ export default function CartDrawerIsland() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
+
+  // Reset transient state whenever the drawer closes or the active role changes
+  useEffect(() => {
+    if (!isOpen) {
+      setConfirmingClearScale(false);
+      setEditingRoleId(null);
+    }
+  }, [isOpen, cart.activeRoleId]);
 
   if (!isOpen) return null;
 
@@ -222,16 +232,57 @@ export default function CartDrawerIsland() {
                 <span>{filledShadesCount}/11 filled</span>
               </div>
 
-              {/* Generate Full Scale Button */}
-              <button
-                onClick={() => generateFullScaleForRole(activeRole.id)}
-                class="w-full py-2.5 px-4 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] hover:border-[#333333] text-xs font-mono text-[#f5f5f5] flex items-center justify-center gap-2.5 transition-all"
-              >
-                <svg class="w-4 h-4 text-[#22c55e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
-                </svg>
-                <span>Generate Full 50–950 Scale</span>
-              </button>
+              {/* Generate / Clear Full Scale */}
+              {confirmingClearScale ? (
+                <div class="rounded-lg border border-red-500/40 bg-red-500/10 p-3 space-y-2">
+                  <p class="text-[11px] font-mono text-red-300">
+                    Delete all {filledShadesCount} color{filledShadesCount === 1 ? '' : 's'} of{' '}
+                    <span class="text-white">{activeRole.name}</span>?
+                  </p>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setConfirmingClearScale(false)}
+                      class="py-2 px-3 rounded-lg bg-[#1a1a1a] border border-[#262626] text-xs font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        clearRoleScale(activeRole.id);
+                        setConfirmingClearScale(false);
+                      }}
+                      class="py-2 px-3 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-mono font-semibold text-white transition-colors"
+                    >
+                      Delete scale
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => generateFullScaleForRole(activeRole.id)}
+                    disabled={filledShadesCount === 0}
+                    class="py-2.5 px-3 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] hover:border-[#333333] text-xs font-mono text-[#f5f5f5] flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#1a1a1a]"
+                    title="Generate the full 50–950 scale from the base color"
+                  >
+                    <svg class="w-4 h-4 text-[#22c55e] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+                    </svg>
+                    <span class="truncate">Generate Scale</span>
+                  </button>
+                  <button
+                    onClick={() => setConfirmingClearScale(true)}
+                    disabled={filledShadesCount === 0}
+                    class="py-2.5 px-3 rounded-lg bg-[#1a1a1a] hover:bg-red-500/10 border border-[#262626] hover:border-red-500/40 text-xs font-mono text-[#a3a3a3] hover:text-red-300 flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#1a1a1a]"
+                    title={`Delete all ${filledShadesCount} colors of ${activeRole.name}`}
+                  >
+                    <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    </svg>
+                    <span class="truncate">Delete Scale</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Shade Cards Grid (only filled) */}

@@ -126,6 +126,8 @@ Organized by feature/domain:
 | File | Type | Purpose |
 |------|------|---------|
 | `UIPreviewIsland.tsx` | React | Live UI preview with color theming |
+| `CartSidebar.tsx` | React | Design-token role/shade inspector beside the preview |
+| `ColorActionPopover.tsx` | React | Click-action popover (cart colors, palettes, picker handoff, delete color / delete full scale) |
 
 ---
 

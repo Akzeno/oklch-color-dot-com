@@ -196,3 +196,20 @@ input[type="range"]::-moz-range-thumb {
     opacity: 1;
   }
 }
+
+/* Click-action popover used in the UI preview island */
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-popover-in {
+  animation: popoverIn 0.14s ease-out both;
+  transform-origin: top left;
+}

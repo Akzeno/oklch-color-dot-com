@@ -3,6 +3,8 @@ import {
   cartStore,
   generateFullScaleForRole,
   removeShadeFromRole,
+  clearRoleScale,
+  clearAllScales,
   renameRole,
   createCustomRole,
   deleteRole,
@@ -20,6 +22,7 @@ export default function CartSidebar() {
   const [isCreatingRole, setIsCreatingRole] = useState(false);
   const [editingShade, setEditingShade] = useState<{ roleId: string; step: ShadeStep } | null>(null);
   const [shadeInput, setShadeInput] = useState('');
+  const [confirmingClearRoleId, setConfirmingClearRoleId] = useState<string | null>(null);
 
   const filledShadesCount = Object.values(cart.roles).reduce((sum, r) => sum + Object.keys(r.shades).length, 0);
   const rolesArray = Object.values(cart.roles);
@@ -106,7 +109,7 @@ export default function CartSidebar() {
   };
 
   return (
-    <div class="w-72 md:w-80 lg:w-96 flex-shrink-0 bg-[#0e0e0e] border-l border-[#1f1f1f] flex flex-col lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] rounded-xl overflow-hidden">
+    <div class="w-full lg:w-[360px] xl:w-[400px] 2xl:w-[440px] flex-shrink-0 bg-[#0e0e0e] border-l border-[#1f1f1f] flex flex-col lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] rounded-xl overflow-hidden">
       {/* Header */}
       <div class="p-4 border-b border-[#1f1f1f] bg-[#111111] flex-shrink-0">
         <div class="flex items-center justify-between mb-3">
@@ -309,7 +312,7 @@ export default function CartSidebar() {
 
               {/* Shades Grid */}
               {shadeCount > 0 ? (
-                <div class="px-2 py-2 grid grid-cols-4 gap-1.5">
+                <div class="px-2 py-2 grid grid-cols-4 2xl:grid-cols-5 gap-1.5">
                   {SHADE_STEPS.map((step) => {
                     const token = role.shades[step];
                     const css = token ? formatOklch(token.color) : '';
@@ -461,17 +464,58 @@ export default function CartSidebar() {
                 </div>
               )}
 
-              {/* Generate Full Scale Button */}
+              {/* Generate Full Scale / Delete Full Scale Actions */}
               {hasAnyShades(role) && (
-                <button
-                  onClick={() => generateFullScaleForRole(role.id)}
-                  class="w-full mx-2 mb-2 py-2 px-3 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] hover:border-[#333333] text-xs font-mono text-[#f5f5f5] flex items-center justify-center gap-2 transition-all"
-                >
-                  <svg class="w-3.5 h-3.5 text-[#22c55e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
-                  </svg>
-                  <span>Generate Full 50–950 Scale</span>
-                </button>
+                confirmingClearRoleId === role.id ? (
+                  <div class="px-2 pb-2">
+                    <div class="rounded-lg border border-red-500/40 bg-red-500/10 p-2 space-y-2">
+                      <p class="text-[11px] font-mono text-red-300 leading-tight">
+                        Delete all {shadeCount} color{shadeCount === 1 ? '' : 's'} of{' '}
+                        <span class="text-white">{role.name}</span>?
+                      </p>
+                      <div class="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => setConfirmingClearRoleId(null)}
+                          class="px-2 py-1.5 rounded-md bg-[#1a1a1a] border border-[#262626] text-[11px] font-mono text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            clearRoleScale(role.id);
+                            setConfirmingClearRoleId(null);
+                          }}
+                          class="px-2 py-1.5 rounded-md bg-red-500 text-[11px] font-mono font-semibold text-white hover:bg-red-400 transition-colors"
+                        >
+                          Delete scale
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div class="px-2 pb-2 grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => generateFullScaleForRole(role.id)}
+                      class="py-2 px-2 rounded-lg bg-[#1a1a1a] hover:bg-[#222222] border border-[#262626] hover:border-[#333333] text-[11px] font-mono text-[#f5f5f5] flex items-center justify-center gap-1.5 transition-all"
+                      title="Generate the full 50–950 scale from the base color"
+                    >
+                      <svg class="w-3.5 h-3.5 text-[#22c55e] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+                      </svg>
+                      <span class="truncate">Full 50–950</span>
+                    </button>
+                    <button
+                      onClick={() => setConfirmingClearRoleId(role.id)}
+                      class="py-2 px-2 rounded-lg bg-[#1a1a1a] hover:bg-red-500/10 border border-[#262626] hover:border-red-500/40 text-[11px] font-mono text-[#a3a3a3] hover:text-red-300 flex items-center justify-center gap-1.5 transition-all"
+                      title={`Delete all ${shadeCount} colors of ${role.name}`}
+                    >
+                      <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      </svg>
+                      <span class="truncate">Delete scale</span>
+                    </button>
+                  </div>
+                )
               )}
             </div>
           );
@@ -490,6 +534,18 @@ export default function CartSidebar() {
             <div class="text-[10px] text-[#737373]">Roles</div>
           </div>
         </div>
+        {filledShadesCount > 0 && (
+          <button
+            onClick={() => clearAllScales()}
+            class="mt-2 w-full py-2 px-3 rounded-lg bg-[#171717] hover:bg-red-500/10 border border-[#262626] hover:border-red-500/40 text-[11px] font-mono text-[#737373] hover:text-red-300 transition-colors flex items-center justify-center gap-1.5"
+            title="Remove every color from every role"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            </svg>
+            <span>Clear all colors</span>
+          </button>
+        )}
       </div>
     </div>
   );

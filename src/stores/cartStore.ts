@@ -291,6 +291,46 @@ export function generateFullScaleForRole(roleId: string, baseColor?: ColorModel)
   showToast(`Generated full 50-950 scale for ${role.name}`);
 }
 
+/**
+ * Write a color into an EXACT shade slot of a role.
+ *
+ * Unlike `addColorToCart` this never re-slots the color to the nearest
+ * lightness step, so it is what the UI preview popover and the color picker
+ * handoff need when the destination slot is already known.
+ */
+export function setRoleShade(
+  roleId: string,
+  step: ShadeStep,
+  color: ColorModel,
+  options: { silent?: boolean } = {}
+) {
+  const current = cartStore.get();
+  const role = current.roles[roleId];
+  if (!role) return false;
+
+  const updatedShades = {
+    ...role.shades,
+    [step]: {
+      id: `${roleId}-${step}-${Date.now()}`,
+      step,
+      color,
+    },
+  };
+
+  saveCartState({
+    ...current,
+    roles: {
+      ...current.roles,
+      [roleId]: { ...role, shades: updatedShades },
+    },
+  });
+
+  if (!options.silent) {
+    showToast(`Applied to ${role.name} ${step} (--color-${roleId}-${step})`);
+  }
+  return true;
+}
+
 // Remove an individual shade from a role
 export function removeShadeFromRole(roleId: string, step: ShadeStep) {
   const current = cartStore.get();
@@ -310,6 +350,52 @@ export function removeShadeFromRole(roleId: string, step: ShadeStep) {
       },
     },
   });
+}
+
+// Delete EVERY shade of a role — i.e. wipe the full 50–950 scale owned by the
+// parent role, while keeping the role itself (and its --color-<role>-* prefix).
+export function clearRoleScale(roleId: string) {
+  const current = cartStore.get();
+  const role = current.roles[roleId];
+  if (!role) return;
+
+  const removedCount = Object.keys(role.shades).length;
+  if (removedCount === 0) {
+    showToast(`${role.name} has no colors to delete`, 'info');
+    return;
+  }
+
+  saveCartState({
+    ...current,
+    roles: {
+      ...current.roles,
+      [roleId]: { ...role, shades: {} },
+    },
+  });
+
+  showToast(`Deleted full scale of ${role.name} (${removedCount} colors)`);
+}
+
+// Delete every shade across every role (keeps the role definitions)
+export function clearAllScales() {
+  const current = cartStore.get();
+  const total = getCartTotalCount(current);
+  if (total === 0) {
+    showToast('Cart is already empty', 'info');
+    return;
+  }
+
+  const clearedRoles: Record<string, ColorRole> = {};
+  for (const [roleId, role] of Object.entries(current.roles)) {
+    clearedRoles[roleId] = { ...role, shades: {} };
+  }
+
+  saveCartState({
+    ...current,
+    roles: clearedRoles,
+  });
+
+  showToast(`Cleared all ${total} colors from every role`);
 }
 
 // Rename an existing role
@@ -423,4 +509,55 @@ export function getCartTotalCount(state: CartState): number {
     count += Object.keys(role.shades).length;
   }
   return count;
+}
+
+/* ─────────────────── Picker handoff (UI preview → picker page) ─────────────────── */
+
+const PICKER_HANDOFF_KEY = 'oklch_picker_handoff_v1';
+
+export interface PickerHandoff {
+  roleId: string;
+  step: ShadeStep;
+  color: ColorModel;
+}
+
+/**
+ * Remember which exact token slot a colour came from before navigating to the
+ * color picker page, so the picker can prefill L/C/H and write back to the very
+ * same `--color-<role>-<step>` variable instead of a nearest-lightness slot.
+ */
+export function savePickerHandoff(handoff: PickerHandoff) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(PICKER_HANDOFF_KEY, JSON.stringify(handoff));
+  } catch {
+    /* private mode / quota — the picker simply opens with defaults */
+  }
+}
+
+/** Read + clear the pending handoff. Call exactly once, after mount. */
+export function consumePickerHandoff(): PickerHandoff | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(PICKER_HANDOFF_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(PICKER_HANDOFF_KEY);
+    const parsed = JSON.parse(raw) as Partial<PickerHandoff>;
+    const color = sanitizeColor(parsed.color);
+    const step = Number(parsed.step) as ShadeStep;
+    if (!color || typeof parsed.roleId !== 'string' || !SHADE_STEPS.includes(step)) return null;
+    return { roleId: parsed.roleId, step, color };
+  } catch {
+    return null;
+  }
+}
+
+/** Discard a pending handoff (used when the user cancels inside the picker). */
+export function clearPickerHandoff() {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(PICKER_HANDOFF_KEY);
+  } catch {
+    /* no-op */
+  }
 }
