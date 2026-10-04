@@ -65,6 +65,14 @@ function getInitialCartState(): CartState {
     color: purple500,
   };
 
+  // Seed secondary-500
+  const teal500 = createOklchColor(0.55, 0.18, 195);
+  rolesRecord['secondary'].shades[500] = {
+    id: 'seed-secondary-500',
+    step: 500,
+    color: teal500,
+  };
+
   if (typeof window !== 'undefined') {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);

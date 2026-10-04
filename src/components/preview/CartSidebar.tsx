@@ -106,7 +106,7 @@ export default function CartSidebar() {
   };
 
   return (
-    <div class="w-72 md:w-80 lg:w-96 flex-shrink-0 bg-[#0e0e0e] border-l border-[#1f1f1f] flex flex-col">
+    <div class="w-72 md:w-80 lg:w-96 flex-shrink-0 bg-[#0e0e0e] border-l border-[#1f1f1f] flex flex-col lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] rounded-xl overflow-hidden">
       {/* Header */}
       <div class="p-4 border-b border-[#1f1f1f] bg-[#111111] flex-shrink-0">
         <div class="flex items-center justify-between mb-3">
