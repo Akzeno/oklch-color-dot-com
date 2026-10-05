@@ -439,11 +439,21 @@ body {
    COLOUR DATA — swatches carry the page
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* The hero element: one contiguous bar of colour, spec height 48px. */
+/*
+ * The hero element: one contiguous bar of colour.
+ *
+ * Height is a custom property so a caller can retune one instance without
+ * inventing a second class: the generator's three-hue strips drop to 40px with
+ * `!h-10` / `--swatch-strip-h`, while the library cards and the scale grid keep
+ * this default. 168px is the value that makes an 11-step ramp legible as a
+ * ramp — at the 48px this used to be, the strip read as a decorative progress
+ * bar and the colours inside it were too small to judge.
+ */
 .swatch-strip {
+  --swatch-strip-h: 168px;
   display: flex;
   align-items: stretch;
-  height: 48px;
+  height: var(--swatch-strip-h);
   width: 100%;
   overflow: hidden;
   border: 1px solid var(--color-hairline);
@@ -465,10 +475,12 @@ body {
     z-index 0ms;
 }
 /* Lifts above its neighbours so the hovered step is fully visible rather than
-   half-covered by the next swatch in the row. */
+   half-covered by the next swatch in the row. X-only: the strip is now tall, and
+   a uniform `scale()` would push the swatch past the clip edge vertically, which
+   reads as a rendering glitch rather than as a lift. */
 .swatch-item:hover,
 .swatch-item:focus-visible {
-  transform: scale(1.05);
+  transform: scaleX(1.04);
   z-index: 10;
   outline: none;
 }

@@ -2,7 +2,7 @@
 import AppLayout from '../../layouts/AppLayout.astro';
 import { PALETTES, type PaletteItem } from '../../data/palettes';
 import { SHADE_STEPS, formatOklch, getWcagContrast } from '../../utils/color';
-import SwatchStripIsland from '../../components/palettes/SwatchStripIsland';
+import PaletteDetailIsland from '../../components/palettes/PaletteDetailIsland';
 
 export function getStaticPaths() {
   return PALETTES.map((palette) => ({
@@ -27,7 +27,7 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
   canonicalPath={`/oklch-colors/${palette.slug}`}
   schemaType="CollectionPage"
 >
-  <div class="max-w-5xl mx-auto px-4 py-8 space-y-10">
+  <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-[#737373]" aria-label="Breadcrumb">
       <a href="/" class="hover:text-[#f5f5f5]">Home</a>
@@ -52,14 +52,19 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
       </p>
     </div>
 
-    <!-- Contiguous Hero Swatch Strip -->
-    <div class="space-y-2">
+    <!-- The scale, as large cards with their own copy / cart actions -->
+    <section class="space-y-2">
       <div class="flex items-center justify-between text-xs font-mono text-[#737373]">
-        <span>Hero Swatch Bar</span>
-        <span>Click any swatch to copy value and add to cart</span>
+        <span>Shade Steps</span>
+        <span>Copy a value, or save it to a variable of your own</span>
       </div>
-      <SwatchStripIsland client:load shades={palette.shades} paletteName={palette.name} />
-    </div>
+      <PaletteDetailIsland
+        client:load
+        shades={palette.shades}
+        paletteName={palette.name}
+        paletteSlug={palette.slug}
+      />
+    </section>
 
     <!-- Detailed 11-step Table Breakdown -->
     <section class="space-y-4">

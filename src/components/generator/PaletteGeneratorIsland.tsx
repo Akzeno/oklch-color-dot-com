@@ -1,20 +1,23 @@
 import { useState, useMemo } from 'preact/hooks';
-import { Paintbrush, Plus } from 'lucide-preact';
+import { Paintbrush, Plus, Shuffle } from 'lucide-preact';
 import {
   createOklchColor,
   formatOklch,
   parseAnyToOklch,
   generateFullScaleFromColor,
   generateHarmonies,
+  randomOklchColor,
   SHADE_STEPS,
   type ColorModel,
   type ShadeStep,
 } from '../../utils/color';
 import {
   addColorToCart,
+  ensureRole,
   generateFullScaleForRole,
-  setActiveRole,
+  setRoleShade,
   showToast,
+  slugifyRoleName,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
 import { useOpenInPicker } from '../../hooks/useOpenInPicker';
@@ -29,10 +32,72 @@ const PRESETS = [
   { label: 'Violet', hex: '#8b5cf6' },
 ];
 
+/**
+ * What clicking a swatch does.
+ *
+ * The first version of this page made one click do two things — copy *and* file
+ * into the cart — which reads as helpful until you want one without the other:
+ * browsing a scale quietly rewrites a token on every click, and copying a single
+ * value leaves the cart changed from a gesture the user thinks is read-only. Both
+ * are legitimate intents, so both are offered and the copy-and-file pairing
+ * stays the default.
+ */
+type PickAction = 'both' | 'copy' | 'add';
+
+const PICK_ACTIONS: { id: PickAction; label: string; hint: string }[] = [
+  {
+    id: 'both',
+    label: 'Copy + cart',
+    hint: 'Clicking a swatch copies its value and saves it to the variable',
+  },
+  {
+    id: 'copy',
+    label: 'Copy only',
+    hint: 'Clicking a swatch only copies its value, leaving your cart untouched',
+  },
+  {
+    id: 'add',
+    label: 'Cart only',
+    hint: 'Clicking a swatch only saves it to the variable, without copying',
+  },
+];
+
 export default function PaletteGeneratorIsland() {
   const cart = useCart();
   const [baseHex, setBaseHex] = useState('#2563eb');
-  const [targetRoleId, setTargetRoleId] = useState('primary');
+  /**
+   * The destination variable, held as the *typed name* rather than a selected
+   * role id. A `<select>` can only offer roles that already exist, so it cannot
+   * express the most common request here: "put this in `--color-brand-*`",
+   * before any `brand-*` role has been created anywhere in the app.
+   */
+  const [varNameInput, setVarNameInput] = useState('primary');
+  const [pickAction, setPickAction] = useState<PickAction>('both');
+
+  /**
+   * Resolve the typed name to a real role, creating it on first use.
+   *
+   * Creation is deferred to the moment something is actually filed rather than
+   * done on every keystroke: a half-typed "br" would otherwise leave a trail of
+   * junk roles in a cart that persists to localStorage, and there is no undo for
+   * a role. `ensureRole` reuses an existing role when the name slugifies to one.
+   */
+  const resolveTargetRole = () => ensureRole(varNameInput) ?? cart.activeRoleId;
+
+  /*
+   * The variable this page will write to, as it will literally appear in CSS.
+   *
+   * Falls back to the active role rather than the slug placeholder: `slugifyRoleName`
+   * returns `'role'` for an unnameable input, so an empty field would otherwise
+   * claim the writes are going to `--color-role-*` — a variable that would be
+   * created nowhere, because `ensureRole` refuses that name. Showing where the
+   * click actually lands is the whole point of this line.
+   */
+  const targetSlug = useMemo(() => {
+    const trimmed = varNameInput.trim();
+    if (!/^[a-z0-9]/i.test(trimmed)) return cart.activeRoleId;
+    return slugifyRoleName(trimmed);
+  }, [varNameInput, cart.activeRoleId]);
 
   const baseColor: ColorModel = useMemo(
     () => parseAnyToOklch(baseHex) || createOklchColor(0.55, 0.22, 255),
@@ -54,14 +119,48 @@ export default function PaletteGeneratorIsland() {
   const harmonies = useMemo(() => generateHarmonies(baseColor), [baseColor]);
 
   /**
-   * Shared by both the scale strip and the harmony strips: copy the value and
-   * file it into the target role, with one toast naming both.
+   * Shared by the scale strip and the harmony strips: act on one colour
+   * according to `pickAction`, with a single toast naming exactly what happened.
+   *
+   * The two destinations write to different slots on purpose. `setRoleShade`
+   * takes the step the user actually clicked, so scale 50 stays `--color-x-50`.
+   * `addColorToCart` re-slots by lightness, which is right for the harmony
+   * swatches (they are generated at the base lightness, not at scale steps) and
+   * is what every other "add a colour" affordance on the site does.
+   *
+   * Both store calls toast on their own; the toast raised here supersedes it so
+   * the user sees one message. Under `addColorToCart` the returned step is used
+   * so the toast cannot claim a step the colour did not land in.
    */
-  const collect = (color: ColorModel, stepLabel: string) => {
+  const collect = (color: ColorModel, step?: ShadeStep) => {
     const value = formatOklch(color);
-    navigator.clipboard.writeText(value);
-    const { roleId } = addColorToCart(color, targetRoleId);
-    showToast(`${value} → ${cart.roles[roleId]?.name ?? roleId}-${stepLabel}`);
+
+    if (pickAction === 'copy') {
+      navigator.clipboard.writeText(value);
+      showToast(`Copied ${value}`);
+      return;
+    }
+
+    /*
+     * Which slot the colour lands in depends on where it came from. A scale step
+     * has a step the user actually clicked, and re-deriving it from lightness
+     * would be both wrong and lossy — `setRoleShade` writes that exact slot. A
+     * harmony swatch has no step of its own (harmonies are generated at the base
+     * lightness), so it goes through `addColorToCart`, which re-slots by
+     * lightness exactly as every other "add a colour" control on the site does.
+     */
+    const roleId = resolveTargetRole();
+    const saved = step
+      ? (setRoleShade(roleId, step, color, { silent: true }), { roleId, step })
+      : addColorToCart(color, roleId);
+
+    // Named from the *returned* step, not `opts.label`: `addColorToCart` picks
+    // the step, so the label above would otherwise be a guess.
+    const landed = `${cart.roles[saved.roleId]?.name ?? saved.roleId}-${saved.step}`;
+
+    // Both store calls toast on their own; this one supersedes it so the user
+    // sees a single message that accounts for the whole gesture.
+    showToast(pickAction === 'both' ? `${value} → ${landed}` : `${landed} · ${value}`);
   };
 
   /**
@@ -104,6 +203,14 @@ export default function PaletteGeneratorIsland() {
               {p.label}
             </button>
           ))}
+          <button
+            onClick={() => setBaseHex(formatOklch(randomOklchColor()))}
+            class="chip !py-1 !px-2.5 !text-micro ml-auto"
+            title="Generate a random in-gamut base colour"
+          >
+            <Shuffle class="w-3 h-3" aria-hidden="true" strokeWidth={2} />
+            Random
+          </button>
         </div>
 
         <div class="grid sm:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] gap-2 items-center">
@@ -141,30 +248,79 @@ export default function PaletteGeneratorIsland() {
           </div>
 
           <label class="flex items-center gap-2 lg:ml-auto">
-            <span class="eyebrow shrink-0 lg:sr-only">Role</span>
-            <select
-              value={targetRoleId}
-              onChange={(e) => {
-                setTargetRoleId((e.target as HTMLSelectElement).value);
-                setActiveRole((e.target as HTMLSelectElement).value);
+            <span class="eyebrow shrink-0">Variable</span>
+            {/*
+              A text field with a datalist of existing roles, not a `<select>`.
+              It has to accept a name that does not exist yet — `--color-brand-*`
+              is the whole point — while still offering the roles already in the
+              cart as one-tap suggestions. The `datalist` gives that without a
+              second control or a dropdown that can only ever be as long as the
+              current cart.
+            */}
+            <input
+              type="text"
+              list="generator-role-suggestions"
+              value={varNameInput}
+              spellcheck={false}
+              autocomplete="off"
+              aria-label="Custom color variable name"
+              onInput={(e) => setVarNameInput((e.target as HTMLInputElement).value)}
+              onKeyDown={(e) => {
+                // Commit on Enter so a typed name is resolved (and the role
+                // created) without requiring a swatch click first.
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  resolveTargetRole();
+                }
               }}
-              class="hud !py-1.5 font-mono text-label min-w-0 cursor-pointer"
-            >
+              class="hud !py-1.5 font-mono text-label w-full lg:w-44 min-w-0 cursor-text"
+              placeholder="brand-accent"
+            />
+            <datalist id="generator-role-suggestions">
               {Object.values(cart.roles).map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name}
                 </option>
               ))}
-            </select>
+            </datalist>
           </label>
         </div>
 
+        {/* The variable the fill button and every swatch click will write to.
+            Shown live so a typed name is never a leap of faith — the slug
+            transform is not obvious, and `--color-Brand Accent-*` is not a
+            variable anyone can write. */}
+        <p class="font-mono text-micro text-faint">
+          writes to <span class="text-mute">--color-{targetSlug}-*</span>
+        </p>
+
+        {/* What a swatch click does. Stated rather than assumed: the same click
+            previously copied and filed unconditionally. */}
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="eyebrow mr-1">On click</span>
+          <div class="flex items-center gap-1.5" role="group" aria-label="What clicking a swatch does">
+            {PICK_ACTIONS.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => setPickAction(a.id)}
+                aria-pressed={pickAction === a.id}
+                title={a.hint}
+                class={`chip !py-1 !px-2.5 !text-micro ${
+                  pickAction === a.id ? '' : 'text-mute hover:text-body'
+                }`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
-          onClick={() => generateFullScaleForRole(targetRoleId, baseColor)}
+          onClick={() => generateFullScaleForRole(resolveTargetRole(), baseColor)}
           class="btn btn-primary w-full sm:w-auto"
         >
           <Plus class="w-4 h-4" aria-hidden="true" strokeWidth={2.5} />
-          Fill {cart.roles[targetRoleId]?.name ?? targetRoleId} with all {SHADE_STEPS.length} steps
+          Fill --color-{targetSlug}-* with all {SHADE_STEPS.length} steps
         </button>
       </div>
 
@@ -176,11 +332,15 @@ export default function PaletteGeneratorIsland() {
         </div>
         <SwatchStrip
           shades={scaleRecord}
-          onPick={(color, step) => collect(color, String(step))}
+          onPick={(color, step) => collect(color, step)}
           label="Generated scale"
         />
         <p class="mt-2 font-mono text-micro text-mute">
-          Click a step to copy it and file it to the selected role.
+          {pickAction === 'copy'
+            ? 'Click a step to copy its value.'
+            : pickAction === 'add'
+              ? `Click a step to save it as --color-${targetSlug}-<step>.`
+              : 'Click a step to copy it and save it as --color-<role>-<step>.'}
         </p>
       </div>
 
@@ -205,8 +365,8 @@ export default function PaletteGeneratorIsland() {
                     type="button"
                     class="swatch-item"
                     style={{ backgroundColor: formatOklch(color) }}
-                    onClick={() => collect(color, `${g.label.toLowerCase()}-${i + 1}`)}
-                    title={`${g.label} ${i + 1} — click to copy and collect`}
+                    onClick={() => collect(color)}
+                    title={`${g.label} ${i + 1} — ${PICK_ACTIONS.find((a) => a.id === pickAction)!.hint.toLowerCase()}`}
                     aria-label={`${g.label} ${i + 1}: ${formatOklch(color)}`}
                   />
                 ))}

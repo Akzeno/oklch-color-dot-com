@@ -1,41 +1,62 @@
 ---
 import type { PaletteItem } from '../../data/palettes';
-import { SHADE_STEPS } from '../../utils/color';
-import SwatchStripIsland from './SwatchStripIsland';
+import { SHADE_STEPS, formatOklch } from '../../utils/color';
 
 interface Props {
   palette: PaletteItem;
 }
 
 const { palette } = Astro.props;
-const stepCount = SHADE_STEPS.filter((s) => palette.shades[s]).length;
+const steps = SHADE_STEPS.filter((s) => palette.shades[s]);
+const href = `/oklch-colors/${palette.slug}`;
 ---
 
 {/*
-  Compact, self-contained palette unit: header, swatch bar, action bar.
+  One palette, one click.
 
-  The header carries the name and a category pill; the swatch bar is the point
-  of the card and gets the space. The action bar lives inside the island so the
-  whole card is one hydration boundary — header chrome stays server-rendered,
-  everything that needs `clipboard` is client-side.
+  The whole card is a single link to the palette's own page, so the tall strip is
+  no longer a row of eleven separate targets: clicking any part of it — swatch,
+  name, "View" — opens the scale. That is the only action the library page needs,
+  because per-shade copying and carting live on the destination page, where each
+  colour is a big enough card to carry its own copy / cart controls. Splitting
+  those across a small strip meant the card needed a hydrated island per palette
+  to no purpose: navigation is what the card does, and a link does it without
+  JavaScript, without a per-palette hydration boundary, and with middle-click and
+  "open in new tab" working the way they do everywhere else on the web.
+
+  `overflow-hidden` + `!p-0` let the strip run full-bleed to the card's rounded
+  corners. The per-swatch `title` is intentionally absent: eleven tooltips on one
+  hover target fight each other, and the linked page names every step.
 */}
-<article class="card !p-4 flex flex-col gap-3 hover:border-border-focus transition-colors duration-150">
-  <div class="flex items-start justify-between gap-3">
-    <div class="min-w-0">
-      <h3 class="text-card text-ink">
-        <a href={`/oklch-colors/${palette.slug}`} class="hover:underline decoration-hairline underline-offset-4">
-          {palette.name}
-        </a>
-      </h3>
-      <span class="block mt-0.5 font-mono text-micro text-mute">{palette.categoryLabel}</span>
+<article class="card !p-0 overflow-hidden hover:border-border-focus transition-colors duration-150">
+  <a href={href} class="flex flex-col group focus-visible:outline-offset-[-2px]" aria-label={`Open the ${palette.name} scale, ${steps.length} colors`}>
+    <div class="swatch-strip !rounded-none !border-0" aria-hidden="true">
+      {steps.map((step) => (
+        <span class="swatch-item" style={`background-color: ${formatOklch(palette.shades[step])};`} />
+      ))}
     </div>
-    <span class="pill shrink-0">{stepCount} colours</span>
-  </div>
 
-  <SwatchStripIsland
-    client:visible
-    shades={palette.shades}
-    paletteName={palette.name}
-    paletteSlug={palette.slug}
-  />
+    <div class="flex items-center justify-between gap-3 px-4 py-3">
+      <div class="min-w-0">
+        <h3 class="text-card text-ink truncate">{palette.name}</h3>
+        <span class="block mt-0.5 font-mono text-micro text-mute truncate">
+          {palette.categoryLabel}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="pill">{steps.length} colors</span>
+        {/*
+          Not `btn-primary`: a page of twelve cards would then show twelve primary
+          buttons, which is exactly the "one primary action per view" rule the
+          design guide rules out. The quiet variant still reads as a button, and
+          because the entire card is the link, this is a label on the action
+          rather than a second one.
+        */}
+        <span class="btn btn-quiet !min-h-0 !py-1 !px-2.5 !text-micro group-hover:border-border-focus">
+          View
+        </span>
+      </div>
+    </div>
+  </a>
 </article>

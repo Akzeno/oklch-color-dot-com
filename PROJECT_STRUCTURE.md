@@ -114,8 +114,9 @@ Organized by feature/domain:
 #### Palettes (`/src/components/palettes`)
 | File | Type | Purpose |
 |------|------|---------|
-| `PaletteCard.astro` | Astro | Display card for color palette |
-| `SwatchStripIsland.tsx` | React | Interactive color swatch strip |
+| `PaletteCard.astro` | Astro | Library card for one palette — full-bleed swatch strip, links to its own page |
+| `SwatchStrip.tsx` | React | Contiguous swatch bar with hover readout (palette generator) |
+| `PaletteDetailIsland.tsx` | React | A palette's own page: large colour cards, quick copy, save to a custom variable |
 
 #### Picker (`/src/components/picker`)
 | File | Type | Purpose |

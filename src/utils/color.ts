@@ -217,6 +217,30 @@ export function generateHarmonies(base: ColorModel) {
   };
 }
 
+/**
+ * A random, gamut-safe base colour.
+ *
+ * WHY THE RANGES ARE NOT 0–1
+ *
+ * A uniform sample over lightness 0–1 mostly returns colours nobody would ship:
+ * near-whites and near-blacks, which generate scales whose every step is grey.
+ * So lightness is drawn from the band a design system's actual accent shades
+ * live in (42%–70%), and chroma from the lower half of what the hue can actually
+ * reach, then pulled back from the gamut edge so the result is never a clipped
+ * approximation of what was asked for.
+ *
+ * Uses `Math.random` rather than a seeded generator: this is a spark button, not
+ * a reproducible fixture, and it is only ever called from a click handler — never
+ * during render — so it cannot cause a hydration mismatch.
+ */
+export function randomOklchColor(): ColorModel {
+  const h = Math.random() * 360;
+  const l = 0.42 + Math.random() * 0.28;
+  const maxChroma = findMaxChromaInSRGB(l, h);
+  const c = Math.min(maxChroma * 0.92, 0.06 + Math.random() * 0.18);
+  return createOklchColor(l, c, h);
+}
+
 // Contrast calculation: WCAG 2.1 ratio
 export function getWcagContrast(fgHex: string, bgHex: string): number {
   try {

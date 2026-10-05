@@ -464,6 +464,27 @@ export function clearAllScales() {
 }
 
 /**
+ * Normalise a typed name into the kebab-case identifier the cart is keyed by.
+ *
+ * Exported because three callers now need the *same* mapping, not just the same
+ * intent: renaming a role, creating one, and asking "does what the user just
+ * typed name a role that already exists?" on the generator. That last question
+ * decides whether a custom variable name is an update to an existing role or a
+ * brand-new one, and it can only be answered correctly by slugifying with
+ * exactly the rule the store writes with — otherwise `Brand Accent` would look
+ * new here and land on `brand-accent` there.
+ */
+export function slugifyRoleName(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'role'
+  );
+}
+
+/**
  * Rename an existing role. Returns whether the rename happened.
  *
  * `false` means it was refused (unknown role, or a name already taken) and
@@ -477,11 +498,7 @@ export function renameRole(oldRoleId: string, newName: string): boolean {
   if (!role) return false;
 
   // Convert to valid CSS identifier (kebab-case)
-  const newRoleId = newName
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'role';
+  const newRoleId = slugifyRoleName(newName);
 
   if (newRoleId === oldRoleId) {
     // Just update label
@@ -528,11 +545,14 @@ export function renameRole(oldRoleId: string, newName: string): boolean {
 // Create a new custom role
 export function createCustomRole(name: string): string {
   const current = cartStore.get();
-  const cleanId = name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || `custom-${Date.now().toString().slice(-4)}`;
+  // Measured before `slugifyRoleName`, whose `'role'` fallback is a rename
+  // policy: a name that slugifies to nothing here ("###") is not a role name at
+  // all, so it gets a generated id. Letting it fall back to `'role'` would make
+  // every such attempt collide on one key and refuse all but the first.
+  const hasRealName = /[a-z0-9]/i.test(name);
+  const cleanId = hasRealName
+    ? slugifyRoleName(name)
+    : `custom-${Date.now().toString().slice(-4)}`;
 
   if (current.roles[cleanId]) {
     showToast(`Role ${cleanId} already exists`, 'info');
@@ -556,6 +576,51 @@ export function createCustomRole(name: string): string {
 
   showToast(`Created role ${name}`);
   return cleanId;
+}
+
+/**
+ * Resolve a typed variable name to a role id, creating the role if it is new.
+ *
+ * This is what a free-text "custom variable name" field needs, and it differs
+ * from `createCustomRole` in one important way: an *existing* role must be
+ * returned silently rather than refused.
+ *
+ * `createCustomRole` refuses a name that already exists and toasts about it,
+ * which is right for an explicit "New role" button — the duplicate is a mistake
+ * there. Here the field is the destination selector: the user typed a name that
+ * is already a role, and that is a legitimate choice of an existing target, not
+ * an error. So a match returns the id and says nothing.
+ *
+ * The match is on the *slug*, not the raw string, because the id is what the
+ * `--color-*` name is built from. `Brand Accent`, `brand-accent` and
+ * `brand  accent` are the same variable, and typing any of them has to target
+ * the same role rather than creating a near-duplicate.
+ */
+export function ensureRole(name: string, options: { silent?: boolean } = {}): string | null {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+
+  const current = cartStore.get();
+  const slug = slugifyRoleName(trimmed);
+
+  // A typed name that carries no letters or digits cannot name a CSS variable,
+  // so there is nothing to resolve. Returning null keeps the caller from
+  // inventing a `--color-role-*` variable the user never asked for.
+  if (!/[a-z0-9]/i.test(trimmed)) return null;
+
+  const exact = current.roles[slug];
+  if (exact) {
+    setActiveRole(slug);
+    return slug;
+  }
+
+  // `createCustomRole` toasts both on creation and on a name clash. The clash
+  // case cannot happen here (we just checked), but the creation toast is the
+  // user's only confirmation that their variable now exists — so it is kept
+  // unless the caller is applying colours in the same gesture, where the colour
+  // toast would immediately supersede it anyway.
+  const created = createCustomRole(trimmed);
+  return options.silent ? (created || null) : created;
 }
 
 // Delete a custom role
