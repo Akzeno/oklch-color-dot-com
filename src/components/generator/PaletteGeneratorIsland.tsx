@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useCallback, useState, useMemo } from 'preact/hooks';
 import { Paintbrush, Plus, Shuffle } from 'lucide-preact';
 import {
   createOklchColor,
@@ -20,8 +20,13 @@ import {
   showToast,
   slugifyRoleName,
 } from '../../stores/cartStore';
-import { setPaletteSlotColor } from '../../stores/customPaletteStore';
+import {
+  addPaletteSlotWithColor,
+  removePaletteSlot,
+  setPaletteSlotColor,
+} from '../../stores/customPaletteStore';
 import { useCart } from '../../hooks/useCart';
+import { useGeneratorBaseColor } from '../../hooks/useGeneratorBaseColor';
 import { useOpenInPicker } from '../../hooks/useOpenInPicker';
 import ColorSwatch from '../common/ColorSwatch';
 import SwatchStrip from '../palettes/SwatchStrip';
@@ -68,7 +73,17 @@ interface PendingSwatch {
 
 export default function PaletteGeneratorIsland() {
   const cart = useCart();
-  const [baseHex, setBaseHex] = useState('#2563eb');
+  /**
+   * The base colour, persisted.
+   *
+   * Not `useState`, because this island is re-mounted on every client-side
+   * navigation — including the colour picker's own trip to `/` and back — so a
+   * colour held in component state comes back as its initial value after every
+   * edit and every refresh. The hook keeps the notation the user typed, shows
+   * half-typed text without persisting it, and every route to a new base colour
+   * below (presets, Random, the picker, the field) goes through its one setter.
+   */
+  const [baseHex, setBaseHex] = useGeneratorBaseColor();
   /**
    * The destination variable, held as the *typed name* rather than a selected
    * role id. A `<select>` can only offer roles that already exist, so it cannot
@@ -87,6 +102,18 @@ export default function PaletteGeneratorIsland() {
    * visible.
    */
   const [pending, setPending] = useState<PendingSwatch | null>(null);
+  /**
+   * A palette row the user has just been given and still has to name.
+   *
+   * Held here rather than in the panel because this is where the row is written:
+   * the panel can name a row it added itself, but this one is added by a swatch
+   * menu far above it, and the caret is the last step of collecting a colour. The
+   * panel reports back that it landed, so a later render cannot steal focus from
+   * wherever the user has since clicked.
+   */
+  const [pendingFocusId, setPendingFocusId] = useState<string | null>(null);
+
+  const clearPendingFocus = useCallback(() => setPendingFocusId(null), []);
 
   /**
    * Resolve the typed name to a real role, creating it on first use.
@@ -226,6 +253,44 @@ export default function PaletteGeneratorIsland() {
   };
 
   /**
+   * Menu action: collect this colour into the custom palette as its own row.
+   *
+   * THE THIRD DESTINATION, AND WHY IT IS NOT A SCALE SLOT
+   *
+   * The scale and the palettes below it are built the same way — one hue walked
+   * through lightness — so "Save to variable" already files a step like this one
+   * as `--color-<name>-600`, and it would be easy to treat collecting it as
+   * saving it. They are not the same request. A scale slot is one step of a
+   * generated ramp: it needs a role, and its name has to carry the step. A
+   * palette row is a standalone variable the user picked, and the row it arrives
+   * in is usually the end of the journey rather than the start of a new scale.
+   *
+   * The colour is stored verbatim — same L, C and H as the swatch — because the
+   * value of collecting a step is that it *is* that step. Approximating it (the
+   * hue-rotation a generated row uses) would collect a colour nobody pointed at.
+   *
+   * Reversible, like every other one-click write here, and it hands the caret to
+   * the new row's name field: an unnamed palette row emits a placeholder variable,
+   * and the name is the one thing about a collected colour the page cannot know.
+   */
+  const addToPalette = () => {
+    if (!pending) return;
+    const color = pending.color;
+    setPending(null);
+
+    const slotId = addPaletteSlotWithColor(color);
+    setPendingFocusId(slotId);
+
+    showToast(`${formatOklch(color)} added to the custom palette`, 'success', {
+      label: 'Undo',
+      run: () => {
+        removePaletteSlot(slotId);
+        showToast('Removed from the custom palette');
+      },
+    });
+  };
+
+  /**
    * The scale is rendered as one contiguous 48px bar rather than eleven separate
    * bordered cards. The card version spent more ink on borders and per-swatch
    * captions than on the colours themselves, and the borders fought the thing
@@ -288,7 +353,12 @@ export default function PaletteGeneratorIsland() {
                 here rather than `group-hover`: the overlay is `inset-0`, so it
                 covers the whole swatch and there is no gap to hover past it. */}
             <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
-              <Paintbrush class="w-4 h-4 text-ink" aria-hidden="true" strokeWidth={2} />
+              {/* 24px in a 40px swatch. At 16px the affordance was legible but easy to miss on
+                  a hover that only lasts as long as the pointer is over the swatch,
+                  and this is the one control that says "this whole page is
+                  generated from this colour, and you can change it" — so it has to
+                  be readable at a glance. */}
+              <Paintbrush class="w-6 h-6 text-ink" aria-hidden="true" strokeWidth={2} />
             </span>
           </ColorSwatch>
 
@@ -380,7 +450,8 @@ export default function PaletteGeneratorIsland() {
           menu={{ id: MENU_ID, openStep: pending?.step ?? null }}
         />
         <p class="mt-2 font-mono text-micro text-mute">
-          Click a step to copy its value or save it as --color-{targetSlug}-&lt;step&gt;.
+          Click a step to copy its value or save it as --color-{targetSlug}-&lt;step&gt;, or add it to
+          the custom palette below.
         </p>
       </div>
 
@@ -437,6 +508,8 @@ export default function PaletteGeneratorIsland() {
           variable. */}
       <CustomPalettePanel
         onEdit={(color, slotId) => openInPicker(color, { slot: slotId })}
+        focusSlot={pendingFocusId}
+        onFocusSlot={clearPendingFocus}
       />
 
       {/* One menu, pointed at whichever swatch was clicked last. Rendered outside
@@ -452,6 +525,7 @@ export default function PaletteGeneratorIsland() {
           targetSlug={targetSlug}
           onCopy={copyOnly}
           onSave={saveOnly}
+          onAddToPalette={addToPalette}
           onClose={() => setPending(null)}
         />
       )}

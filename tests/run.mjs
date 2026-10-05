@@ -30,6 +30,7 @@ const SUITES = [
   'hydration-pinning.mjs',
   'picker-handoff.mjs',
   'custom-palette.mjs',
+  'generator-base-color.mjs',
   'empty-role-add-color.mjs',
   'export-shortcut.mjs',
   'swatch-quick-actions.mjs',

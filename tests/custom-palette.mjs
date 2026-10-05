@@ -34,6 +34,7 @@ import {
   customPaletteStore,
   hydrateCustomPaletteFromStorage,
   addPaletteSlot,
+  addPaletteSlotWithColor,
   removePaletteSlot,
   renamePaletteSlot,
   setPaletteSlotColor,
@@ -45,7 +46,7 @@ import {
   sanitizeCustomPalette,
   DEFAULT_CUSTOM_PALETTE,
 } from '../src/stores/customPaletteStore.ts';
-import { createOklchColor, formatOklch } from '../src/utils/color.ts';
+import { createOklchColor, formatOklch, parseAnyToOklch } from '../src/utils/color.ts';
 
 const PALETTE_KEY = 'oklch_custom_palette_v1';
 const ORIGIN = '/oklch-color-palette-generator';
@@ -374,7 +375,71 @@ const freshId = addPaletteSlot();
 check('the minted id is distinct from the stored one',
   freshId !== 'slot-5', 'got ' + freshId);
 
-/* ═══════════════ 8. The wiring, read at source level ═══════════════ */
+/* ═══════════════ 8. Collecting a swatch is a copy, not an approximation ═══════════════ */
+
+console.log('\n=== A collected swatch keeps the exact colour that was collected ===');
+// `addPaletteSlot` deliberately hue-rotates away from its neighbour, because a
+// generated row is a guess. A collected row is the opposite: the user pointed at a
+// specific swatch, and an approximation of it would collect a colour nobody asked
+// for. Same store, two routes, and the difference has to be in the value.
+replaceCustomPalette(DEFAULT_CUSTOM_PALETTE);
+const STEP_600 = createOklchColor(0.45, 0.157, 258.4);
+const collectedId = addPaletteSlotWithColor(STEP_600);
+const collected = customPaletteStore.get().at(-1);
+check('it is appended, not inserted', customPaletteStore.get().length === 5);
+check('it is that exact colour, to the digit',
+  collected.color.l === STEP_600.l &&
+    collected.color.c === STEP_600.c &&
+    collected.color.h === STEP_600.h,
+  formatOklch(collected.color));
+check('alpha came with it', collected.color.alpha === STEP_600.alpha);
+check('it did not get the generated row’s hue rotation',
+  collected.color.h === STEP_600.h &&
+    formatOklch(collected.color) === formatOklch(STEP_600));
+check('it is a new id, distinct from every row already there',
+  new Set(customPaletteStore.get().map((s) => s.id)).size === 5,
+  customPaletteStore.get().map((s) => s.id).join(','));
+
+// An unnamed row would emit an invalid variable, exactly as for a generated one.
+check('it is named automatically so the variable is valid',
+  collected.name.length > 0 && paletteVariable(collected, 4).startsWith('--color-'),
+  collected.name);
+
+console.log('\n=== A collected row is persisted and reversible like any other ===');
+check('the collected colour is what reaches localStorage',
+  store.has(PALETTE_KEY) &&
+    formatOklch(JSON.parse(store.get(PALETTE_KEY)).at(-1).color) === formatOklch(STEP_600),
+  JSON.stringify(JSON.parse(store.get(PALETTE_KEY)).at(-1)?.color));
+check('and it is emitted in the block, verbatim',
+  buildPaletteBlock(customPaletteStore.get(), 'theme')
+    .includes(`${paletteVariable(collected, 4)}: ${formatOklch(STEP_600)};`));
+// The action behind it is one click, so Undo is the only thing standing between a
+// mis-click and a palette the user has to rebuild by hand.
+removePaletteSlot(collectedId);
+check('it can be taken back out', customPaletteStore.get().length === 4);
+restorePaletteSlot(collected, 4);
+check('and restored in place, with its colour intact',
+  customPaletteStore.get().length === 5 &&
+    customPaletteStore.get()[4].id === collectedId &&
+    formatOklch(customPaletteStore.get()[4].color) === formatOklch(STEP_600));
+
+addPaletteSlotWithColor(createOklchColor(0.5, 0.1, 20), 'Brand Accent');
+check('a caller-supplied name is honoured instead',
+  paletteVariable(customPaletteStore.get().at(-1), 5) === '--color-brand-accent',
+  paletteVariable(customPaletteStore.get().at(-1), 5));
+
+console.log('\n=== A colour is coerced on the way in, like every other entry point ===');
+// The panel renders `slot.color` straight into a CSS declaration, and this route
+// arrives from a UI callback rather than from `createOklchColor`.
+const wild = addPaletteSlotWithColor({ l: 9, c: -3, h: 725, alpha: 5 });
+const wildSlot = customPaletteStore.get().at(-1);
+check('the row is still created', wildSlot.id === wild);
+check('its out-of-range channels are clamped, not emitted',
+  wildSlot.color.l === 1 && wildSlot.color.c === 0 && wildSlot.color.alpha === 1,
+  JSON.stringify(wildSlot.color));
+check('its hue is normalised into range', wildSlot.color.h === 5, wildSlot.color.h);
+
+/* ═══════════════ 9. The wiring, read at source level ═══════════════ */
 
 console.log('\n=== The page wires the panel to the picker it already had ===');
 const island = src('src/components/generator/PaletteGeneratorIsland.tsx');
@@ -399,6 +464,68 @@ check('the picker echoes the slot instead of choosing one',
   /slot: handoff\.slot \?\? null/.test(picker));
 check('each row can be copied on its own as well as all together',
   /copyValue\(value\)/.test(panel) && /copyBlock/.test(panel));
+
+console.log('\n=== A row’s value is a text field, so a colour can be pasted in ===');
+// The panel's rows were generated, then editable only through a round trip to
+// another page. But the palette is assembled from wherever colours happen to be —
+// the scale directly above it, a brand sheet, another tool's CSS — and asking
+// someone to retype `oklch(62.8% 0.216 254)` into a picker is a step with no
+// reason in it.
+check('the value is an input, not a label',
+  /aria-label=\{`Colour value for \$\{label\}`\}/.test(panel) &&
+    /value=\{shown\}/.test(panel));
+check('it is parsed with the same reader as the base colour field',
+  /parseAnyToOklch\(draft\.text\)/.test(panel) && /parseAnyToOklch\(text\)/.test(panel) &&
+    /parseAnyToOklch\(baseHex\) \|\|/.test(island));
+check('Enter commits, so a paste does not need a second click',
+  /if \(e\.key === 'Enter'\) \{\s*\n\s*e\.preventDefault\(\);\s*\n\s*commitDraft/.test(panel));
+check('leaving the field commits too',
+  /onBlur=\{\(e\) => commitDraft/.test(panel));
+check('a commit normalises to the exact text that gets copied',
+  /dropDraft\(slot\.id\);\s*\n\s*setPaletteSlotColor\(slot\.id, parsed\)/.test(panel));
+// A half-typed `oklch(6` is a colour being written, not a mistake. The store only
+// ever holds colours, so the text has to live outside it and come back as a claim
+// about what is stored.
+check('uncommitted text lives in the panel, never in the store',
+  /useState<Record<string, PaletteDraft>>/.test(panel) &&
+    !/setPaletteSlotColor\(slot\.id, text\)/.test(panel));
+check('the row still shows its stored colour while the text is being typed',
+  /const shown = draft \? draft\.text : value;/.test(panel));
+check('clearing the field restores the stored colour instead of emptying the row',
+  /if \(!text\.trim\(\)\) \{\s*\n\s*dropDraft\(slot\.id\);\s*\n\s*return;/.test(panel));
+check('an unparseable paste is kept on screen, not silently reverted',
+  /\[slot\.id\]: \{ text, failed: true \}/.test(panel));
+check('and it is only reported once typing is over, not on every keystroke',
+  /draft !== undefined && draft\.failed/.test(panel) &&
+    /\{ text, failed: false \}/.test(panel));
+check('the copy affordance survived becoming a field',
+  /aria-label=\{`Copy the value of \$\{label\}`\}/.test(panel));
+// A picker round trip replaces the row from another page; a draft describing the
+// old colour would come back describing a colour that is no longer stored.
+check('opening the picker drops any half-typed value for that row',
+  /dropDraft\(slot\.id\);\s*\n\s*onEdit\(slot\.color, slot\.id\)/.test(panel));
+
+console.log('\n=== Every format `parseAnyToOklch` reads, the field accepts ===');
+// The panel's field has no parser of its own, so "paste any colour" is exactly as
+// good as this reader. The claim worth pinning is that the notations a palette is
+// actually pasted from — hex off a brand sheet, rgb() out of devtools, hsl() out
+// of a config file — are all understood and all agree.
+for (const text of ['#2563eb', '#abc', 'rgb(37 99 235)', 'hsl(221 83% 53%)', 'oklch(55% 0.22 255)']) {
+  check(`"${text}" parses`, parseAnyToOklch(text) !== null);
+}
+const sameColour = (a, b) =>
+  Math.abs(a.l - b.l) < 0.01 && Math.abs(a.c - b.c) < 0.01 && Math.abs(a.h - b.h) < 1;
+const HEX = parseAnyToOklch('#2563eb');
+check('rgb() of the same colour lands on the same colour',
+  sameColour(HEX, parseAnyToOklch('rgb(37 99 235)')));
+check('hsl() of the same colour lands on the same colour',
+  sameColour(HEX, parseAnyToOklch('hsl(221 83% 53%)')));
+const OKLCH = parseAnyToOklch('oklch(55% 0.22 255)');
+check('an oklch() paste is taken literally, not rounded into sRGB first',
+  OKLCH.l === 0.55 && OKLCH.c === 0.22 && OKLCH.h === 255,
+  `${OKLCH.l} ${OKLCH.c} ${OKLCH.h}`);
+check('something that is not a colour does not parse', parseAnyToOklch('not a colour') === null);
+check('a blank field does not parse either', parseAnyToOklch('   ') === null);
 
 console.log('\n' + (failures === 0 ? 'ALL CHECKS PASSED' : failures + ' CHECK(S) FAILED'));
 process.exit(failures === 0 ? 0 : 1);

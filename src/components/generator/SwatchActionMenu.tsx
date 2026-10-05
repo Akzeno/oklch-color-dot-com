@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { Check, Copy, Plus, X } from 'lucide-preact';
+import { Check, Copy, Palette, Plus, X } from 'lucide-preact';
 import type { LucideIcon } from 'lucide-preact';
 import { formatOklch, getNearestShadeStep, type ColorModel, type ShadeStep } from '../../utils/color';
 import ColorSwatch from '../common/ColorSwatch';
@@ -9,7 +9,8 @@ const VIEWPORT_PAD = 12;
 const ANCHOR_GAP = 8;
 
 /**
- * The per-swatch action menu: "copy this value" or "save it as a CSS variable".
+ * The per-swatch action menu: copy this value, save it as a CSS variable, or
+ * collect it into the custom palette below the page.
  *
  * WHY A MENU AND NOT A FIXED BEHAVIOUR
  *
@@ -61,6 +62,14 @@ export interface SwatchActionMenuProps {
    * `alsoCopy` writes the value too, in one gesture.
    */
   onSave: (alsoCopy: boolean) => void;
+  /**
+   * Collect the colour into the custom palette below the page, as its own row.
+   *
+   * Optional because the destination does not exist everywhere this menu does: a
+   * palette panel is a generator-only feature, and a menu that offered an action
+   * with nothing behind it would be a dead row in the list.
+   */
+  onAddToPalette?: () => void;
   onClose: () => void;
 }
 
@@ -73,6 +82,7 @@ export default function SwatchActionMenu({
   targetSlug,
   onCopy,
   onSave,
+  onAddToPalette,
   onClose,
 }: SwatchActionMenuProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -284,6 +294,18 @@ export default function SwatchActionMenu({
         {item('Save to variable', variable, Plus, () => onSave(false))}
         {item('Copy and save', `${variable} · ${value}`, Check, () => onSave(true))}
       </div>
+
+      {/* Last, and in its own group, because it is the only destination that
+          *adds* something rather than copying or overwriting. The scale is a
+          reading surface and the palette is a writing one, so collecting a step
+          has to be asked for separately — and the value travels verbatim, which
+          is the entire point: the row is this swatch, not a hue-rotated
+          neighbour. */}
+      {onAddToPalette && (
+        <div class="mt-1 pt-1 border-t border-hairline">
+          {item('Add to custom palette', `${value} → new row`, Palette, onAddToPalette)}
+        </div>
+      )}
     </div>
   );
 }

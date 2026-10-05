@@ -197,6 +197,37 @@ export function addPaletteSlot(): string {
 }
 
 /**
+ * Append a slot holding one *specific* colour rather than a generated one.
+ *
+ * This is the route for "I want that swatch". The scale and harmony strips above
+ * the panel hold exact colours and the palette is meant to hold exact colours
+ * too, so collecting one has to copy the value rather than approximate it — a
+ * hue-rotated neighbour (`distinctColor`) would not be the colour the user
+ * pointed at, and the whole value of collecting a step is that it *is* that step.
+ *
+ * The name is only a default: an unnamed row has to still emit a valid variable,
+ * and `unusedName` does that. Callers are expected to put the caret in it, since
+ * the next thing anyone does after collecting a colour is decide what to call it.
+ */
+export function addPaletteSlotWithColor(color: ColorModel, name = ''): string {
+  const current = customPaletteStore.get();
+  const id = nextSlotId();
+  const typed = name.trim().slice(0, MAX_NAME);
+  commit([
+    ...current,
+    {
+      id,
+      name: typed || unusedName(current),
+      // Clamped like every other colour entering this store: it arrives from a UI
+      // callback rather than from `createOklchColor`, and `slot.color` goes
+      // straight into a CSS declaration.
+      color: sanitizeColorModel(color) ?? SEED_COLOR,
+    },
+  ]);
+  return id;
+}
+
+/**
  * Put a previously removed slot back where it was.
  *
  * The index is part of the contract because order is output order: a palette

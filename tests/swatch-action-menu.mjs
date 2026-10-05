@@ -102,7 +102,37 @@ check('the variable is saveable', /item\('Save to variable', variable, Plus/.tes
 check('both at once is still one click', /item\('Copy and save'/.test(menu));
 check('the destination is named, not described',
   /const variable = `--color-\$\{targetSlug\}-\$\{destination\}`/.test(menu));
-check('every row shows the value it acts on', (menu.match(/item\('[^']+', [a-z`]/g) || []).length === 4);
+check('every row shows the value it acts on', (menu.match(/item\('[^']+', [a-z`]/g) || []).length === 5);
+
+console.log('\n=== The third destination: collecting a swatch into the palette ===');
+// The scale and the custom palette below it are built the same way, so filing a
+// step could have been treated as saving it. They are different requests: a scale
+// slot is one step of a generated ramp and needs a role, while a palette row is a
+// standalone variable the user picked. Collecting has to be its own action.
+check('the menu can add the swatch to the custom palette',
+  /item\('Add to custom palette'/.test(menu));
+check('the action is optional, because not every page has a palette panel',
+  /onAddToPalette\?: \(\) => void/.test(menu) && /\{onAddToPalette && \(/.test(menu));
+check('it is the only action that runs without a value of its own',
+  /\{item\('Add to custom palette', `\$\{value\} → new row`, Palette, onAddToPalette\)\}/.test(menu));
+check('the island supplies the handler', /onAddToPalette=\{addToPalette\}/.test(island));
+check('it is a store write, not a clipboard one',
+  /addPaletteSlotWithColor\(color\)/.test(island));
+// Collect is the one menu action with a visible consequence off-screen: a new row
+// appears in a panel below the fold. Without the toast it would look like nothing
+// happened, and without Undo a mis-click is unrecoverable.
+check('it says where the colour went',
+  /added to the custom palette/.test(island));
+check('it is undoable, and the undo removes the row it added',
+  /label: 'Undo',[\s\S]*removePaletteSlot\(slotId\)/.test(island));
+check('the new row is left needing a name, so the caret goes there',
+  /setPendingFocusId\(slotId\)/.test(island) &&
+    /focusSlot=\{pendingFocusId\}/.test(island) &&
+    /onFocusSlot=\{clearPendingFocus\}/.test(island));
+check('the caret request is reported back, so it cannot be replayed',
+  /nameFields\.current\[focusSlot\]\?\.focus\(\);\s*\n\s*onFocusSlot\?\.\(null\)/.test(
+    src('src/components/generator/CustomPalettePanel.tsx')
+  ));
 
 console.log('\n=== The menu can always be dismissed ===');
 check('Escape closes it', /e\.key === 'Escape'/.test(menu));
