@@ -18,6 +18,14 @@ export interface OpenInPickerOptions {
    * the same rule `addColorToCart` uses.
    */
   step?: ShadeStep;
+  /**
+   * Identifies which of several free colours on this page is being edited, so
+   * `onPicked` can be told which one came back.
+   *
+   * Only meaningful without a `roleId`: in `'token'` mode the destination is
+   * already fully determined by the role and step.
+   */
+  slot?: string;
   /** Page the picker returns to. Defaults to the current one. */
   returnTo?: string;
 }
@@ -52,14 +60,25 @@ export interface OpenInPickerOptions {
  * A missing `roleId` means `'free'` because a swatch that is not obviously a
  * token usually is not one, and wrongly writing to the cart is the worse failure.
  *
- * @param onPicked Receives the colour the user saved in `'free'` mode. Ignored
- *   in `'token'` mode, where the value already went to the cart.
+ * ONE PAGE CAN HOLD SEVERAL FREE COLOURS
+ *
+ * `'free'` answers "is this a cart token?", not "which colour is it?". A page
+ * with two or more of them — the palette generator has its base colour plus
+ * every row of its custom palette — has to name the one it is opening, which is
+ * what `options.slot` does. The id travels out with the handoff and back with
+ * the result, so `onPicked` receives it as its second argument and can write to
+ * the right destination instead of guessing. Without it, a returned colour is
+ * only as meaningful as the page's ability to guess.
+ *
+ * @param onPicked Receives the colour the user saved in `'free'` mode, plus the
+ *   slot it was for (`null` when the swatch named none). Ignored in `'token'`
+ *   mode, where the value already went to the cart.
  * @param returnTo Default destination for every open made by the returned
  *   handler; per-call `options.returnTo` still wins.
  * @returns A click handler that opens the picker on the supplied colour.
  */
 export function useOpenInPicker(
-  onPicked?: (color: ColorModel) => void,
+  onPicked?: (color: ColorModel, slot: string | null) => void,
   returnTo?: string
 ): (color: ColorModel, options?: OpenInPickerOptions) => void {
   // Collected in an effect, never during render, so the first client paint still
@@ -68,7 +87,7 @@ export function useOpenInPicker(
   useEffect(() => {
     if (!onPicked || typeof window === 'undefined') return;
     const picked = consumePickerResult(window.location.pathname);
-    if (picked) onPicked(picked);
+    if (picked) onPicked(picked.color, picked.slot);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -86,6 +105,7 @@ export function useOpenInPicker(
         step: options.step ?? getNearestShadeStep(color.l),
         color,
         returnTo: destination,
+        slot: options.slot ?? null,
       });
 
       goTo('/');

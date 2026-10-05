@@ -27,7 +27,7 @@ const seo = navItem?.seo || {
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
-        Input any base color to automatically calculate an accessible 50–950 shade scale with optical lightness uniformity and gamut-safe chroma clipping.
+        Input any base color to automatically calculate an accessible 50–950 shade scale with optical lightness uniformity and gamut-safe chroma clipping — or build a custom palette of unrelated colors below it, each one editable in the color picker.
       </p>
     </div>
 
@@ -89,6 +89,12 @@ const seo = navItem?.seo || {
           Frequently Asked Questions
         </h2>
         <div class="space-y-3 font-mono text-xs">
+          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-[#f5f5f5]">Can I build a palette of different colors instead of one color's scale?</h3>
+            <p class="text-[#a3a3a3]">
+              Yes &mdash; the <strong>Custom palette</strong> panel under the harmonies. A 50&ndash;950 scale is one hue walked up and down in lightness, so all eleven steps are variations of the same color; a real brand palette is the opposite, and that is what this panel is for. Add a row, click its swatch to change it in the color picker, and type the variable name your own system already uses. Nothing is generated from anything else: each row is exactly the color you picked, and each one becomes its own <code class="text-white">--color-&lt;name&gt;</code> variable rather than a step of a scale. <strong>Copy all</strong> grabs the whole set as a Tailwind v4 <code class="text-white">@theme</code> block, a <code class="text-white">:root</code> block or JSON, and the preview above that button is character-for-character what lands on your clipboard. Two rows given the same name drop the second from the block instead of letting the browser silently pick a winner. Your palette is stored in this browser, so it survives a refresh and a round trip through the picker.
+            </p>
+          </div>
           <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
             <h3 class="text-sm font-semibold text-[#f5f5f5]">Can I export the generated scale directly into Tailwind CSS v4?</h3>
             <p class="text-[#a3a3a3]">

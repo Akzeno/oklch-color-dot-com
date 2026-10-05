@@ -11,6 +11,7 @@ import {
   type ColorModel,
   type ShadeStep,
 } from '../../utils/color';
+import { writeClipboard } from '../../utils/clipboard';
 import {
   addColorToCart,
   ensureRole,
@@ -19,11 +20,13 @@ import {
   showToast,
   slugifyRoleName,
 } from '../../stores/cartStore';
+import { setPaletteSlotColor } from '../../stores/customPaletteStore';
 import { useCart } from '../../hooks/useCart';
 import { useOpenInPicker } from '../../hooks/useOpenInPicker';
 import ColorSwatch from '../common/ColorSwatch';
 import SwatchStrip from '../palettes/SwatchStrip';
 import SwatchActionMenu from './SwatchActionMenu';
+import CustomPalettePanel from './CustomPalettePanel';
 
 const PRESETS = [
   { label: 'Blue', hex: '#2563eb' },
@@ -116,15 +119,27 @@ export default function PaletteGeneratorIsland() {
   );
 
   /**
-   * "Change this colour" for the base swatch.
+   * "Change this colour", for the base swatch and for every custom-palette row.
    *
-   * The base colour is component state, not a cart token, so this opens the
-   * picker in `'free'` mode: saving hands the colour back to `setBaseHex`
-   * instead of writing a `--color-*` variable the page never mentions. Clicking
-   * the swatch therefore preloads the picker with exactly the colour under the
-   * cursor rather than the picker's own default.
+   * Both are component state rather than cart tokens, so this opens the picker in
+   * `'free'` mode: saving hands the colour back here instead of writing a
+   * `--color-*` variable the page never mentions. Clicking a swatch therefore
+   * preloads the picker with exactly the colour under the cursor rather than the
+   * picker's own default.
+   *
+   * `slot` is what makes one hook able to serve both. This page holds several free
+   * colours — the base and every custom-palette row — and the picker hands back a
+   * bare colour, so the edit has to arrive already addressed. A row that came back
+   * untagged would otherwise land on the base colour, which is the one colour the
+   * user did not click.
    */
-  const openInPicker = useOpenInPicker((picked) => setBaseHex(formatOklch(picked)));
+  const openInPicker = useOpenInPicker((picked, slot) => {
+    if (slot) {
+      setPaletteSlotColor(slot, picked);
+      return;
+    }
+    setBaseHex(formatOklch(picked));
+  });
 
   const fullScale = useMemo(() => generateFullScaleFromColor(baseColor), [baseColor]);
   const harmonies = useMemo(() => generateHarmonies(baseColor), [baseColor]);
@@ -141,20 +156,26 @@ export default function PaletteGeneratorIsland() {
     setPending((current) => (current?.key === next.key ? null : next));
 
   /**
-   * Clipboard write that reports whether it worked.
+   * Copy one value and say what happened to it.
    *
-   * `writeText` rejects for reasons the page cannot fix — an insecure context, a
-   * permission the user denied, a document that is not focused — and the old
-   * fire-and-forget call turned each of those into an unhandled rejection plus a
-   * toast claiming success.
+   * `writeClipboard` reports failure because `navigator.clipboard.writeText`
+   * rejects for reasons the page cannot fix — an insecure context, a permission
+   * the user denied, a document that is not focused — and the old fire-and-forget
+   * call turned each of those into an unhandled rejection plus a toast claiming
+   * success.
    */
-  const writeClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      return false;
-    }
+  const copyText = async (value: string) => {
+    const copied = await writeClipboard(value);
+    showToast(
+      copied ? `Copied ${value}` : 'Clipboard blocked by the browser',
+      copied ? 'success' : 'info'
+    );
+  };
+
+  /** Menu action: put the value on the clipboard and leave the cart alone. */
+  const copyOnly = async (value: string) => {
+    setPending(null);
+    await copyText(value);
   };
 
   /**
@@ -176,16 +197,6 @@ export default function PaletteGeneratorIsland() {
     // Named from the *returned* step, not the requested one: `addColorToCart`
     // picks the slot itself, so the step we asked for would be a guess.
     return `${cart.roles[saved.roleId]?.name ?? saved.roleId}-${saved.step}`;
-  };
-
-  /** Menu action: put the value on the clipboard and leave the cart alone. */
-  const copyOnly = async (value: string) => {
-    setPending(null);
-    const copied = await writeClipboard(value);
-    showToast(
-      copied ? `Copied ${value}` : 'Clipboard blocked by the browser',
-      copied ? 'success' : 'info'
-    );
   };
 
   /**
@@ -419,6 +430,14 @@ export default function PaletteGeneratorIsland() {
           ))}
         </div>
       </div>
+
+      {/* ── Custom palette ──
+          A different tool, not a mode of the one above: independent colours that
+          share no scale, each editable in the picker and each emitted as its own
+          variable. */}
+      <CustomPalettePanel
+        onEdit={(color, slotId) => openInPicker(color, { slot: slotId })}
+      />
 
       {/* One menu, pointed at whichever swatch was clicked last. Rendered outside
           the strips so it is never clipped by a strip's own overflow, and last in

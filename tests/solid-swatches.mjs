@@ -254,18 +254,25 @@ check("free mode leaves the fallback role untouched too",
   'steps: ' + Object.keys(cartStore.get().roles['trusty-button'].shades).join(','));
 
 // 4. Back on the generator, the mount effect hands the colour to `onPicked`.
+// The whole result comes back, not a bare colour: `slot` is part of what was
+// asked for, and a page holding several free colours needs to see which one.
 const picked = consumePickerResult(ORIGIN);
 check('the page receives the colour the user saved',
-  picked !== null && formatOklch(picked) === formatOklch(edited),
-  picked ? formatOklch(picked) : 'null');
+  picked !== null && formatOklch(picked.color) === formatOklch(edited),
+  picked ? formatOklch(picked.color) : 'null');
+check('an unslotted free colour comes back tagged as such',
+  picked !== null && picked.slot === null,
+  'got ' + JSON.stringify(picked?.slot));
 
 // `setBaseHex(formatOklch(picked))` — the value must survive being formatted
 // and re-parsed, because that string is the field's entire source of truth.
-const written = formatOklch(picked);
+const written = formatOklch(picked.color);
 const reparsed = parseAnyToOklch(written);
 check('the returned colour re-parses into the same colour',
   reparsed !== null &&
-    reparsed.l === picked.l && reparsed.c === picked.c && reparsed.h === picked.h,
+    reparsed.l === picked.color.l &&
+    reparsed.c === picked.color.c &&
+    reparsed.h === picked.color.h,
   written + ' -> ' + (reparsed ? formatOklch(reparsed) : 'unparseable'));
 
 console.log('\n=== A returned colour is spent exactly once ===');
@@ -418,7 +425,9 @@ check('the button promises the colour goes back, not that a token was saved',
 check("token mode keeps its original wording",
   /handoffActionLabel = handoffIsFree \? 'Use colour' : handoffReturnTo \? 'Save & return' : 'Save'/.test(pickerIsland));
 check('the save button branches on free mode before touching the cart', (() => {
-  const write = pickerIsland.indexOf('savePickerResult({ color, returnTo: destination })');
+  const write = pickerIsland.indexOf(
+  'savePickerResult({ color, returnTo: destination, slot: handoff.slot ?? null })'
+);
   const slot = pickerIsland.indexOf('setRoleShade(handoff.roleId, handoff.step, color)');
   return write > 0 && slot > write;
 })());

@@ -168,7 +168,10 @@ export default function ColorPickerIsland() {
         // No slot to write: hand the colour back to the originating page, which
         // decides where it goes. Writing a token here would put a colour into a
         // `--color-*` variable the user never asked for and never sees.
-        savePickerResult({ color, returnTo: destination });
+        //
+        // `slot` is carried verbatim because it identifies *which* of the page's
+        // free colours was opened — the picker can only echo it.
+        savePickerResult({ color, returnTo: destination, slot: handoff.slot ?? null });
       } else {
         setRoleShade(handoff.roleId, handoff.step, color);
       }

@@ -29,6 +29,7 @@ const SUITES = [
   'cart-hydration-race.mjs',
   'hydration-pinning.mjs',
   'picker-handoff.mjs',
+  'custom-palette.mjs',
   'empty-role-add-color.mjs',
   'export-shortcut.mjs',
   'swatch-quick-actions.mjs',

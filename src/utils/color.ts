@@ -82,6 +82,40 @@ export function createOklchColor(l: number, c: number, h: number, alpha: number 
   };
 }
 
+/**
+ * Coerce an untrusted value into a `ColorModel`, or `null` when it is not one.
+ *
+ * Every colour that comes back out of `localStorage` or `sessionStorage` is
+ * attacker-reachable input — any script on the origin can write either store,
+ * and both survive the navigation — so it has to be validated before it is
+ * rendered or written back into a `--color-*` token.
+ *
+ * Out-of-range numbers are *clamped* rather than rejected, while a non-numeric
+ * one is dropped. The distinction is deliberate: a lightness of `900` is a stale
+ * or hand-edited value and the user can still see and fix it, whereas `c: 'blue'`
+ * means the payload is not a colour at all and rendering it would put `NaN` into
+ * an inline style.
+ */
+export function sanitizeColorModel(input: unknown): ColorModel | null {
+  if (!input || typeof input !== 'object') return null;
+  const raw = input as Record<string, unknown>;
+  const l = Number(raw.l);
+  const c = Number(raw.c);
+  const h = Number(raw.h);
+  if (!Number.isFinite(l) || !Number.isFinite(c) || !Number.isFinite(h)) return null;
+
+  const alpha = Number(raw.alpha);
+  return {
+    l: Math.min(1, Math.max(0, l)),
+    c: Math.min(0.4, Math.max(0, c)),
+    h: ((h % 360) + 360) % 360,
+    alpha: Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1,
+    hex: typeof raw.hex === 'string' ? raw.hex : '#000000',
+    inSRGB: Boolean(raw.inSRGB),
+    inP3: Boolean(raw.inP3),
+  };
+}
+
 // Format as CSS oklch(...) string
 export function formatOklch(color: { l: number; c: number; h: number; alpha?: number }): string {
   const lPercent = (color.l * 100).toFixed(1) + '%';

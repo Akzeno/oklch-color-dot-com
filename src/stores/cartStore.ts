@@ -7,6 +7,7 @@ import {
   getNearestShadeStep,
   generateFullScaleFromColor,
   createOklchColor,
+  sanitizeColorModel,
 } from '../utils/color';
 
 export interface RoleColorToken {
@@ -95,28 +96,9 @@ export const DEFAULT_CART_SNAPSHOT: CartState = getDefaultCartState();
 // Global cart store — starts from the deterministic defaults above.
 export const cartStore = atom<CartState>(DEFAULT_CART_SNAPSHOT);
 
-// Defensive coercion: localStorage is user-writable, so a malformed/legacy
-// payload must never be able to crash a render.
-function sanitizeColor(input: unknown): ColorModel | null {
-  if (!input || typeof input !== 'object') return null;
-  const raw = input as Record<string, unknown>;
-  const l = Number(raw.l);
-  const c = Number(raw.c);
-  const h = Number(raw.h);
-  if (!Number.isFinite(l) || !Number.isFinite(c) || !Number.isFinite(h)) return null;
-
-  const alpha = Number(raw.alpha);
-  return {
-    l: Math.min(1, Math.max(0, l)),
-    c: Math.min(0.4, Math.max(0, c)),
-    h: ((h % 360) + 360) % 360,
-    alpha: Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1,
-    hex: typeof raw.hex === 'string' ? raw.hex : '#000000',
-    inSRGB: Boolean(raw.inSRGB),
-    inP3: Boolean(raw.inP3),
-  };
-}
-
+// Untrusted values from localStorage / sessionStorage are coerced by the shared
+// `sanitizeColorModel`, which lives in utils/color because the custom palette
+// store reads a second persisted payload and needs the identical guard.
 function sanitizeShades(input: unknown): Partial<Record<ShadeStep, RoleColorToken>> {
   const out: Partial<Record<ShadeStep, RoleColorToken>> = {};
   if (!input || typeof input !== 'object') return out;
@@ -125,7 +107,7 @@ function sanitizeShades(input: unknown): Partial<Record<ShadeStep, RoleColorToke
     const step = Number(key) as ShadeStep;
     if (!SHADE_STEPS.includes(step)) continue;
     const token = value as Partial<RoleColorToken> | null;
-    const color = sanitizeColor(token?.color);
+    const color = sanitizeColorModel(token?.color);
     if (!color) continue;
     out[step] = {
       id: typeof token?.id === 'string' ? token.id : `${key}`,
@@ -719,6 +701,24 @@ export interface PickerHandoff {
    * navigation target.
    */
   returnTo: string | null;
+  /**
+   * Which of several editable colours on the originating page this is for.
+   * `'free'` mode only; `null` (or absent) means the page's single, unslotted
+   * free colour.
+   *
+   * WHY A HANDOFF NEEDS THIS
+   *
+   * A page can hold more than one colour that is *not* a cart token. The palette
+   * generator is the case that forced it: its base colour is one, and so is every
+   * row of the custom palette beneath it. A bare colour coming back cannot say
+   * which one was edited, so the page would have to guess — and the two guesses
+   * have very different consequences.
+   *
+   * It rides the handoff for the same reason `returnTo` does: the picker is not
+   * the thing that knows. The originating page stamped the id on the way out, and
+   * only it can resolve it to a destination after the round trip.
+   */
+  slot?: string | null;
 }
 
 /**
@@ -741,6 +741,18 @@ function sanitizeReturnTo(value: unknown): string | null {
   // resolution once the URL is parsed.
   if (/^\/?[a-z][a-z0-9+.-]*:/i.test(value)) return null;
   return value;
+}
+
+/**
+ * Accept only opaque, bounded slot keys.
+ *
+ * A slot is an id the app minted, never user text: it is looked up in a list and
+ * never rendered. It still arrives from `sessionStorage`, so the shape is pinned
+ * rather than trusted — a payload naming a megabyte of "slots" must not become a
+ * megabyte of string carried around by every consumer.
+ */
+function sanitizeSlot(value: unknown): string | null {
+  return typeof value === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(value) ? value : null;
 }
 
 /**
@@ -783,8 +795,9 @@ export function consumePickerHandoff(): PickerHandoff | null {
       mode: parsed.mode === 'free' ? 'free' : 'token',
       roleId: parsed.roleId,
       step,
-      color: parsed.color ? sanitizeColor(parsed.color) : null,
+      color: parsed.color ? sanitizeColorModel(parsed.color) : null,
       returnTo: sanitizeReturnTo(parsed.returnTo),
+      slot: sanitizeSlot(parsed.slot),
     };
   } catch {
     return null;
@@ -803,6 +816,16 @@ export function clearPickerHandoff() {
 
 /* ─────────────────── Picker result ('free' mode: colour → originating page) ─────────────────── */
 
+/** A colour handed back to the page that sent it, and the slot it was for. */
+export interface PickerResult {
+  color: ColorModel;
+  /**
+   * Echo of the handoff's slot, so a page holding several free colours can tell
+   * which one was edited. `null` for the unslotted one — see `PickerHandoff.slot`.
+   */
+  slot: string | null;
+}
+
 /**
  * Park the colour the user saved in a `'free'`-mode handoff so the page that
  * sent them to the picker can pick it up on arrival.
@@ -810,14 +833,23 @@ export function clearPickerHandoff() {
  * `returnTo` travels with the colour instead of being trusted from the URL,
  * because the receiving page is the one that has to answer "was this meant for
  * me?" — the picker knows where it is sending them, not what they will do with
- * the value once they get there.
+ * the value once they get there. The slot rides along for the same reason: a
+ * page with several editable colours needs to know *which* one came back.
  */
-export function savePickerResult(result: { color: ColorModel; returnTo: string | null }) {
+export function savePickerResult(result: {
+  color: ColorModel;
+  returnTo: string | null;
+  slot?: string | null;
+}) {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.setItem(
       PICKER_RESULT_KEY,
-      JSON.stringify({ color: result.color, returnTo: sanitizeReturnTo(result.returnTo) })
+      JSON.stringify({
+        color: result.color,
+        returnTo: sanitizeReturnTo(result.returnTo),
+        slot: sanitizeSlot(result.slot),
+      })
     );
   } catch {
     /* private mode / quota — the page keeps whatever it already had */
@@ -830,8 +862,12 @@ export function savePickerResult(result: { color: ColorModel; returnTo: string |
  * Returns the colour only when `returnTo` names this page, so a stale result
  * cannot leak into an unrelated page that happens to be open. Call exactly once,
  * after mount.
+ *
+ * The whole result is returned rather than a bare colour because the slot is
+ * part of what was asked for, and a caller that cannot see it has to guess which
+ * of its colours was edited.
  */
-export function consumePickerResult(currentPath: string): ColorModel | null {
+export function consumePickerResult(currentPath: string): PickerResult | null {
   if (typeof window === 'undefined') return null;
   try {
     const raw = sessionStorage.getItem(PICKER_RESULT_KEY);
@@ -840,9 +876,11 @@ export function consumePickerResult(currentPath: string): ColorModel | null {
     // other page is still spent, and leaving it behind would let it be applied
     // later by whichever page it was actually meant for.
     sessionStorage.removeItem(PICKER_RESULT_KEY);
-    const parsed = JSON.parse(raw) as { color?: unknown; returnTo?: unknown };
+    const parsed = JSON.parse(raw) as { color?: unknown; returnTo?: unknown; slot?: unknown };
     if (sanitizeReturnTo(parsed.returnTo) !== currentPath) return null;
-    return parsed.color ? sanitizeColor(parsed.color) : null;
+    const color = parsed.color ? sanitizeColorModel(parsed.color) : null;
+    if (!color) return null;
+    return { color, slot: sanitizeSlot(parsed.slot) };
   } catch {
     return null;
   }
