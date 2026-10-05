@@ -176,6 +176,13 @@ check('the button carries an accessible name',
   /'aria-label': ariaLabel \?\? title/.test(colorSwatch));
 check('a decorative swatch stays hidden from assistive tech',
   /'aria-hidden': 'true' as const/.test(colorSwatch));
+// Regression: the picker canvas is a childless-looking swatch that layers real
+// buttons inside it. Marking it aria-hidden hid those buttons from screen
+// readers and stranded keyboard focus outside the a11y tree on click, which
+// Chrome reports as "Blocked aria-hidden ... descendant retained focus".
+check('a swatch that layers children is never marked aria-hidden',
+  /const decorative = !interactive && !layered/.test(colorSwatch) &&
+    /decorative\s*\?\s*\{\s*'aria-hidden': 'true' as const\s*\}/.test(colorSwatch));
 // Tailwind v4 does not give `button` a pointer cursor, so a swatch that is a
 // button without one reads as unclickable even though it is.
 check('the button gets cursor-pointer',

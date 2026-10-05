@@ -23,6 +23,7 @@ import { useCart } from '../../hooks/useCart';
 import { useOpenInPicker } from '../../hooks/useOpenInPicker';
 import ColorSwatch from '../common/ColorSwatch';
 import SwatchStrip from '../palettes/SwatchStrip';
+import SwatchActionMenu from './SwatchActionMenu';
 
 const PRESETS = [
   { label: 'Blue', hex: '#2563eb' },
@@ -33,34 +34,34 @@ const PRESETS = [
 ];
 
 /**
- * What clicking a swatch does.
- *
- * The first version of this page made one click do two things — copy *and* file
- * into the cart — which reads as helpful until you want one without the other:
- * browsing a scale quietly rewrites a token on every click, and copying a single
- * value leaves the cart changed from a gesture the user thinks is read-only. Both
- * are legitimate intents, so both are offered and the copy-and-file pairing
- * stays the default.
+ * One menu serves every swatch on the page, so its id is a constant: a second
+ * instance would mean a second menu, and there is never more than one open.
  */
-type PickAction = 'both' | 'copy' | 'add';
+const MENU_ID = 'generator-swatch-menu';
 
-const PICK_ACTIONS: { id: PickAction; label: string; hint: string }[] = [
-  {
-    id: 'both',
-    label: 'Copy + cart',
-    hint: 'Clicking a swatch copies its value and saves it to the variable',
-  },
-  {
-    id: 'copy',
-    label: 'Copy only',
-    hint: 'Clicking a swatch only copies its value, leaving your cart untouched',
-  },
-  {
-    id: 'add',
-    label: 'Cart only',
-    hint: 'Clicking a swatch only saves it to the variable, without copying',
-  },
-];
+/**
+ * What a swatch click is waiting on.
+ *
+ * The swatch is kept as a live element, not just its colour, because the menu is
+ * positioned against it — a colour cannot say where on the page it was clicked.
+ */
+interface PendingSwatch {
+  color: ColorModel;
+  /** The scale step, or `null` for a harmony swatch. Decides which slot is written. */
+  step: ShadeStep | null;
+  anchor: HTMLElement;
+  /** What was clicked, for the menu's heading: `Step 500`, `Triadic 2`. */
+  label: string;
+  /**
+   * Identity of the swatch, stable across re-renders.
+   *
+   * Needed for two things the DOM node cannot answer: which swatch is currently
+   * open (`aria-expanded` has to be true on one trigger, not eleven), and whether
+   * this click is a second click on the same swatch. A harmony swatch carries no
+   * step at all, so a step alone would leave all of them indistinguishable.
+   */
+  key: string;
+}
 
 export default function PaletteGeneratorIsland() {
   const cart = useCart();
@@ -72,7 +73,17 @@ export default function PaletteGeneratorIsland() {
    * before any `brand-*` role has been created anywhere in the app.
    */
   const [varNameInput, setVarNameInput] = useState('primary');
-  const [pickAction, setPickAction] = useState<PickAction>('both');
+  /**
+   * The swatch whose menu is open, if any.
+   *
+   * A click no longer *acts* — it asks. Copying and filing are both one click away
+   * now because they are mutually exclusive in consequence: one touches the
+   * clipboard, the other silently rewrites a `--color-*` token the user is
+   * building. Doing either unconditionally means the click means different things
+   * to the person making it and the person receiving it, and only one of them is
+   * visible.
+   */
+  const [pending, setPending] = useState<PendingSwatch | null>(null);
 
   /**
    * Resolve the typed name to a real role, creating it on first use.
@@ -105,7 +116,7 @@ export default function PaletteGeneratorIsland() {
   );
 
   /**
-   * "Change this colour" for the base swatch and the harmony swatches.
+   * "Change this colour" for the base swatch.
    *
    * The base colour is component state, not a cart token, so this opens the
    * picker in `'free'` mode: saving hands the colour back to `setBaseHex`
@@ -119,48 +130,88 @@ export default function PaletteGeneratorIsland() {
   const harmonies = useMemo(() => generateHarmonies(baseColor), [baseColor]);
 
   /**
-   * Shared by the scale strip and the harmony strips: act on one colour
-   * according to `pickAction`, with a single toast naming exactly what happened.
+   * Point the menu at a swatch, or dismiss it if that swatch was already open.
    *
-   * The two destinations write to different slots on purpose. `setRoleShade`
-   * takes the step the user actually clicked, so scale 50 stays `--color-x-50`.
-   * `addColorToCart` re-slots by lightness, which is right for the harmony
-   * swatches (they are generated at the base lightness, not at scale steps) and
-   * is what every other "add a colour" affordance on the site does.
-   *
-   * Both store calls toast on their own; the toast raised here supersedes it so
-   * the user sees one message. Under `addColorToCart` the returned step is used
-   * so the toast cannot claim a step the colour did not land in.
+   * The toggle matters on touch, where there is no Escape and no outside-click
+   * affordance to reach for — without it the only way to dismiss the menu is to
+   * pick a different colour, which changes nothing about the page and leaves the
+   * user stuck.
    */
-  const collect = (color: ColorModel, step?: ShadeStep) => {
-    const value = formatOklch(color);
+  const openMenu = (next: PendingSwatch) =>
+    setPending((current) => (current?.key === next.key ? null : next));
 
-    if (pickAction === 'copy') {
-      navigator.clipboard.writeText(value);
-      showToast(`Copied ${value}`);
-      return;
+  /**
+   * Clipboard write that reports whether it worked.
+   *
+   * `writeText` rejects for reasons the page cannot fix — an insecure context, a
+   * permission the user denied, a document that is not focused — and the old
+   * fire-and-forget call turned each of those into an unhandled rejection plus a
+   * toast claiming success.
+   */
+  const writeClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
     }
+  };
 
-    /*
-     * Which slot the colour lands in depends on where it came from. A scale step
-     * has a step the user actually clicked, and re-deriving it from lightness
-     * would be both wrong and lossy — `setRoleShade` writes that exact slot. A
-     * harmony swatch has no step of its own (harmonies are generated at the base
-     * lightness), so it goes through `addColorToCart`, which re-slots by
-     * lightness exactly as every other "add a colour" control on the site does.
-     */
+  /**
+   * Write the colour into the destination variable and report the slot it landed
+   * in, so the toast can name it.
+   *
+   * The two slots are chosen deliberately. `setRoleShade` takes the step the user
+   * actually clicked, so scale 50 stays `--color-x-50`. `addColorToCart`
+   * re-slots by lightness, which is right for the harmony swatches — they are
+   * generated at the base lightness and belong to no step of their own — and is
+   * what every other "add a colour" affordance on the site does.
+   */
+  const file = (color: ColorModel, step: ShadeStep | null) => {
     const roleId = resolveTargetRole();
     const saved = step
       ? (setRoleShade(roleId, step, color, { silent: true }), { roleId, step })
       : addColorToCart(color, roleId);
 
-    // Named from the *returned* step, not `opts.label`: `addColorToCart` picks
-    // the step, so the label above would otherwise be a guess.
-    const landed = `${cart.roles[saved.roleId]?.name ?? saved.roleId}-${saved.step}`;
+    // Named from the *returned* step, not the requested one: `addColorToCart`
+    // picks the slot itself, so the step we asked for would be a guess.
+    return `${cart.roles[saved.roleId]?.name ?? saved.roleId}-${saved.step}`;
+  };
 
-    // Both store calls toast on their own; this one supersedes it so the user
-    // sees a single message that accounts for the whole gesture.
-    showToast(pickAction === 'both' ? `${value} → ${landed}` : `${landed} · ${value}`);
+  /** Menu action: put the value on the clipboard and leave the cart alone. */
+  const copyOnly = async (value: string) => {
+    setPending(null);
+    const copied = await writeClipboard(value);
+    showToast(
+      copied ? `Copied ${value}` : 'Clipboard blocked by the browser',
+      copied ? 'success' : 'info'
+    );
+  };
+
+  /**
+   * Menu action: write the variable, optionally with the value on the clipboard.
+   *
+   * The clipboard write is awaited first and reported in the *same* toast as the
+   * save, so one gesture never produces two contradictory messages. Both store
+   * calls toast on their own; this one supersedes them for the same reason.
+   */
+  const saveOnly = async (alsoCopy: boolean) => {
+    if (!pending) return;
+    const { color, step } = pending;
+    const value = formatOklch(color);
+    setPending(null);
+
+    const copied = alsoCopy ? await writeClipboard(value) : false;
+    const landed = file(color, step);
+
+    if (alsoCopy) {
+      showToast(
+        copied ? `${value} → ${landed}` : `Clipboard blocked · saved to ${landed}`,
+        copied ? 'success' : 'info'
+      );
+    } else {
+      showToast(`${landed} · ${value}`);
+    }
   };
 
   /**
@@ -286,34 +337,13 @@ export default function PaletteGeneratorIsland() {
           </label>
         </div>
 
-        {/* The variable the fill button and every swatch click will write to.
-            Shown live so a typed name is never a leap of faith — the slug
+        {/* The variable the fill button and every "Save to variable" will write
+            to. Shown live so a typed name is never a leap of faith — the slug
             transform is not obvious, and `--color-Brand Accent-*` is not a
             variable anyone can write. */}
         <p class="font-mono text-micro text-faint">
           writes to <span class="text-mute">--color-{targetSlug}-*</span>
         </p>
-
-        {/* What a swatch click does. Stated rather than assumed: the same click
-            previously copied and filed unconditionally. */}
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="eyebrow mr-1">On click</span>
-          <div class="flex items-center gap-1.5" role="group" aria-label="What clicking a swatch does">
-            {PICK_ACTIONS.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setPickAction(a.id)}
-                aria-pressed={pickAction === a.id}
-                title={a.hint}
-                class={`chip !py-1 !px-2.5 !text-micro ${
-                  pickAction === a.id ? '' : 'text-mute hover:text-body'
-                }`}
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
-        </div>
 
         <button
           onClick={() => generateFullScaleForRole(resolveTargetRole(), baseColor)}
@@ -332,15 +362,14 @@ export default function PaletteGeneratorIsland() {
         </div>
         <SwatchStrip
           shades={scaleRecord}
-          onPick={(color, step) => collect(color, step)}
+          onPick={(color, step, anchor) =>
+            openMenu({ color, step, anchor, key: `step-${step}`, label: `Step ${step}` })
+          }
           label="Generated scale"
+          menu={{ id: MENU_ID, openStep: pending?.step ?? null }}
         />
         <p class="mt-2 font-mono text-micro text-mute">
-          {pickAction === 'copy'
-            ? 'Click a step to copy its value.'
-            : pickAction === 'add'
-              ? `Click a step to save it as --color-${targetSlug}-<step>.`
-              : 'Click a step to copy it and save it as --color-<role>-<step>.'}
+          Click a step to copy its value or save it as --color-{targetSlug}-&lt;step&gt;.
         </p>
       </div>
 
@@ -359,22 +388,54 @@ export default function PaletteGeneratorIsland() {
               {/* Same contiguous-strip treatment as the scale, at a shorter
                   height because three hues read faster than eleven steps. */}
               <div class="swatch-strip !h-10">
-                {g.colors.map((color, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    class="swatch-item"
-                    style={{ backgroundColor: formatOklch(color) }}
-                    onClick={() => collect(color)}
-                    title={`${g.label} ${i + 1} — ${PICK_ACTIONS.find((a) => a.id === pickAction)!.hint.toLowerCase()}`}
-                    aria-label={`${g.label} ${i + 1}: ${formatOklch(color)}`}
-                  />
-                ))}
+                {g.colors.map((color, i) => {
+                  const key = `${g.label}-${i}`;
+                  const isOpen = pending?.key === key;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      class="swatch-item"
+                      style={{ backgroundColor: formatOklch(color) }}
+                      onClick={(e) =>
+                        openMenu({
+                          color,
+                          step: null,
+                          anchor: e.currentTarget,
+                          key,
+                          label: `${g.label} ${i + 1}`,
+                        })
+                      }
+                      title={`${g.label} ${i + 1}: ${formatOklch(color)} — click to copy or save it`}
+                      aria-label={`${g.label} ${i + 1}: ${formatOklch(color)}`}
+                      aria-haspopup="menu"
+                      aria-expanded={isOpen}
+                      aria-controls={isOpen ? MENU_ID : undefined}
+                    />
+                  );
+                })}
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* One menu, pointed at whichever swatch was clicked last. Rendered outside
+          the strips so it is never clipped by a strip's own overflow, and last in
+          the tree so it stacks above every swatch on the page. */}
+      {pending && (
+        <SwatchActionMenu
+          id={MENU_ID}
+          color={pending.color}
+          step={pending.step}
+          anchor={pending.anchor}
+          label={pending.label}
+          targetSlug={targetSlug}
+          onCopy={copyOnly}
+          onSave={saveOnly}
+          onClose={() => setPending(null)}
+        />
+      )}
     </div>
   );
 }

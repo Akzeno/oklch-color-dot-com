@@ -14,17 +14,38 @@ import { formatOklch, type ColorModel, type ShadeStep } from '../../utils/color'
  *  - Clicking reports the exact colour. What the caller *does* with it (copy,
  *    collect into a role, load the generator from it) is deliberately outside
  *    this component — the same strip serves three pages with different intents.
+ *    The clicked element comes along as the third argument because a caller that
+ *    opens a menu needs something to anchor it to, and a colour is not an
+ *    element.
  */
 interface Props {
   shades: Record<ShadeStep, ColorModel>;
-  onPick: (color: ColorModel, step: ShadeStep) => void;
+  onPick: (color: ColorModel, step: ShadeStep, anchor: HTMLElement) => void;
   /** Accessible name for the group, e.g. "Emerald Trust swatches". */
   label: string;
   /** Show the mono readout on hover. Off for dense strips. */
   readout?: boolean;
+  /**
+   * Set when a click opens a menu instead of acting on the colour.
+   *
+   * Then each swatch is a menu trigger and has to say so: `aria-haspopup` tells a
+   * screen reader that activating it surfaces choices rather than an effect, and
+   * `aria-expanded` on the one step whose menu is actually open is what makes
+   * "open" a state that can be left again. `id` is the caller's menu id, so the
+   * trigger can point at the thing it controls.
+   *
+   * Omitted by callers that act on click, where both attributes would be lies.
+   */
+  menu?: { id: string; openStep: ShadeStep | null };
 }
 
-export default function SwatchStrip({ shades, onPick, label, readout = true }: Props) {
+export default function SwatchStrip({
+  shades,
+  onPick,
+  label,
+  readout = true,
+  menu,
+}: Props) {
   const [active, setActive] = useState<ShadeStep | null>(null);
   const hovered = active !== null ? shades[active] : null;
 
@@ -33,6 +54,7 @@ export default function SwatchStrip({ shades, onPick, label, readout = true }: P
       <div class="swatch-strip" role="group" aria-label={label}>
         {Object.entries(shades).map(([rawStep, color]) => {
           const step = Number(rawStep) as ShadeStep;
+          const isOpen = menu?.openStep === step;
           return (
             <button
               key={step}
@@ -43,8 +65,11 @@ export default function SwatchStrip({ shades, onPick, label, readout = true }: P
               onMouseLeave={() => setActive(null)}
               onFocus={() => setActive(step)}
               onBlur={() => setActive(null)}
-              onClick={() => onPick(color, step)}
+              onClick={(e) => onPick(color, step, e.currentTarget)}
               aria-label={`Step ${step}: ${formatOklch(color)}, hex ${color.hex}`}
+              aria-haspopup={menu ? 'menu' : undefined}
+              aria-expanded={menu ? isOpen : undefined}
+              aria-controls={isOpen ? menu?.id : undefined}
             >
               {/* Gamut state as a dot on the swatch itself. A text badge on a
                   saturated colour is unreadable; a 6px dot is not. */}

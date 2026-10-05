@@ -37,6 +37,18 @@ import { formatOklch, type ColorModel } from '../../utils/color';
  * unreachable from the swatch itself — the value was on screen with no way to
  * act on it. `type="button"` is explicit because these sit inside forms and a
  * default `<button>` submits.
+ *
+ * `aria-hidden`
+ *
+ * A plain swatch is decorative and hides itself from assistive tech. It stops
+ * doing so the moment it has children, because `children` is how callers layer
+ * badges, readouts and — crucially — real controls on top of the fill. Marking
+ * such a swatch `aria-hidden` hid live buttons from screen readers and, the
+ * moment one of them was clicked, Chrome logged "Blocked aria-hidden on an
+ * element because its descendant retained focus": the focused button sat inside
+ * a subtree that had just been removed from the accessibility tree, leaving
+ * keyboard focus on something no assistive technology could reach. So
+ * `aria-hidden` is applied only to a childless, non-interactive swatch.
  */
 export interface ColorSwatchProps {
   /** The colour to paint. `null` paints `fallbackCss` instead. */
@@ -57,7 +69,11 @@ export interface ColorSwatchProps {
   title?: string;
   /** Overrides `title` as the accessible name, for when they should differ. */
   ariaLabel?: string;
-  /** Layers rendered on top of the fill (badges, controls, readout docks). */
+  /**
+   * Layers rendered on top of the fill (badges, controls, readout docks).
+   * Supplying children also opts the swatch out of `aria-hidden`: a swatch with
+   * layers on it is a container for content, not a decorative chip.
+   */
   children?: ComponentChildren;
 }
 
@@ -75,6 +91,16 @@ export default function ColorSwatch({
 
   const interactive = typeof onClick === 'function';
   const El = (interactive ? 'button' : 'div') as 'div';
+
+  /*
+   * `children` is the signal that the swatch is more than a colour chip. A
+   * non-interactive swatch is only safe to hide from assistive tech while it is
+   * empty; any layer it hosts may be focusable, and `aria-hidden` on an
+   * ancestor of a focused element is exactly what strands keyboard focus
+   * outside the accessibility tree.
+   */
+  const layered = children !== undefined && children !== null && children !== false;
+  const decorative = !interactive && !layered;
 
   /*
    * `relative` on the root is unconditional: callers layer badges and docks on
@@ -102,7 +128,9 @@ export default function ColorSwatch({
       style={translucent ? undefined : fillStyle}
       {...(interactive
         ? { type: 'button' as const, onClick }
-        : { 'aria-hidden': 'true' as const })}
+        : decorative
+          ? { 'aria-hidden': 'true' as const }
+          : {})}
       {...(title ? { title } : {})}
       {...(interactive ? { 'aria-label': ariaLabel ?? title } : {})}
     >

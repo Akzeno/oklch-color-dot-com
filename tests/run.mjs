@@ -32,6 +32,7 @@ const SUITES = [
   'empty-role-add-color.mjs',
   'export-shortcut.mjs',
   'swatch-quick-actions.mjs',
+  'swatch-action-menu.mjs',
   'solid-swatches.mjs',
   // Reads dist/, so the build must run first — hence `astro build && npm test`.
   'island-hydration.mjs',
