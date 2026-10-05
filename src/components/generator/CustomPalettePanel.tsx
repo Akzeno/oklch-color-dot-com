@@ -354,7 +354,9 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
 
                 <div class="min-w-0 flex-1 space-y-1">
                   <input
+                    id={`custom-palette-name-${slot.id}`}
                     type="text"
+                    name="variable"
                     list="custom-palette-name-hints"
                     ref={(el) => {
                       nameFields.current[slot.id] = el;
@@ -378,7 +380,9 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                       the exact text that will be copied.
                     */}
                     <input
+                      id={`custom-palette-value-${slot.id}`}
                       type="text"
+                      name="value"
                       value={shown}
                       spellcheck={false}
                       autocomplete="off"

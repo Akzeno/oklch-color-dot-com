@@ -719,6 +719,20 @@ export interface PickerHandoff {
    * only it can resolve it to a destination after the round trip.
    */
   slot?: string | null;
+  /**
+   * `'token'` callers only, and only the *modal* one: asking for the drawer to be
+   * reopened once the user returns.
+   *
+   * WHY THE CALLER CANNOT DECIDE THIS ITSELF
+   *
+   * The return trip has two surfaces that can send someone to the picker and both
+   * of them want to land the user back on a token editor — but only one of them is
+   * a modal that disappears while you are away. The `/ui-preview` token panel is
+   * still on screen when the picker bounces back, so reopening the drawer there
+   * would cover the very panel the user just used. The originating page knows
+   * which surface it is; the picker cannot tell them apart, so it is told.
+   */
+  reopenCart?: boolean;
 }
 
 /**
@@ -791,6 +805,11 @@ export function consumePickerHandoff(): PickerHandoff | null {
     // mutates the cart or merely returns a colour. An unrecognised value degrades
     // to `'token'` — the behaviour every caller had before `mode` existed — so a
     // malformed payload can never silently downgrade a token write.
+    //
+    // `reopenCart` is pinned to strict `true` for the same reason: it decides
+    // whether a modal opens itself on arrival, so anything but an explicit yes is
+    // a no. A missing flag is the pre-`reopenCart` behaviour, which is "don't
+    // reopen" for every caller that never asked.
     return {
       mode: parsed.mode === 'free' ? 'free' : 'token',
       roleId: parsed.roleId,
@@ -798,6 +817,7 @@ export function consumePickerHandoff(): PickerHandoff | null {
       color: parsed.color ? sanitizeColorModel(parsed.color) : null,
       returnTo: sanitizeReturnTo(parsed.returnTo),
       slot: sanitizeSlot(parsed.slot),
+      reopenCart: parsed.reopenCart === true,
     };
   } catch {
     return null;
@@ -894,4 +914,102 @@ export function clearPickerResult() {
   } catch {
     /* no-op */
   }
+}
+
+/* ─────────────────── Reopening the drawer after a picker round trip ─────────────────── */
+
+/**
+ * How long a pending reopen stays believable.
+ *
+ * The flag is only ever meant to survive the single hop back from the picker,
+ * which takes seconds. Anything left after this is a user who edited a token,
+ * wandered off, and came back later — and a modal opening itself unasked is worse
+ * than a missed one.
+ */
+const CART_REOPEN_TTL_MS = 5 * 60 * 1000;
+
+const CART_REOPEN_KEY = 'oklch_reopen_cart_v1';
+
+/**
+ * Ask for the design-token drawer to be open again once the user reaches `path`.
+ *
+ * CALLED BY THE PICKER, ON THE WAY BACK — AND THAT IS THE WHOLE POINT
+ *
+ * The obvious place to park this is the drawer, on the way *out* to the picker.
+ * It cannot work from there, because the page the drawer is leaving for is `/` —
+ * and `/` is itself a page that opens this drawer. Parking on the way out makes
+ * the flag mean "someone once wanted the drawer back", which the picker's own page
+ * satisfies on arrival: the user opens the drawer on `/`, taps a swatch, and the
+ * modal reopens over the picker they were sent to use.
+ *
+ * There is no path comparison that rescues it, either. `returnTo` is legitimately
+ * `/` in exactly that case, so "the flag names this page" and "this page is the
+ * picker" are the same statement.
+ *
+ * Parking it here instead makes the flag mean "a picker session just finished and
+ * is sending the user home", which only becomes true at the moment of return. The
+ * picker page can never satisfy it while the user is still choosing a colour.
+ *
+ * WHY NOT JUST SET `isCartOpenStore`
+ *
+ * That atom is a module singleton, so setting it here would open the drawer on the
+ * picker page *before* the navigation lands — a modal over the very sliders the
+ * user is still dragging, on top of a backdrop swallowing the page. A token edit
+ * has to stay usable while it is in progress; only the return trip restores the
+ * surface.
+ */
+export function saveCartReopen(path: string) {
+  if (typeof window === 'undefined') return;
+  // A path the sanitizer rejects cannot be a real page, so there is nothing to
+  // come back to — record it as "nobody" rather than storing it for later.
+  const safePath = sanitizeReturnTo(path);
+  if (!safePath) return;
+  try {
+    sessionStorage.setItem(CART_REOPEN_KEY, JSON.stringify({ path: safePath, at: Date.now() }));
+  } catch {
+    /* private mode / quota — the user just does not get the drawer back */
+  }
+}
+
+/**
+ * Claim a pending reopen, but only for the page the picker is returning to.
+ *
+ * Returns `false` and *keeps the flag* on any other path, which is the load
+ * bearing detail: the flag is written immediately before the navigation, so the
+ * only page that should ever see it is the destination — but a user who wanders
+ * off in between must not spend it. The flag survives exactly the pages that are
+ * not the target and is spent on the one that is.
+ */
+export function consumeCartReopen(currentPath: string): boolean {
+  if (typeof window === 'undefined') return false;
+
+  let payload: { path?: unknown; at?: unknown } | null = null;
+  try {
+    const raw = sessionStorage.getItem(CART_REOPEN_KEY);
+    if (!raw) return false;
+    payload = JSON.parse(raw);
+  } catch {
+    try {
+      sessionStorage.removeItem(CART_REOPEN_KEY);
+    } catch {
+      /* no-op */
+    }
+    return false;
+  }
+
+  const path = sanitizeReturnTo(payload?.path);
+  const at = typeof payload?.at === 'number' ? payload.at : 0;
+  const expired = !path || Date.now() - at > CART_REOPEN_TTL_MS;
+
+  // Spend the flag either way when it is spent: on the target page, and on any
+  // page that finds it unreadable or too old.
+  if (expired || path === currentPath) {
+    try {
+      sessionStorage.removeItem(CART_REOPEN_KEY);
+    } catch {
+      /* no-op */
+    }
+  }
+
+  return !expired && path === currentPath;
 }

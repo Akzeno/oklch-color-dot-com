@@ -281,8 +281,11 @@ export default function ColorActionPopover({
         ) : (
           <div class="space-y-2">
             <input
+              id="palette-filter"
               type="text"
+              name="palette-filter"
               value={paletteQuery}
+              aria-label="Filter palettes"
               onInput={(e) => setPaletteQuery((e.target as HTMLInputElement).value)}
               placeholder="Filter palettes…"
               class="w-full px-2.5 py-1.5 rounded-md bg-canvas border border-hairline font-mono text-micro text-ink placeholder:text-faint focus:outline-none focus:border-border-focus transition-colors duration-150"

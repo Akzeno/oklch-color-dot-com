@@ -127,7 +127,9 @@ export default function PaletteDetailIsland({
               one-tap suggestions.
             */}
             <input
+              id={`palette-detail-variable-${suggestionId}`}
               type="text"
+              name="variable"
               list={suggestionId}
               value={varNameInput}
               spellcheck={false}

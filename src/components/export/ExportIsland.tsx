@@ -338,8 +338,11 @@ export default function ExportIsland() {
                         <>
                           <span class="text-ink">--color-</span>
                           <input
+                            id="export-slug"
                             type="text"
+                            name="slug"
                             value={slugInput}
+                            aria-label="Variable name to rename this token to"
                             onInput={(e) => setSlugInput((e.target as HTMLInputElement).value)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {

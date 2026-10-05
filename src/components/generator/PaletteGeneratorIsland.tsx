@@ -364,7 +364,9 @@ export default function PaletteGeneratorIsland() {
 
           <div class="hud flex items-center gap-2">
             <input
+              id="generator-base-colour"
               type="text"
+              name="base"
               value={baseHex}
               spellcheck={false}
               autocomplete="off"
@@ -390,7 +392,9 @@ export default function PaletteGeneratorIsland() {
               current cart.
             */}
             <input
+              id="generator-variable-name"
               type="text"
+              name="variable"
               list="generator-role-suggestions"
               value={varNameInput}
               spellcheck={false}

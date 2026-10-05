@@ -18,12 +18,15 @@ import {
   cartStore,
   setActiveRole,
   setRoleShade,
+  ensureRole,
+  slugifyRoleName,
   isCartOpenStore,
   showToast,
   consumePickerHandoff,
   clearPickerHandoff,
   savePickerResult,
   clearPickerResult,
+  saveCartReopen,
   type PickerHandoff,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
@@ -80,6 +83,21 @@ export default function ColorPickerIsland() {
     setH(base ? base.h : 255);
     setAlpha(base ? base.alpha : 1);
   }, []);
+
+  /**
+   * The destination variable, held as the *typed name* rather than a selected
+   * role id — the same reason the generator and the palette pages made this
+   * switch. A `<select>` can only offer roles that already exist, so it cannot
+   * name the variable the user is inventing (`--color-brand-accent-*`), and it
+   * cannot correct a name they mistyped once it exists either. The datalist
+   * keeps the one-tap picking of the `<select>` without inheriting its ceiling.
+   *
+   * `null` means "nothing typed but uncommitted", and the field then mirrors the
+   * store's active role. That is what keeps the text honest when the role is
+   * changed from somewhere else — a token handoff, or the token drawer — rather
+   * than stranding text the user never committed over a role that moved.
+   */
+  const [varNameEdit, setVarNameEdit] = useState<string | null>(null);
 
   const color: ColorModel = useMemo(() => createOklchColor(l, c, h, alpha), [l, c, h, alpha]);
 
@@ -156,6 +174,42 @@ export default function ColorPickerIsland() {
     clearPickerResult();
   };
 
+  /**
+   * Resolve the typed variable name to a real role id, creating it on first use.
+   *
+   * Creation is deferred to the moment something is actually written, not to
+   * every keystroke: a half-typed "br" would otherwise leave a trail of junk
+   * roles in a cart that persists to localStorage, and there is no undo for a
+   * role. `ensureRole` reuses a role whose slug already matches, so editing a
+   * name back to one that exists selects that role instead of duplicating it.
+   *
+   * The edit is cleared only on success. A name that cannot be resolved stays in
+   * the field so the user can see what they typed and fix it, rather than having
+   * it silently replaced by whatever role was active.
+   */
+  const resolveTargetRole = (options: { silent?: boolean } = {}): string => {
+    if (varNameEdit === null) return cart.activeRoleId;
+    const roleId = ensureRole(varNameEdit, options);
+    if (roleId) setVarNameEdit(null);
+    return roleId ?? cart.activeRoleId;
+  };
+
+  /**
+   * The variable the Add button will write to, as it will literally appear.
+   *
+   * Resolved live from the uncommitted text rather than from the active role, so
+   * the button's label is the confirmation that the name was understood:
+   * `--color-Brand Accent-*` is not a variable anyone can write, and the slug
+   * transform is not obvious. Falls back to the active role for input that
+   * `ensureRole` would refuse, because `slugifyRoleName`'s `'role'` fallback
+   * would claim the writes are going to a variable created nowhere.
+   */
+  const pendingRoleId = useMemo(() => {
+    const trimmed = (varNameEdit ?? '').trim();
+    if (!/^[a-z0-9]/i.test(trimmed)) return cart.activeRoleId;
+    return slugifyRoleName(trimmed);
+  }, [varNameEdit, cart.activeRoleId]);
+
   const handleAddToCart = () => {
     if (handoff) {
       // Where the picker was opened from, so the user lands back on the element
@@ -163,6 +217,18 @@ export default function ColorPickerIsland() {
       // clearing — `returnTo` is null when the picker was opened directly, in
       // which case saving keeps them here.
       const destination = handoff.returnTo;
+
+      // Ask for the drawer to reopen on arrival — but only when the *modal* is what
+      // sent the user here. The `/ui-preview` token panel hands off the same way and
+      // is still on screen when they return, so honouring its round trip would cover
+      // the panel they just used with a modal they never asked for.
+      //
+      // Parked here, at the end of a completed session, rather than at handoff time.
+      // That is the whole reason the flag cannot be claimed by the picker page: it
+      // does not exist until the user has committed to a colour, so arriving here to
+      // pick one never opens anything over the sliders. A session abandoned halfway
+      // likewise leaves nothing behind to surprise a later visit.
+      const reopenOnReturn = handoff.mode === 'token' && handoff.reopenCart === true;
 
       if (handoff.mode === 'free') {
         // No slot to write: hand the colour back to the originating page, which
@@ -178,15 +244,20 @@ export default function ColorPickerIsland() {
 
       setHandoff(null);
       clearPickerHandoff();
-      if (destination) goTo(destination);
+      if (destination) {
+        if (reopenOnReturn) saveCartReopen(destination);
+        goTo(destination);
+      }
       return;
     }
-    addColorToCart(color, cart.activeRoleId);
+
+    // Silenced because `addColorToCart` toasts the variable the colour landed in
+    // moments later, and the creation toast would supersede the useful one.
+    addColorToCart(color, resolveTargetRole({ silent: true }));
   };
 
   const handoffRole = handoff ? cart.roles[handoff.roleId] : undefined;
   const handoffReturnTo = handoff?.returnTo ?? null;
-  const activeRole = cart.roles[cart.activeRoleId] || Object.values(cart.roles)[0];
 
   /** 'free' handoffs have no slot to name, so they get their own wording. */
   const handoffIsFree = handoff?.mode === 'free';
@@ -203,12 +274,18 @@ export default function ColorPickerIsland() {
     0
   );
 
-  /** The format row: label, live value, editable input, copy. */
+  /**
+   * The format row: label, live value, editable input, copy.
+   *
+   * `key` is the lowercased notation, and it is load-bearing: it becomes the
+   * input's `id`, which is what the row's `<label htmlFor>` points at. Without a
+   * stable, unique id per notation the label is attached to nothing.
+   */
   const formatRows = [
-    { label: 'OKLCH', value: oklchString },
-    { label: 'HEX', value: color.hex },
-    { label: 'RGB', value: rgbString },
-    { label: 'HSL', value: hslString },
+    { key: 'oklch', label: 'OKLCH', value: oklchString },
+    { key: 'hex', label: 'HEX', value: color.hex },
+    { key: 'rgb', label: 'RGB', value: rgbString },
+    { key: 'hsl', label: 'HSL', value: hslString },
   ];
 
   return (
@@ -345,7 +422,9 @@ export default function ColorPickerIsland() {
                 </span>
               </div>
               <input
+                id={`picker-slider-${s.key.toLowerCase()}`}
                 type="range"
+                name={s.key.toLowerCase()}
                 min={s.min}
                 max={s.max}
                 step={s.step}
@@ -367,9 +446,16 @@ export default function ColorPickerIsland() {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
         {formatRows.map((f) => (
           <div key={f.label} class="min-w-0">
-            <label class="eyebrow block mb-1">{f.label}</label>
+            {/* `htmlFor` is what makes this a label rather than a stray `<label>`:
+                the input is a sibling, not a child, so without it the element is
+                associated with nothing and Chrome reports an unlabelled form field
+                — four times over, once per notation. */}
+            <label htmlFor={`picker-format-${f.key}`} class="eyebrow block mb-1">
+              {f.label}
+            </label>
             <div class="hud !py-1.5 flex items-center gap-1.5">
               <input
+                id={`picker-format-${f.key}`}
                 type="text"
                 value={f.value}
                 spellcheck={false}
@@ -392,24 +478,48 @@ export default function ColorPickerIsland() {
       </div>
 
       {/* ── Action dock ──
-          The glass dock from DESIGN.md: role assignment and the one write action
-          for the colour, held at the bottom of the viewport so it stays reachable
-          while the format rows above are scrolled. */}
+          The glass dock from DESIGN.md: the destination variable and the one write
+          action for the colour, held at the bottom of the viewport so it stays
+          reachable while the format rows above are scrolled. */}
       <div class="sticky bottom-4 z-20">
         <div class="dock flex items-center gap-2 flex-wrap !px-3 !py-2.5">
-          <label class="flex items-center gap-2 min-w-0">
-            <span class="eyebrow shrink-0">Role</span>
-            <select
-              value={cart.activeRoleId}
-              onChange={(e) => setActiveRole((e.target as HTMLSelectElement).value)}
-              class="hud !py-1 !px-2 font-mono text-label min-w-0 max-w-[16rem] cursor-pointer"
-            >
+          <label class="flex items-center gap-2 min-w-0" htmlFor="picker-variable-name">
+            <span class="eyebrow shrink-0">Variable</span>
+            {/*
+              A text field with a datalist of the cart's roles, not a `<select>`.
+              The destination is usually a variable that does not exist yet — this
+              page's whole job is authoring one — and the datalist still offers
+              every known name as a one-tap suggestion, which is all the `<select>`
+              was actually being used for.
+            */}
+            <input
+              id="picker-variable-name"
+              type="text"
+              name="variable"
+              list="picker-role-suggestions"
+              value={varNameEdit ?? cart.activeRoleId}
+              spellcheck={false}
+              autocomplete="off"
+              aria-label="Custom color variable name"
+              onInput={(e) => setVarNameEdit((e.target as HTMLInputElement).value)}
+              onKeyDown={(e) => {
+                // Commit on Enter, so a typed name resolves (and the role is
+                // created) without having to write a colour first.
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  resolveTargetRole();
+                }
+              }}
+              class="hud !py-1 !px-2 font-mono text-label min-w-0 max-w-[16rem] cursor-text"
+              placeholder="brand-accent"
+            />
+            <datalist id="picker-role-suggestions">
               {Object.values(cart.roles).map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name}
                 </option>
               ))}
-            </select>
+            </datalist>
           </label>
 
           <span class="pill ml-auto">
@@ -435,11 +545,11 @@ export default function ColorPickerIsland() {
                 ? handoffIsFree
                   ? `Use this colour back on ${handoffReturnTo ?? 'the page you came from'}`
                   : `Write to --color-${handoff.roleId}-${handoff.step}`
-                : `Save as ${activeRole?.name}-${nearestStep}`
+                : `Save as --color-${pendingRoleId}-${nearestStep}`
             }
           >
             <Plus class="w-4 h-4" aria-hidden="true" strokeWidth={2.5} />
-            {handoff ? handoffActionLabel : `Add ${activeRole?.name}-${nearestStep}`}
+            {handoff ? handoffActionLabel : `Add ${pendingRoleId}-${nearestStep}`}
           </button>
         </div>
       </div>

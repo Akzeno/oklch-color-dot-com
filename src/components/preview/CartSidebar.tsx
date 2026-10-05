@@ -1,6 +1,5 @@
 import { useState } from 'preact/hooks';
 import {
-  cartStore,
   generateFullScaleForRole,
   clearRoleScale,
   clearAllScales,
@@ -10,10 +9,10 @@ import {
   setActiveRole,
   savePickerHandoff,
   removeShadeWithUndo,
-  setRoleShade,
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
-import { SHADE_STEPS, BASE_SHADE_STEP, formatOklch, parseAnyToOklch, type ShadeStep, type ColorModel } from '../../utils/color';
+import { useShadeEditor, shadeEditorBoundary } from '../../hooks/useShadeEditor';
+import { SHADE_STEPS, BASE_SHADE_STEP, formatOklch, type ShadeStep, type ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
 import { Check, Code2, Copy, Pencil, Plus, Sparkles, Trash2, X } from 'lucide-preact';
 
@@ -49,9 +48,15 @@ export default function CartSidebar() {
   const [roleInputName, setRoleInputName] = useState('');
   const [newRoleInput, setNewRoleInput] = useState('');
   const [isCreatingRole, setIsCreatingRole] = useState(false);
-  const [editingShade, setEditingShade] = useState<{ roleId: string; step: ShadeStep } | null>(null);
-  const [shadeInput, setShadeInput] = useState('');
   const [confirmingClearRoleId, setConfirmingClearRoleId] = useState<string | null>(null);
+
+  /*
+   * The inline value/axis editor. Its behaviour — which slot is open, what the
+   * free-form field holds, when it closes — lives in `useShadeEditor`, shared
+   * with the token drawer so the two surfaces cannot drift into behaving
+   * differently about the same `--color-*` slot.
+   */
+  const editor = useShadeEditor();
 
   const filledShadesCount = Object.values(cart.roles).reduce((sum, r) => sum + Object.keys(r.shades).length, 0);
   const rolesArray = Object.values(cart.roles);
@@ -72,47 +77,6 @@ export default function CartSidebar() {
     // reads as one task instead of a page they have to find their way out of.
     savePickerHandoff({ roleId, step, color, returnTo: window.location.pathname });
     goTo('/');
-  };
-
-  /*
-   * Both inline editors below funnel through here.
-   *
-   * They used to hand-roll the store update and its `localStorage` write. That
-   * was a second copy of `setRoleShade`'s persistence, so a shade edited in
-   * this panel could land in memory but survive a reload differently from one
-   * edited anywhere else. `silent` because these fire on every keystroke — a
-   * toast per character would be unusable — and because the swatch you are
-   * looking at already shows the result.
-   */
-  const writeShade = (roleId: string, step: ShadeStep, color: ColorModel) => {
-    setRoleShade(roleId, step, color, { silent: true });
-  };
-
-  const handleShadeInputChange = (roleId: string, step: ShadeStep, value: string) => {
-    setShadeInput(value);
-    const parsed = parseAnyToOklch(value);
-    if (parsed) {
-      writeShade(roleId, step, parsed);
-    }
-  };
-
-  const handleLCHChange = (roleId: string, step: ShadeStep, field: 'l' | 'c' | 'h', value: string) => {
-    const role = cartStore.get().roles[roleId];
-    if (!role || !role.shades[step]) return;
-
-    const currentColor = role.shades[step]!.color;
-    const numValue = parseFloat(value);
-    if (isNaN(numValue)) return;
-
-    let newL = currentColor.l;
-    let newC = currentColor.c;
-    let newH = currentColor.h;
-
-    if (field === 'l') newL = Math.max(0, Math.min(1, numValue));
-    else if (field === 'c') newC = Math.max(0, Math.min(0.4, numValue));
-    else if (field === 'h') newH = ((numValue % 360) + 360) % 360;
-
-    writeShade(roleId, step, { ...currentColor, l: newL, c: newC, h: newH });
   };
 
   const hasAnyShades = (role: typeof rolesArray[0]): boolean => {
@@ -143,8 +107,11 @@ export default function CartSidebar() {
         {isCreatingRole ? (
           <div class="flex items-center gap-1.5">
             <input
+              id="cart-sidebar-new-role"
               type="text"
+              name="role"
               value={newRoleInput}
+              aria-label="New role name"
               onInput={(e) => setNewRoleInput((e.target as HTMLInputElement).value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && newRoleInput.trim()) {
@@ -308,8 +275,11 @@ export default function CartSidebar() {
                 <div class="flex items-center gap-1.5 min-w-0 flex-1">
                   {editingRoleId === role.id ? (
                     <input
+                      id={`cart-sidebar-role-name-${role.id}`}
                       type="text"
+                      name="role"
                       value={roleInputName}
+                      aria-label={`Rename ${role.name}`}
                       onInput={(e) => setRoleInputName((e.target as HTMLInputElement).value)}
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => {
@@ -401,7 +371,7 @@ export default function CartSidebar() {
                     const token = role.shades[step];
                     const css = token ? formatOklch(token.color) : '';
                     const hex = token ? token.color.hex : '';
-                    const isEditing = editingShade?.roleId === role.id && editingShade?.step === step;
+                    const isEditing = editor.isEditing(role.id, step);
 
                     /* Both the empty and the filled branch render the SAME wrapper element with the
                        same classes. They used to differ (`flex items-center
@@ -426,7 +396,11 @@ export default function CartSidebar() {
                     }
 
                     return (
-                      <div key={step} class="relative group min-w-0">
+                      <div
+                        key={step}
+                        data-shade-editor={shadeEditorBoundary(role.id, step)}
+                        class="relative group min-w-0"
+                      >
                         {/* Color Swatch. `min-w-0` on this grid item is what keeps
                             the swatch pinned to its track: without it the item's
                             automatic minimum size is the widest child, so filled
@@ -468,19 +442,17 @@ export default function CartSidebar() {
                           {isEditing && (
                             <div class="absolute inset-0 bg-canvas-sunken/90 flex items-center">
                               <input
+                                id={`cart-sidebar-value-${role.id}-${step}`}
                                 type="text"
-                                value={shadeInput}
-                                onInput={(e) => handleShadeInputChange(role.id, step, (e.target as HTMLInputElement).value)}
+                                name="value"
+                                value={editor.value}
+                                aria-label={`Value of --color-${role.id}-${step}`}
+                                onInput={(e) => editor.changeValue(role.id, step, (e.target as HTMLInputElement).value)}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
-                                    setEditingShade(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setShadeInput(css);
-                                    setEditingShade(null);
+                                    editor.endEdit();
                                   }
                                 }}
-                                onBlur={() => setEditingShade(null)}
                                 class="w-full min-w-0 px-1 py-0.5 bg-canvas border border-border-focus rounded text-[10px] font-mono text-ink focus:outline-none"
                                 autoFocus
                               />
@@ -496,8 +468,7 @@ export default function CartSidebar() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setEditingShade({ roleId: role.id, step });
-                                setShadeInput(css);
+                                editor.beginEdit(role.id, step, css);
                               }}
                               class="p-1 rounded bg-badge-surface hover:bg-canvas-elevated text-mute hover:text-ink transition-colors duration-150"
                               title={`Edit ${css} in place`}
@@ -539,10 +510,12 @@ export default function CartSidebar() {
                             {(['l', 'c', 'h'] as const).map((axis) => (
                               <input
                                 key={axis}
+                                id={`cart-sidebar-${axis}-${role.id}-${step}`}
                                 type="number"
                                 step="0.01"
                                 min="0"
                                 max={axis === 'h' ? '360' : axis === 'c' ? '0.4' : '1'}
+                                name={axis}
                                 value={
                                   axis === 'l'
                                     ? token.color.l.toFixed(2)
@@ -551,7 +524,7 @@ export default function CartSidebar() {
                                       : Math.round(token.color.h)
                                 }
                                 onChange={(e) =>
-                                  handleLCHChange(role.id, step, axis, (e.target as HTMLInputElement).value)
+                                  editor.changeAxis(role.id, step, axis, (e.target as HTMLInputElement).value)
                                 }
                                 aria-label={`${axis.toUpperCase()} of --color-${role.id}-${step}`}
                                 class="w-full min-w-0 px-1.5 py-1 rounded bg-canvas-raised border border-hairline font-mono text-micro text-ink focus:outline-none focus:border-border-focus [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"

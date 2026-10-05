@@ -121,8 +121,14 @@ function SelectionControls({ paint }: { paint: Paint }) {
       {/* Radio */}
       <div class="space-y-2">
         <span class="eyebrow block">Radio</span>
+        {/*
+          Not `<label>`s: each row *depicts* a radio button, but there is no radio
+          inside it to be the label for — just a swatch and its text. As a
+          `<label>` it was associated with nothing, which is the finding Chrome
+          reports. The section heading and the row text already name it.
+        */}
         {['OKLCH', 'sRGB'].map((label, i) => (
-          <label key={label} class="flex items-center gap-2 text-label" style={{ color: paint.text?.css }}>
+          <div key={label} class="flex items-center gap-2 text-label" style={{ color: paint.text?.css }}>
             <Swatch
               slot={i === 0 ? accent : paint.border}
               role={i === 0 ? 'primary' : 'background'}
@@ -139,15 +145,16 @@ function SelectionControls({ paint }: { paint: Paint }) {
               )}
             </Swatch>
             <span>{label}</span>
-          </label>
+          </div>
         ))}
       </div>
 
       {/* Checkbox */}
       <div class="space-y-2">
         <span class="eyebrow block">Checkbox</span>
+        {/* Same as the radio rows: a depiction, with no control to label. */}
         {['Generate 50–950 scale', 'Gamut clip silently'].map((label, i) => (
-          <label key={label} class="flex items-center gap-2 text-label" style={{ color: paint.text?.css }}>
+          <div key={label} class="flex items-center gap-2 text-label" style={{ color: paint.text?.css }}>
             <Swatch
               slot={i === 0 ? accent : paint.border}
               role={i === 0 ? 'primary' : 'background'}
@@ -167,7 +174,7 @@ function SelectionControls({ paint }: { paint: Paint }) {
               )}
             </Swatch>
             <span>{label}</span>
-          </label>
+          </div>
         ))}
       </div>
 

@@ -188,9 +188,15 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
 
         {/* Right: Primary Converted Output */}
         <div class="md:col-span-5 space-y-2">
-          <label class="text-xs font-mono text-[#a3a3a3] block">
+          {/*
+            Not a `<label>`: this captions a readout, and there is no field
+            below it for a label to be associated with. As a `<label>` Chrome
+            reported an unlabelled form field on every converter page, six times
+            over, for a control that does not exist.
+          */}
+          <span class="text-xs font-mono text-[#a3a3a3] block">
             {primaryOutput.label}
-          </label>
+          </span>
           <div class="flex items-center justify-between bg-[#171717] border border-[#262626] rounded-lg p-3">
             <span class="text-sm font-mono font-semibold text-[#f5f5f5] truncate pr-2">
               {primaryOutput.value}
