@@ -1,149 +1,63 @@
-import { PreviewFrame } from '../PreviewFrame';
+import { Rail, Specimen } from '../Specimen';
 import { Swatch, unsetStyle } from '../Swatch';
-import { ACCENT, scorePair, type AccentRole, type ContrastPair, type Paint } from '../slots';
+import {
+  ACCENT,
+  scorePair,
+  worstOf,
+  type AccentRole,
+  type ContrastPair,
+  type Paint,
+} from '../slots';
+import {
+  KitAvatar,
+  KitAvatarStack,
+  KitBadge,
+  KitButton,
+  KitIconButton,
+  KitIconRow,
+  type ButtonVariant,
+} from '../kit';
 
 /**
- * Buttons — solid, outline and ghost, once per accent role.
+ * Buttons — the group that tests the accent pair, once per variant.
  *
- * KEPT DELIBERATELY PLAIN
+ * WHAT CHANGED, AND WHY
  *
- * This group earns its place by testing the semantic pair: a solid button takes
- * its fill from `<role>-500` and its label from the far end of the *same* role's
- * scale. Getting that wrong is invisible in a palette and glaring here.
+ * This used to be three wide canvases of buttons stacked by *variant*, with one
+ * button per accent role inside each. Two things were wrong with that.
  *
- * It does not need more than that to do the job, and an earlier version had
- * several frames that actively hurt it:
+ * The comparison it asked for was cross-eyed. "Solid" held seven buttons at
+ * once, so reading it meant holding seven pairs in your head, and the thing it
+ * was for — *is this role's 500 readable under its own 50* — had to be done by
+ * eye across a crowded row. One card per variant, same card size, same backdrop,
+ * side by side in a rail, turns that into the comparison a rail is for.
  *
- *  - A "States" row of six identical buttons captioned Resting / Hover /
- *    Focus-visible / Active / Loading / Disabled. Nothing was hovered, focused or
- *    pressed — the captions were claims the DOM did not support. On a page whose
- *    entire purpose is not lying about colours, a fake state demo is the worst
- *    thing it can ship. Real interaction states are now left to real interaction.
- *  - Placeholder icon buttons ("S", "B", "U") and a Day/Week/Month segment
- *    control: pure filler, inventing components the page has no opinion about.
+ * And the components looked like oklchcolor2. Ink-on-black mono chips in a
+ * hairline grid is this product's own button, so a palette that flattered it
+ * flattered itself. The fixture uses a different type stack, a 12px radius and
+ * gradient fills — see `kit.tsx` — so the answer is about the palette.
  *
- * Three frames, all common buttons, all really painted.
+ * THE VARIANTS
+ *
+ * `classic`, `solid`, `soft`, `outline`, `ghost` is the real set: a filled
+ * control, its flat cousin, the tinted variant, the edged variant, and the one
+ * with no fill at all. `ghost` earns its card because its label sits directly on
+ * the card's canvas — the strictest contrast test in the group, and the one most
+ * palettes fail without noticing.
  */
 
-/** Fill at 500, label at the far end of the same scale. */
-function SolidButton({
-  paint,
-  role,
-  label,
-  size = 'md',
-  disabled = false,
-}: {
-  paint: Paint;
-  role: AccentRole;
-  label: string;
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-}) {
-  const pair = paint.accents[role];
-  const onStep = ACCENT.on[paint.theme];
+/** The role the variant cards are painted from. */
+const ROLE: AccentRole = 'trusty-button';
 
-  const pad =
-    size === 'sm' ? 'px-2.5 py-1 text-[10px]' : size === 'lg' ? 'px-5 py-2.5 text-sm' : 'px-4 py-2 text-xs';
+const VARIANTS: { variant: ButtonVariant; name: string }[] = [
+  { variant: 'classic', name: 'Classic' },
+  { variant: 'solid', name: 'Solid' },
+  { variant: 'soft', name: 'Soft' },
+  { variant: 'outline', name: 'Outline' },
+  { variant: 'ghost', name: 'Ghost' },
+];
 
-  // Disabled is a real `disabled` button painted from the stage rather than from
-  // an accent. It stays clickable for its own slot, because a designer still
-  // needs to judge that disabled colour against the canvas — what it must not do
-  // is pretend to be a primary action.
-  if (disabled) {
-    return (
-      <Swatch
-        slot={paint.border}
-        role="background"
-        step={paint.border?.requested ?? 800}
-        pending={!paint.border}
-        part="border"
-        class={`${pad} rounded-lg border opacity-40 cursor-not-allowed`}
-        style={{ color: paint.muted?.css }}
-      >
-        {label}
-      </Swatch>
-    );
-  }
-
-  return (
-    // Both children are spans, not Swatch's default div. A <div> is flow content
-    // and the HTML parser cannot keep one inside a <span>: it closes the span and
-    // re-parents the divs as siblings, so the server-rendered DOM no longer
-    // matches the tree Preact tries to hydrate — which detaches the click targets
-    // and leaves the fill and label painted by the wrong nodes.
-    <span class={`inline-flex rounded-lg overflow-hidden shadow-sm`}>
-      {/* Fill. No padding of its own — the label carries it, so putting padding
-          on both would leave an empty coloured block down one side. */}
-      <Swatch
-        slot={pair.fill}
-        role={role}
-        step={ACCENT.fill[paint.theme]}
-        pending={!pair.fill}
-        part="bg"
-        as="span"
-        class="self-stretch"
-        style={!pair.fill ? unsetStyle(paint.theme) : undefined}
-      />
-      <Swatch
-        slot={pair.on}
-        role={role}
-        step={onStep}
-        pending={!pair.on}
-        // Without this the label would paint transparent and the button would be
-        // unreadable — you could not tell "Save changes" from "Delete".
-        pendingCss={paint.pendingInk}
-        part="text"
-        as="span"
-        class={`${pad} rounded-lg font-medium`}
-        style={!pair.on ? unsetStyle(paint.theme) : undefined}
-      >
-        {label}
-      </Swatch>
-    </span>
-  );
-}
-
-/** No fill: the accent becomes the border and the content. */
-function OutlineButton({ paint, role, label }: { paint: Paint; role: AccentRole; label: string }) {
-  const pair = paint.accents[role];
-  return (
-    <Swatch
-      slot={pair.fill}
-      role={role}
-      step={ACCENT.fill[paint.theme]}
-      pending={!pair.fill}
-      part="border"
-      class="px-4 py-2 rounded-lg text-xs font-medium border"
-      style={{
-        color: pair.on?.css,
-        ...(pair.fill ? {} : unsetStyle(paint.theme)),
-      }}
-    >
-      {label}
-    </Swatch>
-  );
-}
-
-/** Borderless until hovered; the accent is the content. */
-function GhostButton({ paint, role, label }: { paint: Paint; role: AccentRole; label: string }) {
-  const pair = paint.accents[role];
-  return (
-    <Swatch
-      slot={pair.fill}
-      role={role}
-      step={ACCENT.fill[paint.theme]}
-      pending={!pair.fill}
-      pendingCss={paint.pendingInk}
-      part="text"
-      class="px-4 py-2 rounded-lg text-xs font-medium hover:bg-black/5 dark:hover:bg-white/5"
-      style={pair.fill ? undefined : unsetStyle(paint.theme)}
-    >
-      {label}
-    </Swatch>
-  );
-}
-
-/** Roles with a 500 set, and those still waiting on one. */
+/** Roles with a 500, and those still waiting on one. */
 function split(paint: Paint) {
   return {
     ready: paint.accentRoles.filter((r) => paint.accents[r].fill),
@@ -153,128 +67,133 @@ function split(paint: Paint) {
 
 /** The label a role gets on a button: its own name, title-cased. */
 function actionLabel(role: AccentRole) {
-  if (role === 'trusty-button') return 'Save changes';
-  if (role === 'primary') return 'Continue';
-  if (role === 'secondary') return 'Cancel';
-  if (role === 'success') return 'Confirm';
-  if (role === 'danger') return 'Delete';
-  if (role === 'warning') return 'Review';
-  return 'Notify';
+  return role
+    .split('-')
+    .map((w) => w[0]!.toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+/** The semantic pair this group exists for, scored for one role. */
+function accentPair(paint: Paint, role: AccentRole): ContrastPair | null {
+  const pair = paint.accents[role];
+  return scorePair(`${actionLabel(role)} content on fill`, pair.on, pair.fill);
 }
 
 export function ButtonsGroup({ paint }: { paint: Paint }) {
   const { ready, waiting } = split(paint);
-  const canvas = paint.canvas?.css ?? '#0f0f0f';
-  const frameBorder = paint.border?.css ?? '#262626';
 
-  // One grade for the frame header: the worst solid-button pair on the page.
-  // Enough to catch a broken pairing without turning the group into a report.
-  const pairs: ContrastPair[] = [];
-  for (const role of ready) {
-    const p = scorePair(
-      `${role} content on fill`,
-      paint.accents[role].on,
-      paint.accents[role].fill
-    );
-    if (p) pairs.push(p);
-  }
-  const worst = pairs.reduce<ContrastPair | null>(
-    (acc, p) => (acc === null || (p.wcag ?? 0) < (acc.wcag ?? 0) ? p : acc),
-    null
-  );
+  // One grade for the first rail: the worst accent pairing on the page. Enough
+  // to catch a broken pair without turning the group into a report.
+  const worst = worstOf(ready.map((role) => accentPair(paint, role)));
 
   return (
-    <>
-      <PreviewFrame
-        label="Solid"
-        description="Fill from the 500 slot, label from the far end of the same role."
+    <div class="space-y-8">
+      <Rail
+        label="Variants"
+        description="One card per variant, all painted from the Trusty Button role on an identical backdrop."
         hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set an accent to score'}
         hintPass={worst ? worst.grade !== 'Fail' : undefined}
-        canvasBg={canvas}
-        borderCol={frameBorder}
-        index={0}
       >
-        <div class="flex items-center gap-3 flex-wrap">
-          {ready.map((role) => (
-            <SolidButton key={role} paint={paint} role={role} label={actionLabel(role)} />
-          ))}
-          {ready.length === 0 && (
-            <p class="prose-hud">
-              No accent roles set yet — add one in the Design Tokens panel.
-            </p>
-          )}
-        </div>
-      </PreviewFrame>
+        {VARIANTS.map(({ variant, name }) => (
+          <Specimen key={variant} name="Button" variant={name} paint={paint}>
+            <KitButton paint={paint} role={ROLE} label="Continue" variant={variant} withIcon />
+          </Specimen>
+        ))}
+      </Rail>
 
-      <PreviewFrame
-        label="Outline & Ghost"
-        description="The same accent as a border, and as plain content."
-        canvasBg={canvas}
-        borderCol={frameBorder}
-        index={1}
+      <Rail
+        label="Sizes & Icon Buttons"
+        description="The same fill at three sizes, then the icon-only control in each of its three treatments."
       >
-        <div class="space-y-3">
-          <div class="flex items-center gap-3 flex-wrap">
-            {ready.map((role) => (
-              <OutlineButton key={role} paint={paint} role={role} label={actionLabel(role)} />
-            ))}
-          </div>
-          <div class="flex items-center gap-3 flex-wrap">
-            {ready.map((role) => (
-              <GhostButton key={role} paint={paint} role={role} label={actionLabel(role)} />
-            ))}
-          </div>
-        </div>
-      </PreviewFrame>
+        <Specimen name="Button" variant="Small" paint={paint}>
+          <KitButton paint={paint} role={ROLE} label="Save changes" size="sm" />
+        </Specimen>
 
-      <PreviewFrame
-        label="Sizes & Disabled"
-        description="Three sizes on the primary action, and a genuinely inert button."
-        canvasBg={canvas}
-        borderCol={frameBorder}
-        index={2}
+        <Specimen name="Icon button" variant="Solid" paint={paint}>
+          <KitIconButton paint={paint} role={ROLE} glyph="plus" variant="solid" />
+        </Specimen>
+
+        <Specimen name="Icon button" variant="Soft" paint={paint}>
+          <KitIconButton paint={paint} role={ROLE} glyph="check" variant="soft" />
+        </Specimen>
+
+        <Specimen name="Icon button" variant="Outline" paint={paint}>
+          <KitIconButton paint={paint} role={ROLE} glyph="dots" variant="outline" />
+        </Specimen>
+
+        <Specimen name="Icon row" variant="Toolbar" paint={paint}>
+          <KitIconRow paint={paint} role={ROLE} />
+        </Specimen>
+      </Rail>
+
+      {/*
+        A second rail for the shapes that are not buttons but are painted from
+        the same pair, because a palette that survives a button and then fails a
+        badge has not survived the button.
+      */}
+      <Rail
+        label="Same Pair, Other Shapes"
+        description="Badges and avatars take the same fill and foreground as the button — over a tenth of its area."
       >
-        <div class="flex items-end gap-3 flex-wrap">
-          {(['sm', 'md', 'lg'] as const).map((size) => (
-            <SolidButton
-              key={size}
-              paint={paint}
-              role="trusty-button"
-              label={actionLabel('trusty-button')}
-              size={size}
-            />
-          ))}
-          <SolidButton paint={paint} role="trusty-button" label="Disabled" disabled />
-        </div>
-      </PreviewFrame>
+        <Specimen name="Badge" variant="Solid" paint={paint}>
+          <KitBadge paint={paint} role="info" label="New" variant="solid" />
+        </Specimen>
+        <Specimen name="Badge" variant="Soft" paint={paint}>
+          <KitBadge paint={paint} role="info" label="Draft" variant="soft" />
+        </Specimen>
+        <Specimen name="Badge" variant="Outline" paint={paint}>
+          <KitBadge paint={paint} role="info" label="Beta" variant="outline" />
+        </Specimen>
+        <Specimen name="Avatar" variant="Solid" paint={paint}>
+          <KitAvatar paint={paint} role="primary" initials="EV" variant="solid" />
+        </Specimen>
+        <Specimen name="Avatar" variant="Gradient" paint={paint}>
+          <KitAvatar paint={paint} role="primary" initials="EV" variant="gradient" />
+        </Specimen>
+        <Specimen name="Avatar" variant="Stack" paint={paint}>
+          <KitAvatarStack paint={paint} />
+        </Specimen>
+      </Rail>
+
+      <Rail
+        label="Every Accent Role"
+        description="One card per role, so a palette that only breaks on `danger` cannot hide behind six healthy buttons."
+      >
+        {ready.length === 0 && (
+          <p class="prose-hud self-center pr-4">
+            No accent roles set yet — add one in the Design Tokens panel.
+          </p>
+        )}
+        {ready.map((role) => (
+          <Specimen key={role} name={actionLabel(role)} variant="Solid" paint={paint}>
+            <KitButton paint={paint} role={role} label={actionLabel(role)} variant="solid" size="sm" />
+          </Specimen>
+        ))}
+      </Rail>
 
       {/* Roles with no 500. Clickable, because authoring that token is the point. */}
       {waiting.length > 0 && (
-        <PreviewFrame
+        <Rail
           label="Awaiting Tokens"
           description="Accent roles with no 500 slot — click one to author it."
-          canvasBg={canvas}
-          borderCol={frameBorder}
-          index={3}
         >
-          <div class="flex items-center gap-2 flex-wrap">
-            {waiting.map((role) => (
+          {waiting.map((role) => (
+            <Specimen key={role} name={actionLabel(role)} variant="Not set" paint={paint}>
               <Swatch
-                key={role}
                 slot={null}
                 role={role}
                 step={ACCENT.fill[paint.theme]}
                 pending
                 part="bg"
-                class="px-2.5 py-1.5 rounded-md font-mono text-micro border"
+                class="px-2.5 py-1.5 rounded-lg font-mono text-[10px] border text-center"
                 style={unsetStyle(paint.theme)}
               >
                 --color-{role}-{ACCENT.fill[paint.theme]}
               </Swatch>
-            ))}
-          </div>
-        </PreviewFrame>
+            </Specimen>
+          ))}
+        </Rail>
       )}
-    </>
+    </div>
   );
 }

@@ -584,6 +584,115 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   display: none;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE FIXTURE — the "some other app" the preview components are judged inside
+   ═══════════════════════════════════════════════════════════════════════════
+
+   A horizontal rail of fixed-size specimen cards. It scrolls sideways rather
+   than wrapping, so a rail always reads left-to-right as one comparison set.
+
+   The scrollbar is KEPT, unlike every other scroller on the site. It is the only
+   affordance that says "there are more cards", and on a rail whose whole job is
+   a side-by-side comparison, silently hiding the rest is how a user concludes
+   they have seen everything. */
+.fixture-rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-hairline) transparent;
+}
+.fixture-rail::-webkit-scrollbar {
+  height: 6px;
+}
+.fixture-rail::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fixture-rail::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+  border-radius: 9999px;
+}
+.fixture-rail:hover::-webkit-scrollbar-thumb {
+  background: var(--color-border-focus);
+}
+.fixture-rail > * {
+  scroll-snap-align: start;
+}
+
+/*
+ * The caption under each specimen: "Button · Classic".
+
+ * Catalogue-entry wording on purpose. `Button · Classic` says which component
+ * and which variant you are looking at, which is the only information a rail of
+ * near-identical squares can carry. The old frames said "Solid" or "Outline &
+ * Ghost" and left you to infer the component from the shape.
+
+ * `tabular-nums` and the middot are what make a run of them line up; the
+ * separator is a real character rather than a border, so the caption collapses
+ * to one clean token when copied out of the page.
+ */
+.fixture-caption {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.01em;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * The dummy components themselves.
+
+ * These two rules exist so the fixture cannot be mistaken for the product. The
+ * showcase's whole claim is that a palette survives contact with a real app —
+ * which is only a meaningful claim if the app it is shown inside is *not* this
+ * one. A card of Geist-labelled ink-on-black buttons is a screenshot of
+ * oklchcolor2 wearing a costume, and a palette that looks right there may look
+ * wrong everywhere else.
+
+ * So the fixture uses the platform UI stack at 13px, and the product's own
+ * geometry does not appear anywhere inside it. Font only, deliberately: the
+ * colour of every surface is a token the user set, so the type and the shape
+ * language are the only things left that could betray the host — and those are
+ * exactly the two a designer would carry from a real product anyway.
+ */
+.fixture,
+.fixture * {
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    sans-serif;
+}
+.fixture {
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+/*
+ * Inside a fixture, a slot's hover ring is drawn *inset*.
+ *
+ * The global `[data-context-role]:hover` outline uses a 2px offset, which is
+ * right for a swatch sitting on a flat canvas and wrong here: the fixture cards
+ * are only 208px wide with the component centred in them, so an outset ring
+ * around a 16px badge lands on top of its neighbours and around a card outline
+ * lands on top of the card beside it. Inset, the ring hugs the thing you aimed
+ * at and can never collide.
+ *
+ * It is the only place the affordance changes, and only its geometry — the ring
+ * is still the product's ink, so "this is a slot, click it" reads identically
+ * inside and outside a card.
+ */
+.fixture [data-context-role]:hover {
+  outline: 2px solid var(--color-ink);
+  outline-offset: -2px;
+}
+
+
 /*
    Checkerboard for genuinely translucent swatches.
 

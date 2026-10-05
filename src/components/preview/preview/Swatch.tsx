@@ -21,7 +21,7 @@ import { formatOklch, type ShadeStep } from '../../../utils/color';
  *  - An unset slot renders an explicit dashed affordance rather than a
  *    plausible-looking stand-in. The page must not lie about your design system.
  *  - A slot resolved to a neutral fallback says so, in the tooltip and in the
- *    `data-on-neutral` hook the Overview group counts.
+ *    `data-on-neutral` hook every consumer reads.
  *  - `part` decides which CSS property the slot drives, so a nested element can
  *    paint its own text without its parent's background leaking into the
  *    tooltip target.
@@ -181,7 +181,7 @@ export function Swatch(props: SwatchProps) {
       data-context-step={slot.requested}
       data-swatch-part={part}
       // `pending` gets its own hook: a placeholder neutral still puts a plausible
-      // colour on screen, so the Overview has to tell it apart from a hole.
+      // colour on screen, so a consumer has to tell it apart from a hole.
       data-on-neutral={unset && !pending ? 'true' : undefined}
       data-pending={pending ? 'true' : undefined}
       title={tooltip(slot, pending, note)}

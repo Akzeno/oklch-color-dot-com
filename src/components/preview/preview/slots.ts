@@ -54,7 +54,7 @@ export interface ResolvedToken {
  *  - The *stage* (canvas, card surface, hairline border) DOES fall back. Without
  *    a backdrop there is nothing to judge a foreground against, and a neutral
  *    grey cannot make a failing pair look like a passing one — it just means no
- *    token has been chosen yet, which the Overview group reports explicitly.
+ *    token has been chosen yet, which `Swatch` discloses explicitly.
  *  - A foreground painted *onto a coloured fill* NEVER falls back. Guessing white
  *    for `on-danger` would produce text that is silently unreadable on a light
  *    danger fill, and the page would report "fine". A wrong guess there is the
@@ -88,6 +88,45 @@ export interface SlotSpec {
   /** Present ⇒ an unset slot falls back to this neutral. */
   neutral?: Neutrals;
 }
+
+/**
+ * The stand-ins used *inside the specimen cards*, and they are deliberately not
+ * the site's own greys.
+ *
+ * WHY A SECOND RAMP
+ *
+ * The whole point of the showcase is to answer "does this palette work in an
+ * app?". If the empty state fell back to this product's chrome — `#0a0a0a`
+ * canvas, `#141414` cards, Geist — a card full of placeholder buttons would be
+ * indistinguishable from the oklchcolor2 interface surrounding it. You would be
+ * judging your palette against the one colour set you came here to escape, and
+ * a passing result would mean nothing.
+ *
+ * So the fixture gets its own ramp: a slightly cool slate, a 12px radius, the
+ * platform UI font, and control shapes the product does not use (12px-radius
+ * buttons, full-round avatars). It reads as *some other app's* settings screen
+ * from the first pixel, which is the only way "these colours hold up in the
+ * wild" is a claim about your palette and not about ours.
+ *
+ * Deliberately desaturated and low-chroma. A saturated placeholder would bias
+ * every judgement made against it, which is the exact failure the chrome ramp
+ * in `global.css` was built to avoid — the same rule, a different hue.
+ *
+ * Foregrounds (`text`, `muted`) still get NO stand-in. See the asymmetry note on
+ * `STAGE`: a guessed foreground hides the defect this page exists to find. The
+ * fixture reveals an unset foreground through `Swatch`'s `pendingCss` instead,
+ * which keeps the disclosure (dashed edge, tooltip, `data-pending`) while the
+ * label stays readable.
+ */
+export const FIXTURE_NEUTRALS = {
+  canvas: { dark: '#161a21', light: '#f2f5f8' },
+  surface: { dark: '#1e242e', light: '#ffffff' },
+  raised: { dark: '#28303c', light: '#e7ecf2' },
+  border: { dark: '#333c4a', light: '#d8dfe8' },
+  divider: { dark: '#333c4a', light: '#d8dfe8' },
+  /** Only the ink for an unset *caption*, disclosed as pending like the rest. */
+  muted: { dark: '#8c98a8', light: '#5b6673' },
+} as const satisfies Record<string, Neutrals>;
 
 /**
  * Ink for a foreground that is *provably* unset.
@@ -145,7 +184,7 @@ export const ACCENT = {
  * `neutral` is applied only when the slot is empty AND the spec declares one —
  * the stage does, foregrounds do not. The return value always reports which of
  * the two happened, because a fallback and a real token look identical once
- * they are painted and the Overview group must be able to tell them apart.
+ * they are painted, so every consumer must be able to tell them apart.
  */
 export interface SlotValue {
   /** A CSS colour ready to paint. */
@@ -230,6 +269,30 @@ export function stage(cart: CartState, which: keyof typeof STAGE, theme: Theme):
 }
 
 /**
+ * A stage slot resolved with the *fixture's* stand-in rather than the site's.
+ *
+ * Same role, same step, same token — only the placeholder differs. That is the
+ * whole trick: `--color-background-950` is what gets painted once you set it,
+ * and `data-on-neutral` / the tooltip still disclose that nothing is set yet, so
+ * the foreign ramp cannot be mistaken for a colour you chose.
+ */
+export function fixtureStage(
+  cart: CartState,
+  which: keyof typeof STAGE,
+  theme: Theme
+): SlotValue | null {
+  const spec = STAGE[which] as SlotSpec;
+  const neutral = FIXTURE_NEUTRALS[which as keyof typeof FIXTURE_NEUTRALS];
+  return resolveSlot(
+    cart,
+    spec.role,
+    spec.steps[theme],
+    theme,
+    neutral ? ({ ...neutral } as Neutrals) : undefined
+  );
+}
+
+/**
  * An accent's fill and its foreground, as a matched pair.
  *
  * Both come from the SAME role, which is what makes this a semantic pair rather
@@ -254,8 +317,41 @@ export interface AccentPair {
   on: SlotValue | null;
   /** Low-alpha version of the fill, for soft badges and row hovers. */
   soft: string | null;
+  /**
+   * A second gradient stop, derived from the pair — see `liftOf`.
+   *
+   * `null` when either half is missing, so a caller can fall back to the flat
+   * fill instead of painting a gradient with a hole in it.
+   */
+  lift: string | null;
   /** True when either half is missing, so callers can render an unset state. */
   incomplete: boolean;
+}
+
+/**
+ * The lighter stop of a two-stop fill, derived from the pair itself.
+ *
+ * WHY DERIVED AND NOT A THIRD SLOT
+ *
+ * A real gradient needs a stop that is neither the fill nor its foreground. The
+ * honest-looking answer is a third token — `role-400` for a "classic" button —
+ * but that would make the showcase report a slot as *missing* for a component
+ * that renders perfectly well without it, and would put a ninth requested step
+ * in the inventory for every accent role. A tool that claims to be missing a
+ * token when it is not is worse than one that shows a slightly softer sheen.
+ *
+ * So the stop is mixed from the two halves that already exist, and reported
+ * alongside `soft` — the same rule: derived from the slot the swatch reports,
+ * so the painted pixel and the click target still cannot diverge. `color-mix`
+ * interpolates in OKLab, which keeps the mixed stop perceptually between its
+ * parents instead of drifting through mud.
+ *
+ * `on` is the *far* end of the scale, so this is deliberately partial (38%): at
+ * full strength a dark-theme button would wash out to near-white.
+ */
+function liftOf(fill: SlotValue | null, on: SlotValue | null): string | null {
+  if (!fill || !on) return null;
+  return `color-mix(in oklab, ${on.css} 38%, ${fill.css})`;
 }
 
 export function accent(cart: CartState, role: AccentRole, theme: Theme): AccentPair {
@@ -266,8 +362,22 @@ export function accent(cart: CartState, role: AccentRole, theme: Theme): AccentP
     fill,
     on,
     soft: fill?.color ? formatOklch({ ...fill.color, alpha: ACCENT.softAlpha }) : null,
+    lift: liftOf(fill, on),
     incomplete: !fill || !on,
   };
+}
+
+/**
+ * A slot painted at an alpha, as a CSS value.
+ *
+ * The fixture components need tinted fills — a track behind a slider fill, a
+ * hover wash, a soft badge — and every one of those tints is a *derivative of a
+ * slot*, not a seventh colour the designer picked. Deriving it here (rather than
+ * letting each widget hand-write `color-mix`) means the alpha lives in one place
+ * and a widget cannot accidentally invent an opacity that no token accounts for.
+ */
+export function tint(css: string, alpha: number): string {
+  return `color-mix(in oklab, ${css} ${Math.round(alpha * 100)}%, transparent)`;
 }
 
 /* ─────────────────────── Contrast sweeping ─────────────────────── */
@@ -320,6 +430,29 @@ export function scorePair(
   };
 }
 
+/**
+ * The worst pair on the page, by WCAG ratio.
+ *
+ * Every group needs exactly one grade to put in its rail header, and every group
+ * was writing the same four-line `reduce` to get it. Duplicated, those copies
+ * drifted: one ranked on `wcag ?? 0`, which silently ranks an unscored pair
+ * (both halves unset) above a genuinely failing one, because `null ?? 0` is a
+ * ratio of zero and a *bad* ratio is not. So a group could report `Fail` for a
+ * pair nobody had set while a real 2.1:1 sat unnoticed in the same list.
+ *
+ * Unscored pairs are therefore excluded rather than treated as zero: no ratio is
+ * not a worse ratio. `null` comes back when nothing could be scored at all,
+ * which is the only honest answer for a group with an empty cart.
+ */
+export function worstOf(pairs: (ContrastPair | null)[]): ContrastPair | null {
+  let worst: ContrastPair | null = null;
+  for (const pair of pairs) {
+    if (!pair || pair.wcag === null) continue;
+    if (worst === null || (pair.wcag ?? 0) < (worst.wcag ?? 0)) worst = pair;
+  }
+  return worst;
+}
+
 /* ─────────────────────────── Paint context ─────────────────────────── */
 
 /**
@@ -330,9 +463,9 @@ export function scorePair(
  *  - `formatOklch` goes through culori, and the page paints well over a hundred
  *    elements. Resolving per element meant re-formatting the same `--color-*`
  *    slot dozens of times per render for no benefit.
- *  - It makes the *set* of painted slots explicit, which is what the Overview
- *    group and the contrast sweep iterate over. Adding a group that paints a
- *    new slot therefore shows up in the coverage map automatically, rather than
+ *  - It makes the *set* of painted slots explicit, which is what the group
+ *    rails and the contrast sweep iterate over. Adding a group that paints a
+ *    new slot therefore shows up in the inventory automatically, rather than
  *    needing to be remembered in a second list.
  */
 export interface Paint {
@@ -346,6 +479,27 @@ export interface Paint {
   /** Content on the stage, and its de-emphasised companion. */
   text: SlotValue | null;
   muted: SlotValue | null;
+  /**
+   * The same stage, resolved against the *fixture* stand-ins.
+   *
+   * Not a second source of truth: `role` and `step` are identical to the fields
+   * above, so this is the same token under a different placeholder. The split
+   * exists purely so a card full of dummy components cannot inherit the shape of
+   * this site's own chrome and quietly flatter the palette. See
+   * `FIXTURE_NEUTRALS`.
+   *
+   * `text` is intentionally absent — an unset foreground has no stand-in in
+   * either ramp, and is disclosed through `pendingInk` instead.
+   */
+  fixture: {
+    canvas: SlotValue | null;
+    surface: SlotValue | null;
+    raised: SlotValue | null;
+    border: SlotValue | null;
+    divider: SlotValue | null;
+    /** Caption ink — see the note where it is built. */
+    ink: string;
+  };
   /**
    * Ink for a foreground with no token behind it. Chrome for a disclosure, not a
    * colour the page is claiming you chose — see `PLACEHOLDER_INK`.
@@ -373,6 +527,19 @@ export function createPaint(cart: CartState, theme: Theme): Paint {
     divider: stage(cart, 'divider', theme),
     text: stage(cart, 'text', theme),
     muted: stage(cart, 'muted', theme),
+    fixture: {
+      canvas: fixtureStage(cart, 'canvas', theme),
+      surface: fixtureStage(cart, 'surface', theme),
+      raised: fixtureStage(cart, 'raised', theme),
+      border: fixtureStage(cart, 'border', theme),
+      divider: fixtureStage(cart, 'divider', theme),
+      // The caption ink. A `string` rather than a `SlotValue` because it is the
+      // one place the two ramps are allowed to blend: the `text` role when it is
+      // set, and the fixture's own mid-grey when it is not. That is disclosure
+      // chrome in the sense `PLACEHOLDER_INK` already describes — legible, and
+      // visibly not a colour anybody picked.
+      ink: stage(cart, 'muted', theme)?.css ?? FIXTURE_NEUTRALS.muted[theme],
+    },
     pendingInk: PLACEHOLDER_INK[theme],
     accents,
     accentRoles: [...ACCENT_ROLES],
@@ -409,7 +576,7 @@ export type SlotState = 'set' | 'placeholder' | 'missing';
 /**
  * One slot the showcase intends to paint, together with its resolved value.
  *
- * This is the one inventory that the Overview group audits and the contrast
+ * This is the one inventory that the planned-group panel audits and the contrast
  * sweep reads, so the two cannot disagree about how many slots exist or which
  * are unset.
  *

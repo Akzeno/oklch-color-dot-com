@@ -15,7 +15,13 @@ import { createPaint, type Theme, type Paint } from './preview/slots';
 import { GROUPS, DEFAULT_GROUP, findGroup, isGroupId, type GroupId } from './preview/groups';
 import { PreviewFrame } from './preview/PreviewFrame';
 import { ButtonsGroup } from './preview/groups/ButtonsGroup';
+import { CardsGroup } from './preview/groups/CardsGroup';
+import { DataVizGroup } from './preview/groups/DataVizGroup';
+import { FeedbackGroup } from './preview/groups/FeedbackGroup';
 import { FormsGroup } from './preview/groups/FormsGroup';
+import { ListsGroup } from './preview/groups/ListsGroup';
+import { NavigationGroup } from './preview/groups/NavigationGroup';
+import { OverlaysGroup } from './preview/groups/OverlaysGroup';
 
 /**
  * The preview shell: tab strip, URL sync, and click routing.
@@ -47,10 +53,10 @@ import { FormsGroup } from './preview/groups/FormsGroup';
  * rehydrates on every `ClientRouter` navigation: a `?group=buttons` deep link that
  * lost its query string must not strand the user on a blank panel.
  *
- * Client-only by design. The *initial* group comes in as a prop from the page so
- * that the server renders the same group the client will — reading `location`
- * during render would make every shared link server-render the default and then
- * swap groups after hydration.
+ * Client-only by design. The *initial* group is seeded from `DEFAULT_GROUP`
+ * instead — reading `location` during render would make every shared link
+ * server-render the default and then swap groups after hydration. See
+ * `useLayoutEffect` in the island for why the URL cannot be adopted earlier.
  */
 function readGroupFromUrl(): GroupId {
   if (typeof window === 'undefined') return DEFAULT_GROUP;
@@ -80,9 +86,9 @@ function writeGroupToUrl(id: GroupId) {
  * Horizontal tab strip.
  *
  * A strip rather than a left rail because the preview column is already narrow:
- * the sidebar takes ~300px, and a second 200px rail would squeeze the canvases
- * into the two-column breakpoint's worst case. The strip scrolls instead, so all
- * nine groups stay reachable without taking width from the thing being judged.
+ * the sidebar takes ~300px, and a second 200px rail would squeeze the group out
+ * of the column it has to scroll in. The strip scrolls instead, so all eight
+ * groups stay reachable without taking width from the thing being judged.
  *
  * Arrow keys, Home and End are wired because this is a tablist: a strip that
  * only responds to clicks is unusable by keyboard, and silently is worse than
@@ -161,11 +167,12 @@ function TabStrip({
 /**
  * Shown for a group that is registered but not built yet.
  *
- * Deliberately not a blank canvas. Six of the nine groups do not exist in this
- * slice, and an empty panel is indistinguishable from a group that failed to
- * load — which would read as a bug rather than as "not built". Listing what the
- * group will cover, and which of its slots are currently set, keeps the
- * information architecture reviewable before the components exist.
+ * Deliberately not a blank canvas. A group registered ahead of its components
+ * is indistinguishable from a group that failed to load — which would read as a
+ * bug rather than as "not built". Listing what the group will cover, and which
+ * of its slots are currently set, keeps the information architecture reviewable
+ * before the components exist. Nothing in this slice currently reaches it; it is
+ * the path a ninth group takes rather than dead code to delete.
  */
 function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
   const group = findGroup(id);
@@ -407,16 +414,26 @@ export default function UIPreviewIsland() {
 
         <TabStrip active={activeGroup} onSelect={selectGroup} />
 
-        {/* ─────── Component Frames ───────
-              Two columns are driven by the *width available to the preview
-              column* (`@3xl` = 48rem), not the viewport. A viewport `2xl:`
-              breakpoint fired at 1536px while the nav rail left the preview
-              only ~750px, splitting into two cramped ~366px cards. A container
-              query also reacts when the rail collapses. */}
-        <div class="grid grid-cols-1 @3xl:grid-cols-2 gap-4 @3xl:gap-5 items-start">
+        {/*
+          Groups are rails, so the layout is a single full-width column.
+
+          It used to be a two-column grid of frames, driven by a `@3xl` container
+          query. That breakpoint was chosen to fit two *canvases* of loose
+          components side by side; a rail has the opposite shape — it wants the
+          full width and scrolls — so splitting it in half would have put five
+          cards behind a fold for no gain and broken the left-to-right reading
+          order a rail depends on.
+        */}
+        <div class="space-y-8">
           {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
+          {activeGroup === 'navigation' && <NavigationGroup paint={paint} />}
           {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
           {activeGroup === 'forms' && <FormsGroup paint={paint} />}
+          {activeGroup === 'cards' && <CardsGroup paint={paint} />}
+          {activeGroup === 'lists' && <ListsGroup paint={paint} />}
+          {activeGroup === 'feedback' && <FeedbackGroup paint={paint} />}
+          {activeGroup === 'overlays' && <OverlaysGroup paint={paint} />}
+          {activeGroup === 'dataviz' && <DataVizGroup paint={paint} />}
         </div>
       </div>
 
