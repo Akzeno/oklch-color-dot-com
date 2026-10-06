@@ -340,6 +340,24 @@ body {
   cursor: not-allowed;
 }
 
+/*
+ * Large variant, for the one action on a surface that has to be *found*, not
+ * merely read — the Design Tokens modal's "New role" was a dim `link-hud`
+ * text link and people could not see it.
+ *
+ * A separate class rather than `h-11 text-[13px]` on the element, for the same
+ * reason `.icon-btn-sm` exists: `.btn`'s height/font-size rules are unlayered,
+ * and an unlayered declaration beats every layered utility regardless of source
+ * order, so a utility "large" would silently render at the base 36px/12px.
+ * Here `.btn-lg` comes after `.btn` in the sheet, so it wins outright.
+ */
+.btn-lg {
+  min-height: 44px;
+  padding: 0 18px;
+  gap: 8px;
+  font-size: 13px;
+}
+
 /* Square icon-only control. 32px keeps it tappable on touch without letting
    a row of icons dominate a panel. */
 .icon-btn {

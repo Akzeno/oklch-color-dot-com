@@ -210,19 +210,21 @@ export default function CartDrawerIsland() {
             </div>
 
             {/* Role tabs */}
+            {/*
+             * "New role" used to be a `link-hud` text link tucked to the right
+             * of the Roles eyebrow: 12px, `body` grey, no icon, no box — the
+             * quietest control on the surface, and the one people could not
+             * find. It is now a full-width `.btn-lg` sitting directly under the
+             * section label, so it is the first control in this block and the
+             * largest one in it.
+             *
+             * The create field takes the button's exact place, so the row the
+             * user is looking at becomes the row that answers it.
+             */}
             <div class="px-4 py-3 border-b border-hairline-subtle bg-canvas">
-              <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="eyebrow">Roles</span>
-                <button
-                  onClick={() => setIsCreatingRole(!isCreatingRole)}
-                  class="link-hud"
-                  aria-expanded={isCreatingRole}
-                >
-                  {isCreatingRole ? 'Cancel' : '+ New role'}
-                </button>
-              </div>
+              <div class="eyebrow mb-2">Roles</div>
 
-              {isCreatingRole && (
+              {isCreatingRole ? (
                 <div class="flex items-center gap-1.5 mb-2.5">
                   <input
                     id="cart-drawer-new-role"
@@ -237,9 +239,13 @@ export default function CartDrawerIsland() {
                         setNewRoleInput('');
                         setIsCreatingRole(false);
                       }
+                      if (e.key === 'Escape') {
+                        setNewRoleInput('');
+                        setIsCreatingRole(false);
+                      }
                     }}
                     placeholder="brand-accent"
-                    class="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-canvas-raised border border-hairline font-mono text-micro text-ink placeholder:text-faint focus:outline-none focus:border-border-focus transition-colors duration-150"
+                    class="flex-1 min-w-0 h-11 px-3 rounded-md bg-canvas-raised border border-hairline font-mono text-label text-ink placeholder:text-faint focus:outline-none focus:border-border-focus transition-colors duration-150"
                     autoFocus
                   />
                   <button
@@ -250,11 +256,20 @@ export default function CartDrawerIsland() {
                         setIsCreatingRole(false);
                       }
                     }}
-                    class="btn btn-quiet h-8"
+                    class="btn btn-quiet btn-lg"
                   >
                     Create
                   </button>
                 </div>
+              ) : (
+                <button
+                  onClick={() => setIsCreatingRole(true)}
+                  class="btn btn-quiet btn-lg w-full mb-2.5"
+                  aria-expanded={isCreatingRole}
+                >
+                  <Plus class="w-4 h-4 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                  <span>New role</span>
+                </button>
               )}
 
               <div class="flex flex-wrap gap-1.5">
