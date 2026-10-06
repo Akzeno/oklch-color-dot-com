@@ -1,7 +1,13 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
 import { PALETTES, type PaletteItem } from '../../data/palettes';
-import { SHADE_STEPS, formatOklch, getWcagContrast } from '../../utils/color';
+import {
+  SHADE_STEPS,
+  formatOklch,
+  getWcagContrast,
+  oklchToRgbString,
+  oklchToHslString,
+} from '../../utils/color';
 import PaletteDetailIsland from '../../components/palettes/PaletteDetailIsland';
 
 export function getStaticPaths() {
@@ -42,6 +48,16 @@ const aaBlack = formatStepRange(aaBlackSteps);
 
 const title = `${palette.name} OKLCH Palette - 50-950, HEX & Tailwind v4`;
 const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhite} pass WCAG AA on white, ${aaBlack} on black. Copy oklch() or save as Tailwind v4 tokens.`;
+
+// Unique intro built from real data: character (from data), hue, computed contrast steps.
+const midStep = palette.shades[500];
+const midHex = midStep.hex;
+const intro = `${palette.description} The scale is anchored at hue ${hue} in OKLCH, so every step keeps the same hue while lightness moves in perceptually even steps from 50 to 950. The 500 step (${midHex}) is your base color. Shades ${aaWhite} pass WCAG 2.1 AA against white and shades ${aaBlack} pass against black, so use the light end for backgrounds and the dark end for text on light surfaces (or vice versa). Each value is copy-ready as oklch(), HEX, RGB or HSL.`;
+
+// Related palettes: same category first, then fill with others (deterministic order).
+const sameCategory = PALETTES.filter((p) => p.slug !== palette.slug && p.category === palette.category);
+const otherPalettes = PALETTES.filter((p) => p.slug !== palette.slug && p.category !== palette.category);
+const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
 ---
 
 <AppLayout
@@ -75,6 +91,12 @@ const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhit
       </p>
     </div>
 
+    <!-- Unique data-driven intro (SEO content) -->
+    <section class="max-w-3xl">
+      <h2 class="text-base font-semibold text-ink mb-2">About the {palette.name} palette</h2>
+      <p class="text-sm text-body leading-relaxed">{intro}</p>
+    </section>
+
     <!-- The scale, as large cards with their own copy / cart actions -->
     <section class="space-y-2">
       <div class="flex items-center justify-between text-xs font-mono text-mute">
@@ -104,6 +126,8 @@ const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhit
                 <th class="p-3">Shade Step</th>
                 <th class="p-3">OKLCH CSS Value</th>
                 <th class="p-3">sRGB Fallback</th>
+                <th class="p-3">RGB</th>
+                <th class="p-3">HSL</th>
                 <th class="p-3">WCAG on Black</th>
                 <th class="p-3">WCAG on White</th>
                 <th class="p-3 text-right">Gamut</th>
@@ -127,6 +151,8 @@ const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhit
                     <td class="p-3 font-bold text-ink">{step}</td>
                     <td class="p-3 text-copy-success">{oklchCss}</td>
                     <td class="p-3 text-body">{color.hex}</td>
+                    <td class="p-3 text-body">{oklchToRgbString(color)}</td>
+                    <td class="p-3 text-body">{oklchToHslString(color)}</td>
                     <td class="p-3">
                       <span class={`font-semibold ${contrastBlack >= 4.5 ? 'text-copy-success' : 'text-mute'}`}>
                         {contrastBlack}:1
@@ -168,6 +194,49 @@ const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhit
 
       <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
         <code>@theme &#123;{'\n'}{SHADE_STEPS.map((step) => `  --color-${palette.slug}-${step}: ${formatOklch(palette.shades[step])};\n`).join('')}&#125;</code></pre>
+    </section>
+
+    <!-- Converters -->
+    <section class="space-y-3">
+      <h2 class="text-base font-semibold text-ink">Convert {palette.name} shades</h2>
+      <p class="text-sm text-body max-w-3xl leading-relaxed">
+        Working with these shades in another format? Use the matching converter — the same
+        values you see above, converted instantly with live gamut detection.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <a href="/hex-to-oklch" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+          HEX to OKLCH converter
+        </a>
+        <a href="/oklch-to-hex" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+          OKLCH to HEX converter
+        </a>
+        <a href="/rgb-to-oklch" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+          RGB to OKLCH converter
+        </a>
+        <a href="/oklch-color-palette-generator" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+          Build your own palette
+        </a>
+      </div>
+    </section>
+
+    <!-- Related palettes -->
+    <section class="space-y-3">
+      <h2 class="text-base font-semibold text-ink">Related palettes</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {relatedPalettes.map((related) => (
+          <a
+            href={`/oklch-colors/${related.slug}`}
+            class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors space-y-2"
+          >
+            <span class="text-sm font-semibold text-ink block">{related.name}</span>
+            <span
+              class="block h-6 rounded border border-white/20"
+              style={`background-color: ${formatOklch(related.shades[500])};`}
+            />
+            <span class="text-xs font-mono text-body">{related.categoryLabel}</span>
+          </a>
+        ))}
+      </div>
     </section>
   </div>
 </AppLayout>

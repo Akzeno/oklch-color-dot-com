@@ -1,15 +1,17 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
 import PaletteCard from '../../components/palettes/PaletteCard.astro';
+import RelatedTools from '../../components/common/RelatedTools.astro';
 import { PALETTES, CATEGORIES } from '../../data/palettes';
 import { getNavItemByPath } from '../../config/navigation';
 
 const navItem = getNavItemByPath('/oklch-colors');
 const seo = navItem?.seo || {
-  title: 'OKLCH Color Palettes | Curated Design Token Scales',
-  metaDescription: 'Browse curated OKLCH color palettes across brand, neutral, success, danger, and dark mode categories. Single-click swatches to collect into your UI roles.',
+  title: 'OKLCH Color Palettes - 16 Scales, 50-950, Tailwind v4',
+  metaDescription:
+    'Browse 16 curated OKLCH color palettes, each an 11-step 50-950 scale. Copy any oklch() value or save shades as Tailwind CSS v4 design tokens.',
   h1: 'OKLCH Color Palettes',
-  keywords: ['oklch color palettes', 'oklch colors', 'radix oklch', 'tailwind v4 palettes'],
+  keywords: ['oklch color palettes', 'oklch colors', 'radix oklch', 'tailwind v4 palettes', 'accessible color scales'],
   schemaType: 'CollectionPage',
 };
 ---
@@ -62,14 +64,52 @@ const seo = navItem?.seo || {
       ))}
     </div>
 
-    <!-- Educational & Architectural Note -->
-    <section class="mt-12 p-6 rounded-2xl bg-canvas-card border border-hairline space-y-4">
-      <h2 class="text-base font-semibold text-ink">
-        Why Single-Color Collection Matters for Design Tokens
-      </h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
-        Unlike other palette tools that force you to import entire 12-color scales wholesale, oklchcolors.com lets you cherry-pick only the precise shade step you need (e.g. step 500 for a primary CTA button, step 100 for an alert background). Your selections are immediately routed to your persistent Design Token Cart, allowing you to preview how individual swatches look side-by-side in real components before generating a clean Tailwind v4 <code class="text-ink">@theme</code> block.
-      </p>
-    </section>
+    <!-- Educational Content -->
+    <div class="space-y-6 pt-6 border-t border-hairline">
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
+        <h2 class="text-base font-semibold text-ink">
+          What are OKLCH Colors?
+        </h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          OKLCH colors are defined in a perceptually uniform color space that separates lightness (L), chroma (C), and hue (H). Unlike HSL, where 50% lightness looks completely different for yellow versus blue, OKLCH guarantees that equal lightness values look equally bright across all hues. This makes OKLCH ideal for building accessible, predictable color systems.
+        </p>
+      </section>
+
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
+        <h2 class="text-base font-semibold text-ink">
+          How the 11-Step 50-950 Scale Works
+        </h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          Each palette is an 11-step scale from step 50 (lightest, near-white) to step 950 (darkest, near-black). The steps follow a perceptually uniform lightness curve: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950. Step 500 is the base color. Chroma is automatically tapered at extreme light and dark steps to keep every shade gamut-safe and visually clean.
+        </p>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          This is the same scale used by Tailwind CSS v4's default palette and by Radix Colors. It gives you a complete set of tints and shades for any UI role — backgrounds, borders, text, and interactive states.
+        </p>
+      </section>
+
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
+        <h2 class="text-base font-semibold text-ink">
+          How to Use a Palette in Tailwind CSS v4
+        </h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          Open any palette page and copy the Tailwind v4 <code class="text-ink">@theme</code> snippet. Paste it into your global CSS file:
+        </p>
+        <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
+          <code>@import "tailwindcss";{'\n'}{'\n'}@theme &#123;{'\n'}  --color-brand-50: oklch(0.965 0.015 265);{'\n'}  --color-brand-100: oklch(0.935 0.028 265);{'\n'}  /* ... all 11 steps ... */{'\n'}  --color-brand-950: oklch(0.22 0.06 265);{'\n'}&#125;</code></pre>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          Tailwind v4 automatically generates utilities for every step: <code class="text-ink">bg-brand-50</code>, <code class="text-ink">text-brand-500</code>, <code class="text-ink">border-brand-200</code>, and so on.
+        </p>
+      </section>
+
+      <!-- Related Tools -->
+      <RelatedTools currentPath="/oklch-colors" />
+
+      <!-- Learn Link -->
+      <div class="pt-4 border-t border-hairline">
+        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+          Learn more about OKLCH →
+        </a>
+      </div>
+    </div>
   </div>
 </AppLayout>

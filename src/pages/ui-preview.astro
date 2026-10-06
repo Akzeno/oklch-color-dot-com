@@ -2,14 +2,16 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import UIPreviewIsland from '../components/preview/UIPreviewIsland';
 import CartSidebar from '../components/preview/CartSidebar';
+import RelatedTools from '../components/common/RelatedTools.astro';
 import { getNavItemByPath } from '../config/navigation';
 
 const navItem = getNavItemByPath('/ui-preview');
 const seo = navItem?.seo || {
-  title: 'UI Component Preview & WCAG / APCA Contrast Matrix',
-  metaDescription: 'Live test your collected OKLCH color roles on real-world dummy UI components (buttons, cards, badges, forms, navbars) in dark and light modes.',
-  h1: 'UI Component Preview',
-  keywords: ['oklch ui preview', 'color contrast checker oklch', 'wcag apca contrast matrix'],
+  title: 'UI Color Preview - Test OKLCH Palettes (WCAG & APCA)',
+  metaDescription:
+    'Preview your OKLCH palette on real UI components with WCAG 2.1 AA/AAA and APCA contrast scores. Click any element to swap its color token.',
+  h1: 'UI Color Preview',
+  keywords: ['oklch ui preview', 'color contrast checker oklch', 'wcag apca contrast matrix', 'design token preview'],
   schemaType: 'WebApplication',
 };
 ---
@@ -21,30 +23,7 @@ const seo = navItem?.seo || {
   canonicalPath="/ui-preview"
   schemaType={seo.schemaType}
 >
-  <!--
-    `lg:pt-0`: the workspace row starts hard against the navbar at desktop, so
-    the token panel's top edge is the top edge of the workspace — flush with the
-    nav rail beside it, and with nothing above it but the 56px header. The page's
-    own top padding moves onto the left column, where the heading needs it; the
-    panel is an instrument, not a paragraph, and its `max-h` is
-    `100vh - 3.5rem` — which only fits the fold exactly if it starts at 0.
-  -->
   <div class="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 lg:pt-0 space-y-8 lg:space-y-12">
-    <!--
-      Title and token panel share one row.
-
-      The panel used to sit *below* this intro block, which put ~150px of dead
-      heading between it and the navbar, and — because the preview column is far
-      taller than the panel — left it stranded in the middle of the page while
-      the thing it drives scrolled past it. Sharing the row puts its top edge at
-      the top of the workspace, and its own `sticky top-14` holds that line while
-      the frames below it scroll.
-
-      The grid lives here rather than inside the island because the island is the
-      preview column, and this row is a property of the page. `auto` for the
-      second track so the panel keeps owning its width (360/400px) instead of the
-      page hardcoding it in two places.
-    -->
     <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-6 items-start">
       <div class="min-w-0 space-y-4 lg:space-y-6 lg:pt-10">
         <div class="space-y-2">
@@ -77,6 +56,58 @@ const seo = navItem?.seo || {
           While WCAG 2.1 uses a static mathematical ratio (4.5:1 for normal text, 3:1 for large text), the modern Advanced Perceptual Contrast Algorithm (APCA) accounts for spatial frequency, font weight, and polarity (dark-on-light vs light-on-dark). Our preview tool evaluates your color tokens under both systems to guarantee accessible UI states in both dark and light modes.
         </p>
       </section>
+
+      <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
+        <h2 class="text-base font-semibold text-ink">
+          How to Use the UI Preview
+        </h2>
+        <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
+          <li><strong class="text-ink">Collect colors:</strong> Use the <a href="/" class="text-accent-text hover:underline">color picker</a> or <a href="/oklch-colors" class="text-accent-text hover:underline">palette library</a> to add colors to your cart. Each color is assigned to a semantic role (e.g. Primary, Danger, Success).</li>
+          <li><strong class="text-ink">Preview live:</strong> The preview above shows your colors applied to real UI components — buttons, cards, badges, forms, and navigation bars.</li>
+          <li><strong class="text-ink">Swap tokens:</strong> Click any colored element to open a popover where you can swap its color token, copy its value, or save it to a different role.</li>
+          <li><strong class="text-ink">Check contrast:</strong> Each component displays its WCAG 2.1 and APCA contrast scores. Green scores pass AA; red scores need attention.</li>
+          <li><strong class="text-ink">Toggle themes:</strong> Each card has its own Dark/Light control, so you can verify your colors work in both modes.</li>
+        </ol>
+      </section>
+
+      <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
+        <h2 class="text-base font-semibold text-ink">
+          Sample Token Output
+        </h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          When you export your colors, you get production-ready CSS custom properties. Here is an example of what a typical token set looks like:
+        </p>
+        <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
+          <code>:root &#123;{'\n'}  --color-primary-500: oklch(0.55 0.20 265);{'\n'}  --color-danger-500: oklch(0.58 0.21 25);{'\n'}  --color-success-500: oklch(0.62 0.15 150);{'\n'}  --color-surface: oklch(1 0 0);{'\n'}  --color-ink: oklch(0.21 0 0);{'\n'}&#125;</code></pre>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          These tokens work with Tailwind CSS v4's <code class="text-ink">@theme</code> block and can be used directly in your CSS or JavaScript.
+        </p>
+      </section>
+
+      <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
+        <h2 class="text-base font-semibold text-ink">
+          Contrast Scoring Explained
+        </h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          The preview evaluates every text/background pair in your UI components. Here is how to read the scores:
+        </p>
+        <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
+          <li><strong class="text-ink">WCAG 2.1 AA:</strong> Requires 4.5:1 for normal text and 3:1 for large text (18pt+ or 14pt+ bold).</li>
+          <li><strong class="text-ink">WCAG 2.1 AAA:</strong> Requires 7:1 for normal text and 4.5:1 for large text.</li>
+          <li><strong class="text-ink">APCA:</strong> A newer, more perceptually accurate contrast system. Scores above 60 are generally considered readable; above 75 is good; above 90 is excellent.</li>
+          <li><strong class="text-ink">Polarity matters:</strong> APCA treats dark-on-light and light-on-dark differently. White text on a dark background is not the same as dark text on a light background.</li>
+        </ul>
+      </section>
+
+      <!-- Related Tools -->
+      <RelatedTools currentPath="/ui-preview" />
+
+      <!-- Learn Link -->
+      <div class="pt-4 border-t border-hairline">
+        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+          Learn more about OKLCH →
+        </a>
+      </div>
     </div>
   </div>
 </AppLayout>

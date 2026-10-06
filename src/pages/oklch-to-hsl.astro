@@ -1,19 +1,25 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import ConverterIsland from '../components/converters/ConverterIsland';
+import RelatedTools from '../components/common/RelatedTools.astro';
 import { getNavItemByPath } from '../config/navigation';
 import { getBuildTimeColorTable } from '../utils/seoTables';
+import { parseAnyToOklch, formatOklch } from '../utils/color';
 
 const navItem = getNavItemByPath('/oklch-to-hsl');
 const seo = navItem?.seo || {
-  title: 'OKLCH to HSL Converter | Backward-Compatible Colors',
-  metaDescription: 'Convert OKLCH colors to standard HSL values for legacy browser compatibility with automated gamut mapping.',
+  title: 'OKLCH to HSL Converter - Free CSS Color Tool',
+  metaDescription:
+    'Convert CSS oklch() colors to hsl(h, s%, l%) instantly. Free OKLCH to HSL converter with automatic sRGB gamut mapping.',
   h1: 'OKLCH to HSL Converter',
   keywords: ['oklch to hsl', 'oklch to hsl converter', 'oklch fallback to hsl'],
   schemaType: 'WebApplication',
 };
 
-const examplesTable = getBuildTimeColorTable();
+const examplesTable = getBuildTimeColorTable('oklch-to-hsl');
+
+const sampleColor = parseAnyToOklch('#3b82f6');
+const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 259.8)';
 ---
 
 <AppLayout
@@ -38,6 +44,7 @@ const examplesTable = getBuildTimeColorTable();
     </section>
 
     <div class="space-y-10 pt-8 border-t border-hairline">
+      <!-- 1. Intro -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">Why Convert OKLCH to HSL?</h2>
         <p class="text-xs font-mono text-body leading-relaxed">
@@ -45,8 +52,22 @@ const examplesTable = getBuildTimeColorTable();
         </p>
       </section>
 
+      <!-- 2. How to Convert -->
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
+        <h2 class="text-base font-semibold text-ink">How to Convert OKLCH to HSL</h2>
+        <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
+          <li>Paste any <code class="text-ink">oklch()</code> value (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8)</code>) into the input field above.</li>
+          <li>Our engine converts OKLCH to Oklab, then through the inverse LMS matrix to linear RGB, then gamma-encodes to sRGB.</li>
+          <li>sRGB is converted to HSL cylindrical coordinates: hue (0-360), saturation (0-100%), lightness (0-100%).</li>
+        </ol>
+        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+          <strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS) → gamma-encoded sRGB → HSL (cylindrical transform).
+        </p>
+      </section>
+
+      <!-- 3. Reference Table -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Reference Conversion Table</h2>
+        <h2 class="text-lg font-semibold text-ink">OKLCH to HSL Reference Values</h2>
         <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs font-mono">
@@ -59,7 +80,7 @@ const examplesTable = getBuildTimeColorTable();
                 </tr>
               </thead>
               <tbody class="divide-y divide-hairline">
-                {examplesTable.slice(0, 10).map((row) => (
+                {examplesTable.map((row) => (
                   <tr class="hover:bg-canvas-elevated transition-colors">
                     <td class="p-3">
                       <div class="w-6 h-6 rounded border border-white/20" style={`background-color: ${row.oklch};`} />
@@ -75,9 +96,79 @@ const examplesTable = getBuildTimeColorTable();
         </div>
       </section>
 
-      <div class="pt-4 border-t border-hairline flex items-center gap-4 text-xs font-mono text-mute">
-        <a href="/hsl-to-oklch" class="hover:text-ink">HSL to OKLCH Converter →</a>
-        <a href="/hex-to-oklch" class="hover:text-ink">HEX to OKLCH Converter →</a>
+      <!-- 4. CSS Snippet -->
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
+        <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
+        <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
+          <code>.link &#123;{'\n'}  color: hsl(217, 91%, 60%); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
+        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+          <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
+        </p>
+        <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
+          <code>@theme &#123;{'\n'}  --color-link-blue: {sampleOklch};{'\n'}&#125;</code></pre>
+      </section>
+
+      <!-- 5. Gamut Note -->
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
+        <h2 class="text-base font-semibold text-ink">Gamut Note: Automatic sRGB Mapping</h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          When an OKLCH color falls outside the sRGB gamut, our engine automatically clamps chroma to the nearest in-gamut value while preserving hue. The resulting HSL value is always valid and renders consistently across all displays.
+        </p>
+        <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
+          <li>
+            <strong class="text-ink">Display-P3 Colors:</strong> On wide-gamut monitors, the original OKLCH color appears more vivid. The HSL output represents the sRGB-clamped version.
+          </li>
+          <li>
+            <strong class="text-ink">Alpha Preservation:</strong> An OKLCH value with alpha converts to <code class="text-ink">hsla(h, s%, l%, a)</code> with the alpha channel intact.
+          </li>
+        </ul>
+      </section>
+
+      <!-- 6. FAQ -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+        <div class="space-y-3 font-mono text-xs">
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">Why do I need HSL if I have OKLCH?</h3>
+            <p class="text-body leading-relaxed">
+              Legacy tools — email clients, older CSS preprocessors, native apps, and some design tools — only understand HSL. Converting OKLCH to HSL ensures compatibility with these tools.
+            </p>
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">Is the OKLCH to HSL conversion lossy?</h3>
+            <p class="text-body leading-relaxed">
+              For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth.
+            </p>
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">Can I use OKLCH alpha in hsla()?</h3>
+            <p class="text-body leading-relaxed">
+              Yes. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> converts to <code class="text-ink">hsla(217, 91%, 60%, 0.5)</code> — the alpha channel is preserved.
+            </p>
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">What happens with out-of-gamut colors?</h3>
+            <p class="text-body leading-relaxed">
+              The engine clamps chroma to the nearest in-gamut value while preserving hue. You will see a gamut badge indicating the color was clamped.
+            </p>
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">How do I use HSL values in email templates?</h3>
+            <p class="text-body leading-relaxed">
+              Many email clients only support HSL or HEX. Use the HSL output directly in your inline styles — it will render consistently across email clients.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Related Tools -->
+      <RelatedTools currentPath="/oklch-to-hsl" />
+
+      <!-- 8. Learn Link -->
+      <div class="pt-4 border-t border-hairline">
+        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+          Learn more about OKLCH →
+        </a>
       </div>
     </div>
   </div>

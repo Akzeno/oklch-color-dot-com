@@ -1,0 +1,91 @@
+---
+import { getAllNavItemsFlat } from '../../config/navigation';
+
+const { currentPath } = Astro.props;
+
+const normalize = (p) => p.replace(/\/$/, '') || '/';
+const current = normalize(currentPath);
+
+const allItems = getAllNavItemsFlat();
+
+const converters = allItems.filter((item) => {
+  const p = normalize(item.path);
+  return p.includes('-to-oklch') || p.includes('oklch-to-');
+});
+
+const isConverter = converters.some((c) => normalize(c.path) === current);
+
+const inverseMap = {
+  '/hex-to-oklch': '/oklch-to-hex',
+  '/oklch-to-hex': '/hex-to-oklch',
+  '/rgb-to-oklch': '/oklch-to-rgb',
+  '/oklch-to-rgb': '/rgb-to-oklch',
+  '/hsl-to-oklch': '/oklch-to-hsl',
+  '/oklch-to-hsl': '/hsl-to-oklch',
+};
+
+const related = [];
+const seen = [current];
+
+if (isConverter) {
+  const inversePath = inverseMap[current];
+  if (inversePath) {
+    const inverse = converters.find((c) => normalize(c.path) === inversePath);
+    if (inverse) {
+      related.push({ path: inverse.path, label: inverse.seo.h1, description: inverse.seo.metaDescription.split('.')[0] + '.' });
+      seen.push(normalize(inverse.path));
+    }
+  }
+  for (const c of converters) {
+    if (seen.indexOf(normalize(c.path)) === -1) {
+      related.push({ path: c.path, label: c.seo.h1, description: c.seo.metaDescription.split('.')[0] + '.' });
+      seen.push(normalize(c.path));
+    }
+  }
+  const generator = allItems.find((i) => normalize(i.path) === '/oklch-color-palette-generator');
+  if (generator) {
+    related.push({ path: generator.path, label: generator.seo.h1, description: generator.seo.metaDescription.split('.')[0] + '.' });
+  }
+  const palettes = allItems.find((i) => normalize(i.path) === '/oklch-colors');
+  if (palettes) {
+    related.push({ path: palettes.path, label: palettes.seo.h1, description: palettes.seo.metaDescription.split('.')[0] + '.' });
+  }
+} else {
+  for (const c of converters) {
+    if (seen.indexOf(normalize(c.path)) === -1) {
+      related.push({ path: c.path, label: c.seo.h1, description: c.seo.metaDescription.split('.')[0] + '.' });
+      seen.push(normalize(c.path));
+    }
+  }
+  const keyTools = ['/oklch-color-palette-generator', '/oklch-colors', '/ui-preview', '/export'];
+  for (const toolPath of keyTools) {
+    const tool = allItems.find((i) => normalize(i.path) === toolPath);
+    if (tool && seen.indexOf(toolPath) === -1) {
+      related.push({ path: tool.path, label: tool.seo.h1, description: tool.seo.metaDescription.split('.')[0] + '.' });
+      seen.push(toolPath);
+    }
+  }
+}
+
+const learn = allItems.find((i) => normalize(i.path) === '/learn/what-is-oklch');
+if (learn) {
+  related.push({ path: learn.path, label: learn.seo.h1, description: learn.seo.metaDescription.split('.')[0] + '.' });
+}
+---
+
+{related.length > 0 && (
+  <section class="space-y-4 pt-6 border-t border-hairline">
+    <h2 class="text-lg font-semibold text-ink">Related Tools</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {related.map((item) => (
+        <a
+          href={item.path}
+          class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors space-y-1"
+        >
+          <span class="text-sm font-semibold text-ink block">{item.label}</span>
+          <span class="text-xs font-mono text-body">{item.description}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}

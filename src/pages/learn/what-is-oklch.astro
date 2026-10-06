@@ -4,9 +4,11 @@ import { getNavItemByPath } from '../../config/navigation';
 
 const navItem = getNavItemByPath('/learn/what-is-oklch');
 const seo = navItem?.seo || {
-  title: 'What is OKLCH? | The Definitive Guide to Perceptual CSS Colors',
-  metaDescription: 'Learn why OKLCH is superior to RGB and HSL: perceptual lightness uniformity, wide Display-P3 gamut coverage, smooth color blending, and CSS Color Module 4 syntax.',
+  title: 'What Is OKLCH? The Modern CSS Color Space Explained',
+  metaDescription:
+    'OKLCH explained: what L, C and H mean, how it differs from RGB and HSL, browser support, and why Tailwind CSS v4 uses it. With a free converter.',
   h1: 'What is OKLCH? The Modern CSS Color Space',
+  schemaType: 'Article',
 };
 ---
 
@@ -34,18 +36,152 @@ const seo = navItem?.seo || {
       <p class="text-sm font-mono text-body leading-relaxed">
         OKLCH is a modern cylindrical representation of the Oklab color space designed specifically for human vision. It fixes the mathematical flaws of RGB and HSL by ensuring that identical numerical lightness values look equally bright across all hues.
       </p>
+      <p class="text-xs font-mono text-mute">
+        Last updated: 2026-10-07 · Maintained by the OKLCH Colors team
+      </p>
     </div>
 
-    <!-- 1. The Core Problem with HSL vs OKLCH -->
+    <!-- 1. What is OKLCH? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">
-        1. The HSL Lie: Why 50% Lightness is Not Equal
-      </h2>
+      <h2 class="text-lg font-semibold text-ink">What is OKLCH?</h2>
       <p class="text-xs font-mono text-body leading-relaxed">
-        In traditional HSL (<code class="text-ink">hsl(hue, sat%, light%)</code>), pure yellow (<code class="text-ink">hsl(60, 100%, 50%)</code>) and pure blue (<code class="text-ink">hsl(240, 100%, 50%)</code>) both claim to have 50% lightness. However, the human eye perceives yellow as overwhelmingly bright and blue as very dark.
+        OKLCH is a perceptually uniform color space that describes colors using three values: Lightness (L), Chroma (C), and Hue (H). Unlike RGB and HSL, OKLCH is designed to match human color perception — equal changes in its numerical values produce equal changes in perceived color. This makes it ideal for creating accessible, consistent color systems in CSS.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH is the cylindrical form of the Oklab color space, standardized in CSS Color Module Level 4. It is supported by all modern browsers and is the default color space for Tailwind CSS v4's entire palette.
+      </p>
+    </section>
+
+    <!-- 2. What does OKLCH stand for? -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">What does OKLCH stand for?</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH stands for <strong class="text-ink">O</strong>klab <strong class="text-ink">L</strong>ightness, <strong class="text-ink">C</strong>hroma, <strong class="text-ink">H</strong>ue. The "OK" comes from Oklab, the color space created by Björn Ottosson in 2020. Oklab itself is named after the LMS cone response model it uses (L, M, S), with "Ok" indicating that it is a perceptually uniform improvement over earlier models.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-[#fde047] font-bold block">L — Lightness</span>
+          <span class="text-body block">0% (black) to 100% (white). Perceptual brightness that matches human vision.</span>
+        </div>
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-gamut-p3 font-bold block">C — Chroma</span>
+          <span class="text-body block">Color intensity. 0 is neutral gray; higher values are more vivid. Maximum ~0.4.</span>
+        </div>
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-[#a78bfa] font-bold block">H — Hue</span>
+          <span class="text-body block">Color angle on the 360° wheel. 0° is magenta, 140° is green, 255° is blue.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. How does OKLCH work? -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">How does OKLCH work?</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH works by transforming colors through a perceptually uniform color space. The L (Lightness) axis runs from black to white and is designed so that equal numerical steps look equally bright. The C (Chroma) axis measures color intensity as distance from the gray center. The H (Hue) axis is a circle of color angles. Together they form a cylinder: L is the vertical axis, C is the radius, and H is the angle around the center.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The key property is perceptual uniformity: a color at 50% lightness looks equally bright whether it is red, blue, or yellow. This is not true of HSL, where 50% lightness yellow looks almost white and 50% lightness blue looks very dark.
+      </p>
+    </section>
+
+    <!-- 4. OKLCH Color Space Diagram -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">OKLCH Color Space Diagram</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The OKLCH color space can be visualized as a cylinder. Lightness (L) runs vertically from black (0%) at the bottom to white (100%) at the top. Chroma (C) is the radial distance from the center axis — the center is neutral gray, and the outer edge is the most vivid color possible at that lightness. Hue (H) is the angle around the cylinder.
       </p>
 
-      {/* Visual Comparison Box */}
+      <!-- Inline SVG diagram of the OKLCH cylinder -->
+      <figure class="space-y-2">
+        <svg
+          viewBox="0 0 400 300"
+          class="w-full max-w-md mx-auto"
+          role="img"
+          aria-label="Diagram of the OKLCH color space cylinder showing Lightness as the vertical axis, Chroma as the radial distance from center, and Hue as the angle around the cylinder"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <!-- Cylinder body -->
+          <ellipse cx="200" cy="60" rx="120" ry="30" fill="none" stroke="currentColor" stroke-width="1.5" class="text-hairline" />
+          <ellipse cx="200" cy="240" rx="120" ry="30" fill="none" stroke="currentColor" stroke-width="1.5" class="text-hairline" />
+          <line x1="80" y1="60" x2="80" y2="240" stroke="currentColor" stroke-width="1.5" class="text-hairline" />
+          <line x1="320" y1="60" x2="320" y2="240" stroke="currentColor" stroke-width="1.5" class="text-hairline" />
+
+          <!-- L (Lightness) axis -->
+          <line x1="200" y1="240" x2="200" y2="60" stroke="#fde047" stroke-width="2" />
+          <text x="200" y="255" text-anchor="middle" fill="#fde047" font-size="11" font-family="monospace">L = 0% (black)</text>
+          <text x="200" y="50" text-anchor="middle" fill="#fde047" font-size="11" font-family="monospace">L = 100% (white)</text>
+          <text x="210" y="155" fill="#fde047" font-size="11" font-family="monospace">L</text>
+
+          <!-- C (Chroma) axis -->
+          <line x1="200" y1="150" x2="310" y2="150" stroke="#06b6d4" stroke-width="2" />
+          <text x="255" y="140" text-anchor="middle" fill="#06b6d4" font-size="11" font-family="monospace">C (chroma)</text>
+          <circle cx="200" cy="150" r="3" fill="#06b6d4" />
+          <text x="185" y="165" text-anchor="end" fill="#737373" font-size="10" font-family="monospace">C=0 (gray)</text>
+
+          <!-- H (Hue) angle -->
+          <path d="M 200 150 L 290 100 A 95 95 0 0 1 290 200 Z" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 2" />
+          <text x="300" y="150" text-anchor="middle" fill="#a78bfa" font-size="11" font-family="monospace">H</text>
+          <text x="300" y="165" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="monospace">(hue)</text>
+
+          <!-- Hue labels around the cylinder -->
+          <text x="310" y="80" text-anchor="middle" fill="#a3a3a3" font-size="9" font-family="monospace">0°</text>
+          <text x="340" y="150" text-anchor="middle" fill="#a3a3a3" font-size="9" font-family="monospace">90°</text>
+          <text x="310" y="220" text-anchor="middle" fill="#a3a3a3" font-size="9" font-family="monospace">180°</text>
+          <text x="100" y="220" text-anchor="middle" fill="#a3a3a3" font-size="9" font-family="monospace">270°</text>
+          <text x="60" y="150" text-anchor="middle" fill="#a3a3a3" font-size="9" font-family="monospace">360°</text>
+        </svg>
+        <figcaption class="text-[11px] font-mono text-mute text-center">
+          The OKLCH cylinder: Lightness (L) is the vertical axis, Chroma (C) is the radial distance from center, and Hue (H) is the angle around the cylinder.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- 5. OKLCH in CSS -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">OKLCH in CSS</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH is used in CSS via the <code class="text-ink">oklch()</code> function. The syntax is <code class="text-ink">oklch(L C H)</code> where L is lightness (0% to 100%), C is chroma (0 to 0.4), and H is hue (0 to 360). An optional alpha value can be added after a slash: <code class="text-ink">oklch(0.7 0.15 250 / 50%)</code>.
+      </p>
+
+      <div class="p-4 rounded-lg dark-scope bg-canvas-sunken border border-hairline font-mono text-sm text-ink">
+        oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-gamut-p3">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-mute">[/ Alpha]</span>)
+      </div>
+
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">Basic syntax:</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>color: oklch(62.3% 0.188 259.8);{'\n'}color: oklch(0.623 0.188 259.8); /* same, decimal form */</code></pre>
+      </div>
+
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">With alpha:</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>color: oklch(62.3% 0.188 259.8 / 0.5); /* 50% opaque */</code></pre>
+      </div>
+
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">Progressive enhancement (fallback first):</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>.button &#123;{'\n'}  color: #3b82f6; /* fallback for older browsers */{'\n'}  color: oklch(62.3% 0.188 259.8); /* modern browsers */{'\n'}&#125;</code></pre>
+      </div>
+
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">@supports fallback:</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>@supports not (color: oklch(0% 0 0)) &#123;{'\n'}  .button &#123; color: #3b82f6; &#125;{'\n'}&#125;</code></pre>
+      </div>
+
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">Relative color syntax:</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>/* Lighten a color by 10% lightness */{'\n'}color: oklch(from var(--brand) calc(l + 0.1) c h);{'\n'}{'\n'}/* Shift hue by 30 degrees */{'\n'}color: oklch(from var(--brand) l c calc(h + 30));</code></pre>
+      </div>
+    </section>
+
+    <!-- 6. Why designers moved from RGB and HSL -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Why Designers Moved from RGB and HSL</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        HSL's lightness is not perceptually uniform. Pure yellow (<code class="text-ink">hsl(60, 100%, 50%)</code>) and pure blue (<code class="text-ink">hsl(240, 100%, 50%)</code>) both claim 50% lightness, but the human eye perceives yellow as overwhelmingly bright and blue as very dark. OKLCH fixes this: at 70% lightness, yellow and blue look equally bright.
+      </p>
+
+      <!-- Visual Comparison Box -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
         <div class="bg-canvas-sunken border border-hairline rounded-lg p-3 space-y-2">
           <div class="text-[11px] font-mono text-danger-ink font-semibold">❌ Legacy HSL (Flawed Lightness)</div>
@@ -83,71 +219,178 @@ const seo = navItem?.seo || {
           </span>
         </div>
       </div>
+
+      <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside pt-2">
+        <li><strong class="text-ink">Predictable palettes:</strong> Equal lightness steps look equally spaced, making 50-950 scales trivial to generate.</li>
+        <li><strong class="text-ink">Accessibility:</strong> Contrast ratios are more predictable because lightness is perceptually uniform.</li>
+        <li><strong class="text-ink">Wide gamut:</strong> OKLCH can describe Display-P3 colors that HSL cannot reach.</li>
+        <li><strong class="text-ink">Smooth gradients:</strong> Interpolating in OKLCH avoids the muddy midtones that RGB interpolation produces.</li>
+      </ul>
     </section>
 
-    <!-- 2. Anatomy of the CSS OKLCH Function -->
+    <!-- 7. Can I use OKLCH? Browser support -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">
-        2. Anatomy of the <code class="text-gamut-p3">oklch()</code> CSS Function
-      </h2>
-      <p class="text-xs font-mono text-body">
-        Standardized in CSS Color Module Level 4 and supported across all modern browsers:
-      </p>
-
-      {/*
-        `dark-scope`: a grammar diagram, not chrome. The three parameter names
-        are colour-coded the way an editor would code them, and that coding was
-        chosen against a dark ground — Lightness-yellow is 1.4:1 on white. The
-        scope keeps this specimen on its own ground in either theme, so the
-        diagram stays comparable and stays readable.
-      */}
-      <div class="p-4 rounded-lg dark-scope bg-canvas-sunken border border-hairline font-mono text-sm text-ink">
-        oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-gamut-p3">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-mute">[/ Alpha]</span>)
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono dark-scope">
-        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-[#fde047] font-bold block">L (Lightness)</span>
-          <span class="text-body block">0% to 100% (or 0.0 to 1.0). 0 is absolute black, 100% is pure white.</span>
-        </div>
-        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-gamut-p3 font-bold block">C (Chroma)</span>
-          <span class="text-body block">Color saturation/purity. 0 is neutral gray, 0.37+ represents vivid gamut peaks.</span>
-        </div>
-        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-[#a78bfa] font-bold block">H (Hue)</span>
-          <span class="text-body block">0° to 360° on the color wheel (0° = pink/red, 90° = yellow, 140° = green, 255° = blue).</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. Wide Gamut Display-P3 Support -->
-    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">
-        3. Native Access to Display-P3 Wide Gamut
-      </h2>
+      <h2 class="text-lg font-semibold text-ink">Can I use OKLCH?</h2>
       <p class="text-xs font-mono text-body leading-relaxed">
-        HEX codes and legacy <code class="text-ink">rgb()</code> values are locked to the sRGB color gamut from 1996. Modern iPhone, Mac, and OLED displays can render Display-P3, which offers ~50% more visible colors.
+        Yes. <code class="text-ink">oklch()</code> is a <strong class="text-ink">Baseline</strong> feature, meaning it is widely available across all modern browsers. According to MDN, it has been available across browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
       </p>
       <p class="text-xs font-mono text-body leading-relaxed">
-        With OKLCH, you can unlock vibrant neons and rich greens in Display-P3 simply by increasing the Chroma <code class="text-ink">C</code>. If a user's display does not support P3, modern CSS automatically tone-maps the color to the nearest displayable sRGB equivalent without abrupt clipping.
+        For older browsers that do not support OKLCH, use the progressive enhancement pattern: declare a HEX or RGB fallback first, then override with OKLCH. Browsers that do not understand OKLCH will simply ignore the second declaration and use the fallback.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <strong class="text-ink">Verified source:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() browser compatibility</a>
       </p>
     </section>
 
-    <!-- Navigation CTAs -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-      <a
-        href="/"
-        class="touch-target p-4 rounded-xl bg-canvas-card hover:bg-canvas-elevated border border-hairline text-xs font-mono text-ink flex items-center justify-between"
-      >
-        <span>← Try the OKLCH Color Picker</span>
-      </a>
-      <a
-        href="/oklch-colors"
-        class="touch-target p-4 rounded-xl bg-canvas-card hover:bg-canvas-elevated border border-hairline text-xs font-mono text-ink flex items-center justify-between"
-      >
-        <span>Explore Curated Palettes →</span>
-      </a>
-    </div>
+    <!-- 8. When did Tailwind CSS start using OKLCH? -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">When did Tailwind CSS start using OKLCH?</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Tailwind CSS v4.0, released on <strong class="text-ink">January 22, 2025</strong>, moved its entire default color palette from RGB to OKLCH. The v4.0 release notes state: "We've upgraded the entire default color palette from rgb to oklch, taking advantage of the wider gamut to make the colors more vivid in places where we were previously limited by the sRGB color space."
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        This means every color in Tailwind's default palette — from <code class="text-ink">red-500</code> to <code class="text-ink">blue-600</code> — is now defined in OKLCH. Custom colors defined in the <code class="text-ink">@theme</code> block also use OKLCH by default.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS v4.0 release blog post</a>
+      </p>
+    </section>
+
+    <!-- 9. OKLCH vs HSL vs RGB -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">OKLCH vs HSL vs RGB</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The table below compares the three color models across the properties that matter for design systems.
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="p-3">Property</th>
+              <th class="p-3">OKLCH</th>
+              <th class="p-3">HSL</th>
+              <th class="p-3">RGB</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-hairline">
+            <tr>
+              <td class="p-3 text-ink font-medium">Perceptual uniformity</td>
+              <td class="p-3 text-copy-success">Yes</td>
+              <td class="p-3 text-danger-ink">No</td>
+              <td class="p-3 text-danger-ink">No</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-ink font-medium">Lightness accuracy</td>
+              <td class="p-3 text-copy-success">High</td>
+              <td class="p-3 text-danger-ink">Low</td>
+              <td class="p-3 text-danger-ink">None</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-ink font-medium">Wide gamut (Display-P3)</td>
+              <td class="p-3 text-copy-success">Yes</td>
+              <td class="p-3 text-danger-ink">No</td>
+              <td class="p-3 text-danger-ink">No</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-ink font-medium">Predictable gradients</td>
+              <td class="p-3 text-copy-success">Yes</td>
+              <td class="p-3 text-gamut-warning">Partial</td>
+              <td class="p-3 text-danger-ink">No</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-ink font-medium">Browser support</td>
+              <td class="p-3 text-copy-success">Baseline</td>
+              <td class="p-3 text-copy-success">Universal</td>
+              <td class="p-3 text-copy-success">Universal</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-ink font-medium">CSS syntax</td>
+              <td class="p-3 text-body">oklch(L C H)</td>
+              <td class="p-3 text-body">hsl(H S% L%)</td>
+              <td class="p-3 text-body">rgb(R G B)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <a href="/learn/oklch-vs-hsl-vs-rgb" class="text-accent-text hover:underline">Read the full comparison guide →</a>
+      </p>
+    </section>
+
+    <!-- 10. Try it -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Try it: OKLCH Converters</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The best way to understand OKLCH is to use it. Convert any color to OKLCH and see how the perceptual values work:
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a href="/" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">OKLCH Color Picker</span>
+          <span class="text-xs font-mono text-body">Interactive picker with live L, C, H sliders</span>
+        </a>
+        <a href="/hex-to-oklch" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">HEX to OKLCH</span>
+          <span class="text-xs font-mono text-body">Convert any HEX code to oklch()</span>
+        </a>
+        <a href="/oklch-to-hex" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">OKLCH to HEX</span>
+          <span class="text-xs font-mono text-body">Convert oklch() back to HEX</span>
+        </a>
+        <a href="/oklch-color-palette-generator" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Palette Generator</span>
+          <span class="text-xs font-mono text-body">Generate accessible 50-950 scales</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 11. FAQ -->
+    <section class="space-y-4">
+      <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+      <div class="space-y-3 font-mono text-xs">
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">What is the difference between OKLCH and HSL?</h3>
+          <p class="text-body leading-relaxed">
+            HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Do all modern browsers support CSS oklch()?</h3>
+          <p class="text-body leading-relaxed">
+            Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Can I use OKLCH in Tailwind CSS v4?</h3>
+          <p class="text-body leading-relaxed">
+            Yes. Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your <code class="text-ink">@theme</code> block using <code class="text-ink">--color-{'{name}'}: oklch(...)</code> and Tailwind generates utilities automatically.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">What happens when an OKLCH color is out of sRGB gamut?</h3>
+          <p class="text-body leading-relaxed">
+            On sRGB displays, the browser automatically tone-maps the color to the nearest displayable equivalent. On wide-gamut Display-P3 monitors, the color appears more vivid. Use the progressive enhancement pattern to provide a HEX fallback for older browsers.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Is OKLCH the same as OKLab?</h3>
+          <p class="text-body leading-relaxed">
+            OKLCH is the cylindrical form of OKLab. OKLab uses Cartesian coordinates (L, a, b) while OKLCH uses cylindrical coordinates (L, C, H). They describe the same color space — OKLCH is simply more intuitive for most design tasks.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. Sources -->
+    <section class="space-y-3 pt-6 border-t border-hairline">
+      <h2 class="text-sm font-semibold text-ink">Sources</h2>
+      <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
+        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">Björn Ottosson — Oklab: a perceptual color space</a></li>
+        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">W3C — CSS Color Module Level 4</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() CSS function</a></li>
+        <li><a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — v4.0 release</a></li>
+      </ul>
+    </section>
   </div>
 </AppLayout>
