@@ -1,3 +1,4 @@
+import type { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import {
   formatOklch,
@@ -160,7 +161,7 @@ export default function ColorActionPopover({
   }, [onClose]);
 
   /** The header's colour chip — the one place the target's own colour appears. */
-  const confirmRow = (label: string, run: () => void) => (
+  const confirmRow = (label: string | ComponentChildren, run: () => void) => (
     <div class="rounded-md border border-hairline bg-canvas-sunken p-2 space-y-2">
       <p class="font-mono text-micro text-body leading-tight">{label}</p>
       <div class="grid grid-cols-2 gap-1.5">

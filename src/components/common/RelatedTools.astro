@@ -1,9 +1,9 @@
 ---
 import { getAllNavItemsFlat } from '../../config/navigation';
 
-const { currentPath } = Astro.props;
+const { currentPath } = Astro.props as { currentPath: string };
 
-const normalize = (p) => p.replace(/\/$/, '') || '/';
+const normalize = (p: string): string => p.replace(/\/$/, '') || '/';
 const current = normalize(currentPath);
 
 const allItems = getAllNavItemsFlat();
@@ -15,7 +15,7 @@ const converters = allItems.filter((item) => {
 
 const isConverter = converters.some((c) => normalize(c.path) === current);
 
-const inverseMap = {
+const inverseMap: Record<string, string> = {
   '/hex-to-oklch': '/oklch-to-hex',
   '/oklch-to-hex': '/hex-to-oklch',
   '/rgb-to-oklch': '/oklch-to-rgb',
