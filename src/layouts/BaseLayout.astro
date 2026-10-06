@@ -7,6 +7,7 @@ import 'astro/components/viewtransitions.css';
 import '../styles/global.css';
 import { getNavItemByPath } from '../config/navigation';
 import { ogImagePathFor } from '../utils/ogImage';
+import { buildJsonLdGraph } from '../utils/schema';
 
 interface Props {
   title: string;
@@ -44,21 +45,23 @@ const datePublished = navSeo?.datePublished;
 const dateModified = navSeo?.dateModified;
 const isArticle = schemaType === 'Article';
 
-// WebApplication JSON-LD Schema
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': schemaType,
-  name: 'OKLCH Colors Studio',
-  url: canonicalUrl,
-  description: description,
-  applicationCategory: 'DesignApplication',
-  operatingSystem: 'All',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
-};
+// JSON-LD graph: WebSite + Organization + the page's own type + breadcrumbs,
+// assembled centrally in utils/schema.ts. This replaces the old flat node that
+// stamped WebApplication fields (applicationCategory, offers) onto Article and
+// CollectionPage pages, and the "OKLCH Colors Studio" name that matched no
+// other metadata on the site.
+const jsonLd = buildJsonLdGraph({
+  site,
+  canonicalPath,
+  canonicalUrl,
+  title,
+  description,
+  schemaType,
+  datePublished,
+  dateModified,
+  faqs: navSeo?.faqs,
+  noindex,
+});
 ---
 
 <!doctype html>
@@ -216,7 +219,9 @@ const jsonLd = {
     />
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {!noindex && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
   </head>
   <body class="min-h-screen flex flex-col bg-canvas text-ink antialiased selection:bg-hairline selection:text-ink">
     <slot />
