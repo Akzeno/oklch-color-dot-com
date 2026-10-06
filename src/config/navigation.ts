@@ -133,6 +133,35 @@ export const navigationConfig: NavItem[] = [
           schemaType: 'WebApplication',
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
+          // Verbatim copy of the visible FAQ section on the page (source of
+          // truth: src/pages/hex-to-oklch.astro) — keep the two in sync.
+          faqs: [
+            {
+              question: 'Are HEX to OKLCH conversions reversible without loss?',
+              answer:
+                'Yes. Because sRGB is a mathematical subset of OKLCH, converting a HEX value into OKLCH and then back to HEX yields the exact original 6-digit hexadecimal code. The round-trip is lossless for all sRGB colors.',
+            },
+            {
+              question: 'Can I paste 3-digit shorthand HEX codes?',
+              answer:
+                'Yes! Our converter natively parses shorthand codes like #fff or #f00 and expands them correctly. Each digit is duplicated (#f00 → #ff0000) before conversion.',
+            },
+            {
+              question: 'What is the difference between OKLCH and HEX?',
+              answer:
+                'HEX is a device-dependent sRGB notation that mixes red, green, and blue channels. OKLCH is a perceptually uniform color space that separates lightness, chroma, and hue — making it far easier to create accessible, consistent color systems.',
+            },
+            {
+              question: 'Do all modern browsers support CSS oklch()?',
+              answer:
+                'Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively. See the MDN browser compatibility table for details.',
+            },
+            {
+              question: 'How do I use OKLCH in Tailwind CSS v4?',
+              answer:
+                'Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your @theme block using --color-{name}: oklch(...) and Tailwind generates utilities like bg-{name} automatically.',
+            },
+          ],
         },
       },
       {
@@ -152,6 +181,35 @@ export const navigationConfig: NavItem[] = [
           schemaType: 'WebApplication',
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
+          // Verbatim copy of the visible FAQ section on the page (source of
+          // truth: src/pages/oklch-to-hex.astro) — keep the two in sync.
+          faqs: [
+            {
+              question: 'What happens if my OKLCH color is in Display-P3?',
+              answer:
+                'If the color exceeds sRGB boundaries, our engine alerts you with a Display-P3 badge and automatically provides the optimal clamped sRGB HEX code as a graceful fallback. The hue and lightness are preserved as closely as possible.',
+            },
+            {
+              question: 'How do I export HEX fallbacks in CSS?',
+              answer:
+                'On our Export page, switch to the "HEX Fallback + OKLCH" tab to generate twin variable lines, ensuring full backward compatibility on legacy browsers.',
+            },
+            {
+              question: 'Is the OKLCH to HEX conversion lossy?',
+              answer:
+                'For sRGB colors, the conversion is lossless — you get back the exact same HEX value. For Display-P3 colors, the conversion to HEX requires clamping to sRGB, which is a lossy step. The OKLCH original remains the source of truth.',
+            },
+            {
+              question: 'Can I convert OKLCH with alpha to 8-digit HEX?',
+              answer:
+                'Yes. An OKLCH value like oklch(62.3% 0.188 259.8 / 0.5) converts to #3b82f680 — the last two digits represent the alpha channel in hex.',
+            },
+            {
+              question: 'Why does my HEX color look different on different screens?',
+              answer:
+                'HEX values are absolute sRGB colors. On a wide-gamut Display-P3 monitor, the browser may render them more vividly than on a standard sRGB monitor. This is expected behavior — the HEX value itself does not change.',
+            },
+          ],
         },
       },
       {
@@ -171,6 +229,35 @@ export const navigationConfig: NavItem[] = [
           schemaType: 'WebApplication',
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
+          // Verbatim copy of the visible FAQ section on the page (source of
+          // truth: src/pages/rgb-to-oklch.astro) — keep the two in sync.
+          faqs: [
+            {
+              question: 'Can I convert rgba() with alpha to OKLCH?',
+              answer:
+                'Yes. rgba(59, 130, 246, 0.5) converts to oklch(62.3% 0.188 259.8 / 0.5) — the alpha channel is preserved as a slash parameter.',
+            },
+            {
+              question: 'What is the difference between RGB and OKLCH?',
+              answer:
+                'RGB is a device-dependent additive color model. OKLCH is a perceptually uniform color space where equal lightness values look equally bright. OKLCH makes it far easier to create accessible, consistent color systems.',
+            },
+            {
+              question: 'Is RGB to OKLCH conversion reversible?',
+              answer:
+                'Yes, for sRGB colors. Converting RGB → OKLCH → RGB yields the original values. The round-trip is lossless within the sRGB gamut.',
+            },
+            {
+              question: 'Do all browsers support oklch()?',
+              answer:
+                'Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.',
+            },
+            {
+              question: 'How do I use OKLCH in Tailwind CSS v4?',
+              answer:
+                'Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your @theme block using --color-{name}: oklch(...) and Tailwind generates utilities automatically.',
+            },
+          ],
         },
       },
       {
@@ -190,6 +277,35 @@ export const navigationConfig: NavItem[] = [
           schemaType: 'WebApplication',
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
+          // Verbatim copy of the visible FAQ section on the page (source of
+          // truth: src/pages/oklch-to-rgb.astro) — keep the two in sync.
+          faqs: [
+            {
+              question: 'Why do I need RGB if I have OKLCH?',
+              answer:
+                'Legacy tools — canvas renderers, older JavaScript libraries, email clients, and some image editors — only understand RGB. Converting OKLCH to RGB ensures compatibility with these tools.',
+            },
+            {
+              question: 'Is the OKLCH to RGB conversion lossy?',
+              answer:
+                'For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth.',
+            },
+            {
+              question: 'Can I use OKLCH alpha in rgba()?',
+              answer:
+                'Yes. oklch(62.3% 0.188 259.8 / 0.5) converts to rgba(59, 130, 246, 0.5) — the alpha channel is preserved.',
+            },
+            {
+              question: 'What happens with out-of-gamut colors?',
+              answer:
+                'The engine clamps chroma to the nearest in-gamut value while preserving hue and lightness. You will see a gamut badge indicating the color was clamped.',
+            },
+            {
+              question: 'How do I use RGB values in canvas?',
+              answer:
+                'Pass the RGB string directly to ctx.fillStyle or ctx.strokeStyle. Canvas 2D only understands sRGB, so the RGB output is always canvas-safe.',
+            },
+          ],
         },
       },
       {
@@ -209,6 +325,35 @@ export const navigationConfig: NavItem[] = [
           schemaType: 'WebApplication',
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
+          // Verbatim copy of the visible FAQ section on the page (source of
+          // truth: src/pages/hsl-to-oklch.astro) — keep the two in sync.
+          faqs: [
+            {
+              question: 'What is the main difference between HSL and OKLCH?',
+              answer:
+                "HSL's lightness is not perceptually uniform — yellow at 50% lightness looks almost white, while blue at 50% looks dark. OKLCH's lightness is perceptually uniform: 50% lightness looks equally bright regardless of hue.",
+            },
+            {
+              question: 'Can I convert HSL with alpha to OKLCH?',
+              answer:
+                'Yes. hsla(217, 91%, 60%, 0.5) converts to oklch(62.3% 0.188 259.8 / 0.5) — the alpha channel is preserved.',
+            },
+            {
+              question: 'Is HSL to OKLCH conversion reversible?',
+              answer:
+                'Yes, for sRGB colors. Converting HSL → OKLCH → HSL yields the original values. The round-trip is lossless within the sRGB gamut.',
+            },
+            {
+              question: 'Why should I switch from HSL to OKLCH?',
+              answer:
+                'OKLCH gives you perceptually uniform lightness, predictable palettes, and access to wide-gamut Display-P3 colors. It makes accessible, consistent color systems far easier to build.',
+            },
+            {
+              question: 'Do all browsers support oklch()?',
+              answer:
+                'Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.',
+            },
+          ],
         },
       },
       {
@@ -228,6 +373,35 @@ export const navigationConfig: NavItem[] = [
           schemaType: 'WebApplication',
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
+          // Verbatim copy of the visible FAQ section on the page (source of
+          // truth: src/pages/oklch-to-hsl.astro) — keep the two in sync.
+          faqs: [
+            {
+              question: 'Why do I need HSL if I have OKLCH?',
+              answer:
+                'Legacy tools — email clients, older CSS preprocessors, native apps, and some design tools — only understand HSL. Converting OKLCH to HSL ensures compatibility with these tools.',
+            },
+            {
+              question: 'Is the OKLCH to HSL conversion lossy?',
+              answer:
+                'For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth.',
+            },
+            {
+              question: 'Can I use OKLCH alpha in hsla()?',
+              answer:
+                'Yes. oklch(62.3% 0.188 259.8 / 0.5) converts to hsla(217, 91%, 60%, 0.5) — the alpha channel is preserved.',
+            },
+            {
+              question: 'What happens with out-of-gamut colors?',
+              answer:
+                'The engine clamps chroma to the nearest in-gamut value while preserving hue. You will see a gamut badge indicating the color was clamped.',
+            },
+            {
+              question: 'How do I use HSL values in email templates?',
+              answer:
+                'Many email clients only support HSL or HEX. Use the HSL output directly in your inline styles — it will render consistently across email clients.',
+            },
+          ],
         },
       },
     ],
