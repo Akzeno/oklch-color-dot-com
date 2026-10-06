@@ -344,7 +344,7 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                       discoverable without tinting the colour being judged. The
                       overlay covers the whole swatch, so a plain `:hover` is
                       enough — there is no gap to hover past it. */}
-                  <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
+                  <span class="absolute inset-0 flex items-center justify-center bg-black/45 dark-scope opacity-0 transition-opacity duration-150 hover:opacity-100">
                     {/* Matched to the base swatch's hover icon: the two swatches
                         are the same size and say the same thing, so a different
                         glyph size between them reads as an accident. */}

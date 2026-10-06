@@ -353,12 +353,16 @@ export default function PaletteGeneratorIsland() {
                 ever tinting the colour the user is judging. Plain `:hover` works
                 here rather than `group-hover`: the overlay is `inset-0`, so it
                 covers the whole swatch and there is no gap to hover past it. */}
-            <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
+            <span class="absolute inset-0 flex items-center justify-center bg-black/45 dark-scope opacity-0 transition-opacity duration-150 hover:opacity-100">
               {/* 24px in a 40px swatch. At 16px the affordance was legible but easy to miss on
                   a hover that only lasts as long as the pointer is over the swatch,
                   and this is the one control that says "this whole page is
                   generated from this colour, and you can change it" — so it has to
-                  be readable at a glance. */}
+                  be readable at a glance.
+
+                  `dark-scope` rather than a literal light ink: the glyph sits on a
+                  black scrim, and in the light theme `text-ink` would paint it
+                  near-black on near-black. */}
               <Paintbrush class="w-6 h-6 text-ink" aria-hidden="true" strokeWidth={2} />
             </span>
           </ColorSwatch>

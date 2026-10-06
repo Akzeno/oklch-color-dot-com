@@ -1,18 +1,17 @@
 ---
 import CartTriggerButton from '../cart/CartTriggerButton';
+import ThemeToggle from './ThemeToggle.astro';
 ---
 
 {/*
   Shell header. 56px, hairline bottom, sticky.
 
-  REMOVED: the theme toggle and the language switcher.
+  The language switcher that used to sit here is still gone: it linked to
+  `/es`, `/de` and `/fr`, none of which exist, so all three were 404s. Reintroduce
+  it when there is a locale to switch to.
 
-  Neither was reachable functionality. The toggle set `documentElement
-  .light-theme`, a class with no rule anywhere in the stylesheet, so clicking it
-  did nothing. The switcher linked to `/es`, `/de` and `/fr` — none of which
-  exist, so all three were 404s. Both were controls that looked actionable and
-  were not; that is worse than their absence. Reintroduce them when there is a
-  theme to switch to and a locale to switch to.
+  The theme toggle is back, and this time it has something to switch *to* — see
+  `ThemeToggle.astro` and the token overrides in `global.css`.
 */}
 <header class="h-14 shrink-0 border-b border-hairline bg-canvas/90 backdrop-blur-md sticky top-0 z-30 px-4 flex items-center justify-between">
   <a href="/" class="flex items-center gap-2.5 text-ink hover:opacity-80 transition-opacity">
@@ -32,7 +31,8 @@ import CartTriggerButton from '../cart/CartTriggerButton';
     </span>
   </a>
 
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-1.5">
+    <ThemeToggle />
     <CartTriggerButton client:load transition:persist />
   </div>
 </header>

@@ -25,11 +25,11 @@ const examplesTable = getBuildTimeColorTable();
 >
   <div class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-10">
     <div class="space-y-2">
-      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
-        Convert <code class="text-white">hsl(h, s%, l%)</code> strings to CSS OKLCH format and eliminate non-uniform perceptual lightness distortion.
+      <p class="text-xs md:text-sm font-mono text-body">
+        Convert <code class="text-ink">hsl(h, s%, l%)</code> strings to CSS OKLCH format and eliminate non-uniform perceptual lightness distortion.
       </p>
     </div>
 
@@ -37,20 +37,20 @@ const examplesTable = getBuildTimeColorTable();
       <ConverterIsland client:load initialMode="hsl-to-oklch" />
     </section>
 
-    <div class="space-y-10 pt-8 border-t border-[#1f1f1f]">
+    <div class="space-y-10 pt-8 border-t border-hairline">
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-[#f5f5f5]">The Flaw in HSL Lightness</h2>
-        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
-          HSL calculates lightness as a crude geometric average of maximum and minimum RGB channels: <code class="text-white">(max(R,G,B) + min(R,G,B)) / 2</code>. This ignores the biological reality of human eyes, which are 30 times more sensitive to green and yellow light than blue light. Converting to OKLCH solves this permanently.
+        <h2 class="text-lg font-semibold text-ink">The Flaw in HSL Lightness</h2>
+        <p class="text-xs font-mono text-body leading-relaxed">
+          HSL calculates lightness as a crude geometric average of maximum and minimum RGB channels: <code class="text-ink">(max(R,G,B) + min(R,G,B)) / 2</code>. This ignores the biological reality of human eyes, which are 30 times more sensitive to green and yellow light than blue light. Converting to OKLCH solves this permanently.
         </p>
       </section>
 
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-[#f5f5f5]">HSL to OKLCH Precomputed Table</h2>
-        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg">
+        <h2 class="text-lg font-semibold text-ink">HSL to OKLCH Precomputed Table</h2>
+        <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs font-mono">
-              <thead class="bg-[#181818] border-b border-[#262626] text-[#737373] text-[11px] uppercase">
+              <thead class="bg-canvas-elevated border-b border-hairline text-mute text-[11px] uppercase">
                 <tr>
                   <th class="p-3">Swatch</th>
                   <th class="p-3">Color</th>
@@ -58,15 +58,15 @@ const examplesTable = getBuildTimeColorTable();
                   <th class="p-3">OKLCH Value</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-[#1f1f1f]">
+              <tbody class="divide-y divide-hairline">
                 {examplesTable.slice(0, 10).map((row) => (
-                  <tr class="hover:bg-[#1a1a1a] transition-colors">
+                  <tr class="hover:bg-canvas-elevated transition-colors">
                     <td class="p-3">
                       <div class="w-6 h-6 rounded border border-white/20" style={`background-color: ${row.oklch};`} />
                     </td>
-                    <td class="p-3 text-[#f5f5f5] font-medium">{row.name}</td>
-                    <td class="p-3 text-[#a3a3a3]">{row.hsl}</td>
-                    <td class="p-3 text-[#86efac]">{row.oklch}</td>
+                    <td class="p-3 text-ink font-medium">{row.name}</td>
+                    <td class="p-3 text-body">{row.hsl}</td>
+                    <td class="p-3 text-copy-success">{row.oklch}</td>
                   </tr>
                 ))}
               </tbody>
@@ -75,9 +75,9 @@ const examplesTable = getBuildTimeColorTable();
         </div>
       </section>
 
-      <div class="pt-4 border-t border-[#1f1f1f] flex items-center gap-4 text-xs font-mono text-[#737373]">
-        <a href="/oklch-to-hsl" class="hover:text-[#f5f5f5]">OKLCH to HSL Converter →</a>
-        <a href="/hex-to-oklch" class="hover:text-[#f5f5f5]">HEX to OKLCH Converter →</a>
+      <div class="pt-4 border-t border-hairline flex items-center gap-4 text-xs font-mono text-mute">
+        <a href="/oklch-to-hsl" class="hover:text-ink">OKLCH to HSL Converter →</a>
+        <a href="/hex-to-oklch" class="hover:text-ink">HEX to OKLCH Converter →</a>
       </div>
     </div>
   </div>

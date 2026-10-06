@@ -1,0 +1,65 @@
+---
+/*
+ * The site-wide theme toggle.
+ *
+ * A plain button with `data-theme-toggle` and no behaviour of its own: the
+ * click is handled by the delegated listener installed by the inline script in
+ * `BaseLayout.astro`, and the theme itself is a `data-theme` attribute on
+ * <html>. Keeping all three of those in one place is what makes this survive
+ * Astro's client-side router — the button is re-created on every navigation,
+ * so anything bound directly to it would work once and then silently stop.
+ *
+ * Which glyph is visible is decided in `global.css` from `data-theme`, not
+ * here, for the same reason: the server rendering this cannot know the
+ * reader's preference, whereas the stylesheet can see whatever the head
+ * script decided before first paint.
+ *
+ * The label never names a specific theme. "Light" would be a lie half the
+ * time on first paint (the attribute may not be set yet when this is read by
+ * assistive tech), and a wrong label is worse than a general one.
+ */
+---
+
+<button
+  type="button"
+  class="icon-btn"
+  data-theme-toggle
+  aria-label="Switch between light and dark theme"
+  title="Switch between light and dark theme"
+>
+  <!-- Sun: offered while the page is dark, i.e. the theme you will get. -->
+  <svg
+    class="theme-glyph-sun w-4 h-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2"></path>
+    <path d="M12 20v2"></path>
+    <path d="m4.93 4.93 1.41 1.41"></path>
+    <path d="m17.66 17.66 1.41 1.41"></path>
+    <path d="M2 12h2"></path>
+    <path d="M20 12h2"></path>
+    <path d="m6.34 17.66-1.41 1.41"></path>
+    <path d="m19.07 4.93-1.41 1.41"></path>
+  </svg>
+
+  <!-- Moon: offered while the page is light. -->
+  <svg
+    class="theme-glyph-moon w-4 h-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>

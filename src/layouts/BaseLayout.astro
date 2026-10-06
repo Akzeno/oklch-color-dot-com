@@ -42,11 +42,97 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      THEME. Runs before anything is painted, so the document is already the
+      right colour when the first frame arrives — the alternative is a dark
+      flash on every load for every reader whose device is set to light.
+
+      Resolution order: the reader's own stored choice first, then the device.
+      Nothing is written back on a first visit, so "no preference recorded"
+      keeps tracking the device — if the OS flips at sunset, the site flips
+      with it. Only an actual click stores a value, and from that moment the
+      device is no longer consulted.
+
+      `is:inline` and untransformed on purpose: this has to be in the served
+      HTML, in the head, synchronous, and byte-identical on every page. Being
+      identical is also what makes it survive Astro's client-side router —
+      `deselectScripts` skips a script whose text it has already executed, so
+      after a navigation this block does not run again and the listeners it
+      registered the first time are still the live ones.
+
+      Two of those listeners matter:
+        · click, delegated on `document` — the toggle button is replaced on
+          every navigation, so a listener bound to the element would be dead
+          after the first page change. Delegated, there is nothing to rebind.
+        · `astro:after-swap` — the router copies the new document's attributes
+          onto <html>, which *removes* `data-theme` (the server has no way to
+          know it). Without this line the theme would silently reset to dark
+          on every client-side navigation. It re-applies in the same task as
+          the swap, so no frame of the wrong theme is ever shown.
+    -->
+    <script is:inline>
+      (function () {
+        var KEY = 'oklch-theme';
+        var root = document.documentElement;
+
+        function systemTheme() {
+          return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+        }
+
+        function storedTheme() {
+          try {
+            var v = localStorage.getItem(KEY);
+            return v === 'light' || v === 'dark' ? v : null;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function resolve() {
+          return storedTheme() || systemTheme();
+        }
+
+        function apply(theme) {
+          root.setAttribute('data-theme', theme);
+        }
+
+        apply(resolve());
+
+        document.addEventListener('click', function (event) {
+          var target = event.target;
+          if (!target || !target.closest) return;
+          if (!target.closest('[data-theme-toggle]')) return;
+          var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          try {
+            localStorage.setItem(KEY, next);
+          } catch (e) {
+            /* Private mode: the toggle still works, it just won't persist. */
+          }
+          apply(next);
+        });
+
+        document.addEventListener('astro:after-swap', function () {
+          apply(resolve());
+        });
+
+        var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
+        if (mq) {
+          var onPrefChange = function () {
+            if (!storedTheme()) apply(systemTheme());
+          };
+          if (mq.addEventListener) mq.addEventListener('change', onPrefChange);
+          else if (mq.addListener) mq.addListener(onPrefChange);
+        }
+      })();
+    </script>
 
     <!--
       Client-side router. Without this, every page change is a full document

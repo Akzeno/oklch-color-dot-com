@@ -109,10 +109,10 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
   };
 
   return (
-    <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 md:p-6 space-y-6">
+    <div class="bg-canvas-card border border-hairline rounded-xl p-5 md:p-6 space-y-6">
       {/* Mode Direction Switcher Pills */}
-      <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-[#1f1f1f]">
-        <span class="text-xs font-mono uppercase tracking-wider text-[#737373]">
+      <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-hairline">
+        <span class="text-xs font-mono uppercase tracking-wider text-mute">
           Conversion Direction
         </span>
         <div class="flex items-center gap-1.5 flex-wrap" role="tablist" aria-label="Conversion modes">
@@ -122,8 +122,8 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
               onClick={() => handleModeChange(m.id)}
               aria-pressed={mode === m.id}
               class={`px-2.5 py-1 rounded-full text-xs font-mono transition-colors ${mode === m.id
-                ? 'bg-[#f5f5f5] text-[#0a0a0a] font-medium'
-                : 'bg-[#171717] text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#262626]'
+                ? 'bg-ink text-ink-inverse font-medium'
+                : 'bg-canvas-raised text-body hover:text-ink hover:bg-hairline'
                 }`}
             >
               {m.label}
@@ -137,17 +137,17 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
         {/* Left: Input */}
         <div class="md:col-span-5 space-y-2">
           <div class="flex items-center justify-between">
-            <label for="color-input" class="text-xs font-mono text-[#a3a3a3] block">
+            <label for="color-input" class="text-xs font-mono text-body block">
               Input ({inputFormat.toUpperCase()})
             </label>
             {!isValidInput && (
-              <span class="text-[10px] font-mono text-[#f59e0b]">Invalid syntax</span>
+              <span class="text-[10px] font-mono text-gamut-warning">Invalid syntax</span>
             )}
           </div>
           <div
-            class={`bg-[#171717] border rounded-lg p-3 transition-colors ${isValidInput
-              ? 'border-[#262626] focus-within:border-[#525252]'
-              : 'border-[#f59e0b]/50 focus-within:border-[#f59e0b]'
+            class={`bg-canvas-raised border rounded-lg p-3 transition-colors ${isValidInput
+              ? 'border-hairline focus-within:border-border-focus'
+              : 'border-gamut-warning/50 focus-within:border-gamut-warning'
               }`}
           >
             <input
@@ -155,11 +155,11 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
               type="text"
               value={inputValue}
               onInput={(e) => setInputValue((e.target as HTMLInputElement).value)}
-              class="w-full bg-transparent text-sm font-mono text-[#f5f5f5] focus:outline-none"
+              class="w-full bg-transparent text-sm font-mono text-ink focus:outline-none"
               placeholder="Enter color value..."
             />
           </div>
-          <span class="text-[11px] font-mono text-[#737373] block">
+          <span class="text-[11px] font-mono text-mute block">
             Example: {MODE_EXAMPLES[inputFormat] ?? MODE_EXAMPLES.hex}
           </span>
         </div>
@@ -167,7 +167,7 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
         {/* Center: Swatch & Gamut Dot */}
         <div class="md:col-span-2 flex flex-col items-center justify-center">
           <div
-            class="w-14 h-14 rounded-xl border border-[#262626] shadow-lg relative checker-bg flex items-center justify-center group overflow-hidden"
+            class="w-14 h-14 rounded-xl border border-hairline shadow-lg relative checker-bg flex items-center justify-center group overflow-hidden"
             title="Preview swatch"
           >
             <div
@@ -177,11 +177,11 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
           </div>
           <div class="mt-2 text-center">
             {parsedColor.inSRGB ? (
-              <span class="text-[10px] font-mono text-[#22c55e]">sRGB</span>
+              <span class="text-[10px] font-mono text-copy-success">sRGB</span>
             ) : parsedColor.inP3 ? (
-              <span class="text-[10px] font-mono text-[#06b6d4]">P3 Gamut</span>
+              <span class="text-[10px] font-mono text-gamut-p3">P3 Gamut</span>
             ) : (
-              <span class="text-[10px] font-mono text-[#f59e0b]">Clamped</span>
+              <span class="text-[10px] font-mono text-gamut-warning">Clamped</span>
             )}
           </div>
         </div>
@@ -194,39 +194,39 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
             reported an unlabelled form field on every converter page, six times
             over, for a control that does not exist.
           */}
-          <span class="text-xs font-mono text-[#a3a3a3] block">
+          <span class="text-xs font-mono text-body block">
             {primaryOutput.label}
           </span>
-          <div class="flex items-center justify-between bg-[#171717] border border-[#262626] rounded-lg p-3">
-            <span class="text-sm font-mono font-semibold text-[#f5f5f5] truncate pr-2">
+          <div class="flex items-center justify-between bg-canvas-raised border border-hairline rounded-lg p-3">
+            <span class="text-sm font-mono font-semibold text-ink truncate pr-2">
               {primaryOutput.value}
             </span>
             <div class="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={() => copyValue(primaryOutput.value, primaryOutput.label)}
-                class="touch-target px-2.5 py-1 rounded bg-[#262626] hover:bg-[#333333] text-xs font-mono text-[#f5f5f5] transition-colors"
+                class="touch-target px-2.5 py-1 rounded bg-canvas-elevated hover:bg-hairline text-xs font-mono text-ink transition-colors"
                 title="Copy value"
               >
                 Copy
               </button>
               <button
                 onClick={() => addColorToCart(parsedColor, cart.activeRoleId)}
-                class="touch-target px-2.5 py-1 rounded bg-[#f5f5f5] hover:bg-white text-xs font-mono text-[#0a0a0a] font-medium transition-colors"
+                class="touch-target px-2.5 py-1 rounded bg-ink hover:bg-ink-hover text-xs font-mono text-ink-inverse font-medium transition-colors"
                 title="Add to cart"
               >
                 + Cart
               </button>
             </div>
           </div>
-          <span class="text-[11px] font-mono text-[#737373] block">
+          <span class="text-[11px] font-mono text-mute block">
             Target shade: {Math.round(parsedColor.l * 1000) / 10}% lightness
           </span>
         </div>
       </div>
 
       {/* All Secondary Representations */}
-      <div class="pt-4 border-t border-[#1f1f1f]">
-        <span class="text-[11px] font-mono uppercase tracking-wider text-[#737373] block mb-2.5">
+      <div class="pt-4 border-t border-hairline">
+        <span class="text-[11px] font-mono uppercase tracking-wider text-mute block mb-2.5">
           All Equivalent Formats (Click to copy)
         </span>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 font-mono text-xs">
@@ -239,14 +239,14 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
             <button
               key={item.label}
               onClick={() => copyValue(item.val, item.label)}
-              class="bg-[#171717] hover:bg-[#1f1f1f] border border-[#262626] p-2.5 rounded-lg flex items-center justify-between text-left transition-colors"
+              class="bg-canvas-raised hover:bg-canvas-elevated border border-hairline p-2.5 rounded-lg flex items-center justify-between text-left transition-colors"
             >
               <div>
-                <span class="text-[10px] text-[#737373] block">{item.label}</span>
-                <span class="text-[#f5f5f5] truncate block font-medium">{item.val}</span>
+                <span class="text-[10px] text-mute block">{item.label}</span>
+                <span class="text-ink truncate block font-medium">{item.val}</span>
               </div>
               <svg
-                class="w-3.5 h-3.5 text-[#737373]"
+                class="w-3.5 h-3.5 text-mute"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

@@ -8,7 +8,10 @@
    shifts how the eye reads the OKLCH swatches sitting next to it. Nothing in
    here is allowed to be "a colour" except the semantic overlays, which carry
    meaning — gamut state, copy confirmation, and "there is something in the
-   cart" — rather than decoration.
+   cart" — rather than decoration, and DESIGN.md's single accent, reserved for
+   the one primary action per view (its 60/30/10 budget's 10%). Surfaces,
+   borders, chips and tabs stay neutral so an accent fill means "this is the
+   action" and nothing else.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
@@ -40,13 +43,43 @@
   --color-copy-success: #22c55e; /* micro-toast confirmation */
 
   /*
+   * DESIGN.md's accent — the ONE chromatic fill in the chrome, spent on the
+   * primary action (hue 265 = indigo; see DESIGN.md §colors). One value for
+   * both themes, deliberately: white on it is 5.0:1, it clears 3:1 against
+   * either canvas, so the action looks and reads the same whatever the reader
+   * chose. Everything that *repeats* — chips, tabs, copy buttons — stays on
+   * the ink ramp, because a row of accent fills would be exactly the tinted
+   * chrome the neutral rule above exists to prevent.
+   */
+  --color-accent: #3665e4; /* primary action fill */
+  --color-accent-hover: #2955d3; /* its hover */
+  --color-on-accent: #ffffff; /* label on the accent fill */
+
+  /*
    * Attention red — DESIGN.md's `danger` hue (#db2b33, the value it grades at
    * 4.8:1 against white, which is what makes it legal for a count to sit on it).
    * It is state, not decoration: the cart trigger wears it to say "there are
    * colours in here", the same job the gamut and copy overlays do for a swatch.
    * Nothing else may pick it up to look nice.
+   *
+   * `danger` is a FILL, and a fill is judged by what sits on it, not by what it
+   * sits on. As *text* it only reaches 3.9:1 on a dark card — under the 4.5:1
+   * the small "Delete all" label that uses it needs — and in the light theme it
+   * would be worse. `danger-ink` is the same state written to be read: pale red
+   * on black, deep red on white. Fills use `danger`; words use `danger-ink`.
    */
   --color-danger: #db2b33;
+  --color-danger-ink: #fca5a5;
+
+  /*
+   * What an ink-filled control does on hover. In the dark theme ink is already
+   * the lightest thing on screen, so hover can only go one way — to white. In
+   * the light theme ink is dark and white would be a hole punched in the page
+   * (and white text on it would vanish), so hover steps to a softer dark.
+   * One token, because `hover:bg-white` written in markup is a light-theme bug
+   * that no amount of reading the component will catch.
+   */
+  --color-ink-hover: #ffffff;
 
   /*
    * Scrim for chrome laid over a colour swatch — the "P3" gamut badge, and the
@@ -124,9 +157,102 @@
   --dock-surface: rgba(20, 20, 20, 0.85);
   --dock-blur: 12px;
 
+  /* Elevation for the two things that sit above the page rather than in it —
+     the slider thumb and anything resting on a saturated swatch. Kept as a
+     variable because a 60%-black shadow is right on a black page and reads as
+     a smudge on a white one. */
+  --shadow-rest: 0 1px 4px rgba(0, 0, 0, 0.6);
+
   /* Shared easing. Everything settles under 150ms so the UI feels attached to
      the pointer rather than animating at the user. */
   --ease-tap: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME
+
+   One override block, keyed off `data-theme` on <html>, and the whole sheet
+   follows: every utility in the product resolves through `var(--color-*)`, so
+   re-pointing the variables re-points `bg-canvas-card`, `text-body`,
+   `border-hairline` and every other token class in one place.
+
+   HOW THE DEFAULT IS CHOSEN
+   An inline script in <head> (BaseLayout) writes `data-theme` before first
+   paint — from localStorage when the reader has chosen, otherwise from
+   `prefers-color-scheme`. So `:root` below is the *no-JS* fallback, which
+   stays dark: that is the theme this design was written in, and a document
+   that cannot run script should get the thing it was drawn for rather than a
+   guess at a preference it cannot read.
+
+   THE PALETTE, NOT "THE SAME VALUES, LIGHTER"
+   The dark ramp is a black ground whose surfaces get *lighter* as they come
+   forward. Inverting every number would give a white page whose surfaces get
+   darker — which is a legible but dull document, and it puts the two themes on
+   different ramps. Instead the light theme keeps the same ladder with the
+   poles swapped: a slightly grey ground (#f7f7f7), cards in true white so a
+   card still reads as a card, and hover fills a step *off* white rather than
+   up a black ramp. Same construction, opposite gravity.
+
+   Everything stays a pure neutral gray — zero chroma, like the dark ramp —
+   because a tinted chrome biases how the eye reads the swatch next to it, and
+   that is the one thing this product cannot afford in either theme.
+
+   Contrast is checked against the surface each value actually lands on, not
+   against white: `body` 7.3:1, `mute` 5.3:1, and every semantic overlay
+   (warning, p3, success, danger) clears 4.5:1 on the lightest surface it can
+   appear on. Dark-mode values are untouched, so nothing about the existing
+   theme shifts.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Neutral canvas stack — ground first, then everything sitting on it. */
+  --color-canvas: #f7f7f7; /* page ground */
+  --color-canvas-sunken: #ededed; /* inset wells: code blocks, side panels */
+  --color-canvas-card: #ffffff; /* cards, tool surfaces */
+  --color-canvas-raised: #ffffff; /* inputs, list rows */
+  --color-canvas-elevated: #f0f0f0; /* popovers, tooltips, hover fills */
+
+  /* Borders & divides — a step darker than the surface they cut, never black:
+     a black hairline on a white card is a stripe, not a line. */
+  --color-hairline: #e3e3e3; /* default 1px structure */
+  --color-hairline-subtle: #eeeeee; /* inner dividers, table rules */
+  --color-border-focus: #8a8a8a; /* hover / focus ring (3.1:1 on white) */
+
+  /* Ink ladder. Same four rungs, same jobs, dark end to light end. */
+  --color-ink: #171717; /* primary values, headings, active state */
+  --color-body: #565656; /* secondary copy, labels (7.3:1) */
+  --color-mute: #6b6b6b; /* icons, meta, inactive (5.3:1) */
+  --color-faint: #9a9a9a; /* placeholders, disabled */
+
+  /*
+   * The label pole of an ink fill. Without this flip the light theme inherits
+   * the dark value (#0a0a0a) and every `bg-ink` control renders #171717 under
+   * #0a0a0a text — a near-black button whose words are invisible at 1.1:1.
+   * Selected chips, active tabs and the converter copy buttons all pair
+   * `bg-ink` with this token, so they all read with it. Mirrors the dark
+   * theme, where the inverse is the canvas value.
+   */
+  --color-ink-inverse: #f7f7f7;
+
+  /* Semantic overlays, retuned for a white ground. The dark values are all
+     2:1 or worse on light surfaces — a cyan "P3" on white is a smudge — so
+     each steps down one family while keeping its hue, which is what carries
+     the meaning. */
+  --color-gamut-warning: #b45309; /* outside sRGB — clamped */
+  --color-gamut-p3: #0e7490; /* inside Display-P3, outside sRGB */
+  --color-copy-success: #15803d; /* micro-toast confirmation */
+  --color-danger-ink: #b91c1c; /* the readable pole of `danger` */
+
+  /* An ink fill hovers to a softer dark; see `--color-ink-hover` above. */
+  --color-ink-hover: #3f3f46;
+
+  /* Glass over the canvas rather than over the void. */
+  --dock-surface: rgba(255, 255, 255, 0.85);
+
+  /* Elevation: the same shape, scaled to a surface that has nowhere dark to
+     sink into. */
+  --shadow-rest: 0 1px 3px rgba(0, 0, 0, 0.24);
 }
 
 html,
@@ -286,12 +412,66 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   THEME-INDEPENDENT SURFACES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * A surface that stays dark in either theme.
+ *
+ * Two things on a page are legitimately dark no matter what the reader chose,
+ * and they are dark for the same reason: something else is the thing being
+ * looked at, and this surface is only the ground it is read against.
+ *
+ *  · A scrim over a colour — a picker badge, a hover affordance on a swatch.
+ *    The colour underneath is the content; a light scrim would wash it out and
+ *    the badge's words would be competing with it instead of labelling it.
+ *    Worse, the badge's own inks are theme tokens, so in the light theme they
+ *    resolve dark-on-dark and the gamut dot turns to mud.
+ *
+ *  · A syntax specimen. Its colour-coded words are chosen for contrast against
+ *    a dark ground — `#fde047` yellow is 1.4:1 on white, i.e. invisible — and
+ *    the ground is half of what makes it read as *code* rather than as prose.
+ *    Recolouring every token to a second palette would produce a specimen that
+ *    changes hue between two tabs and therefore cannot be compared.
+ *
+ * So the scope re-points the ramp back to its dark values for its own subtree.
+ * Every utility inside resolves through `var(--color-*)` and therefore renders
+ * exactly as it does in the dark theme, while the page around it follows the
+ * reader's choice. Use it where the dark ground *is* the design — never to
+ * dodge a contrast fix the light theme can simply do properly.
+ */
+.dark-scope {
+  color-scheme: dark;
+  --color-canvas: #0a0a0a;
+  --color-canvas-sunken: #0e0e0e;
+  --color-canvas-card: #141414;
+  --color-canvas-raised: #171717;
+  --color-canvas-elevated: #1f1f1f;
+  --color-hairline: #262626;
+  --color-hairline-subtle: #1a1a1a;
+  --color-border-focus: #525252;
+  --color-ink: #f5f5f5;
+  --color-body: #a3a3a3;
+  --color-mute: #737373;
+  --color-faint: #404040;
+  --color-ink-inverse: #0a0a0a;
+  --color-ink-hover: #ffffff;
+  --color-gamut-warning: #f59e0b;
+  --color-gamut-p3: #06b6d4;
+  --color-copy-success: #22c55e;
+  --color-danger-ink: #fca5a5;
+  --dock-surface: rgba(20, 20, 20, 0.85);
+  --shadow-rest: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    CONTROLS
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /*
- * Primary action. Ink-on-black, never a chromatic fill: a saturated button
- * next to a colour preview biases the judgement of that preview.
+ * The shared button geometry: 36px tall, mono label, 120ms state changes.
+ * Colour lives in the variants below — `.btn-primary`, `.btn-quiet`,
+ * `.btn-danger`.
  */
 .btn {
   display: inline-flex;
@@ -313,12 +493,30 @@ body {
     color 120ms var(--ease-tap);
 }
 
+/*
+ * Primary action — DESIGN.md's accent, the chrome's one chromatic fill.
+ *
+ * This used to be an ink fill, under a comment that said "never a chromatic
+ * fill: a saturated button next to a colour preview biases the judgement of
+ * that preview". The bias that rule protects against comes from tinted
+ * *chrome* — surfaces, borders, the rows of chips and tabs repeating down a
+ * page — and DESIGN.md budgets for that with 60/30/10 plus "don't show more
+ * than one primary button per view": one solid action inside the 10% is the
+ * accent's whole job, and a control the eye can find beats one that reads as
+ * a hole in the page. (In the light theme the ink fill had also become a
+ * #171717 slab whose unflipped `ink-inverse` label was #0a0a0a — invisible
+ * words — which is what re-opened this.)
+ *
+ * Same fill in both themes: white on #3665e4 is 5.0:1, hover #2955d3 is
+ * 6.2:1, and the fill clears 3:1 against either canvas, so the action is
+ * identical whatever the reader chose. Repeated controls keep `bg-ink`.
+ */
 .btn-primary {
-  background-color: var(--color-ink);
-  color: var(--color-ink-inverse);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
 }
 .btn-primary:hover {
-  background-color: #ffffff;
+  background-color: var(--color-accent-hover);
 }
 
 .btn-quiet {
@@ -332,16 +530,18 @@ body {
 }
 
 /* Destructive variant. Desaturated red, and only ever on a control that
-   deletes — never used decoratively. */
+   deletes — never used decoratively. The wording comes from `danger-ink`
+   rather than `danger`: this label is *read*, so it takes the pole of the
+   hue that clears 4.5:1 on whichever ground the theme gives it. */
 .btn-danger {
   background-color: var(--color-canvas-raised);
   border-color: var(--color-hairline);
-  color: #fca5a5;
+  color: var(--color-danger-ink);
 }
 .btn-danger:hover {
   background-color: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.45);
-  color: #fecaca;
+  color: var(--color-danger-ink);
 }
 
 .btn:disabled,
@@ -419,6 +619,32 @@ body {
 .icon-btn-xs {
   width: 24px;
   height: 24px;
+}
+
+/*
+ * The header's theme toggle.
+ *
+ * The button carries both glyphs and the stylesheet decides which one is
+ * showing, which is what makes it correct with no JavaScript at all: the SSR
+ * markup cannot know the reader's preference, but it can know that the default
+ * theme is dark and therefore that a dark page offers the sun. The head script
+ * then only has to set `data-theme` — it never has to reach into the button.
+ *
+ * The glyph shown is the theme you will *get*, not the one you have: a moon on
+ * a dark page is a promise about the next click, and a moon on a light page
+ * would be a statement about the present with nothing to do.
+ */
+[data-theme-toggle] svg {
+  display: none;
+}
+[data-theme-toggle] .theme-glyph-sun {
+  display: block;
+}
+[data-theme='light'] [data-theme-toggle] .theme-glyph-sun {
+  display: none;
+}
+[data-theme='light'] [data-theme-toggle] .theme-glyph-moon {
+  display: block;
 }
 
 /* Nav / filter pill. */
@@ -607,7 +833,7 @@ input[type='range']::-webkit-slider-thumb {
   border-radius: 9999px;
   background-color: var(--color-ink);
   border: 2px solid var(--color-canvas);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-rest);
   transition: transform 100ms var(--ease-tap);
 }
 
@@ -621,7 +847,7 @@ input[type='range']::-moz-range-thumb {
   border-radius: 9999px;
   background-color: var(--color-ink);
   border: 2px solid var(--color-canvas);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-rest);
   transition: transform 100ms var(--ease-tap);
 }
 
@@ -629,8 +855,11 @@ input[type='range']::-moz-range-thumb:hover {
   transform: scale(1.12);
 }
 
+/* The focus halo is drawn in the theme's own ink at 25%, not in a literal
+   off-white: on a light theme an off-white ring around an off-white thumb is
+   not a ring, it is a rumour. */
 input[type='range']:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgba(245, 245, 245, 0.25);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ink) 25%, transparent);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -851,24 +1080,47 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 
    NEVER put this on the same element as an inline `background-color`.
 
-   `background-image` paints ON TOP of `background-color`, and these gradients use
-   an opaque `--color-canvas-elevated` rather than a translucent one — so pairing
-   the class with a fill covers half of every swatch in dark grey and makes a
-   fully opaque colour look transparent. That is exactly what it looked like on
-   the palette generator, the converter field, the picker banner and the preview
-   popover before they were rebuilt on `components/common/ColorSwatch.tsx`.
+   `background-image` paints ON TOP of `background-color`, and these gradients are
+   opaque rather than translucent — so pairing the class with a fill covers half
+   of every swatch in grey and makes a fully opaque colour look transparent. That
+   is exactly what it looked like on the palette generator, the converter field,
+   the picker banner and the preview popover before they were rebuilt on
+   `components/common/ColorSwatch.tsx`.
 
    The correct arrangement is the one that component implements: the checkerboard
    goes on an element with no fill of its own, and a translucent colour goes on a
    layer above it. Opaque colours get no background-image at all — use
    `ColorSwatch`, which picks between the two.
+
+   The squares are mixed from the *ink* ladder rather than taken from
+   `canvas-elevated`: a checkerboard only works if its two squares differ, and
+   `canvas-elevated` is a hover fill that in the light theme lands a whisker off
+   white — squares you cannot tell from the gaps read as an unfilled box, not as
+   transparency. Mixed 14% ink over the canvas it sits on, the pattern is one
+   step off its ground in either theme.
 */
 .checker-bg {
   background-image:
-    linear-gradient(45deg, var(--color-canvas-elevated) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--color-canvas-elevated) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--color-canvas-elevated) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--color-canvas-elevated) 75%);
+    linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--color-ink) 14%, var(--color-canvas)) 25%,
+      transparent 25%
+    ),
+    linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--color-ink) 14%, var(--color-canvas)) 25%,
+      transparent 25%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 75%,
+      color-mix(in srgb, var(--color-ink) 14%, var(--color-canvas)) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 75%,
+      color-mix(in srgb, var(--color-ink) 14%, var(--color-canvas)) 75%
+    );
   background-size: 8px 8px;
   background-position:
     0 0,

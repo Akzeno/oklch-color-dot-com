@@ -355,7 +355,7 @@ export default function CartDrawerIsland() {
                     {!activeRole.isDefault && (
                       <button
                         onClick={() => deleteRole(activeRole.id)}
-                        class="link-hud text-[#fca5a5]"
+                        class="link-hud text-danger-ink"
                         title={`Delete role ${activeRole.name}`}
                       >
                         Delete role

@@ -23,10 +23,10 @@ const seo = navItem?.seo || {
   <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-10">
     <!-- Header -->
     <div class="space-y-2">
-      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-[#a3a3a3]">
+      <p class="text-xs md:text-sm font-mono text-body">
         Input any base color to automatically calculate an accessible 50–950 shade scale with optical lightness uniformity and gamut-safe chroma clipping — or build a custom palette of unrelated colors below it, where every color can be pasted in as text, changed in the color picker, or collected straight from the scale with one click on the swatch you like.
       </p>
     </div>
@@ -37,31 +37,31 @@ const seo = navItem?.seo || {
     </section>
 
     <!-- Unique SEO Content Below The Fold -->
-    <div class="space-y-10 pt-8 border-t border-[#1f1f1f]">
+    <div class="space-y-10 pt-8 border-t border-hairline">
       <!-- 1. The Science of OKLCH Scale Generation -->
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+        <h2 class="text-lg font-semibold text-ink">
           How Our Perceptual Scale Generator Works
         </h2>
-        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+        <p class="text-xs font-mono text-body leading-relaxed">
           Traditional palette generators blindly interpolate HEX or RGB values, causing midtones to look muddy, hues to shift unexpectedly, and highlights to lose color purity. In contrast, our generator works directly within the 3D cylindrical coordinates of the OKLCH color space:
         </p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 font-mono text-xs">
-          <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 space-y-2">
-            <span class="text-[#06b6d4] font-bold block">1. Target Lightness Curve</span>
-            <p class="text-[#a3a3a3]">
+          <div class="bg-canvas-card border border-hairline rounded-xl p-4 space-y-2">
+            <span class="text-gamut-p3 font-bold block">1. Target Lightness Curve</span>
+            <p class="text-body">
               Maps lightness across 11 mathematically balanced steps from 97% (step 50) down to 13% (step 950), maintaining even visual steps between shades.
             </p>
           </div>
-          <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 space-y-2">
-            <span class="text-[#22c55e] font-bold block">2. Gamut-Safe Chroma Clamping</span>
-            <p class="text-[#a3a3a3]">
+          <div class="bg-canvas-card border border-hairline rounded-xl p-4 space-y-2">
+            <span class="text-copy-success font-bold block">2. Gamut-Safe Chroma Clamping</span>
+            <p class="text-body">
               Calculates the maximum possible chroma allowed within the sRGB and Display-P3 gamuts for every individual lightness level, preventing harsh clipping artifacts.
             </p>
           </div>
-          <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 space-y-2">
-            <span class="text-[#f59e0b] font-bold block">3. Hue Constancy</span>
-            <p class="text-[#a3a3a3]">
+          <div class="bg-canvas-card border border-hairline rounded-xl p-4 space-y-2">
+            <span class="text-gamut-warning font-bold block">3. Hue Constancy</span>
+            <p class="text-body">
               Locks the hue angle exactly across all shade steps, eliminating the notorious "purple turning into pinkish-gray" bug seen in RGB generators.
             </p>
           </div>
@@ -69,14 +69,14 @@ const seo = navItem?.seo || {
       </section>
 
       <!-- 2. Color Harmonies Explanation -->
-      <section class="space-y-3 bg-[#141414] border border-[#262626] rounded-xl p-6">
-        <h2 class="text-base font-semibold text-[#f5f5f5]">
+      <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
+        <h2 class="text-base font-semibold text-ink">
           Calculating Harmonies via Cylindrical Hue Angles
         </h2>
-        <p class="text-xs font-mono text-[#a3a3a3] leading-relaxed">
+        <p class="text-xs font-mono text-body leading-relaxed">
           Because OKLCH organizes colors along a continuous 360-degree cylindrical circle, generating complementary, triadic, and analogous palettes is achieved by exact mathematical angle rotations while preserving lightness and chroma constancy:
         </p>
-        <ul class="space-y-2 text-xs font-mono text-[#a3a3a3] list-disc list-inside">
+        <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
           <li><strong>Complementary:</strong> Hue angle + 180° for maximum visual contrast.</li>
           <li><strong>Triadic:</strong> Hue angles ± 120° for vibrant, balanced triad schemes.</li>
           <li><strong>Analogous:</strong> Hue angles ± 30° for smooth, adjacent gradients and tranquil UI accents.</li>
@@ -85,31 +85,31 @@ const seo = navItem?.seo || {
 
       <!-- 3. FAQ -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-[#f5f5f5]">
+        <h2 class="text-lg font-semibold text-ink">
           Frequently Asked Questions
         </h2>
         <div class="space-y-3 font-mono text-xs">
-          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-[#f5f5f5]">Can I build a palette of different colors instead of one color's scale?</h3>
-            <p class="text-[#a3a3a3]">
-              Yes &mdash; the <strong>Custom palette</strong> panel under the harmonies. A 50&ndash;950 scale is one hue walked up and down in lightness, so all eleven steps are variations of the same color; a real brand palette is the opposite, and that is what this panel is for. Add a row, click its swatch to change it in the color picker, and type the variable name your own system already uses. <strong>Each row's value is a text field</strong>, so you can paste a color straight in &mdash; hex, <code class="text-white">rgb()</code>, <code class="text-white">hsl()</code> or <code class="text-white">oklch()</code>, from a brand sheet, devtools, or the scale above &mdash; and press Enter; the row normalizes to the exact <code class="text-white">oklch()</code> that will be copied. <strong>Copy all</strong> grabs the whole set as a Tailwind v4 <code class="text-white">@theme</code> block, a <code class="text-white">:root</code> block or JSON, and the preview above that button is character-for-character what lands on your clipboard. Two rows given the same name drop the second from the block instead of letting the browser silently pick a winner. Your palette &mdash; and the base colour the scale above is generated from &mdash; are stored in this browser, so both survive a refresh and a round trip through the picker.
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">Can I build a palette of different colors instead of one color's scale?</h3>
+            <p class="text-body">
+              Yes &mdash; the <strong>Custom palette</strong> panel under the harmonies. A 50&ndash;950 scale is one hue walked up and down in lightness, so all eleven steps are variations of the same color; a real brand palette is the opposite, and that is what this panel is for. Add a row, click its swatch to change it in the color picker, and type the variable name your own system already uses. <strong>Each row's value is a text field</strong>, so you can paste a color straight in &mdash; hex, <code class="text-ink">rgb()</code>, <code class="text-ink">hsl()</code> or <code class="text-ink">oklch()</code>, from a brand sheet, devtools, or the scale above &mdash; and press Enter; the row normalizes to the exact <code class="text-ink">oklch()</code> that will be copied. <strong>Copy all</strong> grabs the whole set as a Tailwind v4 <code class="text-ink">@theme</code> block, a <code class="text-ink">:root</code> block or JSON, and the preview above that button is character-for-character what lands on your clipboard. Two rows given the same name drop the second from the block instead of letting the browser silently pick a winner. Your palette &mdash; and the base colour the scale above is generated from &mdash; are stored in this browser, so both survive a refresh and a round trip through the picker.
             </p>
           </div>
-          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-[#f5f5f5]">Can I export the generated scale directly into Tailwind CSS v4?</h3>
-            <p class="text-[#a3a3a3]">
-              Yes! Type any variable name into the <strong>Variable</strong> field above (for example <code class="text-white">brand-accent</code>) and click "Fill --color-brand-accent-*". The role is created on first use, so you never have to add it to the cart beforehand. Then visit the Export page to copy your complete Tailwind v4 <code class="text-white">@theme</code> block.
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">Can I export the generated scale directly into Tailwind CSS v4?</h3>
+            <p class="text-body">
+              Yes! Type any variable name into the <strong>Variable</strong> field above (for example <code class="text-ink">brand-accent</code>) and click "Fill --color-brand-accent-*". The role is created on first use, so you never have to add it to the cart beforehand. Then visit the Export page to copy your complete Tailwind v4 <code class="text-ink">@theme</code> block.
             </p>
           </div>
-          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-[#f5f5f5]">What happens when I click a swatch?</h3>
-            <p class="text-[#a3a3a3]">
-              A small menu opens next to that swatch, so copying a single value and collecting it are separate choices instead of one guess. Pick <strong>Copy OKLCH</strong> or <strong>Copy hex</strong> to put the value on your clipboard, <strong>Save to variable</strong> to write it into <code class="text-white">--color-&lt;your-name&gt;-&lt;step&gt;</code>, <strong>Copy and save</strong> to do both in one go, or <strong>Add to custom palette</strong> when you like that step and want it as a standalone <code class="text-white">--color-&lt;name&gt;</code> variable in the panel below &mdash; the new row takes the color exactly as shown and drops the caret in its name field. Your cart is only ever rewritten when you choose one of the two save actions, and the same menu appears on every hue-harmony swatch. The <strong>Random</strong> button next to the presets throws a fresh in-gamut base colour to explore from.
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">What happens when I click a swatch?</h3>
+            <p class="text-body">
+              A small menu opens next to that swatch, so copying a single value and collecting it are separate choices instead of one guess. Pick <strong>Copy OKLCH</strong> or <strong>Copy hex</strong> to put the value on your clipboard, <strong>Save to variable</strong> to write it into <code class="text-ink">--color-&lt;your-name&gt;-&lt;step&gt;</code>, <strong>Copy and save</strong> to do both in one go, or <strong>Add to custom palette</strong> when you like that step and want it as a standalone <code class="text-ink">--color-&lt;name&gt;</code> variable in the panel below &mdash; the new row takes the color exactly as shown and drops the caret in its name field. Your cart is only ever rewritten when you choose one of the two save actions, and the same menu appears on every hue-harmony swatch. The <strong>Random</strong> button next to the presets throws a fresh in-gamut base colour to explore from.
             </p>
           </div>
-          <div class="bg-[#141414] border border-[#262626] rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-[#f5f5f5]">Why are extreme light and dark shades lower in chroma?</h3>
-            <p class="text-[#a3a3a3]">
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">Why are extreme light and dark shades lower in chroma?</h3>
+            <p class="text-body">
               In human color perception and physics, as colors approach pure white (100% Lightness) or pure black (0% Lightness), the gamut triangle narrows to a point. Naturally tapering chroma at steps 50, 100, 900, and 950 produces clean, sophisticated UI tokens rather than harsh neon pastels.
             </p>
           </div>

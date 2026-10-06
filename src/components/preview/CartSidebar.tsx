@@ -173,8 +173,8 @@ export default function CartSidebar() {
          * WHY IT WEARS THE PANEL'S ONLY PRIMARY FILL
          *
          * The first version of this button was a `text-[10px]` half-width pill in
-         * the app's quiet-control palette (`bg-[#1a1a1a]` / `border-[#262626]` /
-         * `text-[#a3a3a3]`), and it read as a caption rather than an action: 10px
+         * the app's quiet-control palette (`bg-canvas-elevated` / `border-hairline` /
+         * `text-body`), and it read as a caption rather than an action: 10px
          * is the smallest text in the panel, that palette is the same one the
          * trash and rename icons use, and it lost the row to a redundant dim
          * "Token Roles" label. Since this is the terminal action of the whole
@@ -182,12 +182,14 @@ export default function CartSidebar() {
          *
          *  - Full width, at the shared `.btn` size, matching the panel's other
          *    action buttons.
-         *  - Filled with ink — `btn-primary`, the product's one light-on-dark
-         *    fill. That is the loudest thing a control can be here without
-         *    putting a colour next to the colour being judged, which is exactly
-         *    what the `#3b82f6` tint it replaced was doing. Ink reads louder than
-         *    a 10%-alpha blue did, and it cannot shift the perception of the
-         *    swatches underneath it.
+         *  - Filled with `btn-primary` — DESIGN.md's accent, the one chromatic
+         *    fill the chrome is allowed and the reason this is the loudest
+         *    thing in the panel. It replaced an ink fill, which itself
+         *    replaced a 10%-alpha `#3b82f6` wash: a translucent tint spread
+         *    over a control is chrome and biases the swatches beside it, while
+         *    one solid action per view is exactly the 10% DESIGN.md's
+         *    60/30/10 budgets — and in the light theme the ink fill had
+         *    become a #171717 slab whose label rendered at 1.1:1.
          *  - Carries the token count, which both explains the action and tells
          *    the user the export will not be empty.
          *  - `sticky`, because with six role cards this was otherwise the first
@@ -226,10 +228,11 @@ export default function CartSidebar() {
             <Code2 class="w-4 h-4 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
             <span>Export & Code</span>
             {/* Hidden while inert: "0 tokens" would just restate the disabled
-                state, and the tooltip already explains it. The count is dimmed
-                rather than tinted — on the ink fill there is no room for a second
-                colour, and the panel now has no non-gamut colour to spend. */}
-            {canExport && <span class="opacity-60">{filledShadesCount} tokens</span>}
+                state, and the tooltip already explains it. Full-strength
+                white, not dimmed: at 60% opacity the count lands at 2.8:1 on
+                the accent fill, and a dim that fails AA is not a hierarchy —
+                it is an absence. */}
+            {canExport && <span>{filledShadesCount} tokens</span>}
           </a>
         </div>
 

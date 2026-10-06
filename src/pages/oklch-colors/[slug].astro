@@ -29,32 +29,32 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
 >
   <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs font-mono text-[#737373]" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-[#f5f5f5]">Home</a>
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-ink">Home</a>
       <span>/</span>
-      <a href="/oklch-colors" class="hover:text-[#f5f5f5]">Palettes</a>
+      <a href="/oklch-colors" class="hover:text-ink">Palettes</a>
       <span>/</span>
-      <span class="text-[#f5f5f5]">{palette.name}</span>
+      <span class="text-ink">{palette.name}</span>
     </nav>
 
     <!-- Header & Hero -->
     <div class="space-y-3">
       <div class="flex items-center gap-2.5">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#f5f5f5]">
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
           {palette.name}
         </h1>
-        <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#171717] border border-[#262626] text-[#a3a3a3]">
+        <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-canvas-raised border border-hairline text-body">
           {palette.categoryLabel}
         </span>
       </div>
-      <p class="text-xs md:text-sm font-mono text-[#a3a3a3] max-w-2xl leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body max-w-2xl leading-relaxed">
         {palette.description}
       </p>
     </div>
 
     <!-- The scale, as large cards with their own copy / cart actions -->
     <section class="space-y-2">
-      <div class="flex items-center justify-between text-xs font-mono text-[#737373]">
+      <div class="flex items-center justify-between text-xs font-mono text-mute">
         <span>Shade Steps</span>
         <span>Copy a value, or save it to a variable of your own</span>
       </div>
@@ -68,14 +68,14 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
 
     <!-- Detailed 11-step Table Breakdown -->
     <section class="space-y-4">
-      <h2 class="text-base font-semibold text-[#f5f5f5]">
+      <h2 class="text-base font-semibold text-ink">
         Shade Step Breakdown (50 to 950)
       </h2>
 
-      <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg">
+      <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs font-mono">
-            <thead class="bg-[#181818] border-b border-[#262626] text-[#737373] uppercase tracking-wider text-[11px]">
+            <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
               <tr>
                 <th class="p-3">Swatch</th>
                 <th class="p-3">Shade Step</th>
@@ -86,7 +86,7 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
                 <th class="p-3 text-right">Gamut</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-[#1f1f1f]">
+            <tbody class="divide-y divide-hairline">
               {SHADE_STEPS.map((step) => {
                 const color = palette.shades[step];
                 const oklchCss = formatOklch(color);
@@ -94,33 +94,33 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
                 const contrastWhite = getWcagContrast(color.hex, '#ffffff');
 
                 return (
-                  <tr class="hover:bg-[#1a1a1a] transition-colors">
+                  <tr class="hover:bg-canvas-elevated transition-colors">
                     <td class="p-3">
                       <div
                         class="w-7 h-7 rounded border border-white/20 shadow-sm"
                         style={`background-color: ${oklchCss};`}
                       />
                     </td>
-                    <td class="p-3 font-bold text-[#f5f5f5]">{step}</td>
-                    <td class="p-3 text-[#86efac]">{oklchCss}</td>
-                    <td class="p-3 text-[#a3a3a3]">{color.hex}</td>
+                    <td class="p-3 font-bold text-ink">{step}</td>
+                    <td class="p-3 text-copy-success">{oklchCss}</td>
+                    <td class="p-3 text-body">{color.hex}</td>
                     <td class="p-3">
-                      <span class={`font-semibold ${contrastBlack >= 4.5 ? 'text-[#22c55e]' : 'text-[#737373]'}`}>
+                      <span class={`font-semibold ${contrastBlack >= 4.5 ? 'text-copy-success' : 'text-mute'}`}>
                         {contrastBlack}:1
                       </span>
                     </td>
                     <td class="p-3">
-                      <span class={`font-semibold ${contrastWhite >= 4.5 ? 'text-[#22c55e]' : 'text-[#737373]'}`}>
+                      <span class={`font-semibold ${contrastWhite >= 4.5 ? 'text-copy-success' : 'text-mute'}`}>
                         {contrastWhite}:1
                       </span>
                     </td>
                     <td class="p-3 text-right">
                       {color.inP3 && !color.inSRGB ? (
-                        <span class="px-2 py-0.5 rounded text-[10px] bg-[#06b6d4]/20 text-[#06b6d4] font-bold">
+                        <span class="px-2 py-0.5 rounded text-[10px] bg-gamut-p3/20 text-gamut-p3 font-bold">
                           Display-P3
                         </span>
                       ) : (
-                        <span class="px-2 py-0.5 rounded text-[10px] bg-[#1f1f1f] text-[#737373]">
+                        <span class="px-2 py-0.5 rounded text-[10px] bg-canvas-elevated text-mute">
                           sRGB
                         </span>
                       )}
@@ -135,15 +135,15 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
     </section>
 
     <!-- Tailwind v4 @theme Code Snippet for this Palette -->
-    <section class="space-y-3 bg-[#141414] border border-[#262626] rounded-xl p-5">
+    <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
       <div class="flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-[#f5f5f5]">
+        <h2 class="text-sm font-semibold text-ink">
           Tailwind v4 @theme Snippet for {palette.name}
         </h2>
-        <span class="text-[11px] font-mono text-[#737373]">Copy into global.css</span>
+        <span class="text-[11px] font-mono text-mute">Copy into global.css</span>
       </div>
 
-      <pre class="bg-[#0a0a0a] border border-[#262626] p-4 rounded-lg font-mono text-xs text-[#a3a3a3] overflow-x-auto">
+      <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
 <code>@theme &#123;
 {SHADE_STEPS.map((step) => `  --color-${palette.slug}-${step}: ${formatOklch(palette.shades[step])};\n`).join('')}&#125;</code></pre>
     </section>

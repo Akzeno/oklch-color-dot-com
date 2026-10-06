@@ -348,9 +348,15 @@ export default function ColorPickerIsland() {
           >
             {/* Gamut + nearest step, and randomize. Two badges, both answering
                 "what am I looking at?" — the removed third one restated the
-                lightness that the L slider already displays. */}
+                lightness that the L slider already displays.
+
+                Both are `dark-scope`: they are laid over a black scrim whose
+                only job is to hold type still against whatever colour is
+                underneath, so they keep the dark theme's inks in both themes —
+                unpainted, the light theme would resolve them dark-on-dark and
+                the gamut dot would turn to mud. */}
             <div class="absolute top-2 left-2 right-2 flex items-start justify-between gap-2">
-              <span class="pill !bg-black/60 backdrop-blur-md !border-white/10">
+              <span class="pill dark-scope !bg-black/60 backdrop-blur-md !border-white/10">
                 <span class={`w-1.5 h-1.5 rounded-full ${gamut.dot}`} />
                 {gamut.text}
                 <span class="text-faint">·</span>
@@ -359,7 +365,7 @@ export default function ColorPickerIsland() {
 
               <button
                 onClick={randomizeColor}
-                class="icon-btn !h-7 !w-7 !bg-black/60 backdrop-blur-md !border !border-white/10 text-ink hover:!bg-black/80"
+                class="icon-btn dark-scope !h-7 !w-7 !bg-black/60 backdrop-blur-md !border !border-white/10 hover:!bg-black/80"
                 title="Randomise"
                 aria-label="Randomise colour"
               >
@@ -372,7 +378,7 @@ export default function ColorPickerIsland() {
               <span class="flex-1 min-w-0 font-mono text-hud text-ink truncate">{oklchString}</span>
               <button
                 onClick={() => copyValue(oklchString, 'OKLCH')}
-                class="icon-btn !h-6 !w-6 hover:!bg-white/10"
+                class="icon-btn !h-6 !w-6 hover:!bg-ink/10"
                 title="Copy oklch()"
                 aria-label="Copy oklch value"
               >
