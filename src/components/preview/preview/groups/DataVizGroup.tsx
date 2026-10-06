@@ -59,96 +59,108 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
         hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set the accent roles to score'}
         hintPass={worst ? worst.grade !== 'Fail' : undefined}
       >
-        <Specimen name="Chart" variant="Bars" paint={paint}>
-          <KitBars paint={paint} />
+        <Specimen name="Chart" variant="Bars">
+          {(paint) => (
+            <KitBars paint={paint} />
+          )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Donut" paint={paint}>
-          <KitDonut paint={paint} />
+        <Specimen name="Chart" variant="Donut">
+          {(paint) => (
+            <KitDonut paint={paint} />
+          )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Stacked" paint={paint}>
-          <div class="w-full space-y-2">
-            <div class="flex h-16 rounded-lg overflow-hidden">
-              {SERIES.map(({ role }, i) => (
-                <span
-                  key={role}
-                  class="h-full"
-                  style={{
-                    flex: [3, 2, 4, 1, 2, 3][i],
-                    backgroundColor: paint.accents[role].fill?.css ?? 'transparent',
-                  }}
-                />
-              ))}
+        <Specimen name="Chart" variant="Stacked">
+          {(paint) => (
+            <div class="w-full space-y-2">
+              <div class="flex h-16 rounded-lg overflow-hidden">
+                {SERIES.map(({ role }, i) => (
+                  <span
+                    key={role}
+                    class="h-full"
+                    style={{
+                      flex: [3, 2, 4, 1, 2, 3][i],
+                      backgroundColor: paint.accents[role].fill?.css ?? 'transparent',
+                    }}
+                  />
+                ))}
+              </div>
+              <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
+                Stacked segments touch, so this is the strictest separation test on
+                the page — no canvas between them.
+              </KitMuted>
             </div>
-            <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-              Stacked segments touch, so this is the strictest separation test on
-              the page — no canvas between them.
-            </KitMuted>
-          </div>
+          )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Lines" paint={paint}>
-          <div class="w-full">
-            <svg viewBox="0 0 100 40" class="w-full h-20" preserveAspectRatio="none" aria-hidden="true">
-              {[0, 1, 2, 3].map((i) => (
-                <line
-                  key={i}
-                  x1="0"
-                  x2="100"
-                  y1={i * 13}
-                  y2={i * 13}
-                  stroke={paint.fixture.raised?.css ?? 'transparent'}
-                  strokeWidth="0.6"
-                />
-              ))}
-              {SERIES.slice(0, 3).map(({ role }, si) => (
-                <polyline
-                  key={role}
-                  fill="none"
-                  stroke={paint.accents[role].fill?.css ?? 'transparent'}
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  points={[
-                    [0, 30 - si * 3],
-                    [20, 18 + si * 4],
-                    [40, 26 - si * 2],
-                    [60, 10 + si * 5],
-                    [80, 20 - si],
-                    [100, 8 + si * 3],
-                  ]
-                    .map(([x, y]) => `${x},${y}`)
-                    .join(' ')}
-                />
-              ))}
-            </svg>
-            <KitMuted paint={paint} class="block text-[10px]">
-              Three lines, 1.6px, no markers.
-            </KitMuted>
-          </div>
+        <Specimen name="Chart" variant="Lines">
+          {(paint) => (
+            <div class="w-full">
+              <svg viewBox="0 0 100 40" class="w-full h-20" preserveAspectRatio="none" aria-hidden="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <line
+                    key={i}
+                    x1="0"
+                    x2="100"
+                    y1={i * 13}
+                    y2={i * 13}
+                    stroke={paint.fixture.raised?.css ?? 'transparent'}
+                    strokeWidth="0.6"
+                  />
+                ))}
+                {SERIES.slice(0, 3).map(({ role }, si) => (
+                  <polyline
+                    key={role}
+                    fill="none"
+                    stroke={paint.accents[role].fill?.css ?? 'transparent'}
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    points={[
+                      [0, 30 - si * 3],
+                      [20, 18 + si * 4],
+                      [40, 26 - si * 2],
+                      [60, 10 + si * 5],
+                      [80, 20 - si],
+                      [100, 8 + si * 3],
+                    ]
+                      .map(([x, y]) => `${x},${y}`)
+                      .join(' ')}
+                  />
+                ))}
+              </svg>
+              <KitMuted paint={paint} class="block text-[10px]">
+                Three lines, 1.6px, no markers.
+              </KitMuted>
+            </div>
+          )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Heatmap" paint={paint}>
-          <div class="w-full grid grid-cols-6 gap-1">
-            {SERIES.map(({ role }) =>
-              [0.9, 0.6, 0.3].map((alpha) => (
-                <span
-                  key={`${role}-${alpha}`}
-                  class="h-6 rounded-sm"
-                  style={{
-                    backgroundColor: paint.accents[role].fill?.css ?? 'transparent',
-                    opacity: alpha,
-                  }}
-                />
-              ))
-            )}
-          </div>
-          <div class="w-full pt-2">
-            <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-              Same six hues at three opacities. If the faint row vanishes, the
-              scale has no room for a tint.
-            </KitMuted>
-          </div>
+        <Specimen name="Chart" variant="Heatmap">
+          {(paint) => (
+            <>
+              <div class="w-full grid grid-cols-6 gap-1">
+                {SERIES.map(({ role }) =>
+                  [0.9, 0.6, 0.3].map((alpha) => (
+                    <span
+                      key={`${role}-${alpha}`}
+                      class="h-6 rounded-sm"
+                      style={{
+                        backgroundColor: paint.accents[role].fill?.css ?? 'transparent',
+                        opacity: alpha,
+                      }}
+                    />
+                  ))
+                )}
+              </div>
+              <div class="w-full pt-2">
+                <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
+                  Same six hues at three opacities. If the faint row vanishes, the
+                  scale has no room for a tint.
+                </KitMuted>
+              </div>
+            </>
+          )}
         </Specimen>
       </Rail>
 
@@ -156,108 +168,118 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
         label="Reading It Back"
         description="Numbers, deltas and legends — the parts that turn a chart into a sentence someone has to trust."
       >
-        <Specimen name="Delta" variant="Up" paint={paint}>
-          <div class="flex items-baseline gap-2">
-            <KitText paint={paint} class="text-[20px] font-semibold leading-none tabular-nums">
-              98.4%
-            </KitText>
-            <span
-              class="text-[11px] font-medium inline-flex items-center gap-0.5"
-              style={{ color: paint.accents.success.fill?.css ?? paint.pendingInk }}
-            >
-              <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M6 11l6-6 6 6" />
-              </svg>
-              2.1
-            </span>
-          </div>
-        </Specimen>
-
-        <Specimen name="Delta" variant="Down" paint={paint}>
-          <div class="flex items-baseline gap-2">
-            <KitText paint={paint} class="text-[20px] font-semibold leading-none tabular-nums">
-              3.2:1
-            </KitText>
-            <span
-              class="text-[11px] font-medium inline-flex items-center gap-0.5"
-              style={{ color: paint.accents.danger.fill?.css ?? paint.pendingInk }}
-            >
-              <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M6 13l6 6 6-6" />
-              </svg>
-              Fail
-            </span>
-          </div>
-        </Specimen>
-
-        <Specimen name="Legend" variant="Inline" paint={paint}>
-          <div class="w-full grid grid-cols-2 gap-x-2 gap-y-1">
-            {SERIES.map(({ role, label }) => (
-              <span key={role} class="flex items-center gap-1.5">
-                <span
-                  class="w-2.5 h-2.5 rounded-sm shrink-0"
-                  style={{ backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
-                />
-                <KitMuted paint={paint} class="text-[10px] truncate">
-                  {label}
-                </KitMuted>
+        <Specimen name="Delta" variant="Up">
+          {(paint) => (
+            <div class="flex items-baseline gap-2">
+              <KitText paint={paint} class="text-[20px] font-semibold leading-none tabular-nums">
+                98.4%
+              </KitText>
+              <span
+                class="text-[11px] font-medium inline-flex items-center gap-0.5"
+                style={{ color: paint.accents.success.fill?.css ?? paint.pendingInk }}
+              >
+                <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M6 11l6-6 6 6" />
+                </svg>
+                2.1
               </span>
-            ))}
-          </div>
+            </div>
+          )}
         </Specimen>
 
-        <Specimen name="Axis" variant="Labels" paint={paint}>
-          <div class="w-full">
-            <div class="flex h-12 items-end gap-1.5" aria-hidden="true">
-              {[0.4, 0.75, 0.55].map((h, i) => (
-                <span
-                  key={i}
-                  class="flex-1 rounded-t-sm"
-                  style={{
-                    height: `${h * 100}%`,
-                    backgroundColor: paint.accents[SERIES[i]!.role].fill?.css ?? 'transparent',
-                  }}
-                />
-              ))}
+        <Specimen name="Delta" variant="Down">
+          {(paint) => (
+            <div class="flex items-baseline gap-2">
+              <KitText paint={paint} class="text-[20px] font-semibold leading-none tabular-nums">
+                3.2:1
+              </KitText>
+              <span
+                class="text-[11px] font-medium inline-flex items-center gap-0.5"
+                style={{ color: paint.accents.danger.fill?.css ?? paint.pendingInk }}
+              >
+                <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M6 13l6 6 6-6" />
+                </svg>
+                Fail
+              </span>
             </div>
-            <KitEdge paint={paint} side="top" class="block" />
-            <div class="flex justify-between pt-1">
-              <KitMuted paint={paint} class="text-[9px]">
-                0
-              </KitMuted>
-              <KitMuted paint={paint} class="text-[9px]">
-                50
-              </KitMuted>
-              <KitMuted paint={paint} class="text-[9px]">
-                100
-              </KitMuted>
-            </div>
-          </div>
+          )}
         </Specimen>
 
-        <Specimen name="Table" variant="In chart" paint={paint}>
-          <table class="w-full text-[10px]">
-            <tbody>
-              {SERIES.slice(0, 4).map(({ role, label }) => (
-                <tr key={role}>
-                  <td class="py-1">
-                    <span class="flex items-center gap-1.5">
-                      <span
-                        class="w-2 h-2 rounded-sm"
-                        style={{ backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
-                      />
-                      <KitMuted paint={paint}>{label}</KitMuted>
-                    </span>
-                  </td>
-                  <td class="py-1 text-right">
-                    <KitText paint={paint} class="tabular-nums">
-                      {`${100 - SERIES.indexOf(SERIES.find((s) => s.role === role)!) * 11}%`}
-                    </KitText>
-                  </td>
-                </tr>
+        <Specimen name="Legend" variant="Inline">
+          {(paint) => (
+            <div class="w-full grid grid-cols-2 gap-x-2 gap-y-1">
+              {SERIES.map(({ role, label }) => (
+                <span key={role} class="flex items-center gap-1.5">
+                  <span
+                    class="w-2.5 h-2.5 rounded-sm shrink-0"
+                    style={{ backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
+                  />
+                  <KitMuted paint={paint} class="text-[10px] truncate">
+                    {label}
+                  </KitMuted>
+                </span>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
+        </Specimen>
+
+        <Specimen name="Axis" variant="Labels">
+          {(paint) => (
+            <div class="w-full">
+              <div class="flex h-12 items-end gap-1.5" aria-hidden="true">
+                {[0.4, 0.75, 0.55].map((h, i) => (
+                  <span
+                    key={i}
+                    class="flex-1 rounded-t-sm"
+                    style={{
+                      height: `${h * 100}%`,
+                      backgroundColor: paint.accents[SERIES[i]!.role].fill?.css ?? 'transparent',
+                    }}
+                  />
+                ))}
+              </div>
+              <KitEdge paint={paint} side="top" class="block" />
+              <div class="flex justify-between pt-1">
+                <KitMuted paint={paint} class="text-[9px]">
+                  0
+                </KitMuted>
+                <KitMuted paint={paint} class="text-[9px]">
+                  50
+                </KitMuted>
+                <KitMuted paint={paint} class="text-[9px]">
+                  100
+                </KitMuted>
+              </div>
+            </div>
+          )}
+        </Specimen>
+
+        <Specimen name="Table" variant="In chart">
+          {(paint) => (
+            <table class="w-full text-[10px]">
+              <tbody>
+                {SERIES.slice(0, 4).map(({ role, label }) => (
+                  <tr key={role}>
+                    <td class="py-1">
+                      <span class="flex items-center gap-1.5">
+                        <span
+                          class="w-2 h-2 rounded-sm"
+                          style={{ backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
+                        />
+                        <KitMuted paint={paint}>{label}</KitMuted>
+                      </span>
+                    </td>
+                    <td class="py-1 text-right">
+                      <KitText paint={paint} class="tabular-nums">
+                        {`${100 - SERIES.indexOf(SERIES.find((s) => s.role === role)!) * 11}%`}
+                      </KitText>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </Specimen>
       </Rail>
     </div>

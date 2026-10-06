@@ -146,7 +146,20 @@ export function KitSurface({
       pending={!slot}
       part="bg"
       class={className}
-      style={{ ...style, ...(slot ? {} : unsetStyle(paint.theme)) }}
+      style={{
+        /*
+          Callers ask for the edge with a bare `border` utility, and that
+          utility sets a *width* only — Tailwind's preflight leaves the colour
+          at `currentColor`, so every "rounded-xl border" card was drawing its
+          hairline in the label's ink: a near-white 1px box on a light card, and
+          the loudest line on the screen wherever the text was. The fixture's
+          own border slot paints it instead, so the edge is a token like every
+          other edge here.
+        */
+        borderColor: paint.fixture.border?.css ?? 'transparent',
+        ...style,
+        ...(slot ? {} : unsetStyle(paint.theme)),
+      }}
     >
       {children}
     </Swatch>

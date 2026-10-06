@@ -55,40 +55,50 @@ export function FormsGroup({ paint }: { paint: Paint }) {
         hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set background + text to score'}
         hintPass={worst ? worst.grade !== 'Fail' : undefined}
       >
-        <Specimen name="Input" variant="Rest" paint={paint}>
-          <KitField paint={paint} label="Namespace" value="--color-primary-500" hint="Shared prefix." />
+        <Specimen name="Input" variant="Rest">
+          {(paint) => (
+            <KitField paint={paint} label="Namespace" value="--color-primary-500" hint="Shared prefix." />
+          )}
         </Specimen>
 
-        <Specimen name="Input" variant="Invalid" paint={paint}>
-          <KitField
-            paint={paint}
-            label="Value"
-            value="oklch(banana)"
-            invalid
-            hint="Not a valid OKLCH triple."
-          />
+        <Specimen name="Input" variant="Invalid">
+          {(paint) => (
+            <KitField
+              paint={paint}
+              label="Value"
+              value="oklch(banana)"
+              invalid
+              hint="Not a valid OKLCH triple."
+            />
+          )}
         </Specimen>
 
-        <Specimen name="Textarea" variant="Multi" paint={paint}>
-          <KitField
-            paint={paint}
-            label="Notes"
-            value="Gamut-clipped to sRGB on export."
-            kind="textarea"
-          />
+        <Specimen name="Textarea" variant="Multi">
+          {(paint) => (
+            <KitField
+              paint={paint}
+              label="Notes"
+              value="Gamut-clipped to sRGB on export."
+              kind="textarea"
+            />
+          )}
         </Specimen>
 
-        <Specimen name="Select" variant="Closed" paint={paint}>
-          <KitField paint={paint} label="Colour model" value="OKLCH" kind="select" />
+        <Specimen name="Select" variant="Closed">
+          {(paint) => (
+            <KitField paint={paint} label="Colour model" value="OKLCH" kind="select" />
+          )}
         </Specimen>
 
-        <Specimen name="Search" variant="Field" paint={paint}>
-          <div class="w-full space-y-1.5">
-            <KitText paint={paint} class="block text-[12px]">
-              Library
-            </KitText>
-            <KitSearch paint={paint} placeholder="Search palettes" />
-          </div>
+        <Specimen name="Search" variant="Field">
+          {(paint) => (
+            <div class="w-full space-y-1.5">
+              <KitText paint={paint} class="block text-[12px]">
+                Library
+              </KitText>
+              <KitSearch paint={paint} placeholder="Search palettes" />
+            </div>
+          )}
         </Specimen>
       </Rail>
 
@@ -96,22 +106,28 @@ export function FormsGroup({ paint }: { paint: Paint }) {
         label="Selection"
         description="Four controls, four different answers to the same question: is the accent doing its job at this size?"
       >
-        <Specimen name="Checkbox" variant="On" paint={paint}>
-          <div class="w-full space-y-2">
-            <KitCheckboxRow paint={paint} label="Generate 50–950 scale" checked />
-            <KitCheckboxRow paint={paint} label="Clip to gamut silently" checked={false} />
-          </div>
+        <Specimen name="Checkbox" variant="On">
+          {(paint) => (
+            <div class="w-full space-y-2">
+              <KitCheckboxRow paint={paint} label="Generate 50–950 scale" checked />
+              <KitCheckboxRow paint={paint} label="Clip to gamut silently" checked={false} />
+            </div>
+          )}
         </Specimen>
 
-        <Specimen name="Radio" variant="Group" paint={paint}>
-          <div class="w-full space-y-2">
-            <KitRadioRow paint={paint} label="OKLCH" selected />
-            <KitRadioRow paint={paint} label="sRGB" selected={false} />
-          </div>
+        <Specimen name="Radio" variant="Group">
+          {(paint) => (
+            <div class="w-full space-y-2">
+              <KitRadioRow paint={paint} label="OKLCH" selected />
+              <KitRadioRow paint={paint} label="sRGB" selected={false} />
+            </div>
+          )}
         </Specimen>
 
-        <Specimen name="Switch" variant="On" paint={paint}>
-          <KitSwitchRow paint={paint} label="Notify me" />
+        <Specimen name="Switch" variant="On">
+          {(paint) => (
+            <KitSwitchRow paint={paint} label="Notify me" />
+          )}
         </Specimen>
 
         {/*
@@ -119,20 +135,24 @@ export function FormsGroup({ paint }: { paint: Paint }) {
           is why it is a whole card: the track is the raised step, the fill is
           500, and the thumb is the foreground with an accent edge.
         */}
-        <Specimen name="Slider" variant="Range" paint={paint}>
-          <KitSlider paint={paint} at={0.55} />
+        <Specimen name="Slider" variant="Range">
+          {(paint) => (
+            <KitSlider paint={paint} at={0.55} />
+          )}
         </Specimen>
 
-        <Specimen name="Field" variant="Legend" paint={paint}>
-          <div class="w-full space-y-1.5">
-            <KitMuted paint={paint} class="block text-[11px]">
-              Delta E · 0.84
-            </KitMuted>
-            <KitSlider paint={paint} at={0.28} />
-            <KitMuted paint={paint} class="block text-[10px]">
-              Perceptually closer is better.
-            </KitMuted>
-          </div>
+        <Specimen name="Field" variant="Legend">
+          {(paint) => (
+            <div class="w-full space-y-1.5">
+              <KitMuted paint={paint} class="block text-[11px]">
+                Delta E · 0.84
+              </KitMuted>
+              <KitSlider paint={paint} at={0.28} />
+              <KitMuted paint={paint} class="block text-[10px]">
+                Perceptually closer is better.
+              </KitMuted>
+            </div>
+          )}
         </Specimen>
       </Rail>
     </div>

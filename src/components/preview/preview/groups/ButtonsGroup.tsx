@@ -95,8 +95,10 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
         hintPass={worst ? worst.grade !== 'Fail' : undefined}
       >
         {VARIANTS.map(({ variant, name }) => (
-          <Specimen key={variant} name="Button" variant={name} paint={paint}>
-            <KitButton paint={paint} role={ROLE} label="Continue" variant={variant} withIcon />
+          <Specimen key={variant} name="Button" variant={name}>
+            {(paint) => (
+              <KitButton paint={paint} role={ROLE} label="Continue" variant={variant} withIcon />
+            )}
           </Specimen>
         ))}
       </Rail>
@@ -105,24 +107,34 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
         label="Sizes & Icon Buttons"
         description="The same fill at three sizes, then the icon-only control in each of its three treatments."
       >
-        <Specimen name="Button" variant="Small" paint={paint}>
-          <KitButton paint={paint} role={ROLE} label="Save changes" size="sm" />
+        <Specimen name="Button" variant="Small">
+          {(paint) => (
+            <KitButton paint={paint} role={ROLE} label="Save changes" size="sm" />
+          )}
         </Specimen>
 
-        <Specimen name="Icon button" variant="Solid" paint={paint}>
-          <KitIconButton paint={paint} role={ROLE} glyph="plus" variant="solid" />
+        <Specimen name="Icon button" variant="Solid">
+          {(paint) => (
+            <KitIconButton paint={paint} role={ROLE} glyph="plus" variant="solid" />
+          )}
         </Specimen>
 
-        <Specimen name="Icon button" variant="Soft" paint={paint}>
-          <KitIconButton paint={paint} role={ROLE} glyph="check" variant="soft" />
+        <Specimen name="Icon button" variant="Soft">
+          {(paint) => (
+            <KitIconButton paint={paint} role={ROLE} glyph="check" variant="soft" />
+          )}
         </Specimen>
 
-        <Specimen name="Icon button" variant="Outline" paint={paint}>
-          <KitIconButton paint={paint} role={ROLE} glyph="dots" variant="outline" />
+        <Specimen name="Icon button" variant="Outline">
+          {(paint) => (
+            <KitIconButton paint={paint} role={ROLE} glyph="dots" variant="outline" />
+          )}
         </Specimen>
 
-        <Specimen name="Icon row" variant="Toolbar" paint={paint}>
-          <KitIconRow paint={paint} role={ROLE} />
+        <Specimen name="Icon row" variant="Toolbar">
+          {(paint) => (
+            <KitIconRow paint={paint} role={ROLE} />
+          )}
         </Specimen>
       </Rail>
 
@@ -135,23 +147,35 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
         label="Same Pair, Other Shapes"
         description="Badges and avatars take the same fill and foreground as the button — over a tenth of its area."
       >
-        <Specimen name="Badge" variant="Solid" paint={paint}>
-          <KitBadge paint={paint} role="info" label="New" variant="solid" />
+        <Specimen name="Badge" variant="Solid">
+          {(paint) => (
+            <KitBadge paint={paint} role="info" label="New" variant="solid" />
+          )}
         </Specimen>
-        <Specimen name="Badge" variant="Soft" paint={paint}>
-          <KitBadge paint={paint} role="info" label="Draft" variant="soft" />
+        <Specimen name="Badge" variant="Soft">
+          {(paint) => (
+            <KitBadge paint={paint} role="info" label="Draft" variant="soft" />
+          )}
         </Specimen>
-        <Specimen name="Badge" variant="Outline" paint={paint}>
-          <KitBadge paint={paint} role="info" label="Beta" variant="outline" />
+        <Specimen name="Badge" variant="Outline">
+          {(paint) => (
+            <KitBadge paint={paint} role="info" label="Beta" variant="outline" />
+          )}
         </Specimen>
-        <Specimen name="Avatar" variant="Solid" paint={paint}>
-          <KitAvatar paint={paint} role="primary" initials="EV" variant="solid" />
+        <Specimen name="Avatar" variant="Solid">
+          {(paint) => (
+            <KitAvatar paint={paint} role="primary" initials="EV" variant="solid" />
+          )}
         </Specimen>
-        <Specimen name="Avatar" variant="Gradient" paint={paint}>
-          <KitAvatar paint={paint} role="primary" initials="EV" variant="gradient" />
+        <Specimen name="Avatar" variant="Gradient">
+          {(paint) => (
+            <KitAvatar paint={paint} role="primary" initials="EV" variant="gradient" />
+          )}
         </Specimen>
-        <Specimen name="Avatar" variant="Stack" paint={paint}>
-          <KitAvatarStack paint={paint} />
+        <Specimen name="Avatar" variant="Stack">
+          {(paint) => (
+            <KitAvatarStack paint={paint} />
+          )}
         </Specimen>
       </Rail>
 
@@ -165,8 +189,10 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
           </p>
         )}
         {ready.map((role) => (
-          <Specimen key={role} name={actionLabel(role)} variant="Solid" paint={paint}>
-            <KitButton paint={paint} role={role} label={actionLabel(role)} variant="solid" size="sm" />
+          <Specimen key={role} name={actionLabel(role)} variant="Solid">
+            {(paint) => (
+              <KitButton paint={paint} role={role} label={actionLabel(role)} variant="solid" size="sm" />
+            )}
           </Specimen>
         ))}
       </Rail>
@@ -178,18 +204,20 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
           description="Accent roles with no 500 slot — click one to author it."
         >
           {waiting.map((role) => (
-            <Specimen key={role} name={actionLabel(role)} variant="Not set" paint={paint}>
-              <Swatch
-                slot={null}
-                role={role}
-                step={ACCENT.fill[paint.theme]}
-                pending
-                part="bg"
-                class="px-2.5 py-1.5 rounded-lg font-mono text-[10px] border text-center"
-                style={unsetStyle(paint.theme)}
-              >
-                --color-{role}-{ACCENT.fill[paint.theme]}
-              </Swatch>
+            <Specimen key={role} name={actionLabel(role)} variant="Not set">
+              {(paint) => (
+                <Swatch
+                  slot={null}
+                  role={role}
+                  step={ACCENT.fill[paint.theme]}
+                  pending
+                  part="bg"
+                  class="px-2.5 py-1.5 rounded-lg font-mono text-[10px] border text-center"
+                  style={unsetStyle(paint.theme)}
+                >
+                  --color-{role}-{ACCENT.fill[paint.theme]}
+                </Swatch>
+              )}
             </Specimen>
           ))}
         </Rail>

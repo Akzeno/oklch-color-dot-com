@@ -12,6 +12,7 @@ import type { ShadeStep, ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
 import ColorActionPopover from './ColorActionPopover';
 import { createPaint, type Theme, type Paint } from './preview/slots';
+import { PaintPairContext, type PaintPair } from './preview/theme';
 import { GROUPS, DEFAULT_GROUP, findGroup, isGroupId, type GroupId } from './preview/groups';
 import { PreviewFrame } from './preview/PreviewFrame';
 import { ButtonsGroup } from './preview/groups/ButtonsGroup';
@@ -123,10 +124,11 @@ function writeGroupToUrl(id: GroupId) {
    *
    * Arrow keys, Home and End are wired because this is a tablist: a strip that
    * only responds to clicks is unusable by keyboard, and silently is worse than
-   * absent.
-   *
-   * Active tab is highlighted with ink fill and a bottom indicator bar for clear
-   * visual feedback on which group is currently selected.
+   * absent. There is no "Active: …" readout above the strip — the selected tab
+   * fills with ink instead (see `[role='tablist'] .chip[aria-selected='true']`
+   * in `global.css`, which has to be unlayered to outrank `.chip`), because the
+   * tab you are on *is* the readout and repeating it in a second place gave the
+   * page two answers that could disagree.
    */
 function TabStrip({
   active,
@@ -136,7 +138,6 @@ function TabStrip({
   onSelect: (id: GroupId) => void;
 }) {
   const strip = useRef<HTMLDivElement>(null);
-  const activeGroup = GROUPS.find((g) => g.id === active);
 
   const onKeyDown = (e: KeyboardEvent) => {
     const i = GROUPS.findIndex((g) => g.id === active);
@@ -158,18 +159,14 @@ function TabStrip({
 
   return (
     <div class="sticky top-14 z-30 -mx-4 px-4 py-2.5 bg-canvas/95 backdrop-blur border-b border-hairline">
-      {/* Active group indicator */}
-      <div class="mb-2 flex items-center gap-2 text-xs font-mono text-faint">
-        <span class="px-2 py-0.5 rounded bg-ink/10 border border-ink/20">
-          Active: {activeGroup?.label ?? active}
-        </span>
-        <span class="hidden sm:inline" aria-hidden="true">—</span>
-        <span class="text-mute">Use ← → arrows to navigate</span>
-      </div>
       <div
         ref={strip}
         role="tablist"
         aria-label="Preview groups"
+        // Keyboard help lives in the tooltip rather than a row of chrome: the
+        // arrows work whether or not the reader has been told, and the row this
+        // replaced spent 24px repeating what the highlighted tab already said.
+        title="Preview groups — use ← → to move, Home / End to jump"
         onKeyDown={onKeyDown}
         class="flex items-center gap-1 overflow-x-auto no-scrollbar"
       >
@@ -187,20 +184,9 @@ function TabStrip({
               tabIndex={on ? 0 : -1}
               onClick={() => onSelect(g.id)}
               title={g.blurb}
-              class={`chip shrink-0 relative overflow-hidden ${
-                on
-                  ? 'bg-ink text-ink-inverse border-ink shadow-[0_0_0_1px_theme(border.ink)]'
-                  : 'bg-transparent border-transparent text-mute hover:text-body hover:bg-ink/5'
-              }`}
+              class="chip shrink-0"
             >
               {g.label}
-              {/* Active indicator underline */}
-              {on && (
-                <span
-                  class="absolute bottom-0 left-0 right-0 h-1 bg-ink-inverse"
-                  aria-hidden="true"
-                />
-              )}
               {!g.implemented && (
                 <span
                   class="w-1.5 h-1.5 rounded-full bg-faint flex-shrink-0 ml-1"
@@ -301,14 +287,22 @@ export default function UIPreviewIsland() {
   const [activeGroup, setActiveGroup] = useState<GroupId>(DEFAULT_GROUP);
 
   /**
-   * Every slot, resolved once per render.
+   * Both themes, resolved once per cart, plus the pair handed to the cards.
    *
-   * Memoised because `createPaint` runs `formatOklch` through culori for each
-   * slot, and the page paints well over a hundred elements from them. Resolving
-   * per element meant re-formatting the same `--color-*` value dozens of times
-   * per render for no benefit.
+   * Two paints rather than one because the per-card Dark/Light pill needs the
+   * *other* theme at render time, and `createPaint` runs the whole slot
+   * inventory through culori — once here instead of eighty times inside the
+   * cards. `paint` stays the page-wide one: the rail grades, the planned-group
+   * panel and the group headers all speak for the global setting, and only a
+   * card that has pinned itself speaks for anything else. See `preview/theme.ts`.
    */
-  const paint = useMemo(() => createPaint(cart, previewTheme), [cart, previewTheme]);
+  const dark = useMemo(() => createPaint(cart, 'dark'), [cart]);
+  const light = useMemo(() => createPaint(cart, 'light'), [cart]);
+  const paint = previewTheme === 'dark' ? dark : light;
+  const pair = useMemo<PaintPair>(
+    () => ({ dark, light, globalTheme: previewTheme }),
+    [dark, light, previewTheme]
+  );
 
   /**
    * Adopt the real URL or persisted group, before paint.
@@ -427,95 +421,103 @@ export default function UIPreviewIsland() {
   };
 
   return (
-    <div class="space-y-4">
-      {/* ─────── Main Preview Area ───────
-            Container context for the frames grid below, and the boundary of the
-            click contract.
+    <PaintPairContext.Provider value={pair}>
+      <div class="space-y-4">
+        {/* ─────── Main Preview Area ───────
+              Container context for the frames grid below, and the boundary of the
+              click contract.
 
-            The Design Tokens panel used to be the second child of a flex row
-            that wrapped both columns, so the click routing had to be attached
-            to something wider than the preview. It is a sibling of this island
-            now (the page owns the row, because the panel shares it with the
-            page title) and it paints no slots of its own — so the handlers
-            belong here, on the only subtree that can contain one. */}
-      <div
-        class="min-w-0 space-y-4 @container"
-        onClick={handlePreviewClick}
-        onContextMenu={handlePreviewContextMenu}
-      >
-        {/*
-          Controls row.
+              The Design Tokens panel used to be the second child of a flex row
+              that wrapped both columns, so the click routing had to be attached
+              to something wider than the preview. It is a sibling of this island
+              now (the page owns the row, because the panel shares it with the
+              page title) and it paints no slots of its own — so the handlers
+              belong here, on the only subtree that can contain one. */}
+        <div
+          class="min-w-0 space-y-4 @container"
+          onClick={handlePreviewClick}
+          onContextMenu={handlePreviewContextMenu}
+        >
+          {/*
+            Controls row.
 
-          The title and the two-line explanation this used to carry are gone.
-          "Every coloured element is a token slot — click one to swap it…" is
-          the page's one real instruction, so it belongs in the page header
-          where it is read once, not in a card above every tab. What is left
-          here is the row's actual content: which surface the canvas is
-          previewed on, and the shortcut to the role list.
-        */}
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div class="flex items-center gap-1 p-0.5 rounded-full border border-hairline bg-canvas-card">
-            {(['dark', 'light'] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                aria-pressed={previewTheme === t}
-                onClick={() => setPreviewTheme(t)}
-                class={`chip border-0 ${previewTheme === t ? '' : 'text-mute hover:text-body'}`}
-              >
-                {t === 'dark' ? 'Dark' : 'Light'}
-              </button>
-            ))}
+            The title and the two-line explanation this used to carry are gone.
+            "Every coloured element is a token slot — click one to swap it…" is
+            the page's one real instruction, so it belongs in the page header
+            where it is read once, not in a card above every tab. What is left
+            here is the row's actual content: which surface the canvas is
+            previewed on, and the shortcut to the role list.
+
+            This pair is the *page-wide* theme: it repaints every card that has
+            not pinned itself. A card that has pins stays put only while this
+            control sits where the pin was taken — move it and the whole
+            preview follows, which is what makes it "apply to all".
+          */}
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="theme-segment flex items-center gap-1 p-0.5 rounded-full border border-hairline bg-canvas-card">
+              {(['dark', 'light'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  aria-pressed={previewTheme === t}
+                  onClick={() => setPreviewTheme(t)}
+                  title={`Paint every card that has not pinned itself with the ${t} theme`}
+                  class="chip"
+                >
+                  {t === 'dark' ? 'Dark' : 'Light'}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => isCartOpenStore.set(true)}
+              class="btn btn-quiet h-8"
+            >
+              Manage roles
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => isCartOpenStore.set(true)}
-            class="btn btn-quiet h-8"
-          >
-            Manage roles
-          </button>
+          <TabStrip active={activeGroup} onSelect={selectGroup} />
+
+          {/*
+            Groups are rails, so the layout is a single full-width column.
+
+            It used to be a two-column grid of frames, driven by a `@3xl` container
+            query. That breakpoint was chosen to fit two *canvases* of loose
+            components side by side; a rail has the opposite shape — it wants the
+            full width and scrolls — so splitting it in half would have put five
+            cards behind a fold for no gain and broken the left-to-right reading
+            order a rail depends on.
+          */}
+          <div class="space-y-8">
+            {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
+            {activeGroup === 'navigation' && <NavigationGroup paint={paint} />}
+            {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
+            {activeGroup === 'forms' && <FormsGroup paint={paint} />}
+            {activeGroup === 'cards' && <CardsGroup paint={paint} />}
+            {activeGroup === 'lists' && <ListsGroup paint={paint} />}
+            {activeGroup === 'feedback' && <FeedbackGroup paint={paint} />}
+            {activeGroup === 'overlays' && <OverlaysGroup paint={paint} />}
+            {activeGroup === 'dataviz' && <DataVizGroup paint={paint} />}
+          </div>
         </div>
 
-        <TabStrip active={activeGroup} onSelect={selectGroup} />
-
-        {/*
-          Groups are rails, so the layout is a single full-width column.
-
-          It used to be a two-column grid of frames, driven by a `@3xl` container
-          query. That breakpoint was chosen to fit two *canvases* of loose
-          components side by side; a rail has the opposite shape — it wants the
-          full width and scrolls — so splitting it in half would have put five
-          cards behind a fold for no gain and broken the left-to-right reading
-          order a rail depends on.
-        */}
-        <div class="space-y-8">
-          {!active.implemented && <PlannedGroup paint={paint} id={activeGroup} />}
-          {activeGroup === 'navigation' && <NavigationGroup paint={paint} />}
-          {activeGroup === 'buttons' && <ButtonsGroup paint={paint} />}
-          {activeGroup === 'forms' && <FormsGroup paint={paint} />}
-          {activeGroup === 'cards' && <CardsGroup paint={paint} />}
-          {activeGroup === 'lists' && <ListsGroup paint={paint} />}
-          {activeGroup === 'feedback' && <FeedbackGroup paint={paint} />}
-          {activeGroup === 'overlays' && <OverlaysGroup paint={paint} />}
-          {activeGroup === 'dataviz' && <DataVizGroup paint={paint} />}
-        </div>
+        {/* Action popover shown when a coloured element is clicked / right-clicked */}
+        {popover && (
+          <ColorActionPopover
+            x={popover.x}
+            y={popover.y}
+            targetRoleId={popover.roleId}
+            targetStep={popover.step}
+            onApplyColor={handleApplyColor}
+            onDeleteShade={handleDeleteShade}
+            onDeleteFullScale={handleDeleteFullScale}
+            onOpenInPicker={handleOpenInPicker}
+            onClose={() => setPopover(null)}
+          />
+        )}
       </div>
-
-      {/* Action popover shown when a coloured element is clicked / right-clicked */}
-      {popover && (
-        <ColorActionPopover
-          x={popover.x}
-          y={popover.y}
-          targetRoleId={popover.roleId}
-          targetStep={popover.step}
-          onApplyColor={handleApplyColor}
-          onDeleteShade={handleDeleteShade}
-          onDeleteFullScale={handleDeleteFullScale}
-          onOpenInPicker={handleOpenInPicker}
-          onClose={() => setPopover(null)}
-        />
-      )}
-    </div>
+    </PaintPairContext.Provider>
   );
 }

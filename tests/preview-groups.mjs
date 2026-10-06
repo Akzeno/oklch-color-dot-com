@@ -965,8 +965,17 @@ check('and rejects anything that is not an exact id',
   ['Buttons', 'buttons ', ' buttons', 'BUTTONS'].every((v) => !isGroupId(v)));
 
 console.log('\n=== The island resolves every slot once per render ===');
-check('createPaint is memoised on cart and theme',
-  /useMemo\(\(\) => createPaint\(cart, previewTheme\), \[cart, previewTheme\]\)/.test(islandSrc));
+// Once per theme rather than once per render of the active theme: each
+// specimen card pins its own Dark/Light setting (see `Specimen`) and needs the
+// *other* theme's paint at the moment it renders. Resolving that inside the
+// cards would redo the whole slot inventory 80-odd times per render — so the
+// island builds both, memoised on the cart, and hands the pair down.
+check('createPaint is memoised on the cart, once per theme',
+  /useMemo\(\(\) => createPaint\(cart, 'dark'\), \[cart\]\)/.test(islandSrc) &&
+    /useMemo\(\(\) => createPaint\(cart, 'light'\), \[cart\]\)/.test(islandSrc),
+  islandSrc.match(/useMemo\(\(\) => createPaint[\s\S]{0,70}/)?.[0]);
+check('the pair the cards read is memoised too',
+  /useMemo<PaintPair>/.test(islandSrc));
 // Every implemented group, not a sample of two: a group that took the raw cart
 // would have to re-resolve slots per element, which is the cost `createPaint`
 // exists to remove, and would be invisible until the page got slow.

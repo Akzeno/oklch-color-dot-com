@@ -424,6 +424,56 @@ body {
   font-weight: 500;
 }
 
+/*
+ * The preview's group tabs.
+ *
+ * WHY UNLAYERED
+ *
+ * `.chip` above is unlayered, and an unlayered declaration beats every layered
+ * one regardless of source order — so the `bg-ink text-ink-inverse` utilities
+ * the tab buttons carry never applied: the selected tab rendered as the same
+ * hairline pill as its neighbours, with only an underline to distinguish it,
+ * and the "Active: Navigation" readout above the strip existed to compensate.
+ * The readout is gone; *this* is the highlight it was standing in for, written
+ * where it can actually win.
+ *
+ * Inactive tabs drop to transparent-on-canvas so the strip reads as one
+ * instrument rather than eight little boxes, and only the selected one fills.
+ */
+[role='tablist'] .chip {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-mute);
+}
+[role='tablist'] .chip:hover {
+  color: var(--color-body);
+  border-color: var(--color-hairline);
+}
+[role='tablist'] .chip[aria-selected='true'] {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-ink-inverse);
+  font-weight: 500;
+}
+[role='tablist'] .chip[aria-selected='true']:hover {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-ink-inverse);
+}
+
+/*
+ * The Dark/Light control: chips seated in a bordered pill.
+ *
+ * The pill already draws the outer hairline, so each chip's own `.chip` border
+ * would put a second one 2px inside it — a doubled edge on a control 30px tall.
+ * `border-0` on the button could not fix that for the same reason the tab
+ * utilities could not: unlayered `.chip` outranks it. This is the geometry
+ * override, scoped to the one wrapper that wants it.
+ */
+.theme-segment .chip {
+  border-width: 0;
+}
+
 /* Text action that de-emphasises until hovered. */
 .link-hud {
   color: var(--color-body);
@@ -597,12 +647,18 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
    they have seen everything. */
 .fixture-rail {
   display: flex;
+  /* Nowrap by default: below the wrap breakpoint a rail scrolls sideways and
+     never stacks into a column — see the container query underneath. */
+  flex-wrap: nowrap;
   gap: 14px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-padding-inline: 2px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-hairline) transparent;
+  /* Gutter for the scrollbar, so it never lands on a card's caption. Zeroed
+     once the rail wraps and has no scrollbar to make room for. */
+  padding-bottom: 6px;
 }
 .fixture-rail::-webkit-scrollbar {
   height: 6px;
@@ -622,6 +678,29 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 }
 
 /*
+ * WHEN A RAIL WRAPS INSTEAD OF SCROLLING
+ *
+ * A container query, not a `lg:` viewport variant: the rail lives in the
+ * preview column, whose width depends on the token panel beside it and on the
+ * page's own gutters — at the same viewport it can hold three cards or one.
+ * Wrapping at a viewport breakpoint would therefore scroll cards the reader
+ * has room for and stack cards they do not, which is the defect this replaces.
+ *
+ * At 48rem of *container* the cards fit as a set, so the rail becomes a
+ * wrapping grid, gives up its scrollbar gutter, and the right-edge fade (which
+ * only ever means "there is more to the right") retires with it.
+ */
+@container (min-width: 48rem) {
+  .fixture-rail {
+    flex-wrap: wrap;
+    padding-bottom: 0;
+  }
+  .rail-fade {
+    display: none;
+  }
+}
+
+/*
  * The caption under each specimen: "Button · Classic".
 
  * Catalogue-entry wording on purpose. `Button · Classic` says which component
@@ -632,6 +711,10 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
  * `tabular-nums` and the middot are what make a run of them line up; the
  * separator is a real character rather than a border, so the caption collapses
  * to one clean token when copied out of the page.
+
+ * Left-aligned, not centred: the card's caption bar now also carries the
+ * Dark/Light pills at its right edge, and a centred line would drift toward
+ * them as the variant name shortens. It truncates in place instead.
  */
 .fixture-caption {
   font-family: var(--font-sans);
@@ -639,7 +722,6 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   font-weight: 500;
   line-height: 14px;
   letter-spacing: 0.01em;
-  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -684,11 +766,33 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
  * at and can never collide.
  *
  * It is the only place the affordance changes, and only its geometry — the ring
- * is still the product's ink, so "this is a slot, click it" reads identically
+ * is still drawn in a single ink, so "this is a slot, click it" reads identically
  * inside and outside a card.
+ *
+ * WHICH INK, THOUGH, IS A PER-CARD QUESTION NOW
+ *
+ * Each card picks its own theme (see `Specimen`), so a ring derived from the
+ * host's `--color-ink` is wrong on half the cards on screen: on a light card in
+ * a dark session the ring was white-on-white, i.e. absent — a hover affordance
+ * you cannot see is worse than none, because it teaches you that the element is
+ * not clickable. `--fixture-ring` is keyed off the card's `data-fixture-theme`
+ * instead, so it is always the opposite pole of the card it sits on, whatever
+ * the page is doing. The host ink stays the fallback for any fixture element
+ * that predates the attribute.
  */
+.fixture [data-fixture-theme='dark'] {
+  --fixture-ring: #e5e7eb;
+}
+.fixture [data-fixture-theme='light'] {
+  --fixture-ring: #27272a;
+}
 .fixture [data-context-role]:hover {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--fixture-ring, var(--color-ink));
+  outline-offset: -2px;
+}
+/* Keyboard, too: focus lands inside a card long before hover ever does. */
+.fixture-card:focus-within {
+  outline: 2px solid var(--fixture-ring, var(--color-ink));
   outline-offset: -2px;
 }
 
