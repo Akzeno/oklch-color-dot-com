@@ -1,0 +1,254 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { getNavItemByPath } from '../../config/navigation';
+import { parseAnyToOklch, formatOklch } from '../../utils/color';
+
+const navItem = getNavItemByPath('/learn/oklch-in-tailwind-css-v4');
+const seo = navItem?.seo || {
+  title: 'OKLCH in Tailwind CSS v4 - Colors, Palette & @theme',
+  metaDescription:
+    'How Tailwind CSS v4 uses OKLCH: the default palette, @theme color variables, migrating from v3, and shipping wide-gamut colors in your design system.',
+  h1: 'OKLCH in Tailwind CSS v4: Colors, Palette and @theme',
+  schemaType: 'Article' as const,
+};
+
+// Known Tailwind default-palette hex values (the pre-v4 sRGB definitions),
+// converted to oklch() at build time by this site's own engine — so the table
+// is computed, not copied, and can't drift from the converter's math.
+const paletteRows = [
+  { name: 'red-500', hex: '#ef4444' },
+  { name: 'orange-500', hex: '#f97316' },
+  { name: 'amber-500', hex: '#f59e0b' },
+  { name: 'emerald-500', hex: '#10b981' },
+  { name: 'sky-400', hex: '#38bdf8' },
+  { name: 'blue-500', hex: '#3b82f6' },
+  { name: 'violet-500', hex: '#8b5cf6' },
+  { name: 'pink-500', hex: '#ec4899' },
+].map((row) => {
+  const parsed = parseAnyToOklch(row.hex);
+  return { ...row, oklch: parsed ? formatOklch(parsed) : 'oklch(0% 0 0)' };
+});
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  keywords={seo.keywords}
+  canonicalPath="/learn/oklch-in-tailwind-css-v4"
+  schemaType="Article"
+>
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-ink">Home</a>
+      <span>/</span>
+      <span class="text-body">Learn</span>
+      <span>/</span>
+      <span class="text-ink">OKLCH in Tailwind CSS v4</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="space-y-3">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
+        {seo.h1}
+      </h1>
+      <p class="text-sm font-mono text-body leading-relaxed">
+        Tailwind CSS v4 defines its entire default color palette in OKLCH instead of RGB. This guide covers what changed, how to write OKLCH colors in a v4 <code class="text-ink">@theme</code> block, and how to migrate custom colors from a v3 config without breaking class names.
+      </p>
+      <p class="text-xs font-mono text-mute">
+        Last updated: 2026-10-07 · Maintained by the OKLCH Colors team
+      </p>
+    </div>
+
+    <!-- 1. Short answer -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">When Did Tailwind Start Using OKLCH?</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        With <strong class="text-ink">Tailwind CSS v4.0, released January 22, 2025</strong>. The v4.0 release notes state: "We've upgraded the entire default color palette from rgb to oklch, taking advantage of the wider gamut to make the colors more vivid in places where we were previously limited by the sRGB color space."
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        So from v4.0 onward, every value behind <code class="text-ink">bg-blue-500</code>, <code class="text-ink">text-red-500</code> and the rest of the default palette is an <code class="text-ink">oklch()</code> color. v3.x and earlier stayed on RGB. The utility class names did not change — only the color notation underneath.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — v4.0 release blog post</a>
+      </p>
+    </section>
+
+    <!-- 2. Why -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Why OKLCH Instead of RGB?</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Two reasons, both stated in the release notes: <strong class="text-ink">wider gamut</strong> and <strong class="text-ink">perceptual structure</strong>. OKLCH is not confined to sRGB, so on wide-gamut Display-P3 displays the same color can render more vividly than its RGB definition ever allowed. And because lightness in OKLCH is perceptually uniform, a 500-to-600 step in the palette moves by a consistent amount of perceived brightness — the property that makes generated scales feel evenly spaced.
+      </p>
+      <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
+        <li><strong class="text-ink">Same classes, richer output:</strong> no class renames — <code class="text-ink">bg-emerald-500</code> keeps working, the value behind it changed notation.</li>
+        <li><strong class="text-ink">Ready for wide gamut:</strong> when a v4 project lands on a P3 display, the palette can actually show the extra color.</li>
+        <li><strong class="text-ink">Consistent lightness ramps:</strong> the 50–950 steps line up with perceptual brightness rather than channel math.</li>
+      </ul>
+    </section>
+
+    <!-- 3. @theme -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Writing OKLCH Colors in @theme</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Tailwind v4 moved configuration into CSS. Custom colors live in the <code class="text-ink">@theme</code> block under the <code class="text-ink">--color-{'{name}'}</code> namespace, and any value the browser accepts as a color — including <code class="text-ink">oklch()</code> — can be assigned:
+      </p>
+      <div class="space-y-2 text-xs font-mono text-body">
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>@import "tailwindcss";{'\n'}{'\n'}@theme &#123;{'\n'}  --color-brand-500: oklch(62.3% 0.188 259.8);{'\n'}  --color-brand-600: oklch(55% 0.18 259.8);{'\n'}  --color-surface: oklch(98% 0.005 250);{'\n'}&#125;</code></pre>
+      </div>
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">Utilities are generated automatically:</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>&lt;div class="bg-brand-500 text-surface"&gt;{'\n'}&lt;a class="hover:bg-brand-600"&gt;</code></pre>
+      </div>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Because the token is an ordinary custom property, every downstream Tailwind feature — opacity modifiers like <code class="text-ink">bg-brand-500/50</code>, <code class="text-ink">dark:</code> variants, and <code class="text-ink">color-mix()</code> under the hood — operates on the OKLCH value directly. A HEX value still works in the same slot; writing <code class="text-ink">oklch()</code> simply keeps the whole theme in one color space.
+      </p>
+    </section>
+
+    <!-- 4. Conversion table -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-ink">Familiar Palette Colors, Converted to OKLCH</h2>
+        <span class="text-[11px] font-mono text-mute">Build-Time Generated</span>
+      </div>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        If you are carrying custom colors forward from v3, start from the value you already have. These well-known default-palette hex values are converted below by the same engine every converter on this site uses — copy the <code class="text-ink">oklch()</code> column straight into a v4 <code class="text-ink">@theme</code> block:
+      </p>
+
+      <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
+              <tr>
+                <th class="p-3">Color</th>
+                <th class="p-3">Token</th>
+                <th class="p-3">HEX (v3)</th>
+                <th class="p-3">OKLCH (v4)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-hairline">
+              {paletteRows.map((row) => (
+                <tr class="hover:bg-canvas-elevated transition-colors">
+                  <td class="p-3">
+                    <div
+                      class="w-6 h-6 rounded border border-white/20 shadow-sm"
+                      style={`background-color: ${row.oklch};`}
+                    />
+                  </td>
+                  <td class="p-3 text-ink font-medium">{row.name}</td>
+                  <td class="p-3 text-body">{row.hex}</td>
+                  <td class="p-3 text-copy-success">{row.oklch}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="text-[11px] font-mono text-mute">
+        The v3 column shows the published sRGB hex of each token; the v4 column is this site's build-time conversion of that same color.
+      </p>
+    </section>
+
+    <!-- 5. Migration -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Migrating Custom Colors from v3</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        v4's upgrade guide covers the tooling side (the config moves from <code class="text-ink">tailwind.config.js</code> into CSS). For the colors themselves, the recipe is small and mechanical:
+      </p>
+      <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
+        <li>Move each color from the v3 <code class="text-ink">theme.extend.colors</code> entry into an <code class="text-ink">@theme</code> <code class="text-ink">--color-{'{name}'}</code> variable.</li>
+        <li>Convert the value with a converter (HEX → OKLCH, RGB → OKLCH, or HSL → OKLCH) and paste the <code class="text-ink">oklch()</code> result. Keeping the same name means no class changes anywhere.</li>
+        <li>Leave names that contain theme breakpoints or <code class="text-ink">DEFAULT</code> for a pass on their own — they map to slightly different variable patterns in v4.</li>
+        <li>Spot-check opacity modifiers: <code class="text-ink">bg-brand/40</code> should still render — v4 resolves it through <code class="text-ink">color-mix()</code> regardless of the source notation.</li>
+      </ol>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/docs/upgrade-guide" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — Upgrade guide (v3 → v4)</a>
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+        <a href="/hex-to-oklch" class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
+          <span class="text-ink font-semibold block">HEX → OKLCH</span>
+          <span class="text-body">For hex-based tokens</span>
+        </a>
+        <a href="/rgb-to-oklch" class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
+          <span class="text-ink font-semibold block">RGB → OKLCH</span>
+          <span class="text-body">For rgb() tokens</span>
+        </a>
+        <a href="/export" class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
+          <span class="text-ink font-semibold block">Token Export</span>
+          <span class="text-body">Copy a whole @theme block</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 6. FAQ -->
+    <section class="space-y-4">
+      <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+      <div class="space-y-3 font-mono text-xs">
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Does Tailwind CSS v4 use OKLCH for every color?</h3>
+          <p class="text-body leading-relaxed">
+            The entire default palette is defined in OKLCH as of v4.0. Your own colors can be any notation — Tailwind accepts HEX, RGB, HSL or OKLCH in <code class="text-ink">@theme</code> — but writing them as <code class="text-ink">oklch()</code> keeps one color space throughout the project.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Do my class names change when I upgrade?</h3>
+          <p class="text-body leading-relaxed">
+            No. <code class="text-ink">bg-blue-500</code> is still <code class="text-ink">bg-blue-500</code>; only the value behind it changed from an RGB to an OKLCH definition. Class renames in v4 come from other parts of the upgrade, not from the color-space switch.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Can I still use HEX values in Tailwind v4?</h3>
+          <p class="text-body leading-relaxed">
+            Yes. HEX remains valid anywhere a color is accepted. Converting to OKLCH is optional — the benefit is perceptually uniform lightness for derived colors and gamut headroom, not a requirement for the framework to work.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Do opacity modifiers work with OKLCH colors?</h3>
+          <p class="text-body leading-relaxed">
+            Yes. Utilities like <code class="text-ink">bg-brand-500/50</code> work the same way regardless of the token's notation — v4 resolves opacity through <code class="text-ink">color-mix()</code>, which handles OKLCH values natively.
+          </p>
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">Why do my v4 colors look slightly different on my new laptop?</h3>
+          <p class="text-body leading-relaxed">
+            If the display is wide-gamut (many recent laptops are), OKLCH colors can show more vivid reds, greens and blues than the same color rendered from its old RGB value on an sRGB screen. That headroom is exactly what the v4 release notes describe as the motivation for the switch.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Related reading -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Related Guides</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a href="/learn/what-is-oklch" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">What is OKLCH?</span>
+          <span class="text-xs font-mono text-body">The color space behind the palette</span>
+        </a>
+        <a href="/learn/oklch-css-syntax" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">CSS oklch() Syntax</span>
+          <span class="text-xs font-mono text-body">Every slot of the function, explained</span>
+        </a>
+        <a href="/learn/oklch-vs-hsl-vs-rgb" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">OKLCH vs HSL vs RGB</span>
+          <span class="text-xs font-mono text-body">Where each notation wins</span>
+        </a>
+        <a href="/oklch-color-palette-generator" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Palette Generator</span>
+          <span class="text-xs font-mono text-body">Build 50-950 scales, export as tokens</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 8. Sources -->
+    <section class="space-y-3 pt-6 border-t border-hairline">
+      <h2 class="text-sm font-semibold text-ink">Sources</h2>
+      <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
+        <li><a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — v4.0 release blog post (Jan 22, 2025)</a></li>
+        <li><a href="https://tailwindcss.com/docs/upgrade-guide" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — Upgrade guide, v3 → v4</a></li>
+        <li><a href="https://tailwindcss.com/docs/theme" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — Theme variables (@theme)</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() CSS color function</a></li>
+      </ul>
+    </section>
+  </div>
+</AppLayout>

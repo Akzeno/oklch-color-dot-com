@@ -293,6 +293,67 @@ export const navigationConfig: NavItem[] = [
       dateModified: MODIFIED,
     },
   },
+  {
+    id: 'learn-css-syntax',
+    labelKey: 'nav.oklchCssSyntax',
+    defaultLabel: 'CSS Syntax',
+    icon: 'Code2',
+    path: '/learn/oklch-css-syntax',
+    order: 8,
+    group: 'learn',
+    showInMobileBar: false,
+    seo: {
+      title: 'CSS oklch() Syntax - Values, Alpha & Fallbacks',
+      metaDescription:
+        'The complete oklch() CSS syntax: lightness, chroma and hue values, alpha after the slash, relative color syntax, progressive fallbacks and browser support.',
+      h1: 'CSS oklch() Syntax: Lightness, Chroma, Hue & Alpha',
+      keywords: ['css oklch', 'oklch css syntax', 'oklch function', 'css color oklch'],
+      schemaType: 'Article',
+      // Published with the rest of the Phase 7 content batch.
+      datePublished: '2026-10-07',
+      dateModified: MODIFIED,
+    },
+  },
+  {
+    id: 'learn-tailwind-v4',
+    labelKey: 'nav.oklchTailwindV4',
+    defaultLabel: 'OKLCH in Tailwind v4',
+    icon: 'Palette',
+    path: '/learn/oklch-in-tailwind-css-v4',
+    order: 9,
+    group: 'learn',
+    showInMobileBar: false,
+    seo: {
+      title: 'OKLCH in Tailwind CSS v4 - Colors, Palette & @theme',
+      metaDescription:
+        'How Tailwind CSS v4 uses OKLCH: the default palette, @theme color variables, migrating from v3, and shipping wide-gamut colors in your design system.',
+      h1: 'OKLCH in Tailwind CSS v4: Colors, Palette and @theme',
+      keywords: ['tailwind css oklch', 'tailwind v4 colors', 'tailwind oklch palette', 'tailwind @theme oklch'],
+      schemaType: 'Article',
+      datePublished: '2026-10-07',
+      dateModified: MODIFIED,
+    },
+  },
+  {
+    id: 'learn-vs-hsl-rgb',
+    labelKey: 'nav.oklchVsHslRgb',
+    defaultLabel: 'OKLCH vs HSL vs RGB',
+    icon: 'BarChart3',
+    path: '/learn/oklch-vs-hsl-vs-rgb',
+    order: 10,
+    group: 'learn',
+    showInMobileBar: false,
+    seo: {
+      title: 'OKLCH vs HSL vs RGB - Which Color Space to Use',
+      metaDescription:
+        'OKLCH vs HSL vs RGB compared: perceptual uniformity, lightness accuracy, gradients and gamut — with conversion tables and migration guidance for CSS.',
+      h1: 'OKLCH vs HSL vs RGB: Which Color Space Should You Use?',
+      keywords: ['oklch vs hsl', 'oklch vs rgb', 'hsl vs oklch', 'why use oklch'],
+      schemaType: 'Article',
+      datePublished: '2026-10-07',
+      dateModified: MODIFIED,
+    },
+  },
 ];
 
 // Helper to find navigation item by path

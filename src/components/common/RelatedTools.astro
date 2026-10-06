@@ -67,9 +67,20 @@ if (isConverter) {
   }
 }
 
-const learn = allItems.find((i) => normalize(i.path) === '/learn/what-is-oklch');
-if (learn) {
-  related.push({ path: learn.path, label: learn.seo.h1, description: learn.seo.metaDescription.split('.')[0] + '.' });
+const learn = allItems.filter(
+  (i) => i.group === 'learn' && normalize(i.path) !== current
+);
+// Learn pages cross-link their sibling guides; other pages get the pillar
+// only, so a converter's related grid doesn't fill up with four guides.
+const isLearnPage = current.startsWith('/learn/');
+const learnToShow = isLearnPage
+  ? learn
+  : learn.filter((i) => normalize(i.path) === '/learn/what-is-oklch');
+for (const item of learnToShow) {
+  if (seen.indexOf(normalize(item.path)) === -1) {
+    related.push({ path: item.path, label: item.seo.h1, description: item.seo.metaDescription.split('.')[0] + '.' });
+    seen.push(normalize(item.path));
+  }
 }
 ---
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import {
   ArrowLeftRight,
+  BarChart3,
   BookOpen,
   Code2,
   LayoutTemplate,
@@ -25,6 +26,7 @@ const ICONS: Record<string, LucideIcon> = {
   LayoutTemplate,
   Code2,
   BookOpen,
+  BarChart3,
 };
 
 interface SidebarProps {
