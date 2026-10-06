@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "seo:check": "astro build && node scripts/seo-check.mjs",
     "test": "astro build && node --experimental-strip-types tests/run.mjs"
   },
   "dependencies": {
