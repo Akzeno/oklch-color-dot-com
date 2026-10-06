@@ -45,6 +45,8 @@ import { OverlaysGroup } from './preview/groups/OverlaysGroup';
 
 /* ─────────────────────── URL sync ─────────────────────── */
 
+const GROUP_STORAGE_KEY = 'oklch_preview_group_v1';
+
 /**
  * Read `?group=` from the URL.
  *
@@ -65,6 +67,34 @@ function readGroupFromUrl(): GroupId {
 }
 
 /**
+ * Read the persisted group from sessionStorage.
+ * Used to restore the active group after returning from the color picker.
+ */
+function readGroupFromStorage(): GroupId {
+  if (typeof window === 'undefined') return DEFAULT_GROUP;
+  try {
+    const stored = sessionStorage.getItem(GROUP_STORAGE_KEY);
+    if (stored && isGroupId(stored)) return stored;
+  } catch {
+    // Ignore storage errors
+  }
+  return DEFAULT_GROUP;
+}
+
+/**
+ * Persist the active group to sessionStorage.
+ * Called when the group changes or before navigating to the picker.
+ */
+function writeGroupToStorage(id: GroupId) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(GROUP_STORAGE_KEY, id);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
  * Write `?group=` without navigating.
  *
  * `replaceState`, not `pushState`: switching tabs is a view change inside the
@@ -78,22 +108,26 @@ function writeGroupToUrl(id: GroupId) {
   if (id === DEFAULT_GROUP) url.searchParams.delete('group');
   else url.searchParams.set('group', id);
   window.history.replaceState(window.history.state, '', url);
+  writeGroupToStorage(id);
 }
 
 /* ─────────────────────── Tab strip ─────────────────────── */
 
-/**
- * Horizontal tab strip.
- *
- * A strip rather than a left rail because the preview column is already narrow:
- * the sidebar takes ~300px, and a second 200px rail would squeeze the group out
- * of the column it has to scroll in. The strip scrolls instead, so all eight
- * groups stay reachable without taking width from the thing being judged.
- *
- * Arrow keys, Home and End are wired because this is a tablist: a strip that
- * only responds to clicks is unusable by keyboard, and silently is worse than
- * absent.
- */
+  /**
+   * Horizontal tab strip.
+   *
+   * A strip rather than a left rail because the preview column is already narrow:
+   * the sidebar takes ~300px, and a second 200px rail would squeeze the group out
+   * of the column it has to scroll in. The strip scrolls instead, so all eight
+   * groups stay reachable without taking width from the thing being judged.
+   *
+   * Arrow keys, Home and End are wired because this is a tablist: a strip that
+   * only responds to clicks is unusable by keyboard, and silently is worse than
+   * absent.
+   *
+   * Active tab is highlighted with ink fill and a bottom indicator bar for clear
+   * visual feedback on which group is currently selected.
+   */
 function TabStrip({
   active,
   onSelect,
@@ -102,6 +136,7 @@ function TabStrip({
   onSelect: (id: GroupId) => void;
 }) {
   const strip = useRef<HTMLDivElement>(null);
+  const activeGroup = GROUPS.find((g) => g.id === active);
 
   const onKeyDown = (e: KeyboardEvent) => {
     const i = GROUPS.findIndex((g) => g.id === active);
@@ -122,42 +157,61 @@ function TabStrip({
   };
 
   return (
-    <div
-      ref={strip}
-      role="tablist"
-      aria-label="Preview groups"
-      onKeyDown={onKeyDown}
-      class="sticky top-14 z-30 flex items-center gap-1 overflow-x-auto no-scrollbar -mx-4 px-4 py-2.5 bg-canvas/95 backdrop-blur border-b border-hairline"
-    >
-      {GROUPS.map((g) => {
-        const on = g.id === active;
-        return (
-          <button
-            key={g.id}
-            type="button"
-            role="tab"
-            data-group={g.id}
-            aria-selected={on}
-            // Roving tabindex: one stop in the tab order, arrows move within.
-            tabIndex={on ? 0 : -1}
-            onClick={() => onSelect(g.id)}
-            title={g.blurb}
-            class={`chip shrink-0 ${
-              on
-                ? 'bg-ink border-ink text-ink-inverse'
-                : 'bg-transparent border-transparent text-mute hover:text-body'
-            }`}
-          >
-            {g.label}
-            {!g.implemented && (
-              <span
-                class="w-1.5 h-1.5 rounded-full bg-faint flex-shrink-0"
-                title="Planned — shows what it will cover, not yet built"
-              />
-            )}
-          </button>
-        );
-      })}
+    <div class="sticky top-14 z-30 -mx-4 px-4 py-2.5 bg-canvas/95 backdrop-blur border-b border-hairline">
+      {/* Active group indicator */}
+      <div class="mb-2 flex items-center gap-2 text-xs font-mono text-faint">
+        <span class="px-2 py-0.5 rounded bg-ink/10 border border-ink/20">
+          Active: {activeGroup?.label ?? active}
+        </span>
+        <span class="hidden sm:inline" aria-hidden="true">—</span>
+        <span class="text-mute">Use ← → arrows to navigate</span>
+      </div>
+      <div
+        ref={strip}
+        role="tablist"
+        aria-label="Preview groups"
+        onKeyDown={onKeyDown}
+        class="flex items-center gap-1 overflow-x-auto no-scrollbar"
+      >
+        {GROUPS.map((g) => {
+          const on = g.id === active;
+          return (
+            <button
+              key={g.id}
+              type="button"
+              role="tab"
+              data-group={g.id}
+              aria-selected={on}
+              aria-controls={`panel-${g.id}`}
+              // Roving tabindex: one stop in the tab order, arrows move within.
+              tabIndex={on ? 0 : -1}
+              onClick={() => onSelect(g.id)}
+              title={g.blurb}
+              class={`chip shrink-0 relative overflow-hidden ${
+                on
+                  ? 'bg-ink text-ink-inverse border-ink shadow-[0_0_0_1px_theme(border.ink)]'
+                  : 'bg-transparent border-transparent text-mute hover:text-body hover:bg-ink/5'
+              }`}
+            >
+              {g.label}
+              {/* Active indicator underline */}
+              {on && (
+                <span
+                  class="absolute bottom-0 left-0 right-0 h-1 bg-ink-inverse"
+                  aria-hidden="true"
+                />
+              )}
+              {!g.implemented && (
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-faint flex-shrink-0 ml-1"
+                  title="Planned — shows what it will cover, not yet built"
+                  aria-label="Not yet implemented"
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -257,13 +311,14 @@ export default function UIPreviewIsland() {
   const paint = useMemo(() => createPaint(cart, previewTheme), [cart, previewTheme]);
 
   /**
-   * Adopt the real URL, before paint.
+   * Adopt the real URL or persisted group, before paint.
    *
    * Two jobs, and the timing matters for both:
    *
    *  - A shared `?group=forms` link lands on Forms instead of the default.
    *  - A `ClientRouter` swap restores a history entry whose query string only
    *    exists once Astro has settled the final URL.
+   *  - Returning from the color picker restores the group from sessionStorage.
    *
    * `useLayoutEffect`, not `useEffect`: it runs after the DOM is reconciled but
    * before the browser paints, so neither the initial group nor a route change
@@ -272,6 +327,12 @@ export default function UIPreviewIsland() {
    */
   useLayoutEffect(() => {
     const sync = () => setActiveGroup(readGroupFromUrl());
+    // Also restore from sessionStorage (e.g., after returning from color picker)
+    const storedGroup = readGroupFromStorage();
+    if (storedGroup !== DEFAULT_GROUP) {
+      setActiveGroup(storedGroup);
+      writeGroupToUrl(storedGroup); // Sync URL with storage
+    }
     sync();
     window.addEventListener('popstate', sync);
     return () => window.removeEventListener('popstate', sync);
@@ -351,12 +412,16 @@ export default function UIPreviewIsland() {
   // `returnTo` brings the user back here after they save.
   const handleOpenInPicker = (color: ColorModel | null) => {
     if (!popover) return;
+    // Include the active group in the returnTo URL so it persists after the picker round-trip
+    const returnTo = `${window.location.pathname}?group=${activeGroup}`;
     savePickerHandoff({
       roleId: popover.roleId,
       step: popover.step,
       color,
-      returnTo: window.location.pathname,
+      returnTo,
     });
+    // Also persist to sessionStorage as a fallback
+    writeGroupToStorage(activeGroup);
     setPopover(null);
     goTo('/');
   };

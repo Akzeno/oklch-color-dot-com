@@ -8,6 +8,7 @@ import {
   KitEdge,
   KitMuted,
   KitProgress,
+  KitSurfaceish,
   KitText,
 } from '../kit';
 
@@ -122,42 +123,6 @@ export function FeedbackGroup({ paint }: { paint: Paint }) {
           </div>
         </Specimen>
       </Rail>
-    </div>
-  );
-}
-
-/**
- * A toast: a raised surface with a tone rule down its leading edge.
- *
- * The edge is the tone at full strength and the body is neutral, which is the
- * inverse of an alert. A toast sits over content the user was already reading,
- * so the copy has to stay on the neutral ramp — only the 3px rule is allowed to
- * be chromatic, or the toast competes with the thing it is covering.
- */
-function KitSurfaceish({
-  paint,
-  tone,
-  children,
-}: {
-  paint: Paint;
-  tone: AccentRole;
-  children: preact.ComponentChildren;
-}) {
-  const pair = paint.accents[tone];
-  return (
-    <div class="w-full flex items-stretch gap-2.5">
-      <span
-        class="w-[3px] rounded-full shrink-0"
-        style={{ backgroundColor: pair.fill?.css ?? 'transparent' }}
-      />
-      <div class="flex-1 rounded-lg border px-2.5 py-2" style={{ borderColor: paint.fixture.border?.css ?? 'transparent', backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
-        <KitText paint={paint} class="block text-[12px] leading-[16px]">
-          {children}
-        </KitText>
-        <KitMuted paint={paint} class="block text-[10px] mt-0.5">
-          just now
-        </KitMuted>
-      </div>
     </div>
   );
 }

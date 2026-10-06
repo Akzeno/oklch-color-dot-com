@@ -230,8 +230,8 @@ export function KitButton({
   withIcon?: boolean;
 }) {
   const pair = paint.accents[role];
-  const pad = size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3.5 py-2 text-[13px]';
-  const base = `inline-flex items-center justify-center gap-1.5 rounded-xl font-medium whitespace-nowrap ${pad}`;
+  const pad = size === 'sm' ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-[13px]';
+  const base = `inline-flex items-center justify-center gap-1.5 rounded-xl font-medium whitespace-nowrap ${pad} transition-all duration-150`;
 
   if (variant === 'outline') {
     return (
@@ -239,7 +239,7 @@ export function KitButton({
         paint={paint}
         slot={pair.fill}
         radius="0.75rem"
-        class={`${base} ${pair.fill ? '' : 'border'}`}
+        class={`${base} border ${pair.fill ? '' : 'border-dashed'}`}
       >
         <Swatch
           slot={pair.fill}
@@ -266,7 +266,7 @@ export function KitButton({
         pendingCss={paint.pendingInk}
         part="text"
         as="span"
-        class={base}
+        class={`${base} hover:bg-[var(--color-surface-raised)]`}
         style={pair.fill ? undefined : unsetStyle(paint.theme)}
       >
         {label}
@@ -287,7 +287,7 @@ export function KitButton({
       class={`${base} ${soft ? '' : 'border'} ${gradient ? '' : soft ? '' : ''}`}
       style={{
         ...(gradient
-          ? { backgroundImage: `linear-gradient(${pair.lift}, ${pair.fill?.css})` }
+          ? { backgroundImage: `linear-gradient(135deg, ${pair.lift}, ${pair.fill?.css})` }
           : soft && pair.soft
             ? { backgroundColor: pair.soft }
             : {}),
@@ -364,13 +364,12 @@ export function KitIconButton({
       pending={!pair.fill}
       part={variant === 'outline' ? 'border' : 'bg'}
       aria-hidden="true"
-      class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center"
+      class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-all duration-150"
       style={{
         ...(variant !== 'outline' && variant === 'soft' && pair.soft
           ? { backgroundColor: pair.soft }
           : {}),
-        ...(variant === 'outline' ? { borderWidth: 1 } : {}),
-        borderColor: pair.fill?.css ?? 'transparent',
+        ...(variant === 'outline' ? { borderWidth: 1, borderColor: pair.fill?.css ?? 'transparent' } : {}),
         ...(!pair.fill ? unsetStyle(paint.theme) : {}),
       }}
     >
@@ -431,13 +430,13 @@ export function KitSwitch({ paint, role = 'primary', on = true }: { paint: Paint
       pending={!track}
       part="bg"
       aria-hidden="true"
-      class="w-11 h-6 shrink-0 rounded-full flex items-center p-0.5"
+      class="w-12 h-7 shrink-0 rounded-full flex items-center p-0.5 transition-all duration-150"
       style={!track ? unsetStyle(paint.theme) : undefined}
     >
       <span
-        class="w-5 h-5 rounded-full shrink-0"
+        class="w-6 h-6 rounded-full shrink-0"
         style={{
-          transform: `translateX(${on ? 20 : 0}px)`,
+          transform: `translateX(${on ? 22 : 0}px)`,
           backgroundColor: (on ? (pair.on?.css ?? paint.pendingInk) : paint.fixture.ink),
           boxShadow: LIFTED,
         }}
@@ -467,15 +466,15 @@ export function KitCheckbox({ paint, role = 'primary', checked = true }: { paint
       pending={!pair.fill}
       part={checked ? 'bg' : 'border'}
       aria-hidden="true"
-      class="w-4 h-4 shrink-0 rounded flex items-center justify-center"
+      class="w-5 h-5 shrink-0 rounded flex items-center justify-center transition-all duration-150"
       style={{
-        ...(checked ? {} : { borderWidth: 1 }),
+        ...(checked ? {} : { borderWidth: 1.5 }),
         borderColor: pair.fill?.css ?? 'transparent',
         ...(!pair.fill ? unsetStyle(paint.theme) : {}),
       }}
     >
       {checked && (
-        <svg aria-hidden="true" viewBox="0 0 16 16" fill={pair.on?.css ?? paint.pendingInk} class="w-2.5 h-2.5">
+        <svg aria-hidden="true" viewBox="0 0 16 16" fill={pair.on?.css ?? paint.pendingInk} class="w-3.5 h-3.5">
           <path
             fill-rule="evenodd"
             d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z"
@@ -507,12 +506,12 @@ export function KitRadio({ paint, role = 'primary', selected = true }: { paint: 
       pending={!pair.fill}
       part="border"
       aria-hidden="true"
-      class="w-4 h-4 shrink-0 rounded-full flex items-center justify-center"
-      style={{ borderWidth: 1, ...(!pair.fill ? unsetStyle(paint.theme) : {}) }}
+      class="w-5 h-5 shrink-0 rounded-full flex items-center justify-center transition-all duration-150"
+      style={{ borderWidth: 1.5, ...(!pair.fill ? unsetStyle(paint.theme) : {}) }}
     >
       {selected && (
         <span
-          class="w-2 h-2 rounded-full"
+          class="w-2.5 h-2.5 rounded-full"
           style={{ backgroundColor: pair.fill?.css ?? 'transparent' }}
         />
       )}
@@ -542,8 +541,8 @@ export function KitSlider({ paint, role = 'primary', at = 0.5 }: { paint: Paint;
   const pair = paint.accents[role];
   const pct = Math.round(Math.min(1, Math.max(0, at)) * 100);
   return (
-    <div class="w-full py-3" aria-hidden="true">
-      <div class="relative h-2 rounded-full overflow-hidden" style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
+    <div class="w-full py-4" aria-hidden="true">
+      <div class="relative h-3 rounded-full overflow-hidden" style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
         <Swatch
           slot={pair.fill}
           role={role}
@@ -556,13 +555,13 @@ export function KitSlider({ paint, role = 'primary', at = 0.5 }: { paint: Paint;
       </div>
       <div class="relative h-0">
         <span
-          class="absolute w-4 h-4 rounded-full"
+          class="absolute w-5 h-5 rounded-full"
           style={{
             left: `${pct}%`,
             transform: 'translateX(-50%)',
-            top: '-18px',
+            top: '-19px',
             backgroundColor: pair.on?.css ?? paint.pendingInk,
-            border: `1px solid ${pair.fill?.css ?? 'transparent'}`,
+            border: `2px solid ${pair.fill?.css ?? 'transparent'}`,
             boxShadow: LIFTED_HARD,
           }}
         />
@@ -585,7 +584,7 @@ export function KitBadge({
   variant?: 'solid' | 'soft' | 'outline';
 }) {
   const pair = paint.accents[role];
-  const base = 'px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap';
+  const base = 'px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap transition-all duration-150';
 
   if (variant === 'outline') {
     return (
@@ -650,11 +649,12 @@ export function KitAvatar({
 }) {
   const pair = paint.accents[role];
   const box = { width: size, height: size };
+  const textSize = Math.max(11, size * 0.325);
   return (
     <div
       aria-hidden="true"
-      class="rounded-full shrink-0 flex items-center justify-center text-[13px] font-semibold"
-      style={box}
+      class="rounded-full shrink-0 flex items-center justify-center font-semibold"
+      style={{ ...box, fontSize: textSize }}
     >
       <Swatch
         slot={pair.fill}
@@ -665,7 +665,7 @@ export function KitAvatar({
         class="w-full h-full rounded-full flex items-center justify-center"
         style={{
           ...(variant === 'gradient' && pair.lift
-            ? { backgroundImage: `linear-gradient(to bottom right, ${pair.lift}, ${pair.fill?.css})` }
+            ? { backgroundImage: `linear-gradient(135deg, ${pair.lift}, ${pair.fill?.css})` }
             : {}),
           ...(variant === 'soft' && pair.soft ? { backgroundColor: pair.soft } : {}),
           ...(variant === 'ring' && pair.on?.css ? { boxShadow: `inset 0 0 0 2px ${pair.on.css}` } : {}),
@@ -723,6 +723,9 @@ export type FieldKind = 'input' | 'textarea' | 'select';
  * `invalid` is the state worth showing: it moves the edge to `danger` and the
  * message to `danger`, and a palette that reads fine in grey and then fails once
  * the red lands is the most common failure this page finds.
+ *
+ * Each part (label, input background, input border, input text, error text) is
+ * independently selectable for token testing.
  */
 export function KitField({
   paint,
@@ -744,7 +747,7 @@ export function KitField({
 
   return (
     <div class="w-full space-y-1.5">
-      <KitText paint={paint} class="block text-[12px]">
+      <KitText paint={paint} class="block text-[12px] font-medium">
         {label}
       </KitText>
 
@@ -754,11 +757,11 @@ export function KitField({
         step={edge?.requested ?? 800}
         pending={!edge}
         part="border"
-        class={`w-full rounded-xl px-3 py-2 text-[13px] ${rows > 1 ? 'leading-[18px]' : ''}`}
+        class={`w-full rounded-xl px-3 py-2.5 text-[13px] ${rows > 1 ? 'leading-[18px]' : ''}`}
         style={{
           backgroundColor: paint.fixture.surface?.css ?? 'transparent',
           borderWidth: 1,
-          ...(rows > 1 ? { height: 'auto', minHeight: '62px' } : {}),
+          ...(rows > 1 ? { height: 'auto', minHeight: '72px' } : {}),
           ...(edge ? {} : unsetStyle(paint.theme)),
         }}
       >
@@ -823,7 +826,7 @@ export function KitTabs({ paint, items, active = 0 }: { paint: Paint; items: str
         {items.map((item, i) => {
           const on = i === active;
           return (
-            <div key={item} class={`px-2.5 py-2 text-[13px] font-medium whitespace-nowrap ${on ? '' : ''}`}>
+            <div key={item} class={`px-3 py-2.5 text-[13px] font-medium whitespace-nowrap ${on ? '' : ''}`}>
               <Swatch
                 slot={on ? pair.fill : paint.text}
                 role={on ? 'primary' : 'text'}
@@ -866,14 +869,14 @@ export function KitSearch({ paint, placeholder = 'Search palettes' }: { paint: P
       step={paint.fixture.border?.requested ?? 800}
       pending={!paint.fixture.border}
       part="border"
-      class="w-full rounded-xl px-3 py-2 flex items-center gap-2"
+      class="w-full rounded-xl px-3.5 py-2.5 flex items-center gap-2 transition-all duration-150"
       style={{ backgroundColor: paint.fixture.surface?.css ?? 'transparent', borderWidth: 1, ...(paint.fixture.border ? {} : unsetStyle(paint.theme)) }}
     >
       <svg aria-hidden="true" viewBox="0 0 24 24" class="w-3.5 h-3.5 shrink-0" fill="none" strokeWidth={2} stroke={paint.fixture.ink}>
         <circle cx="11" cy="11" r="7" />
         <path stroke-linecap="round" d="m20 20-3.5-3.5" />
       </svg>
-      <KitMuted paint={paint} class="text-[12px]">
+      <KitMuted paint={paint} class="text-[12px] flex-1">
         {placeholder}
       </KitMuted>
     </Swatch>
@@ -899,7 +902,7 @@ export function KitMenuRow({
   const pair = paint.accents[role];
   return (
     <div
-      class={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] ${selected ? '' : ''}`}
+      class={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] ${selected ? '' : ''}`}
       style={selected && pair.soft ? { backgroundColor: pair.soft } : undefined}
     >
       <span class="shrink-0" style={{ color: selected ? (pair.fill?.css ?? paint.pendingInk) : paint.fixture.ink }}>
@@ -930,7 +933,7 @@ export function KitProgress({ paint, role = 'primary', at = 0.62 }: { paint: Pai
   const pair = paint.accents[role];
   return (
     <div class="w-full space-y-1.5">
-      <div class="h-2 w-full rounded-full overflow-hidden" style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
+      <div class="h-2.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
         <Swatch
           slot={pair.fill}
           role={role}
@@ -974,6 +977,7 @@ export function KitAlert({
       part="soft"
       class="w-full rounded-xl border px-3 py-2.5"
       style={{
+        backgroundColor: pair.soft ?? 'transparent',
         borderColor: pair.fill ? tint(pair.fill.css, 0.42) : 'transparent',
         borderWidth: 1,
       }}
@@ -990,7 +994,7 @@ export function KitAlert({
       >
         {title}
       </Swatch>
-      <KitMuted paint={paint} class="block text-[11px] mt-0.5">
+      <KitMuted paint={paint} class="block text-[11px] mt-0.5 leading-[15px]">
         {body}
       </KitMuted>
     </Swatch>
@@ -1053,7 +1057,7 @@ export function KitBars({ paint, values }: { paint: Paint; values?: number[] }) 
   const data = values ?? [0.82, 0.61, 0.74, 0.45, 0.33, 0.68];
   return (
     <div class="w-full space-y-2">
-      <div class="flex items-end gap-1.5 h-24" aria-hidden="true">
+      <div class="flex items-end gap-1.5 h-28" aria-hidden="true">
         {roles.map((role, i) => (
           <Swatch
             key={role}
@@ -1062,7 +1066,7 @@ export function KitBars({ paint, values }: { paint: Paint; values?: number[] }) 
             step={ACCENT.fill[paint.theme]}
             pending={!paint.accents[role].fill}
             part="bg"
-            class="flex-1 rounded-t-md"
+            class="flex-1 rounded-t-md transition-all duration-150 hover:scale-y-[1.05] origin-bottom"
             style={{ height: `${Math.round(data[i]! * 100)}%`, backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
           />
         ))}
@@ -1092,7 +1096,7 @@ export function KitDonut({ paint }: { paint: Paint }) {
   const roles: AccentRole[] = ['primary', 'success', 'warning', 'info'];
   return (
     <div class="flex flex-col items-center gap-2.5">
-      <svg viewBox="0 0 36 36" class="w-24 h-24 -rotate-90" aria-hidden="true">
+      <svg viewBox="0 0 36 36" class="w-28 h-28 -rotate-90" aria-hidden="true">
         <circle cx="18" cy="18" r="15.9" fill="none" strokeWidth="5" stroke={paint.fixture.raised?.css ?? 'transparent'} />
         {roles.map((role, i) => (
           <circle
@@ -1173,11 +1177,11 @@ export function KitNavRow({
   const pair = paint.accents.primary;
   return (
     <div
-      class={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[12px] ${active ? 'font-semibold' : ''}`}
+      class={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] ${active ? 'font-semibold' : ''}`}
       style={active && pair.soft ? { backgroundColor: pair.soft } : undefined}
     >
       <span
-        class="w-1.5 h-1.5 rounded-full shrink-0"
+        class="w-2 h-2 rounded-full shrink-0"
         style={{ backgroundColor: active ? (pair.fill?.css ?? 'transparent') : paint.fixture.border?.css ?? 'transparent' }}
       />
       <KitText paint={paint} class="flex-1 truncate">
@@ -1195,9 +1199,9 @@ export function KitNavRow({
 /** A toolbar: a title, a search, and one icon action. */
 export function KitToolbar({ paint, title, role = 'primary' }: { paint: Paint; title: string; role?: AccentRole }) {
   return (
-    <div class="w-full space-y-2">
-      <div class="flex items-center gap-2">
-        <KitAvatar paint={paint} role={role} initials={title.slice(0, 2).toUpperCase()} size={24} />
+    <div class="w-full space-y-2.5">
+      <div class="flex items-center gap-2.5">
+        <KitAvatar paint={paint} role={role} initials={title.slice(0, 2).toUpperCase()} size={28} />
         <KitText paint={paint} class="text-[12px] font-semibold flex-1 truncate">
           {title}
         </KitText>
@@ -1231,12 +1235,12 @@ export function KitBreadcrumbs({ paint, items }: { paint: Paint; items: string[]
 /** An empty state: glyph, headline, one line of guidance, one action. */
 export function KitEmptyState({ paint }: { paint: Paint }) {
   return (
-    <div class="flex flex-col items-center gap-2 text-center">
+    <div class="flex flex-col items-center gap-2.5 text-center p-2">
       <div
-        class="w-10 h-10 rounded-full flex items-center justify-center"
+        class="w-12 h-12 rounded-full flex items-center justify-center"
         style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24" class="w-5 h-5" fill="none" strokeWidth={1.75} stroke={paint.fixture.ink}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="w-6 h-6" fill="none" strokeWidth={1.75} stroke={paint.fixture.ink}>
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h10M4 17h7" />
         </svg>
       </div>
@@ -1254,11 +1258,43 @@ export function KitEmptyState({ paint }: { paint: Paint }) {
 /** A two-column key/value block — the shape a settings page actually has. */
 export function KitSettingRow({ paint, label, control }: { paint: Paint; label: string; control?: ComponentChildren }) {
   return (
-    <div class="flex items-center justify-between gap-3 py-1.5">
+    <div class="flex items-center justify-between gap-3 py-2">
       <KitText paint={paint} class="text-[12px]">
         {label}
       </KitText>
       {control ?? <KitSwitch paint={paint} role="primary" on={false} />}
+    </div>
+  );
+}
+
+/**
+ * A toast-like surface with a tone rule down its leading edge.
+ * Used in FeedbackGroup for toast previews.
+ */
+export function KitSurfaceish({
+  paint,
+  tone,
+  children,
+}: {
+  paint: Paint;
+  tone: AccentRole;
+  children: preact.ComponentChildren;
+}) {
+  const pair = paint.accents[tone];
+  return (
+    <div class="w-full flex items-stretch gap-2.5">
+      <span
+        class="w-[3px] rounded-full shrink-0"
+        style={{ backgroundColor: pair.fill?.css ?? 'transparent' }}
+      />
+      <div class="flex-1 rounded-xl border px-3 py-2" style={{ borderColor: paint.fixture.border?.css ?? 'transparent', backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
+        <KitText paint={paint} class="block text-[12px] leading-[16px]">
+          {children}
+        </KitText>
+        <KitMuted paint={paint} class="block text-[10px] mt-0.5">
+          just now
+        </KitMuted>
+      </div>
     </div>
   );
 }

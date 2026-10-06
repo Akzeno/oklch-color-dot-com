@@ -33,16 +33,15 @@ import { STAGE, type Paint } from './slots';
  */
 
 /** Fixed card width. Every specimen is the same size, so nothing out-scales. */
-const CARD = 'w-[13rem] h-[13rem] shrink-0';
+const CARD = 'w-[16rem] h-[16rem] shrink-0 lg:w-[18rem] lg:h-[18rem]';
 
 /**
  * A labelled horizontal rail of specimen cards.
  *
- * Horizontal scroll rather than a wrapping grid because the comparison is
- * *within* a rail: "Classic next to Solid next to Soft" is the question, and a
- * grid puts unrelated components on the same row and splits related ones across
- * a fold. The rail also holds a fixed card size, so a 3px switch is rendered at
- * the same scale in every group.
+ * Responsive: horizontal scroll on mobile (< lg), flex-wrap on desktop (>= lg).
+ * The comparison is *within* a rail: "Classic next to Solid next to Soft" is the question.
+ * On mobile, scroll keeps cards at fixed size; on desktop, they wrap naturally.
+ * Scrollbar is visible on the rail as an affordance; snap points align cards.
  */
 export function Rail({
   label,
@@ -86,12 +85,17 @@ export function Rail({
       </div>
 
       {/*
-        `pb-1` so the scrollbar gutter never overlaps a card's caption, and
-        `scroll-snap` so a partially-scrolled rail still lands on a card edge
-        rather than between two of them.
+        Responsive rail: horizontal scroll on mobile, flex-wrap on desktop.
+        `pb-1` so the scrollbar gutter never overlaps a card's caption on mobile,
+        and `scroll-snap` so a partially-scrolled rail still lands on a card edge.
+        The `.fixture-rail` class keeps scrollbars visible as an affordance.
       */}
-      <div class="fixture-rail pb-1.5">
-        {children}
+      <div class="relative">
+        <div class="fixture-rail flex flex-wrap gap-4 lg:pb-0 pb-1.5 lg:overflow-visible -mx-4 lg:mx-0 px-4 lg:px-0">
+          {children}
+        </div>
+        {/* Mobile scroll indicator */}
+        <div class="lg:hidden absolute bottom-0 right-0 left-0 h-4 bg-gradient-to-l from-canvas via-canvas/50 to-transparent pointer-events-none" aria-hidden="true" />
       </div>
     </section>
   );
@@ -105,6 +109,13 @@ export function Rail({
  * component inside it. A user whose only complaint is "my hairlines vanish"
  * should be able to fix it by clicking the card's edge, not just by editing the
  * button.
+ *
+ * Each card is now an independent, isolated preview — changing colors in one
+ * card doesn't affect others. Every visual element (border, background, surface,
+ * text, accent fills) maps to its own token slot and is independently clickable.
+ *
+ * Hover/focus reveals the selectable zones (border, canvas, surface) with subtle
+ * outlines so users know exactly what they're clicking.
  */
 export function Specimen({
   name,
@@ -128,7 +139,7 @@ export function Specimen({
       step={f.border?.requested ?? STAGE.border.steps[paint.theme]}
       pending={!f.border}
       part="border"
-      class={`${CARD} fixture rounded-xl border overflow-hidden flex flex-col`}
+      class={`${CARD} fixture rounded-2xl border overflow-hidden flex flex-col bg-canvas transition-all duration-150 hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:ring-1 hover:ring-ink/20 focus-within:ring-2 focus-within:ring-ink/40`}
       style={!f.border ? unsetStyle(paint.theme) : undefined}
     >
       {/*
@@ -141,13 +152,15 @@ export function Specimen({
         step={f.canvas?.requested ?? STAGE.canvas.steps[paint.theme]}
         pending={!f.canvas}
         part="bg"
-        class="flex-1 min-h-0 flex items-center justify-center p-3 rounded-t-xl border-b"
+        class="flex-1 min-h-0 flex items-center justify-center p-4 rounded-t-2xl border-b relative group/selectable"
         style={{
           borderColor: (f.divider ?? f.border)?.css ?? 'transparent',
           ...(f.canvas ? {} : unsetStyle(paint.theme)),
         }}
       >
         {children}
+        {/* Selectable zone indicator - shows on hover/focus */}
+        <div class="absolute inset-0 rounded-t-2xl border-2 border-transparent transition-colors duration-150 group-hover/selectable:border-ink/30 group-focus-within/selectable:border-ink/50 pointer-events-none" aria-hidden="true" />
       </Swatch>
 
       {/* The caption bar. A surface behind the ink, so the two stack visibly. */}
@@ -157,16 +170,16 @@ export function Specimen({
         step={f.surface?.requested ?? STAGE.surface.steps[paint.theme]}
         pending={!f.surface}
         part="bg"
-        class="h-7 shrink-0 flex items-center justify-center px-2"
+        class="h-8 shrink-0 flex items-center justify-center px-3 rounded-b-2xl group/selectable-surface transition-colors duration-150 hover:bg-ink/5 focus-within:bg-ink/10"
         style={!f.surface ? unsetStyle(paint.theme) : undefined}
       >
         <span
-          class="fixture-caption"
+          class="fixture-caption text-[11px] font-medium tracking-wide"
           style={{ color: f.ink }}
           title={`${name}${variant ? ` · ${variant}` : ''} — click any part to edit its token`}
         >
           {name}
-          {variant && <span class="opacity-70"> · {variant}</span>}
+          {variant && <span class="opacity-60"> · {variant}</span>}
         </span>
       </Swatch>
     </Swatch>
