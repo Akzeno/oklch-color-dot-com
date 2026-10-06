@@ -40,6 +40,22 @@
   Cache-Control: public, max-age=86400
 
 # ============================================================
+# OG IMAGES — hashed-free build output, revalidates daily
+# ============================================================
+/og/*
+  Cache-Control: public, max-age=86400
+
+# ============================================================
+# PREVIEW DOMAIN — never let *.pages.dev get indexed
+# https://developers.cloudflare.com/pages/configuration/headers/
+# ============================================================
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+# ============================================================
 # SECURITY HEADERS (bonus)
 # ============================================================
 /*

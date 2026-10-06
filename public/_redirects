@@ -1,0 +1,6 @@
+# 301 redirects — Cloudflare Pages serves these before static assets.
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# Legacy keyword URL (from SEO_PLAN) → canonical converter page.
+# Replaces the Astro meta-refresh redirect, which was a soft redirect.
+/hex-to-oklch-converter /hex-to-oklch 301

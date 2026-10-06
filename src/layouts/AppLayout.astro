@@ -12,9 +12,10 @@ interface Props {
   keywords?: string[];
   canonicalPath?: string;
   schemaType?: 'WebApplication' | 'CollectionPage' | 'Article';
+  noindex?: boolean;
 }
 
-const { title, description, keywords, canonicalPath, schemaType } = Astro.props;
+const { title, description, keywords, canonicalPath, schemaType, noindex } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
@@ -24,6 +25,7 @@ const currentPath = Astro.url.pathname;
   keywords={keywords}
   canonicalPath={canonicalPath}
   schemaType={schemaType}
+  noindex={noindex}
 >
   <!-- Header -->
   <Header />

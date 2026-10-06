@@ -1,42 +1,89 @@
 import type { APIRoute } from 'astro';
+import { execFileSync } from 'node:child_process';
 import { getAllNavItemsFlat } from '../config/navigation';
 import { PALETTES } from '../data/palettes';
 
-export const GET: APIRoute = async () => {
-  const siteUrl = 'https://oklchcolors.com';
-  const navItems = getAllNavItemsFlat();
+/**
+ * Truthful <lastmod> comes from `git log -1` on each page's source/data file.
+ * Never today's date: a page whose files have not changed keeps its real last
+ * change date, and if git is unavailable (shallow CI checkout, archive copy)
+ * the <lastmod> element is omitted entirely rather than fabricated.
+ */
 
-  const urls: { loc: string; priority: string; changefreq: string }[] = [];
+/** Source files whose content feeds a given canonical path. */
+function sourceFilesFor(path: string): string[] {
+  if (path === '/') return ['src/pages/index.astro'];
+  if (path === '/oklch-colors') return ['src/pages/oklch-colors/index.astro'];
+  if (path.startsWith('/oklch-colors/')) {
+    return ['src/pages/oklch-colors/[slug].astro', 'src/data/palettes.ts'];
+  }
+  if (path.startsWith('/learn/')) return [`src/pages${path}.astro`];
+  // Tool pages live at src/pages/<slug>.astro
+  return [`src/pages${path}.astro`];
+}
 
-  // Main navigation items
-  navItems.forEach((item) => {
-    urls.push({
-      loc: `${siteUrl}${item.path}`,
-      priority: item.path === '/' ? '1.0' : '0.8',
-      changefreq: 'weekly',
-    });
-  });
+let gitAvailable: boolean | null = null;
 
-  // Individual palette detail pages
-  PALETTES.forEach((p) => {
-    urls.push({
-      loc: `${siteUrl}/oklch-colors/${p.slug}`,
-      priority: '0.7',
-      changefreq: 'monthly',
-    });
-  });
+function lastModified(files: string[]): string | null {
+  if (gitAvailable === null) {
+    try {
+      execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { stdio: 'pipe' });
+      gitAvailable = true;
+    } catch {
+      gitAvailable = false;
+    }
+  }
+  if (!gitAvailable) return null;
+
+  try {
+    // `git log -1 --format=%aI -- files...` gives the author date of the most
+    // recent commit touching any of the files.
+    const out = execFileSync(
+      'git',
+      ['log', '-1', '--format=%aI', '--', ...files],
+      { stdio: ['ignore', 'pipe', 'pipe'] }
+    )
+      .toString()
+      .trim();
+    if (!out) return null;
+    const date = new Date(out);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toISOString();
+  } catch {
+    return null;
+  }
+}
+
+export const GET: APIRoute = ({ site }) => {
+  if (!site) {
+    throw new Error('astro.config.mjs must define `site` — sitemap URLs derive from it.');
+  }
+
+  const paths: string[] = [];
+
+  // Main navigation items (parents with children are already skipped).
+  for (const item of getAllNavItemsFlat()) {
+    paths.push(item.path);
+  }
+
+  // Individual palette detail pages.
+  for (const palette of PALETTES) {
+    paths.push(`/oklch-colors/${palette.slug}`);
+  }
+
+  const entries = paths
+    .map((path) => {
+      const loc = new URL(path, site).href;
+      const lastmod = lastModified(sourceFilesFor(path));
+      return `  <url>\n    <loc>${loc}</loc>${
+        lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''
+      }\n  </url>`;
+    })
+    .join('\n');
 
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls
-  .map(
-    (u) => `  <url>
-    <loc>${u.loc}</loc>
-    <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>
-  </url>`
-  )
-  .join('\n')}
+${entries}
 </urlset>`;
 
   return new Response(sitemapXml, {

@@ -5,6 +5,8 @@ import { ClientRouter } from 'astro:transitions';
 // the DOM with no animation and users who ask for reduced motion still get one.
 import 'astro/components/viewtransitions.css';
 import '../styles/global.css';
+import { getNavItemByPath } from '../config/navigation';
+import { ogImagePathFor } from '../utils/ogImage';
 
 interface Props {
   title: string;
@@ -12,6 +14,8 @@ interface Props {
   keywords?: string[];
   canonicalPath?: string;
   schemaType?: 'WebApplication' | 'CollectionPage' | 'Article';
+  /** Set only on the 404 page — utility pages should never be indexed. */
+  noindex?: boolean;
 }
 
 const {
@@ -20,9 +24,25 @@ const {
   keywords = ['oklch', 'color picker', 'css oklch', 'tailwind v4 theme', 'color palettes'],
   canonicalPath = Astro.url.pathname,
   schemaType = 'WebApplication',
+  noindex = false,
 } = Astro.props;
 
-const canonicalUrl = new URL(canonicalPath, Astro.site || 'https://oklchcolors.com').href;
+// Every absolute URL on the site derives from `site` in astro.config.mjs.
+// A missing `site` is a build error, never a silent hard-coded fallback.
+const site = Astro.site;
+if (!site) {
+  throw new Error('astro.config.mjs must define `site` — all canonical/OG/sitemap URLs derive from it.');
+}
+
+const canonicalUrl = new URL(canonicalPath, site).href;
+const ogImageUrl = new URL(ogImagePathFor(canonicalPath), site).href;
+
+// Article dates come from the central nav config, keyed by the page's own
+// canonical path — pages never hand their dates to the layout themselves.
+const navSeo = getNavItemByPath(canonicalPath)?.seo;
+const datePublished = navSeo?.datePublished;
+const dateModified = navSeo?.dateModified;
+const isArticle = schemaType === 'Article';
 
 // WebApplication JSON-LD Schema
 const jsonLd = {
@@ -46,7 +66,10 @@ const jsonLd = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0a" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
 
     <!--
       THEME. Runs before anything is painted, so the document is already the
@@ -149,19 +172,34 @@ const jsonLd = {
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords.join(', ')} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={isArticle ? 'article' : 'website'} />
+    <meta property="og:site_name" content="OKLCH Colors" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    {isArticle && datePublished && (
+      <meta property="article:published_time" content={datePublished} />
+    )}
+    {isArticle && dateModified && (
+      <meta property="article:modified_time" content={dateModified} />
+    )}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={canonicalUrl} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImageUrl} />
+    <meta property="twitter:image:alt" content={title} />
 
     <!--
       Geist / Geist Mono lead the stack per DESIGN.md, which uses them to keep
