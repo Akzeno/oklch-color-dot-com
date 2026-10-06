@@ -352,7 +352,6 @@ export default function ExportIsland() {
                               if (e.key === 'Escape') setRenaming(null);
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            aria-label={`Rename the ${variableCount} --color-${line.roleId}-* variables`}
                             class="w-36 px-1 py-0 rounded bg-canvas-raised border border-hairline text-ink font-mono focus:outline-none focus:border-border-focus"
                             autoFocus
                           />
