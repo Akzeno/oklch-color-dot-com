@@ -8,7 +8,7 @@ import {
   Pipette,
   Sparkles,
 } from 'lucide-preact';
-import type { Icon } from 'lucide-preact';
+import type { LucideIcon } from 'lucide-preact';
 import { navigationConfig } from '../../config/navigation';
 
 /**
@@ -17,7 +17,7 @@ import { navigationConfig } from '../../config/navigation';
  * hand-copied SVG paths, which meant two sources of truth for the same glyph
  * and no way to tell a typo from a missing case.
  */
-const ICONS: Record<string, Icon> = {
+const ICONS: Record<string, LucideIcon> = {
   Pipette,
   Palette,
   Sparkles,

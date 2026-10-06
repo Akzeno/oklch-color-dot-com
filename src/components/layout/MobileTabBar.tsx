@@ -10,7 +10,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-preact';
-import type { Icon } from 'lucide-preact';
+import type { LucideIcon } from 'lucide-preact';
 import { navigationConfig } from '../../config/navigation';
 
 /**
@@ -22,7 +22,7 @@ import { navigationConfig } from '../../config/navigation';
  * the nav config (`defaultLabel.replace('Color ', '')`, which would silently
  * mangle any future label that happened to start with those words).
  */
-const ICONS: Record<string, Icon> = {
+const ICONS: Record<string, LucideIcon> = {
   Pipette,
   Palette,
   Sparkles,
