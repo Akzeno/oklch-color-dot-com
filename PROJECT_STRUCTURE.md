@@ -1,7 +1,7 @@
 # Project Structure Documentation
 
 ## Overview
-This is an Astro-based web application for OKLCH color conversion tools and palette generation. The project uses React islands for interactive components.
+This is an Astro-based web application for OKLCH color conversion tools and palette generation. The project uses Preact islands for interactive components, Tailwind CSS v4 for styling, and Nanostores for state management.
 
 ---
 
@@ -10,13 +10,16 @@ This is an Astro-based web application for OKLCH color conversion tools and pale
 ```
 oklchcolor2.com/
 ├── .agents/              # Agent configurations and skills
-├── .astro/               # Astro build output (generated)
+├── .astro/               # Astro build cache (generated)
 ├── .git/                 # Git repository
+├── .kilo/                # Kilo config
 ├── .vscode/              # VS Code settings
 ├── dist/                 # Production build output (generated)
 ├── node_modules/         # Dependencies (generated)
 ├── public/               # Static assets served directly
 ├── src/                  # Source code
+├── tests/                # Test files
+├── uiRefrence/           # UI reference materials
 ├── .gitignore
 ├── AGENTS.md             # Agent instructions
 ├── astro.config.mjs      # Astro configuration
@@ -24,9 +27,12 @@ oklchcolor2.com/
 ├── DESIGN.md             # Design documentation
 ├── package.json          # Project dependencies and scripts
 ├── package-lock.json     # Locked dependencies
+├── PROJECT_STRUCTURE.md  # This file
+├── QUICK_REFERENCE.md    # Quick reference guide
 ├── README.md             # Project overview
+├── SEO_PLAN.md           # SEO planning document
 ├── skills-lock.json      # Skills lock file
-├── tsconfig.json         # TypeScript configuration
+└── tsconfig.json         # TypeScript configuration
 ```
 
 ---
@@ -40,6 +46,7 @@ Static files served directly at root path:
 | `favicon.ico` | Legacy favicon |
 | `favicon.svg` | Modern SVG favicon |
 | `robots.txt` | Search engine crawling rules |
+| `_headers` | Cloudflare Pages cache & security headers |
 
 ---
 
@@ -48,14 +55,15 @@ Static files served directly at root path:
 ```
 src/
 ├── assets/           # Static assets (images, icons)
-├── components/       # Reusable UI components (Astro & React)
+├── components/       # Reusable UI components (Astro & Preact)
 ├── config/           # Configuration files
 ├── data/             # Static data files
+├── hooks/            # Custom Preact hooks
 ├── layouts/          # Page layout components
 ├── pages/            # File-based routing (Astro pages)
 ├── stores/           # State management (Nanostores)
 ├── styles/           # Global styles
-├── utils/            # Utility functions
+└── utils/            # Utility functions
 ```
 
 ---
@@ -73,62 +81,57 @@ src/
 
 Organized by feature/domain:
 
-#### Root Components
-| File | Type | Purpose |
-|------|------|---------|
-| `Welcome.astro` | Astro | Welcome/hero component |
-
 #### Cart (`/src/components/cart`)
 | File | Type | Purpose |
 |------|------|---------|
-| `CartDrawerIsland.tsx` | React | Slide-out cart drawer (interactive) |
-| `CartTriggerButton.tsx` | React | Button to open cart |
+| `CartDrawerIsland.tsx` | Preact | Slide-out cart drawer (interactive) |
+| `CartTriggerButton.tsx` | Preact | Button to open cart |
 
 #### Common (`/src/components/common`)
 | File | Type | Purpose |
 |------|------|---------|
-| `Toast.tsx` | React | Toast notification component |
+| `Toast.tsx` | Preact | Toast notification component |
 
 #### Converters (`/src/components/converters`)
 | File | Type | Purpose |
 |------|------|---------|
-| `ConverterIsland.tsx` | React | Base converter component for color space conversions |
+| `ConverterIsland.tsx` | Preact | Base converter component for color space conversions |
 
 #### Export (`/src/components/export`)
 | File | Type | Purpose |
 |------|------|---------|
-| `ExportIsland.tsx` | React | Export functionality (CSS, Tailwind, etc.) |
+| `ExportIsland.tsx` | Preact | Export functionality (CSS, Tailwind, etc.) |
 
 #### Generator (`/src/components/generator`)
 | File | Type | Purpose |
 |------|------|---------|
-| `PaletteGeneratorIsland.tsx` | React | Color palette generator interactive UI |
+| `PaletteGeneratorIsland.tsx` | Preact | Color palette generator interactive UI |
 
 #### Layout (`/src/components/layout`)
 | File | Type | Purpose |
 |------|------|---------|
 | `Header.astro` | Astro | Site header/navigation |
-| `MobileTabBar.tsx` | React | Mobile bottom tab bar |
-| `SidebarIsland.tsx` | React | Collapsible sidebar navigation |
+| `MobileTabBar.tsx` | Preact | Mobile bottom tab bar |
+| `SidebarIsland.tsx` | Preact | Collapsible sidebar navigation |
 
 #### Palettes (`/src/components/palettes`)
 | File | Type | Purpose |
 |------|------|---------|
 | `PaletteCard.astro` | Astro | Library card for one palette — full-bleed swatch strip, links to its own page |
-| `SwatchStrip.tsx` | React | Contiguous swatch bar with hover readout (palette generator) |
-| `PaletteDetailIsland.tsx` | React | A palette's own page: large colour cards, quick copy, save to a custom variable |
+| `SwatchStrip.tsx` | Preact | Contiguous swatch bar with hover readout (palette generator) |
+| `PaletteDetailIsland.tsx` | Preact | A palette's own page: large colour cards, quick copy, save to a custom variable |
 
 #### Picker (`/src/components/picker`)
 | File | Type | Purpose |
 |------|------|---------|
-| `ColorPickerIsland.tsx` | React | Advanced color picker with OKLCH support |
+| `ColorPickerIsland.tsx` | Preact | Advanced color picker with OKLCH support |
 
 #### Preview (`/src/components/preview`)
 | File | Type | Purpose |
 |------|------|---------|
-| `UIPreviewIsland.tsx` | React | Live UI preview with color theming |
-| `CartSidebar.tsx` | React | Design-token role/shade inspector beside the preview |
-| `ColorActionPopover.tsx` | React | Click-action popover (cart colors, palettes, picker handoff, delete color / delete full scale) |
+| `UIPreviewIsland.tsx` | Preact | Live UI preview with color theming |
+| `CartSidebar.tsx` | Preact | Design-token role/shade inspector beside the preview |
+| `ColorActionPopover.tsx` | Preact | Click-action popover (cart colors, palettes, picker handoff, delete color / delete full scale) |
 
 ---
 
@@ -136,7 +139,7 @@ Organized by feature/domain:
 
 | File | Purpose |
 |------|---------|
-| `navigation.ts` | Site navigation structure and menu configuration |
+| `navigation.ts` | Site navigation structure, menu configuration, and SEO metadata for all pages |
 
 ---
 
@@ -144,7 +147,21 @@ Organized by feature/domain:
 
 | File | Purpose |
 |------|---------|
-| `palettes.ts` | Predefined color palette definitions |
+| `palettes.ts` | 16 predefined color palette definitions |
+
+---
+
+### Hooks (`/src/hooks`)
+
+| File | Purpose |
+|------|---------|
+| `useCart.ts` | Cart state and actions |
+| `useShadeEditor.ts` | Shade editing logic |
+| `useClipboard.ts` | Clipboard copy functionality |
+| `useKeyboard.ts` | Keyboard shortcut handling |
+| `useMediaQuery.ts` | Responsive breakpoint detection |
+| `useDebounce.ts` | Debounced value hook |
+| `useLocalStorage.ts` | Persistent local storage hook |
 
 ---
 
@@ -152,9 +169,9 @@ Organized by feature/domain:
 
 | File | Purpose |
 |------|---------|
-| `AppLayout.astro` | Main application layout with header/sidebar |
-| `BaseLayout.astro` | Base HTML layout with meta tags, fonts |
-| `Layout.astro` | Simple content layout |
+| `BaseLayout.astro` | Base HTML layout with all SEO meta tags, OG tags, Twitter cards, JSON-LD structured data |
+| `AppLayout.astro` | Main application layout with header, sidebar, mobile tab bar, cart, and toast |
+| `Layout.astro` | Minimal unused layout (not referenced by any page) |
 
 ---
 
@@ -165,7 +182,7 @@ File-based routing. Each `.astro` file becomes a route.
 #### Root Routes
 | Route | File | Purpose |
 |-------|------|---------|
-| `/` | `index.astro` | Homepage with converter overview |
+| `/` | `index.astro` | Homepage with color picker |
 | `/export` | `export.astro` | Export tools page |
 | `/ui-preview` | `ui-preview.astro` | Live UI preview tool |
 | `/oklch-to-hsl` | `oklch-to-hsl.astro` | OKLCH → HSL converter |
@@ -186,7 +203,7 @@ File-based routing. Each `.astro` file becomes a route.
 | Route | File | Purpose |
 |-------|------|---------|
 | `/oklch-colors` | `index.astro` | Color palette listing |
-| `/oklch-colors/[slug]` | `[slug].astro` | Individual palette detail page |
+| `/oklch-colors/[slug]` | `[slug].astro` | Individual palette detail page (16 palettes) |
 
 ---
 
@@ -195,6 +212,8 @@ File-based routing. Each `.astro` file becomes a route.
 | File | Purpose |
 |------|---------|
 | `cartStore.ts` | Nanostores-based cart state management |
+| `generatorStore.ts` | Palette generator state |
+| `customPaletteStore.ts` | User-saved custom palettes |
 
 ---
 
@@ -202,7 +221,7 @@ File-based routing. Each `.astro` file becomes a route.
 
 | File | Purpose |
 |------|---------|
-| `global.css` | Global styles, CSS variables, Tailwind imports |
+| `global.css` | Global styles, CSS variables, Tailwind v4 imports |
 
 ---
 
@@ -210,30 +229,47 @@ File-based routing. Each `.astro` file becomes a route.
 
 | File | Purpose |
 |------|---------|
-| `color.ts` | Color conversion utilities (OKLCH, RGB, HSL, HEX) |
-| `seoTables.ts` | SEO metadata generation for converter pages |
+| `color.ts` | Color conversion utilities (OKLCH, RGB, HSL, HEX, Lab, LCH) |
+| `seoTables.ts` | Build-time SEO reference tables and color data |
+| `navigate.ts` | Client-side navigation helper using Astro's `navigate()` |
+| `clipboard.ts` | Clipboard copy functionality |
 
 ---
 
 ## Key Patterns
 
 ### Component Types
-- **`.astro`** - Server-rendered Astro components (no client JS by default)
-- **`.tsx`** - React components (used as "islands" for interactivity)
-- **Islands** - React components with `client:load` or `client:visible` directives
+- **`.astro`** — Server-rendered Astro components (no client JS by default)
+- **`.tsx`** — Preact components (used as "islands" for interactivity)
+- **Islands** — Preact components with `client:load` or `client:visible` directives
 
 ### State Management
-- Uses **Nanostores** (`cartStore.ts`) for lightweight global state
-- React components consume stores via `useStore()` hook
+- Uses **Nanostores** for lightweight global state
+- Stores: `cartStore`, `generatorStore`, `customPaletteStore`
+- Preact components consume stores via `useStore()` hook
 
 ### Color Conversions
 - Centralized in `src/utils/color.ts`
 - Supports: OKLCH, sRGB, HSL, HEX, Lab, LCH
+- Uses `culori` library for accurate color science
 - Used by all converter pages and components
 
 ### Navigation
 - Defined in `src/config/navigation.ts`
 - Consumed by `Header.astro`, `SidebarIsland.tsx`, `MobileTabBar.tsx`
+- Client-side navigation via `src/utils/navigate.ts`
+
+### SEO
+- All metadata centralized in `src/config/navigation.ts`
+- `BaseLayout.astro` generates all meta tags, OG tags, Twitter cards, JSON-LD
+- Sitemap auto-generated via `src/pages/sitemap.xml.ts`
+- See `SEO_PLAN.md` for complete SEO strategy
+
+### Caching
+- `public/_headers` configures Cloudflare Pages caching
+- Static assets: 1 year immutable
+- HTML pages: no-cache (always revalidate)
+- Security headers included
 
 ---
 
@@ -246,10 +282,12 @@ File-based routing. Each `.astro` file becomes a route.
 | Add new palette | `src/data/palettes.ts` |
 | Change site navigation | `src/config/navigation.ts` |
 | Modify global styles | `src/styles/global.css` |
-| Add new React island | Create `.tsx` in appropriate `src/components/*/` |
+| Add new Preact island | Create `.tsx` in appropriate `src/components/*/` |
 | Change layout structure | `src/layouts/AppLayout.astro` |
 | Modify cart behavior | `src/stores/cartStore.ts`, `src/components/cart/` |
-| Update SEO for converters | `src/utils/seoTables.ts`, individual page files |
+| Update SEO for pages | `src/config/navigation.ts`, `src/layouts/BaseLayout.astro` |
+| Modify caching rules | `public/_headers` |
+| Add new hook | Create `.ts` in `src/hooks/` |
 
 ---
 
@@ -275,10 +313,14 @@ npm run typecheck  # or: npx tsc --noEmit
 
 | Package | Purpose |
 |---------|---------|
-| `astro` | Static site generator |
-| `react` + `react-dom` | Interactive islands |
-| `@nanostores/react` | State management |
-| `tailwindcss` | Styling (v4) |
+| `astro` | Static site generator (v7.3.5) |
+| `preact` | Interactive islands (v10.29.8) |
+| `@astrojs/preact` | Preact integration |
+| `@nanostores/preact` | State management |
+| `culori` | Color science library |
+| `lucide-preact` | Icon library |
+| `tailwindcss` | Styling (v4.3.3) |
+| `@tailwindcss/vite` | Tailwind Vite plugin |
 | `typescript` | Type safety |
 
 See `package.json` for complete list.

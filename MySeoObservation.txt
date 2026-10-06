@@ -1,0 +1,42 @@
+what search eginne shows suggesion key word, when searching for "oklch " 
+oklch, hex to oklch, oklch to hex, oklch color picker, oklch colors, oklch color, css oklch, what is oklch, oklch to rgb, rgb to oklch, oklch color space, oklch css, hex to oklch converter, oklch color space diagram, oklch converter, oklch to hex converter, oklch to hex converter, oklch color palette generator
+
+what question google shows when user search "oklch" in search bar, related to our website
+what is oklch, what is oklch color, what does oklch stand for, what is oklch in css, can i use oklch, oklch in css why we moved from rgb and hsl, how does oklch work, what are oklch colors, when did tailwind css start using oklch, oklch what is it, why use oklch
+
+my site have pages for :
+OKLCH Color Picker
+Explore perceptual color with live dynamic slider tracks, wide Display-P3 gamut monitoring, and persistent design-token collection for Tailwind CSS v4.,
+
+OKLCH Color Palettes
+Curated 11-step (50–950) OKLCH color scales. Open any palette to copy individual values or save them into your design token cart.
+
+OKLCH Color Palette Generator
+Input any base color to automatically calculate an accessible 50–950 shade scale with optical lightness uniformity and gamut-safe chroma clipping — or build a custom palette of unrelated colors below it, where every color can be pasted in as text, changed in the color picker, or collected straight from the scale with one click on the swatch you like.
+
+HEX to OKLCH Converter
+Convert 3-digit, 6-digit, or 8-digit hexadecimal colors into standard CSS oklch() notation with perceptual accuracy and live gamut detection.
+
+OKLCH to HEX Converter
+Convert CSS oklch() strings into standard 6-digit or 8-digit HEX format with automatic sRGB gamut clamping and wide Display-P3 detection.
+
+RGB to OKLCH Converter
+Convert rgb(r, g, b) and rgba(r, g, b, a) into CSS OKLCH format with live gamut boundary checks.
+
+OKLCH to RGB Converter
+Convert modern CSS OKLCH values into standard rgb(r, g, b) syntax for legacy CSS and canvas rendering contexts.
+
+HSL to OKLCH Converter
+Convert hsl(h, s%, l%) strings to CSS OKLCH format and eliminate non-uniform perceptual lightness distortion.
+
+OKLCH to HSL Converter
+Convert CSS oklch() colors to standard hsl(h, s%, l%) strings with automated gamut mapping.
+
+UI Component Preview
+Preview your persistent cart roles live across real-world dummy UI components with WCAG 2.1 AA/AAA and APCA contrast scoring. Every coloured element is a token slot — click or right-click one to swap its colour. Each card has its own Dark/Light control, so one specimen can be flipped without touching the rest.
+
+Export OKLCH Design Tokens
+Export your collected cart roles into production-ready Tailwind CSS v4 @theme blocks, vanilla CSS custom properties, or download as a clean stylesheet.
+
+What is OKLCH? The Modern CSS Color Space
+OKLCH is a modern cylindrical representation of the Oklab color space designed specifically for human vision. It fixes the mathematical flaws of RGB and HSL by ensuring that identical numerical lightness values look equally bright across all hues.
