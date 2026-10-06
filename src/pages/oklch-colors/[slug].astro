@@ -17,8 +17,31 @@ interface Props {
 
 const { palette } = Astro.props;
 
-const title = `${palette.name} OKLCH Palette | 50–950 Color Scale`;
-const description = `Explore the ${palette.name} OKLCH color palette with 11 perceptually uniform shade steps (50 to 950). Copy individual CSS values or add swatches to your design token cart.`;
+/** Compress consecutive shade steps into ranges: [500,600,700,800,900,950] → "500-950". */
+function formatStepRange(steps: number[]): string {
+  if (steps.length === 0) return 'none';
+  if (steps.length === 1) return String(steps[0]);
+  const sorted = [...steps].sort((a, b) => a - b);
+  // Check if fully consecutive
+  const consecutive = sorted.every((v, i) => i === 0 || v === sorted[i - 1] + 100 || (i > 0 && sorted[i - 1] === 900 && v === 950));
+  if (consecutive) return `${sorted[0]}-${sorted[sorted.length - 1]}`;
+  return sorted.join(', ');
+}
+
+const aaWhiteSteps: number[] = [];
+const aaBlackSteps: number[] = [];
+for (const step of SHADE_STEPS) {
+  const c = palette.shades[step];
+  if (getWcagContrast(c.hex, '#ffffff') >= 4.5) aaWhiteSteps.push(step);
+  if (getWcagContrast(c.hex, '#000000') >= 4.5) aaBlackSteps.push(step);
+}
+
+const hue = Math.round(palette.baseColor.h);
+const aaWhite = formatStepRange(aaWhiteSteps);
+const aaBlack = formatStepRange(aaBlackSteps);
+
+const title = `${palette.name} OKLCH Palette - 50-950, HEX & Tailwind v4`;
+const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhite} pass WCAG AA on white, ${aaBlack} on black. Copy oklch() or save as Tailwind v4 tokens.`;
 ---
 
 <AppLayout
@@ -144,8 +167,7 @@ const description = `Explore the ${palette.name} OKLCH color palette with 11 per
       </div>
 
       <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-<code>@theme &#123;
-{SHADE_STEPS.map((step) => `  --color-${palette.slug}-${step}: ${formatOklch(palette.shades[step])};\n`).join('')}&#125;</code></pre>
+        <code>@theme &#123;{'\n'}{SHADE_STEPS.map((step) => `  --color-${palette.slug}-${step}: ${formatOklch(palette.shades[step])};\n`).join('')}&#125;</code></pre>
     </section>
   </div>
 </AppLayout>
