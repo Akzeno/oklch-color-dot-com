@@ -29,6 +29,7 @@ import { useCart } from '../../hooks/useCart';
 import { useGeneratorBaseColor } from '../../hooks/useGeneratorBaseColor';
 import { useOpenInPicker } from '../../hooks/useOpenInPicker';
 import ColorSwatch from '../common/ColorSwatch';
+import VariableNameInput from '../common/VariableNameInput';
 import SwatchStrip from '../palettes/SwatchStrip';
 import SwatchActionMenu from './SwatchActionMenu';
 import CustomPalettePanel from './CustomPalettePanel';
@@ -381,44 +382,32 @@ export default function PaletteGeneratorIsland() {
             </span>
           </div>
 
-          <label class="flex items-center gap-2 lg:ml-auto">
+          <label class="flex items-center gap-2 lg:ml-auto" htmlFor="generator-variable-name">
             <span class="eyebrow shrink-0">Variable</span>
             {/*
-              A text field with a datalist of existing roles, not a `<select>`.
-              It has to accept a name that does not exist yet — `--color-brand-*`
-              is the whole point — while still offering the roles already in the
-              cart as one-tap suggestions. The `datalist` gives that without a
-              second control or a dropdown that can only ever be as long as the
-              current cart.
+              A text field with a suggestion menu of existing roles, not a
+              `<select>` and not a `<datalist>` anymore. It has to accept a name
+              that does not exist yet — `--color-brand-*` is the whole point —
+              while still offering the roles already in the cart as one-tap
+              suggestions. The native datalist could not deliver the tap part
+              cleanly: it filters on the text already in the field, so choosing
+              a *different* role meant deleting the current name first, and its
+              popup draws itself with the browser's own chrome, scrollbar
+              included. This menu opens on focus listing every role, a click
+              replaces the field wholesale, and typing is what filters it.
             */}
-            <input
+            <VariableNameInput
               id="generator-variable-name"
-              type="text"
               name="variable"
-              list="generator-role-suggestions"
               value={varNameInput}
-              spellcheck={false}
-              autocomplete="off"
-              aria-label="Custom color variable name"
-              onInput={(e) => setVarNameInput((e.target as HTMLInputElement).value)}
-              onKeyDown={(e) => {
-                // Commit on Enter so a typed name is resolved (and the role
-                // created) without requiring a swatch click first.
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  resolveTargetRole();
-                }
-              }}
-              class="hud !py-1.5 font-mono text-label w-full lg:w-44 min-w-0 cursor-text"
+              onChange={setVarNameInput}
+              onCommit={resolveTargetRole}
+              suggestions={Object.values(cart.roles).map((r) => ({ value: r.id, label: r.name }))}
+              class="min-w-0 w-full lg:w-44"
+              inputClass="hud !py-1.5 font-mono text-label w-full min-w-0 cursor-text"
+              ariaLabel="Custom color variable name"
               placeholder="brand-accent"
             />
-            <datalist id="generator-role-suggestions">
-              {Object.values(cart.roles).map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </datalist>
           </label>
         </div>
 

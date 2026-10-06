@@ -6,8 +6,9 @@
    The palette is deliberately *perceptually neutral*. Every chrome colour is an
    unsaturated gray on a black ramp, because a tinted UI (dark blue, deep purple)
    shifts how the eye reads the OKLCH swatches sitting next to it. Nothing in
-   here is allowed to be "a colour" except the three semantic overlays, which
-   carry meaning — gamut state and copy confirmation — rather than decoration.
+   here is allowed to be "a colour" except the semantic overlays, which carry
+   meaning — gamut state, copy confirmation, and "there is something in the
+   cart" — rather than decoration.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
@@ -37,6 +38,15 @@
   --color-gamut-warning: #f59e0b; /* outside sRGB — clamped */
   --color-gamut-p3: #06b6d4; /* inside Display-P3, outside sRGB */
   --color-copy-success: #22c55e; /* micro-toast confirmation */
+
+  /*
+   * Attention red — DESIGN.md's `danger` hue (#db2b33, the value it grades at
+   * 4.8:1 against white, which is what makes it legal for a count to sit on it).
+   * It is state, not decoration: the cart trigger wears it to say "there are
+   * colours in here", the same job the gamut and copy overlays do for a swatch.
+   * Nothing else may pick it up to look nice.
+   */
+  --color-danger: #db2b33;
 
   /*
    * Scrim for chrome laid over a colour swatch — the "P3" gamut badge, and the
@@ -652,6 +662,27 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   display: none;
 }
 
+/*
+ * The variable suggestion menu (VariableNameInput).
+ *
+ * The global scrollbar rules above leave the *track* painted with the canvas
+ * colour, which is right for a page-length scroller and wrong inside a small
+ * glass popover: a #0a0a0a stripe down the edge of a #141414 menu reads as a
+ * hole rather than a groove. Transparent track, thumb brightens on hover — and,
+ * unlike the native `<datalist>` popup this menu replaced, every part of it is
+ * ours to style at all.
+ */
+.suggest-menu {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-hairline) transparent;
+}
+.suggest-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.suggest-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-focus);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    THE FIXTURE — the "some other app" the preview components are judged inside
    ═══════════════════════════════════════════════════════════════════════════
@@ -943,6 +974,37 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 .animate-popover-in {
   animation: popoverIn 0.14s ease-out both;
   transform-origin: top left;
+}
+
+/*
+ * The cart's notification badge, replayed whenever the badge is (re)created.
+ *
+ * Adding a colour is the one event in this product that happens *somewhere
+ * other than* under the user's cursor — the control that acknowledges it is up
+ * in the header. So the badge announces itself, at the same 150ms ceiling
+ * everything else respects, and then holds still: a badge that keeps pulsing
+ * becomes wallpaper, and wallpaper is how the cart became invisible in the
+ * first place. The caller keys the badge on the count, so it fires on 1 → 2 as
+ * well as 0 → 1 — and only then. The button is persisted across view
+ * transitions (`transition:persist` in Header.astro), so a navigation re-mount
+ * never masquerades as a change and the badge never replays its pop on arrival.
+ */
+@keyframes cartBump {
+  0% {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-cart-bump {
+  animation: cartBump 0.15s var(--ease-tap) both;
 }
 
 /*

@@ -31,6 +31,7 @@ import {
 } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
 import ColorSwatch from '../common/ColorSwatch';
+import VariableNameInput from '../common/VariableNameInput';
 
 /** Copies then confirms, so the flash is tied to the value that was copied. */
 function copyValue(value: string, label: string) {
@@ -89,8 +90,9 @@ export default function ColorPickerIsland() {
    * role id — the same reason the generator and the palette pages made this
    * switch. A `<select>` can only offer roles that already exist, so it cannot
    * name the variable the user is inventing (`--color-brand-accent-*`), and it
-   * cannot correct a name they mistyped once it exists either. The datalist
-   * keeps the one-tap picking of the `<select>` without inheriting its ceiling.
+   * cannot correct a name they mistyped once it exists either. The suggestion
+   * menu keeps the one-tap picking of the `<select>` without inheriting its
+   * ceiling.
    *
    * `null` means "nothing typed but uncommitted", and the field then mirrors the
    * store's active role. That is what keeps the text honest when the role is
@@ -486,40 +488,30 @@ export default function ColorPickerIsland() {
           <label class="flex items-center gap-2 min-w-0" htmlFor="picker-variable-name">
             <span class="eyebrow shrink-0">Variable</span>
             {/*
-              A text field with a datalist of the cart's roles, not a `<select>`.
-              The destination is usually a variable that does not exist yet — this
-              page's whole job is authoring one — and the datalist still offers
-              every known name as a one-tap suggestion, which is all the `<select>`
-              was actually being used for.
+              A text field with a suggestion menu of the cart's roles, not a
+              `<select>` and not a `<datalist>` anymore. It has to accept a name
+              that does not exist yet — this page's whole job is authoring one —
+              while offering every known name as a one-tap switch.
+
+              The native datalist failed the second half: it draws its own
+              unstyleable popup and, worse, filters on the text already in the
+              field, so picking a *different* variable meant first deleting the
+              current one character by character. This menu opens on focus with
+              every role listed and a click replaces the field wholesale; typing
+              is what filters it.
             */}
-            <input
+            <VariableNameInput
               id="picker-variable-name"
-              type="text"
               name="variable"
-              list="picker-role-suggestions"
               value={varNameEdit ?? cart.activeRoleId}
-              spellcheck={false}
-              autocomplete="off"
-              aria-label="Custom color variable name"
-              onInput={(e) => setVarNameEdit((e.target as HTMLInputElement).value)}
-              onKeyDown={(e) => {
-                // Commit on Enter, so a typed name resolves (and the role is
-                // created) without having to write a colour first.
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  resolveTargetRole();
-                }
-              }}
-              class="hud !py-1 !px-2 font-mono text-label min-w-0 max-w-[16rem] cursor-text"
+              onChange={setVarNameEdit}
+              onCommit={resolveTargetRole}
+              suggestions={Object.values(cart.roles).map((r) => ({ value: r.id, label: r.name }))}
+              class="min-w-0 max-w-[16rem]"
+              inputClass="hud !py-1 !px-2 font-mono text-label w-full min-w-0 cursor-text"
+              ariaLabel="Custom color variable name"
               placeholder="brand-accent"
             />
-            <datalist id="picker-role-suggestions">
-              {Object.values(cart.roles).map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </datalist>
           </label>
 
           <span class="pill ml-auto">
