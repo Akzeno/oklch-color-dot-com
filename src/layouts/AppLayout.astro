@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
 import SidebarIsland from '../components/layout/SidebarIsland';
 import MobileTabBar from '../components/layout/MobileTabBar';
 import CartDrawerIsland from '../components/cart/CartDrawerIsland';
@@ -49,6 +50,8 @@ const currentPath = Astro.url.pathname;
     -->
     <main class="flex-1 min-w-0 pb-16 md:pb-10 overflow-x-clip">
       <slot />
+      <!-- SSR footer links: guarantees every page links to every section. -->
+      <Footer />
     </main>
   </div>
 

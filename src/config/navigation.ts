@@ -97,18 +97,21 @@ export const navigationConfig: NavItem[] = [
     labelKey: 'nav.converters',
     defaultLabel: 'Converters',
     icon: 'ArrowLeftRight',
-    path: '/hex-to-oklch',
+    // The hub page, not a duplicate of the child /hex-to-oklch route. This path
+    // used to equal the first child's, which put /hex-to-oklch in the sitemap
+    // twice and gave the mobile "Convert" tab an arbitrary landing page.
+    path: '/oklch-converter',
     order: 4,
     group: 'converters',
     showInMobileBar: true,
     mobileBarOrder: 3,
     seo: {
-      title: 'HEX to OKLCH Converter - Free CSS oklch() Tool',
+      title: 'OKLCH Converter - HEX, RGB & HSL to oklch() CSS',
       metaDescription:
-        'Convert 3, 6 or 8-digit HEX colors to CSS oklch() instantly. Free HEX to OKLCH converter with live sRGB and Display-P3 gamut detection.',
-      h1: 'HEX to OKLCH Converter',
-      keywords: ['hex to oklch', 'hex to oklch converter', 'convert hex to oklch', 'css oklch converter'],
-      schemaType: 'WebApplication',
+        'Pick the OKLCH converter you need: turn HEX, RGB or HSL colors into CSS oklch(), or turn oklch() back into any of them, with live gamut detection.',
+      h1: 'OKLCH Converter',
+      keywords: ['oklch converter', 'convert to oklch', 'color to oklch', 'oklch color converter'],
+      schemaType: 'CollectionPage',
       datePublished: PUBLISHED,
       dateModified: MODIFIED,
     },
@@ -307,13 +310,18 @@ export function getNavItemByPath(path: string): NavItem | undefined {
 }
 
 // Flat list of all indexable pages for sitemap and SEO.
-// Parent items with children are skipped — their children are the actual pages,
-// and including both would produce duplicate URLs when a parent's path matches
-// a child's path (e.g. the Converters group and /hex-to-oklch).
+// A parent is skipped only when one of its children shares its path — that was
+// the /hex-to-oklch duplicate. Parents with a distinct path (the converter hub)
+// are real pages of their own and must appear in the sitemap.
 export function getAllNavItemsFlat(): NavItem[] {
   const result: NavItem[] = [];
   for (const item of navigationConfig) {
     if (item.children) {
+      const childPaths = item.children.map((c) => c.path.replace(/\/$/, '') || '/');
+      const ownPath = item.path.replace(/\/$/, '') || '/';
+      if (!childPaths.includes(ownPath)) {
+        result.push(item);
+      }
       result.push(...item.children);
     } else {
       result.push(item);

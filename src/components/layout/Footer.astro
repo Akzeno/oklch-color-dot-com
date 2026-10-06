@@ -1,0 +1,64 @@
+---
+/**
+ * Site-wide footer. Real server-rendered <a href> links, grouped by nav config
+ * so it can never go stale when a route is renamed. Every page gets it through
+ * AppLayout, which guarantees no page is an orphan and spreads link equity from
+ * the long-tail pages (palettes, learn) back to the converters and vice versa.
+ */
+import { getAllNavItemsFlat } from '../../config/navigation';
+
+const items = getAllNavItemsFlat();
+const normalize = (p: string) => p.replace(/\/$/, '') || '/';
+
+const groups = [
+  {
+    heading: 'Converters',
+    links: items.filter((i) => i.group === 'converters'),
+  },
+  {
+    heading: 'Tools',
+    links: items.filter((i) => i.group === 'tools'),
+  },
+  {
+    heading: 'Learn',
+    links: items.filter((i) => i.group === 'learn'),
+  },
+];
+
+const currentPath = normalize(Astro.url.pathname);
+---
+
+<footer class="border-t border-hairline bg-canvas-card mt-8" aria-label="Site footer">
+  <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+    {groups.map((group) => (
+      <nav aria-label={group.heading}>
+        <h2 class="text-[11px] font-mono uppercase tracking-wider text-mute mb-2">
+          {group.heading}
+        </h2>
+        <ul class="space-y-1.5">
+          {group.links.map((item) => (
+            <li>
+              <a
+                href={item.path}
+                class:list={[
+                  'text-xs font-mono transition-colors',
+                  normalize(item.path) === currentPath
+                    ? 'text-ink font-semibold'
+                    : 'text-body hover:text-ink',
+                ]}
+                aria-current={normalize(item.path) === currentPath ? 'page' : undefined}
+              >
+                {item.seo.h1}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+  </div>
+  <div class="border-t border-hairline">
+    <p class="max-w-6xl mx-auto px-4 py-4 text-[11px] font-mono text-mute">
+      oklchcolors.com — free OKLCH color tools, converters and palettes.
+    </p>
+  </div>
+</footer>
