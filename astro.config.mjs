@@ -11,5 +11,30 @@ export default defineConfig({
   integrations: [preact()],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // Prevent duplicate modules across chunks
+      modulePreload: {
+        polyfill: false,
+      },
+      rollupOptions: {
+        output: {
+          // Deduplicate common modules (preact, lucide, etc.) into shared chunks
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('preact') || id.includes('jsx-runtime')) {
+                return 'vendor-preact';
+              }
+              if (id.includes('lucide-preact')) {
+                return 'vendor-lucide';
+              }
+              if (id.includes('astro')) {
+                return 'vendor-astro';
+              }
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
   },
 });

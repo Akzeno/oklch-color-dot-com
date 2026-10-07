@@ -61,6 +61,29 @@ https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex
 
 # ============================================================
+# COMPRESSION — ensure text assets are compressed
+# Cloudflare Pages auto-enables Brotli/gzip, but explicit
+# Content-Encoding hints avoid edge cases with Workers/Pages
+# ============================================================
+/*.html
+  Content-Encoding: br, gzip
+
+/*.css
+  Content-Encoding: br, gzip
+
+/*.js
+  Content-Encoding: br, gzip
+
+/*.json
+  Content-Encoding: br, gzip
+
+/*.xml
+  Content-Encoding: br, gzip
+
+/*.svg
+  Content-Encoding: br, gzip
+
+# ============================================================
 # SECURITY HEADERS (bonus)
 # ============================================================
 /*
