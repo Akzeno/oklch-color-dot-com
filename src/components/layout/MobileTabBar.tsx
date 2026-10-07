@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import {
   ArrowLeftRight,
   BarChart3,
@@ -13,6 +13,11 @@ import {
 } from 'lucide-preact';
 import type { LucideIcon } from 'lucide-preact';
 import { navigationConfig } from '../../config/navigation';
+
+/** Key used in localStorage to track first-time visitor status */
+const FIRST_VISIT_KEY = 'oklch_first_visit_dismissed';
+/** The nav item ID that gets the first-visit badge */
+const FIRST_VISIT_TARGET_ID = 'generator';
 
 /**
  * Mobile navigation.
@@ -51,6 +56,30 @@ interface MobileTabBarProps {
 
 export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  /* First-visit notification badge */
+  const [showFirstVisitBadge, setShowFirstVisitBadge] = useState(false);
+
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(FIRST_VISIT_KEY);
+      if (!dismissed) {
+        setShowFirstVisitBadge(true);
+      }
+    } catch {
+      // Private-mode storage failures must not break navigation.
+    }
+  }, []);
+
+  const dismissFirstVisitBadge = () => {
+    setShowFirstVisitBadge(false);
+    try {
+      localStorage.setItem(FIRST_VISIT_KEY, 'true');
+    } catch {
+      // ignore
+    }
+  };
+
   const normalize = (p: string) => p.replace(/\/$/, '') || '/';
   const current = normalize(currentPath);
 
@@ -102,11 +131,16 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
           <button
             onClick={() => setSheetOpen(true)}
             aria-expanded={sheetOpen}
-            class={`flex flex-col items-center justify-center gap-0.5 flex-1 font-mono text-[10px] transition-colors duration-150 ${
+            class={`flex flex-col items-center justify-center gap-0.5 flex-1 font-mono text-[10px] transition-colors duration-150 relative ${
               sheetOpen ? 'text-ink' : 'text-mute'
             }`}
           >
-            <MoreHorizontal class="w-5 h-5" aria-hidden="true" strokeWidth={1.75} />
+            <span class="relative">
+              <MoreHorizontal class="w-5 h-5" aria-hidden="true" strokeWidth={1.75} />
+              {showFirstVisitBadge && (
+                <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label="Recommended to try" />
+              )}
+            </span>
             <span>More</span>
           </button>
         </div>
@@ -141,14 +175,23 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
               <div class="grid grid-cols-2 gap-2">
                 {secondary.map((item) => {
                   const Ico = ICONS[item.icon];
+                  const isFirstVisitTarget = item.id === FIRST_VISIT_TARGET_ID;
                   return (
                     <a
                       key={item.id}
                       href={item.path}
-                      onClick={() => setSheetOpen(false)}
+                      onClick={() => {
+                        setSheetOpen(false);
+                        if (isFirstVisitTarget) dismissFirstVisitBadge();
+                      }}
                       class="flex items-center gap-2.5 px-3 py-2.5 rounded-md border border-hairline bg-canvas-raised text-label text-ink transition-colors duration-150"
                     >
-                      {Ico && <Ico class="w-4 h-4 text-mute" aria-hidden="true" strokeWidth={1.75} />}
+                      <span class="relative flex-shrink-0">
+                        {Ico && <Ico class="w-4 h-4 text-mute" aria-hidden="true" strokeWidth={1.75} />}
+                        {showFirstVisitBadge && isFirstVisitTarget && (
+                          <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label="Recommended to try" />
+                        )}
+                      </span>
                       <span class="truncate">{item.defaultLabel}</span>
                     </a>
                   );

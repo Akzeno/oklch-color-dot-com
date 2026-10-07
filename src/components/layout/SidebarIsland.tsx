@@ -17,6 +17,11 @@ import {
 import type { LucideIcon } from 'lucide-preact';
 import { navigationConfig } from '../../config/navigation';
 
+/** Key used in localStorage to track first-time visitor status */
+const FIRST_VISIT_KEY = 'oklch_first_visit_dismissed';
+/** The nav item ID that gets the first-visit badge */
+const FIRST_VISIT_TARGET_ID = 'generator';
+
 /**
  * Icons are referenced by the Lucide name stored in `navigation.ts` and
  * resolved here. The nav previously carried its own 70-line `switch` of
@@ -44,6 +49,29 @@ interface SidebarProps {
 
 export default function SidebarIsland({ currentPath }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  /* First-visit notification badge */
+  const [showFirstVisitBadge, setShowFirstVisitBadge] = useState(false);
+
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(FIRST_VISIT_KEY);
+      if (!dismissed) {
+        setShowFirstVisitBadge(true);
+      }
+    } catch {
+      // Private-mode storage failures must not break navigation.
+    }
+  }, []);
+
+  const dismissFirstVisitBadge = () => {
+    setShowFirstVisitBadge(false);
+    try {
+      localStorage.setItem(FIRST_VISIT_KEY, 'true');
+    } catch {
+      // ignore
+    }
+  };
 
   /*
    * The four /learn guides are content pages, not tools — showing them as
@@ -209,9 +237,16 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
               aria-current={isActive ? 'page' : undefined}
               title={item.defaultLabel}
               class={`flex items-center gap-2.5 px-2.5 py-2 rounded-md text-label transition-colors duration-150 ${itemClass(isActive)}`}
+              onClick={() => item.id === FIRST_VISIT_TARGET_ID && dismissFirstVisitBadge()}
             >
-              <span class={isActive ? 'text-ink' : 'text-mute'}>
-                {iconFor(item.icon, 'w-4 h-4')}
+              <span class="relative flex-shrink-0">
+                <span class={isActive ? 'text-ink' : 'text-mute'}>
+                  {iconFor(item.icon, 'w-4 h-4')}
+                </span>
+                {showFirstVisitBadge &&
+                  item.id === FIRST_VISIT_TARGET_ID && (
+                    <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label="Recommended to try" />
+                  )}
               </span>
               {!collapsed && <span class="truncate">{item.defaultLabel}</span>}
             </a>

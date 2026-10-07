@@ -72,6 +72,14 @@
   --color-danger-ink: #fca5a5;
 
   /*
+   * First-visit highlight — a bright amber (oklch(88% 0.25 85)) that draws
+   * strong attention without the urgency of `danger`. Used for the "Recommended"
+   * badge on the Palette Generator for new visitors. Same value in both themes.
+   * Higher lightness & chroma than the base amber for maximum eye-catching pop.
+   */
+  --color-first-visit: oklch(88% 0.25 85);
+
+  /*
    * What an ink-filled control does on hover. In the dark theme ink is already
    * the lightest thing on screen, so hover can only go one way — to white. In
    * the light theme ink is dark and white would be a hole punched in the page
@@ -1271,6 +1279,26 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 
 .animate-cart-bump {
   animation: cartBump 0.15s var(--ease-tap) both;
+}
+
+/*
+ * First-visit badge pulse — a subtle, continuous glow that draws the eye
+ * without being annoying. Runs at 2s cycle so it's noticeable but not
+ * distracting. Uses scale + opacity for a "breathing" effect.
+ */
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+.animate-badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
 }
 
 /*
