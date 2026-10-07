@@ -52,8 +52,8 @@ export function FormsGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Fields"
         description="Every field stacks label, value and edge. If any two of them fail alone, they still fail here."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set background + text to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        hintTitle={worst?.label}
       >
         <Specimen name="Input" variant="Rest">
           {(paint) => (

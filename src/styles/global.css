@@ -342,6 +342,20 @@ body {
     white-space: nowrap;
   }
 
+  /*
+   * A pill that *is* the control — the picker's gamut badge, which opens the
+   * FAQ entry explaining its current word. `.pill` already supplies every
+   * visual property; what CSS cannot infer is intent, so this adds only the
+   * pointer cursor. Hover is deliberately left to the call site
+   * (`hover:!bg-black/80`): a background declared here would sit in the
+   * components layer and lose to that badge's `!important` scrim regardless
+   * of specificity.
+   */
+  .pill-link {
+    appearance: none;
+    cursor: pointer;
+  }
+
   /* Section eyebrow above a block of content. */
   .eyebrow {
     color: var(--color-mute);
@@ -1286,6 +1300,39 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 
 .animate-frame-in {
   animation: frameIn 0.14s var(--ease-tap) both;
+}
+
+/*
+ * The picker's gamut badge links to its FAQ card; this is the "…this one"
+ * that the scroll alone cannot say. The card lands somewhere in the viewport
+ * among six identical cards, so the ring — not a background swap, which would
+ * have to know the theme it sits in — marks the exact one, holds long enough
+ * to be read, and fades. Drawn as a pseudo-element rather than a box-shadow
+ * because the ring must outlive neither the card's own shadow (none today,
+ * but the card is free to grow one) nor its border-radius, which this tracks
+ * with the same token. Set and cleared by `showGamutFaq` via `data-flash`.
+ */
+@keyframes faqFlash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.faq-flash {
+  position: relative;
+}
+
+.faq-flash[data-flash]::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--color-border-focus);
+  border-radius: calc(var(--radius-lg) + 2px);
+  pointer-events: none;
+  animation: faqFlash 1.5s ease-out both;
 }
 
 /*

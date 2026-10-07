@@ -49,6 +49,40 @@ export const navigationConfig: NavItem[] = [
       schemaType: 'WebApplication',
       datePublished: PUBLISHED,
       dateModified: MODIFIED,
+      // Verbatim copy of the visible FAQ section on the page (source of
+      // truth: src/pages/index.astro) — keep the two in sync.
+      faqs: [
+        {
+          question: 'What is the difference between OKLCH and HSL?',
+          answer:
+            'HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.',
+        },
+        {
+          question: 'Do all modern browsers support CSS oklch()?',
+          answer:
+            'Yes! Chrome 111+, Safari 15.4+, Firefox 113+, and Edge 111+ support oklch() natively, representing over 93% global browser adoption.',
+        },
+        {
+          question: 'How does the color cart work?',
+          answer:
+            'Whenever you click "Add to Cart" or tap a swatch from our palettes, that exact single color is placed into your chosen UI role (e.g. Primary, Trusty Button, Danger). It automatically slots into the closest shade step (50–950), which you can then preview on real dummy UI components or export to Tailwind v4.',
+        },
+        {
+          question: 'What does "sRGB" mean on the gamut badge?',
+          answer:
+            'The color fits inside sRGB — the standard gamut that every screen, browser, and CSS color function can display. The badge\'s green dot means what you see on the canvas is exactly what the copied oklch() value will render: nothing is being clamped, so the swatch is a literal preview of the value.',
+        },
+        {
+          question: 'What does "Display-P3" mean on the gamut badge?',
+          answer:
+            'The color is more vivid than sRGB can reproduce, but still fits Display-P3 — the wider gamut used by modern phones, laptops, and monitors. Wide-gamut displays show it at full intensity; on older sRGB-only screens the browser gamut-maps it back toward sRGB, so it may look slightly less vivid there. It is a real, usable color — just one that benefits from a P3 display to appreciate fully.',
+        },
+        {
+          question: 'What does "Clipped" mean on the gamut badge?',
+          answer:
+            'The color is too saturated even for Display-P3, so no current screen can show it as authored — the browser clamps it to the nearest displayable color and the swatch becomes an approximation of your OKLCH values rather than the values themselves. Lower the Chroma slider (its max label shows the sRGB ceiling for that lightness and hue) until the badge reads sRGB or Display-P3 to get a color you can trust.',
+        },
+      ],
     },
   },
   {

@@ -11,9 +11,10 @@ export interface PreviewFrameProps {
   label: string;
   /** One line explaining what this variant is for. */
   description?: string;
-  /** Right-aligned status pill, e.g. a contrast grade. */
+  /** Right-aligned pill: a contrast ratio, or a note that there is none yet. */
   hint?: string;
-  hintPass?: boolean;
+  /** The pair the ratio belongs to, used as the pill's hover title. */
+  hintTitle?: string;
   canvasBg: string;
   borderCol: string;
   /** Drives the staggered entry animation. */
@@ -27,7 +28,7 @@ export function PreviewFrame({
   label,
   description,
   hint,
-  hintPass,
+  hintTitle,
   canvasBg,
   borderCol,
   index,
@@ -46,21 +47,18 @@ export function PreviewFrame({
         </div>
         {hint && (
           /*
-            The contrast grade. It was `emerald-400` on green wash for a pass and
-            `amber-400` on amber for a fail — a traffic light, on a page whose
-            subject is judging colour, with amber already meaning "outside sRGB".
-            Two meanings for one hue teaches the reader that the hue is not the
-            message. The grade is now carried by ink weight instead: a failure
-            is ink on a raised fill, a pass is mute on nothing.
+            One pill, one meaning, no state. It was first a traffic light
+            (`emerald-400` on green for a pass, `amber-400` for a fail — with
+            amber already meaning "outside sRGB" on this page), then an
+            ink-weight scheme that still drew a failure as ink on the hover fill
+            behind the focus-ring border: a control state rendered permanently,
+            which read as something stuck rather than as a grade. The verdict is
+            not printed any more — the ratio is — so there is nothing left to
+            dress up.
           */
           <span
-            class={`pill shrink-0 ${
-              hintPass === false
-                ? 'bg-canvas-elevated border-border-focus text-ink'
-                : hintPass === true
-                  ? 'border-transparent text-mute'
-                  : 'border-transparent text-faint'
-            }`}
+            class="pill shrink-0"
+            title={hintTitle ? `${hint} · weakest pair: ${hintTitle}` : undefined}
           >
             {hint}
           </span>

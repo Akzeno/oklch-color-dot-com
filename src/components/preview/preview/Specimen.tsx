@@ -58,13 +58,15 @@ export function Rail({
   label,
   description,
   hint,
-  hintPass,
+  hintTitle,
   children,
 }: {
   label: string;
   description?: string;
+  /** The weakest ratio in the group, bare: `3.45:1`. */
   hint?: string;
-  hintPass?: boolean;
+  /** The pair that ratio belongs to, so the number is never a stray figure. */
+  hintTitle?: string;
   children: ComponentChildren;
 }) {
   return (
@@ -76,19 +78,17 @@ export function Rail({
         </div>
         {hint && (
           /*
-            The grade is carried by ink weight, never by a hue. A traffic light
-            here would teach the reader that amber means "failed contrast" and
-            also "outside sRGB", and on a page about colour that is one
-            ambiguity too many.
+            The ratio, in the same hairline pill every other chip on the page
+            wears — and nothing else. It used to print a verdict
+            (`worst 3.45:1 · Fail`), and a failing group restyled the pill with
+            the hover fill and the *focus-ring* border: an interactive state,
+            drawn permanently, so the header read as a control stuck mid-hover
+            rather than as a report. The number is the report, so no state is
+            rendered here at all, and no rail can look more broken than another.
           */
           <span
-            class={`pill shrink-0 ${
-              hintPass === false
-                ? 'bg-canvas-elevated border-border-focus text-ink'
-                : hintPass === true
-                  ? 'border-transparent text-mute'
-                  : 'border-transparent text-faint'
-            }`}
+            class="pill shrink-0"
+            title={hintTitle ? `${hint} · weakest pair: ${hintTitle}` : undefined}
           >
             {hint}
           </span>

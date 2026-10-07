@@ -55,8 +55,8 @@ export function NavigationGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Chrome"
         description="The same three neutrals stacked five ways. If the steps between them are too close, this is where it shows."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set background + text to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        hintTitle={worst?.label}
       >
         <Specimen name="Top bar" variant="Solid">
           {(paint) => (

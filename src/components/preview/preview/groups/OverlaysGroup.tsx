@@ -75,8 +75,8 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Over a Scrim"
         description="Content behind, scrim, panel. The panel's own edge has to separate it from what it is covering."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set background + text to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        hintTitle={worst?.label}
       >
         <Specimen name="Modal" variant="Dialog">
           {(paint) => (

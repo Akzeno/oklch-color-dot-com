@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'preact/hooks';
+import { useState, useMemo, useEffect, useRef } from 'preact/hooks';
 import { Check, Copy, Dices, Plus, ShoppingBag, X } from 'lucide-preact';
 import {
   createOklchColor,
@@ -266,10 +266,46 @@ export default function ColorPickerIsland() {
   const handoffActionLabel = handoffIsFree ? 'Use colour' : handoffReturnTo ? 'Save & return' : 'Save';
 
   const gamut = color.inSRGB
-    ? { dot: 'bg-copy-success', text: 'sRGB' }
+    ? { dot: 'bg-copy-success', text: 'sRGB', faq: 'faq-gamut-srgb' }
     : color.inP3
-      ? { dot: 'bg-gamut-p3', text: 'Display-P3' }
-      : { dot: 'bg-gamut-warning', text: 'Clipped' };
+      ? { dot: 'bg-gamut-p3', text: 'Display-P3', faq: 'faq-gamut-p3' }
+      : { dot: 'bg-gamut-warning', text: 'Clipped', faq: 'faq-gamut-clipped' };
+
+  /*
+   * The badge is the only place on this page where gamut jargon lands with no
+   * explanation, so it opens the FAQ entry that decodes its current word —
+   * sRGB, Display-P3 or Clipped each has its own card, and the id travels on
+   * `gamut` above so the jump can never point at the wrong state. If a card is
+   * missing (a copy of this island on a page without the FAQ), the click is a
+   * no-op rather than an error.
+   *
+   * The ring is a `data` attribute, not state: it has no bearing on what the
+   * component renders, so putting it in React state would re-render the whole
+   * picker to drive one decoration. Removing it and forcing a reflow before
+   * re-adding is what makes a *second* click replay the animation — setting
+   * the same attribute twice is a no-op to CSS.
+   */
+  const faqFlashEl = useRef<HTMLElement | null>(null);
+  const faqFlashTimer = useRef<number>(0);
+
+  const showGamutFaq = (faqId: string) => {
+    const card = document.getElementById(faqId);
+    if (!card) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    card.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+
+    faqFlashEl.current?.removeAttribute('data-flash');
+    void card.offsetWidth;
+    card.setAttribute('data-flash', '');
+    faqFlashEl.current = card;
+
+    window.clearTimeout(faqFlashTimer.current);
+    faqFlashTimer.current = window.setTimeout(() => {
+      card.removeAttribute('data-flash');
+      faqFlashEl.current = null;
+    }, 1500);
+  };
 
   const tokenCount = Object.values(cart.roles).reduce(
     (sum, role) => sum + Object.keys(role.shades).length,
@@ -354,14 +390,30 @@ export default function ColorPickerIsland() {
                 only job is to hold type still against whatever colour is
                 underneath, so they keep the dark theme's inks in both themes —
                 unpainted, the light theme would resolve them dark-on-dark and
-                the gamut dot would turn to mud. */}
+                the gamut dot would turn to mud.
+
+                The badge is a real `<button>`: it opens the FAQ entry for its
+                current gamut word (sRGB / Display-P3 / Clipped), because those
+                three words are the only jargon on this page a first-time
+                visitor has no way to decode. The whole badge is the button
+                rather than just the word — a reader who taps it after dragging
+                a slider expects *the badge* to respond — and `title` becomes
+                the accessible description, so the accessible name stays the
+                literal label that is also visible on screen. The card it opens
+                explains the gamut word, which is the half that changes as
+                L/C/H move; "step N" just reports the nearest shade slot. */}
             <div class="absolute top-2 left-2 right-2 flex items-start justify-between gap-2">
-              <span class="pill dark-scope !bg-black/60 backdrop-blur-md !border-white/10">
+              <button
+                type="button"
+                onClick={() => showGamutFaq(gamut.faq)}
+                class="pill pill-link dark-scope !bg-black/60 backdrop-blur-md !border-white/10 hover:!bg-black/80 transition-colors"
+                title="What does this label mean?"
+              >
                 <span class={`w-1.5 h-1.5 rounded-full ${gamut.dot}`} />
                 {gamut.text}
                 <span class="text-faint">·</span>
                 step {nearestStep}
-              </span>
+              </button>
 
               <button
                 onClick={randomizeColor}

@@ -56,8 +56,8 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Series"
         description="Six roles, one step each, in a fixed order — so adjacent pairs are the ones you are asked to judge."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set the accent roles to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set the accent roles to score'}
+        hintTitle={worst?.label}
       >
         <Specimen name="Chart" variant="Bars">
           {(paint) => (

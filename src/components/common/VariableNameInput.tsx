@@ -247,7 +247,12 @@ export default function VariableNameInput({
         aria-label={ariaLabel}
         role="combobox"
         aria-expanded={open ? 'true' : 'false'}
-        aria-controls={open ? listId : undefined}
+        // Always set, never dangling: ARIA 1.2 makes `aria-controls` a
+        // *required* property of role="combobox", so an audit flags the
+        // collapsed state where this used to drop to `undefined`. The listbox
+        // it names therefore stays mounted (see below) rather than
+        // conditionally rendered.
+        aria-controls={listId}
         aria-autocomplete="list"
         aria-activedescendant={open && active >= 0 && matches[active] ? optionId(active) : undefined}
         onInput={handleInput}
@@ -265,67 +270,76 @@ export default function VariableNameInput({
         class={inputClass}
       />
 
-      {open && (
-        <ul
-          ref={listRef}
-          id={listId}
-          role="listbox"
-          aria-label={ariaLabel ? `${ariaLabel} suggestions` : 'Suggestions'}
-          // Cancelling mousedown keeps focus on the input — without it, pressing
-          // a row blurs the field, the menu unmounts, and the click lands on
-          // nothing. It also stops a scrollbar press from shutting the menu
-          // mid-drag.
-          onMouseDown={(e) => e.preventDefault()}
-          class={`absolute left-0 z-40 w-full min-w-[13rem] max-w-[calc(100vw-1.5rem)] max-h-56 overflow-y-auto overscroll-contain p-1 dock rounded-md suggest-menu animate-popover-in ${
-            dropUp ? 'bottom-full mb-1' : 'top-full mt-1'
-          }`}
-          style={dropUp ? { transformOrigin: 'bottom left' } : undefined}
-        >
-          {matches.length === 0 ? (
-            <li
-              role="option"
-              aria-disabled="true"
-              aria-selected="false"
-              class="px-2.5 py-1.5 font-mono text-micro text-faint"
-            >
-              {suggestions.length === 0
-                ? 'No variables saved yet — press Enter to use this name'
-                : `No match — press Enter to use "${value.trim()}"`}
-            </li>
-          ) : (
-            matches.map((s, i) => {
-              const isActive = i === active;
-              const isCurrent = s.value === value;
-              return (
-                <li
-                  key={s.value}
-                  id={optionId(i)}
-                  ref={(el) => {
-                    optionRefs.current[i] = el;
-                  }}
-                  role="option"
-                  aria-selected={isCurrent}
-                  onMouseEnter={() => setActive(i)}
-                  onClick={() => pick(s)}
-                  class={`flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer transition-colors duration-150 ${
-                    isActive ? 'bg-canvas-elevated' : 'hover:bg-canvas-elevated'
-                  }`}
-                >
-                  <span class="min-w-0 flex-1">
-                    <span class="block truncate font-mono text-label text-ink">{s.value}</span>
-                    {!labelIsRedundant(s) && (
-                      <span class="block truncate text-micro text-faint">{s.label}</span>
-                    )}
-                  </span>
-                  {isCurrent && (
-                    <Check class="w-3 h-3 shrink-0 text-ink" strokeWidth={2.5} aria-hidden="true" />
+      {/*
+        Always mounted, hidden while collapsed — the same bargain the sidebar's
+        Learn section makes (see SidebarIsland): `aria-controls` must name a
+        real element at all times, and a listbox that unmounts when the menu
+        shuts would leave the combobox pointing at an id that no longer exists.
+        `hidden` keeps it out of both the layout and the accessibility tree, so
+        the collapsed state is indistinguishable from the old unmounted one —
+        display:none also cancels `animate-popover-in` and restarts it on the
+        next open, so the entrance still plays every time.
+      */}
+      <ul
+        ref={listRef}
+        id={listId}
+        role="listbox"
+        hidden={!open}
+        aria-label={ariaLabel ? `${ariaLabel} suggestions` : 'Suggestions'}
+        // Cancelling mousedown keeps focus on the input — without it, pressing
+        // a row blurs the field, the menu unmounts, and the click lands on
+        // nothing. It also stops a scrollbar press from shutting the menu
+        // mid-drag.
+        onMouseDown={(e) => e.preventDefault()}
+        class={`absolute left-0 z-40 w-full min-w-[13rem] max-w-[calc(100vw-1.5rem)] max-h-56 overflow-y-auto overscroll-contain p-1 dock rounded-md suggest-menu animate-popover-in ${
+          dropUp ? 'bottom-full mb-1' : 'top-full mt-1'
+        }`}
+        style={dropUp ? { transformOrigin: 'bottom left' } : undefined}
+      >
+        {matches.length === 0 ? (
+          <li
+            role="option"
+            aria-disabled="true"
+            aria-selected="false"
+            class="px-2.5 py-1.5 font-mono text-micro text-faint"
+          >
+            {suggestions.length === 0
+              ? 'No variables saved yet — press Enter to use this name'
+              : `No match — press Enter to use "${value.trim()}"`}
+          </li>
+        ) : (
+          matches.map((s, i) => {
+            const isActive = i === active;
+            const isCurrent = s.value === value;
+            return (
+              <li
+                key={s.value}
+                id={optionId(i)}
+                ref={(el) => {
+                  optionRefs.current[i] = el;
+                }}
+                role="option"
+                aria-selected={isCurrent}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => pick(s)}
+                class={`flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer transition-colors duration-150 ${
+                  isActive ? 'bg-canvas-elevated' : 'hover:bg-canvas-elevated'
+                }`}
+              >
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-mono text-label text-ink">{s.value}</span>
+                  {!labelIsRedundant(s) && (
+                    <span class="block truncate text-micro text-faint">{s.label}</span>
                   )}
-                </li>
-              );
-            })
-          )}
-        </ul>
-      )}
+                </span>
+                {isCurrent && (
+                  <Check class="w-3 h-3 shrink-0 text-ink" strokeWidth={2.5} aria-hidden="true" />
+                )}
+              </li>
+            );
+          })
+        )}
+      </ul>
     </div>
   );
 }

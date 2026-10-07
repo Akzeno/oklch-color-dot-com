@@ -57,8 +57,8 @@ export function FeedbackGroup({ paint }: { paint: Paint }) {
       <Rail
         label="One Per Tone"
         description="All four semantic roles at the same size, on the same canvas — so a palette that only breaks on one of them cannot hide."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set the four tones to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set the four tones to score'}
+        hintTitle={worst?.label}
       >
         {TONES.map(({ role, title, body }) => (
           <Specimen key={role} name="Alert" variant={role[0]!.toUpperCase() + role.slice(1)}>

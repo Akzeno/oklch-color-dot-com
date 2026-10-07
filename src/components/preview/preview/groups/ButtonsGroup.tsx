@@ -82,8 +82,8 @@ function accentPair(paint: Paint, role: AccentRole): ContrastPair | null {
 export function ButtonsGroup({ paint }: { paint: Paint }) {
   const { ready, waiting } = split(paint);
 
-  // One grade for the first rail: the worst accent pairing on the page. Enough
-  // to catch a broken pair without turning the group into a report.
+  // One number for the first rail: the weakest accent pairing on the page.
+  // Enough to catch a broken pair without turning the group into a report.
   const worst = worstOf(ready.map((role) => accentPair(paint, role)));
 
   return (
@@ -91,8 +91,8 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Variants"
         description="One card per variant, all painted from the Trusty Button role on an identical backdrop."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set an accent to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set an accent to score'}
+        hintTitle={worst?.label}
       >
         {VARIANTS.map(({ variant, name }) => (
           <Specimen key={variant} name="Button" variant={name}>

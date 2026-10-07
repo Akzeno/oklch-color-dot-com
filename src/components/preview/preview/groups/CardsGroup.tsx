@@ -48,8 +48,8 @@ export function CardsGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Depth"
         description="Surface on canvas, then raised on surface. Each card sits one level deeper than the last."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set background + text to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        hintTitle={worst?.label}
       >
         <Specimen name="Card" variant="Flat">
           {(paint) => (

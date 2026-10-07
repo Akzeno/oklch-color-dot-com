@@ -488,9 +488,19 @@ check('nothing scorable returns null, not a fabricated zero',
   worstOf([null, null]) === null);
 check('a rail with no accents therefore says "set an accent to score"',
   // The exact phrase the Buttons rail prints, because a rail must never show a
-  // grade it could not compute.
-  /worst \$\{worst\.wcag\}:1/.test(read(groupFiles.Buttons)) &&
+  // grade it could not compute — alongside the bare ratio it prints when it can.
+  /\$\{worst\.wcag\}:1/.test(read(groupFiles.Buttons)) &&
   /'set an accent to score'/.test(read(groupFiles.Buttons)));
+check('a rail reports a ratio, never a verdict',
+  // `worst 3.45:1 · Fail` said in six words what the number already says, and
+  // its fail state dressed the pill in the hover fill plus the focus-ring
+  // border — an interactive state drawn permanently, which read as something
+  // stuck rather than as a report. No group prints a grade any more.
+  Object.values(groupFiles).every((f) => !read(f).includes('${worst.grade}')),
+  Object.values(groupFiles)
+    .filter((f) => read(f).includes('${worst.grade}'))
+    .join(','),
+  );
 
 console.log('\n=== A tint is a derivative, never a new token ===');
 // Tinted fills are everywhere in the fixture: a slider track, a soft badge, a

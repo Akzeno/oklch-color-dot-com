@@ -45,8 +45,8 @@ export function ListsGroup({ paint }: { paint: Paint }) {
       <Rail
         label="Lists"
         description="Title, meta and a trailing number — three ink levels stacked in one row, on a hairline."
-        hint={worst ? `worst ${worst.wcag}:1 · ${worst.grade}` : 'set background + text to score'}
-        hintPass={worst ? worst.grade !== 'Fail' : undefined}
+        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        hintTitle={worst?.label}
       >
         <Specimen name="List" variant="Plain">
           {(paint) => (

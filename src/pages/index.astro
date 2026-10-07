@@ -142,11 +142,19 @@ const examplesTable = getBuildTimeColorTable();
         </ul>
       </section>
 
-      <!-- 5. FAQ Section (Visible Content) -->
+      <!-- 5. FAQ Section (Visible Content)
+
+           The three gamut cards are jump targets: the badge on the picker
+           canvas links to their ids through `gamut.faq` in ColorPickerIsland.tsx
+           (faq-gamut-srgb / faq-gamut-p3 / faq-gamut-clipped), so renaming one
+           here orphans its badge. -->
       <section class="space-y-4">
         <h2 class="text-lg font-semibold text-ink">
           Frequently Asked Questions
         </h2>
+        <p class="text-[11px] font-mono text-mute -mt-2">
+          Using the badge on the colour canvas? Click it — sRGB, Display-P3 and Clipped each jump to their own answer here.
+        </p>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
             <h3 class="text-sm font-semibold text-ink">What is the difference between OKLCH and HSL?</h3>
@@ -164,6 +172,24 @@ const examplesTable = getBuildTimeColorTable();
             <h3 class="text-sm font-semibold text-ink">How does the color cart work?</h3>
             <p class="text-body leading-relaxed">
               Whenever you click "Add to Cart" or tap a swatch from our palettes, that exact single color is placed into your chosen UI role (e.g. Primary, Trusty Button, Danger). It automatically slots into the closest shade step (50–950), which you can then preview on real dummy UI components or export to Tailwind v4.
+            </p>
+          </div>
+          <div id="faq-gamut-srgb" class="faq-flash bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">What does "sRGB" mean on the gamut badge?</h3>
+            <p class="text-body leading-relaxed">
+              The color fits inside sRGB — the standard gamut that every screen, browser, and CSS color function can display. The badge's green dot means what you see on the canvas is exactly what the copied <code class="text-ink">oklch()</code> value will render: nothing is being clamped, so the swatch is a literal preview of the value.
+            </p>
+          </div>
+          <div id="faq-gamut-p3" class="faq-flash bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">What does "Display-P3" mean on the gamut badge?</h3>
+            <p class="text-body leading-relaxed">
+              The color is more vivid than sRGB can reproduce, but still fits Display-P3 — the wider gamut used by modern phones, laptops, and monitors. Wide-gamut displays show it at full intensity; on older sRGB-only screens the browser gamut-maps it back toward sRGB, so it may look slightly less vivid there. It is a real, usable color — just one that benefits from a P3 display to appreciate fully.
+            </p>
+          </div>
+          <div id="faq-gamut-clipped" class="faq-flash bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">What does "Clipped" mean on the gamut badge?</h3>
+            <p class="text-body leading-relaxed">
+              The color is too saturated even for Display-P3, so no current screen can show it as authored — the browser clamps it to the nearest displayable color and the swatch becomes an approximation of your OKLCH values rather than the values themselves. Lower the Chroma slider (its <code class="text-ink">max</code> label shows the sRGB ceiling for that lightness and hue) until the badge reads sRGB or Display-P3 to get a color you can trust.
             </p>
           </div>
         </div>
