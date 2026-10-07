@@ -29,9 +29,9 @@
 
   /* Ink ladder — the only text colours in the product. */
   --color-ink: #f5f5f5; /* primary values, headings, active state */
-  --color-body: #a3a3a3; /* secondary copy, labels */
-  --color-mute: #737373; /* icons, meta, inactive */
-  --color-faint: #404040; /* placeholders, disabled */
+  --color-body: #f0f0f0; /* secondary copy, labels */
+  --color-mute: #e0e0e0; /* icons, meta, inactive */
+  --color-faint: #a3a3a3; /* placeholders, disabled */
 
   /*
    * Semantic overlays. The ONLY chromatic values allowed outside of the colour
@@ -221,9 +221,9 @@
 
   /* Ink ladder. Same four rungs, same jobs, dark end to light end. */
   --color-ink: #171717; /* primary values, headings, active state */
-  --color-body: #565656; /* secondary copy, labels (7.3:1) */
-  --color-mute: #6b6b6b; /* icons, meta, inactive (5.3:1) */
-  --color-faint: #9a9a9a; /* placeholders, disabled */
+  --color-body: #262626; /* secondary copy, labels */
+  --color-mute: #404040; /* icons, meta, inactive */
+  --color-faint: #4d4d4d; /* placeholders, disabled */
 
   /*
    * The label pole of an ink fill. Without this flip the light theme inherits
@@ -465,9 +465,9 @@ body {
   --color-hairline-subtle: #1a1a1a;
   --color-border-focus: #525252;
   --color-ink: #f5f5f5;
-  --color-body: #a3a3a3;
-  --color-mute: #737373;
-  --color-faint: #404040;
+  --color-body: #f0f0f0;
+  --color-mute: #e0e0e0;
+  --color-faint: #a3a3a3;
   --color-ink-inverse: #0a0a0a;
   --color-ink-hover: #ffffff;
   --color-gamut-warning: #f59e0b;
