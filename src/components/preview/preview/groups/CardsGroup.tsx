@@ -177,7 +177,7 @@ export function CardsGroup({ paint }: { paint: Paint }) {
                 Ella Vance
               </KitText>
               <KitMuted paint={paint} class="block text-[10px]">
-                oklchcolor2.com
+                oklchcolor.com
               </KitMuted>
             </div>
           )}

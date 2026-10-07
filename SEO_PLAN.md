@@ -1,7 +1,7 @@
 # SEO Planning Document — oklchcolor2.com
 
 > **Generated:** 2026-10-06  
-> **Site URL:** https://oklchcolors.com  
+> **Site URL:** https://oklchcolor.com  
 > **Platform:** Astro v7.3.5 + Preact + Tailwind CSS v4  
 > **Total Pages:** ~30 URLs (13 static + 16 dynamic palette pages + sitemap)
 
@@ -106,7 +106,7 @@ These can be implemented in under 2 hours and provide immediate SEO value.
 
 ```ts
 {
-  url: 'https://oklchcolors.com/hex-to-oklch',
+  url: 'https://oklchcolor.com/hex-to-oklch',
   lastmod: '2026-10-01',
   changefreq: 'weekly',
   priority: 0.8,
@@ -135,7 +135,7 @@ These can be implemented in under 2 hours and provide immediate SEO value.
 **Where:** `src/layouts/BaseLayout.astro`
 
 ```astro
-<link rel="preconnect" href="https://oklchcolors.com" />
+<link rel="preconnect" href="https://oklchcolor.com" />
 ```
 
 ---
@@ -278,19 +278,19 @@ Add to palette detail pages and learn article:
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://oklchcolors.com"
+      "item": "https://oklchcolor.com"
     },
     {
       "@type": "ListItem",
       "position": 2,
       "name": "Palettes",
-      "item": "https://oklchcolors.com/oklch-colors"
+      "item": "https://oklchcolor.com/oklch-colors"
     },
     {
       "@type": "ListItem",
       "position": 3,
       "name": "Sunset",
-      "item": "https://oklchcolors.com/oklch-colors/sunset"
+      "item": "https://oklchcolor.com/oklch-colors/sunset"
     }
   ]
 }
@@ -337,7 +337,7 @@ For the learn article, add:
 ```js
 // astro.config.mjs
 export default defineConfig({
-  site: 'https://oklchcolors.com',
+  site: 'https://oklchcolor.com',
   integrations: [preact()],
   vite: {
     plugins: [tailwindcss()],

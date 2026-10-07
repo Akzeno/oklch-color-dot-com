@@ -126,7 +126,7 @@ export function buildOgSvg(spec: OgImageSpec): string {
   <rect width="${WIDTH}" height="${HEIGHT}" fill="#0a0a0a" />
   <rect x="80" y="56" width="44" height="44" rx="12" fill="none" stroke="url(#brand)" stroke-width="3" />
   <text x="102" y="86" font-family="${MONO}" font-size="20" font-weight="700" fill="#f5f5f5" text-anchor="middle">ok</text>
-  <text x="140" y="87" font-family="${MONO}" font-size="26" fill="#a1a1aa">oklchcolors.com</text>
+  <text x="140" y="87" font-family="${MONO}" font-size="26" fill="#a1a1aa">oklchcolor.com</text>
   ${titleElements}${subtitle}${bottom}
 </svg>`;
 }

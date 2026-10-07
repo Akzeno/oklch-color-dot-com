@@ -1,8 +1,8 @@
-# SEO Changelog — oklchcolors.com
+# SEO Changelog — oklchcolor.com
 
 > **Date:** 2026-10-07
 > **Scope:** Full technical-SEO overhaul, Phases 0–8
-> **Canonical domain:** `https://oklchcolors.com` (from `site` in `astro.config.mjs`)
+> **Canonical domain:** `https://oklchcolor.com` (from `site` in `astro.config.mjs`)
 > **Gate:** `npm run seo:check` — builds the site and fails (exit 1) on any regression
 
 ---
@@ -135,8 +135,8 @@ External facts used in content are sourced and dated in `SEO_AUDIT.md §8` (MDN 
 ## TODO (owner) — manual tasks not executed here
 
 1. **Confirm the brand name.** "OKLCH Colors" is used as site name (`og:site_name` in `BaseLayout.astro`, `Organization` name in `schema.ts`, title suffix in `navigation.ts`). If a real brand exists, replace in those three places.
-2. **Domain hygiene.** The workspace folder is `oklchcolor2.com` while the canonical domain is `oklchcolors.com`. Confirm which domain actually serves the deployed site; if `oklchcolor2.com` also serves content, create a **301 redirect to `oklchcolors.com` in the Cloudflare dashboard** (and/or align `site` in `astro.config.mjs` with reality).
-3. **Search Console:** add the property, submit `https://oklchcolors.com/sitemap.xml`, monitor Coverage and Core Web Vitals.
+2. **Domain hygiene.** The workspace folder is `oklchcolor2.com` while the canonical domain is `oklchcolor.com`. Confirm which domain actually serves the deployed site; if `oklchcolor2.com` also serves content, create a **301 redirect to `oklchcolor.com` in the Cloudflare dashboard** (and/or align `site` in `astro.config.mjs` with reality).
+3. **Search Console:** add the property, submit `https://oklchcolor.com/sitemap.xml`, monitor Coverage and Core Web Vitals.
 4. **Promotion / backlinks (genuine efforts only — no bought or fabricated links):** post the tools to Hacker News (Show HN), r/webdev / r/css, submit to curated "awesome" lists, and answer relevant Stack Overflow questions where a link is genuinely useful.
 5. **Optional a11y follow-ups** (would require touching frozen islands): slider `target-size`, `role="tab"` children in ConverterIsland tablist, contrast tuning.
 6. **Verify `_headers` behavior on the live deployment** (Cloudflare Pages applies it; local preview does not).
@@ -154,9 +154,9 @@ External facts used in content are sourced and dated in `SEO_AUDIT.md §8` (MDN 
 **Week 1 after deploy**
 
 - [ ] Sitemap submitted in Search Console; expect 32 URLs.
-- [ ] Coverage: no unexpected "Discovered – currently not indexed" backlog; `/404` not indexed; `oklchcolor2.com` (if live) 301s to `oklchcolors.com`.
+- [ ] Coverage: no unexpected "Discovered – currently not indexed" backlog; `/404` not indexed; `oklchcolor2.com` (if live) 301s to `oklchcolor.com`.
 - [ ] Rich Results Test on one converter: FAQPage + BreadcrumbList + WebApplication detected.
-- [ ] URL Inspection on `/`, one converter, one learn page: canonical = `https://oklchcolors.com/...`, indexable.
+- [ ] URL Inspection on `/`, one converter, one learn page: canonical = `https://oklchcolor.com/...`, indexable.
 
 **Weeks 2–4**
 

@@ -1,4 +1,4 @@
-# SEO Audit — oklchcolors.com
+# SEO Audit — oklchcolor.com
 
 > **Date:** 2026-10-07
 > **Auditor:** Automated + manual review of `dist/**/*.html` (built 2026-10-07)
@@ -10,14 +10,14 @@
 
 | Item | Value |
 |------|-------|
-| `astro.config.mjs` `site` | `https://oklchcolors.com` |
+| `astro.config.mjs` `site` | `https://oklchcolor.com` |
 | Folder name | `oklchcolor2.com` |
-| SEO_PLAN.md states | `https://oklchcolors.com` |
-| Canonical URLs in built HTML | `https://oklchcolors.com/...` |
-| Sitemap URLs | `https://oklchcolors.com/...` |
-| robots.txt Sitemap line | `https://oklchcolors.com/sitemap.xml` |
+| SEO_PLAN.md states | `https://oklchcolor.com` |
+| Canonical URLs in built HTML | `https://oklchcolor.com/...` |
+| Sitemap URLs | `https://oklchcolor.com/...` |
+| robots.txt Sitemap line | `https://oklchcolor.com/sitemap.xml` |
 
-**Finding:** The canonical domain is `oklchcolors.com` everywhere in code. The folder name `oklchcolor2.com` is misleading but does not affect SEO as long as the site is served from `oklchcolors.com`. If `oklchcolor2.com` also serves content, it must 301 to `oklchcolors.com`. **TODO(owner):** Confirm which domain is actually deployed and whether the other redirects.
+**Finding:** The canonical domain is `oklchcolor.com` everywhere in code. The folder name `oklchcolor2.com` is misleading but does not affect SEO as long as the site is served from `oklchcolor.com`. If `oklchcolor2.com` also serves content, it must 301 to `oklchcolor.com`. **TODO(owner):** Confirm which domain is actually deployed and whether the other redirects.
 
 ---
 
@@ -49,8 +49,8 @@
 |---|-------|----------|-----|
 | C1 | **Primary navigation not in raw HTML.** `SidebarIsland` and `MobileTabBar` are `client:load` Preact islands. Crawlers that don't execute JS see zero nav links — only the content-section links at the bottom of each page. | `AppLayout.astro` lines 33, 54: `<SidebarIsland client:load>`, `<MobileTabBar client:load>`. Raw HTML of every page contains only content-section `<a href>` links. | Server-render the nav as real `<a href>` in an Astro component. Keep Preact islands only for interactivity (collapse toggle, sheet open/close). |
 | C2 | **No custom 404 page.** Astro serves a default 404 with no internal links, no branding, no navigation. | No `src/pages/404.astro` exists. | Create `src/pages/404.astro` with real 404 status, noindex, links to main tools. |
-| C3 | **Sitemap has duplicate `/hex-to-oklch` entry.** The parent "Converters" nav item has `path: '/hex-to-oklch'` AND the child `hex-to-oklch` also has `path: '/hex-to-oklch'`. `getAllNavItemsFlat()` returns both. | `dist/sitemap.xml` lines 10-17: two identical `<loc>https://oklchcolors.com/hex-to-oklch</loc>` entries. | Change parent path to `/oklch-converter` (the new hub) or exclude parent from sitemap. |
-| C4 | **Sitemap hard-codes `siteUrl`.** Should derive from `Astro.site` to avoid drift. | `sitemap.xml.ts` line 6: `const siteUrl = 'https://oklchcolors.com'` | Use `Astro.site` or import from a shared config. |
+| C3 | **Sitemap has duplicate `/hex-to-oklch` entry.** The parent "Converters" nav item has `path: '/hex-to-oklch'` AND the child `hex-to-oklch` also has `path: '/hex-to-oklch'`. `getAllNavItemsFlat()` returns both. | `dist/sitemap.xml` lines 10-17: two identical `<loc>https://oklchcolor.com/hex-to-oklch</loc>` entries. | Change parent path to `/oklch-converter` (the new hub) or exclude parent from sitemap. |
+| C4 | **Sitemap hard-codes `siteUrl`.** Should derive from `Astro.site` to avoid drift. | `sitemap.xml.ts` line 6: `const siteUrl = 'https://oklchcolor.com'` | Use `Astro.site` or import from a shared config. |
 
 ### HIGH — Significantly impacts rankings
 

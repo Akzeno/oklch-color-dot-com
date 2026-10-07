@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 // Redirects for legacy URLs live in public/_redirects so Cloudflare Pages
 // serves real 301s instead of Astro's meta-refresh HTML.
 export default defineConfig({
-  site: 'https://oklchcolors.com',
+  site: 'https://oklchcolor.com',
   integrations: [preact()],
   vite: {
     plugins: [tailwindcss()],
