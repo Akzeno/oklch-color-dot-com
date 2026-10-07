@@ -212,13 +212,30 @@ const jsonLd = buildJsonLdGraph({
       Mono remain in the CSS font stack as fallbacks rather than being requested
       here, so a font-CDN hiccup degrades to the platform UI font instead of
       leaving every value unstyled.
+
+      The stylesheet is loaded with the print/onload pattern so it never blocks
+      the critical rendering path. The preconnect hints warm the connection
+      early while the HTML parses.
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
 
     <!-- JSON-LD Structured Data -->
     {!noindex && (

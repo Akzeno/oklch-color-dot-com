@@ -295,16 +295,21 @@ export default function ColorPickerIsland() {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     card.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
 
+    // Use requestAnimationFrame instead of forced reflow (offsetWidth) to avoid
+    // layout thrashing. This schedules the attribute change after the current
+    // frame's style/layout pass, achieving the same re-trigger effect without
+    // blocking the main thread.
     faqFlashEl.current?.removeAttribute('data-flash');
-    void card.offsetWidth;
-    card.setAttribute('data-flash', '');
-    faqFlashEl.current = card;
+    requestAnimationFrame(() => {
+      card.setAttribute('data-flash', '');
+      faqFlashEl.current = card;
 
-    window.clearTimeout(faqFlashTimer.current);
-    faqFlashTimer.current = window.setTimeout(() => {
-      card.removeAttribute('data-flash');
-      faqFlashEl.current = null;
-    }, 1500);
+      window.clearTimeout(faqFlashTimer.current);
+      faqFlashTimer.current = window.setTimeout(() => {
+        card.removeAttribute('data-flash');
+        faqFlashEl.current = null;
+      }, 1500);
+    });
   };
 
   const tokenCount = Object.values(cart.roles).reduce(

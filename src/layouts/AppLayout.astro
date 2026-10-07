@@ -33,7 +33,7 @@ const currentPath = Astro.url.pathname;
 
   <!-- Nav rail + main workspace -->
   <div class="flex-1 flex min-h-[calc(100vh-3.5rem)]">
-    <SidebarIsland client:load currentPath={currentPath} />
+    <SidebarIsland client:visible currentPath={currentPath} />
 
     <!--
       `overflow-x-clip` only. Clamping the axis matters here because a wide
@@ -56,11 +56,11 @@ const currentPath = Astro.url.pathname;
   </div>
 
   <!-- Mobile Bottom Tab Bar -->
-  <MobileTabBar client:load currentPath={currentPath} />
+  <MobileTabBar client:visible currentPath={currentPath} />
 
   <!-- Global Slide-Over / Bottom-Sheet Cart Island -->
-  <CartDrawerIsland client:load />
+  <CartDrawerIsland client:idle />
 
   <!-- Global Micro-Toast Notification Island -->
-  <Toast client:load />
+  <Toast client:idle />
 </BaseLayout>

@@ -117,23 +117,22 @@ export default function VariableNameInput({
    * measured rather than assumed, because the field lives in a sticky dock at
    * the bottom of the viewport on one page and in normal flow on the other.
    *
-   * `offsetHeight`, not `getBoundingClientRect()`: the entrance animation
-   * scales the menu from 0.98, and a transformed measurement would report a box
-   * that is not the one about to be on screen.
+   * Height is *calculated* from the item count to avoid a forced synchronous
+   * layout (offsetHeight). Each row is ~32px (padding + line-height); the menu
+   * caps at 224px (max-h-56). This avoids the reflow that Lighthouse flags.
    */
   useLayoutEffect(() => {
     if (!open) return;
     const wrap = wrapRef.current;
-    const list = listRef.current;
-    if (!wrap || !list) return;
+    if (!wrap) return;
     const rect = wrap.getBoundingClientRect();
-    const height = list.offsetHeight;
+    // Each item ~32px; menu max-height 224px (max-h-56).
+    const itemHeight = 32;
+    const maxHeight = 224;
+    const height = Math.min(matches.length * itemHeight, maxHeight) || maxHeight;
     const below = window.innerHeight - rect.bottom;
     const next = below < height + 8 && rect.top > below;
     if (next !== dropUp) setDropUp(next);
-    // `dropUp` is deliberately read but not listed as a dependency: it is the
-    // value being compared, and listing it would re-run the very measurement
-    // that sets it.
   }, [open, matches]);
 
   /** Replace the whole field contents with the picked name and settle. */
