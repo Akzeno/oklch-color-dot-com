@@ -70,7 +70,7 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           What are OKLCH Colors?
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           OKLCH colors are defined in a perceptually uniform color space that separates lightness (L), chroma (C), and hue (H). Unlike HSL, where 50% lightness looks completely different for yellow versus blue, OKLCH guarantees that equal lightness values look equally bright across all hues. This makes OKLCH ideal for building accessible, predictable color systems.
         </p>
       </section>
@@ -79,10 +79,10 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           How the 11-Step 50-950 Scale Works
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Each palette is an 11-step scale from step 50 (lightest, near-white) to step 950 (darkest, near-black). The steps follow a perceptually uniform lightness curve: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950. Step 500 is the base color. Chroma is automatically tapered at extreme light and dark steps to keep every shade gamut-safe and visually clean.
         </p>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           This is the same scale used by Tailwind CSS v4's default palette and by Radix Colors. It gives you a complete set of tints and shades for any UI role — backgrounds, borders, text, and interactive states.
         </p>
       </section>
@@ -91,12 +91,12 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           How to Use a Palette in Tailwind CSS v4
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Open any palette page and copy the Tailwind v4 <code class="text-ink">@theme</code> snippet. Paste it into your global CSS file:
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>@import "tailwindcss";{'\n'}{'\n'}@theme &#123;{'\n'}  --color-brand-50: oklch(0.965 0.015 265);{'\n'}  --color-brand-100: oklch(0.935 0.028 265);{'\n'}  /* ... all 11 steps ... */{'\n'}  --color-brand-950: oklch(0.22 0.06 265);{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Tailwind v4 automatically generates utilities for every step: <code class="text-ink">bg-brand-50</code>, <code class="text-ink">text-brand-500</code>, <code class="text-ink">border-brand-200</code>, and so on.
         </p>
       </section>

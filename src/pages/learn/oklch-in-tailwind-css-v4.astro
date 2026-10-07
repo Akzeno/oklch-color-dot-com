@@ -53,7 +53,7 @@ const paletteRows = [
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-sm font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Tailwind CSS v4 defines its entire default color palette in OKLCH instead of RGB. This guide covers what changed, how to write OKLCH colors in a v4 <code class="text-ink">@theme</code> block, and how to migrate custom colors from a v3 config without breaking class names.
       </p>
       <p class="text-xs font-mono text-mute">
@@ -64,13 +64,13 @@ const paletteRows = [
     <!-- 1. Short answer -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">When Did Tailwind Start Using OKLCH?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         With <strong class="text-ink">Tailwind CSS v4.0, released January 22, 2025</strong>. The v4.0 release notes state: "We've upgraded the entire default color palette from rgb to oklch, taking advantage of the wider gamut to make the colors more vivid in places where we were previously limited by the sRGB color space."
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         So from v4.0 onward, every value behind <code class="text-ink">bg-blue-500</code>, <code class="text-ink">text-red-500</code> and the rest of the default palette is an <code class="text-ink">oklch()</code> color. v3.x and earlier stayed on RGB. The utility class names did not change — only the color notation underneath.
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — v4.0 release blog post</a>
       </p>
     </section>
@@ -78,7 +78,7 @@ const paletteRows = [
     <!-- 2. Why -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Why OKLCH Instead of RGB?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Two reasons, both stated in the release notes: <strong class="text-ink">wider gamut</strong> and <strong class="text-ink">perceptual structure</strong>. OKLCH is not confined to sRGB, so on wide-gamut Display-P3 displays the same color can render more vividly than its RGB definition ever allowed. And because lightness in OKLCH is perceptually uniform, a 500-to-600 step in the palette moves by a consistent amount of perceived brightness — the property that makes generated scales feel evenly spaced.
       </p>
       <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
@@ -91,7 +91,7 @@ const paletteRows = [
     <!-- 3. @theme -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Writing OKLCH Colors in @theme</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Tailwind v4 moved configuration into CSS. Custom colors live in the <code class="text-ink">@theme</code> block under the <code class="text-ink">--color-{'{name}'}</code> namespace, and any value the browser accepts as a color — including <code class="text-ink">oklch()</code> — can be assigned:
       </p>
       <div class="space-y-2 text-xs font-mono text-body">
@@ -101,7 +101,7 @@ const paletteRows = [
         <p><strong class="text-ink">Utilities are generated automatically:</strong></p>
         <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>&lt;div class="bg-brand-500 text-surface"&gt;{'\n'}&lt;a class="hover:bg-brand-600"&gt;</code></pre>
       </div>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Because the token is an ordinary custom property, every downstream Tailwind feature — opacity modifiers like <code class="text-ink">bg-brand-500/50</code>, <code class="text-ink">dark:</code> variants, and <code class="text-ink">color-mix()</code> under the hood — operates on the OKLCH value directly. A HEX value still works in the same slot; writing <code class="text-ink">oklch()</code> simply keeps the whole theme in one color space.
       </p>
     </section>
@@ -112,7 +112,7 @@ const paletteRows = [
         <h2 class="text-lg font-semibold text-ink">Familiar Palette Colors, Converted to OKLCH</h2>
         <span class="text-[11px] font-mono text-mute">Build-Time Generated</span>
       </div>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         If you are carrying custom colors forward from v3, start from the value you already have. These well-known default-palette hex values are converted below by the same engine every converter on this site uses — copy the <code class="text-ink">oklch()</code> column straight into a v4 <code class="text-ink">@theme</code> block:
       </p>
 
@@ -153,7 +153,7 @@ const paletteRows = [
     <!-- 5. Migration -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Migrating Custom Colors from v3</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         v4's upgrade guide covers the tooling side (the config moves from <code class="text-ink">tailwind.config.js</code> into CSS). For the colors themselves, the recipe is small and mechanical:
       </p>
       <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
@@ -162,7 +162,7 @@ const paletteRows = [
         <li>Leave names that contain theme breakpoints or <code class="text-ink">DEFAULT</code> for a pass on their own — they map to slightly different variable patterns in v4.</li>
         <li>Spot-check opacity modifiers: <code class="text-ink">bg-brand/40</code> should still render — v4 resolves it through <code class="text-ink">color-mix()</code> regardless of the source notation.</li>
       </ol>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/docs/upgrade-guide" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — Upgrade guide (v3 → v4)</a>
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">

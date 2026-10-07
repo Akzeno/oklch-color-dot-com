@@ -112,7 +112,7 @@ const directions = [
         <h2 class="text-lg font-semibold text-ink">The Same Colors in HEX, RGB, HSL and OKLCH</h2>
         <span class="text-[11px] font-mono text-mute">Build-Time Generated</span>
       </div>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Every row is one color written four ways. If you already know one notation, find your value in its column and read across to the <code class="text-ink">oklch()</code> equivalent — no single-purpose tool visit required.
       </p>
 
@@ -155,7 +155,7 @@ const directions = [
     <div class="space-y-10 pt-8 border-t border-hairline">
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">How OKLCH Conversion Works</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           All six converters run the same core pipeline, just entered or exited at different points. Incoming colors are decoded into sRGB channel values, gamma-decoded to linear light, transformed through the Oklab cone-response matrices, and expressed as lightness (L), chroma (C), and hue (H) for <code class="text-ink">oklch()</code>. Conversions in the other direction reverse those exact steps. Because the transformations are deterministic math rather than a lookup table, converting a color to OKLCH and straight back returns the original value for any color inside the sRGB gamut.
         </p>
       </section>

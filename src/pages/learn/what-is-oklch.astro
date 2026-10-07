@@ -33,7 +33,7 @@ const seo = navItem?.seo || {
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-sm font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         OKLCH is a modern cylindrical representation of the Oklab color space designed specifically for human vision. It fixes the mathematical flaws of RGB and HSL by ensuring that identical numerical lightness values look equally bright across all hues.
       </p>
       <p class="text-xs font-mono text-mute">
@@ -44,10 +44,10 @@ const seo = navItem?.seo || {
     <!-- 1. What is OKLCH? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">What is OKLCH?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         OKLCH is a perceptually uniform color space that describes colors using three values: Lightness (L), Chroma (C), and Hue (H). Unlike RGB and HSL, OKLCH is designed to match human color perception — equal changes in its numerical values produce equal changes in perceived color. This makes it ideal for creating accessible, consistent color systems in CSS.
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         OKLCH is the cylindrical form of the Oklab color space, standardized in CSS Color Module Level 4. It is supported by all modern browsers and is the default color space for Tailwind CSS v4's entire palette.
       </p>
     </section>
@@ -55,7 +55,7 @@ const seo = navItem?.seo || {
     <!-- 2. What does OKLCH stand for? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">What does OKLCH stand for?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         OKLCH stands for <strong class="text-ink">O</strong>klab <strong class="text-ink">L</strong>ightness, <strong class="text-ink">C</strong>hroma, <strong class="text-ink">H</strong>ue. The "OK" comes from Oklab, the color space created by Björn Ottosson in 2020. Oklab itself is named after the LMS cone response model it uses (L, M, S), with "Ok" indicating that it is a perceptually uniform improvement over earlier models.
       </p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
@@ -77,10 +77,10 @@ const seo = navItem?.seo || {
     <!-- 3. How does OKLCH work? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">How does OKLCH work?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         OKLCH works by transforming colors through a perceptually uniform color space. The L (Lightness) axis runs from black to white and is designed so that equal numerical steps look equally bright. The C (Chroma) axis measures color intensity as distance from the gray center. The H (Hue) axis is a circle of color angles. Together they form a cylinder: L is the vertical axis, C is the radius, and H is the angle around the center.
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         The key property is perceptual uniformity: a color at 50% lightness looks equally bright whether it is red, blue, or yellow. This is not true of HSL, where 50% lightness yellow looks almost white and 50% lightness blue looks very dark.
       </p>
     </section>
@@ -88,7 +88,7 @@ const seo = navItem?.seo || {
     <!-- 4. OKLCH Color Space Diagram -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">OKLCH Color Space Diagram</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         The OKLCH color space can be visualized as a cylinder. Lightness (L) runs vertically from black (0%) at the bottom to white (100%) at the top. Chroma (C) is the radial distance from the center axis — the center is neutral gray, and the outer edge is the most vivid color possible at that lightness. Hue (H) is the angle around the cylinder.
       </p>
 
@@ -140,7 +140,7 @@ const seo = navItem?.seo || {
     <!-- 5. OKLCH in CSS -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">OKLCH in CSS</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         OKLCH is used in CSS via the <code class="text-ink">oklch()</code> function. The syntax is <code class="text-ink">oklch(L C H)</code> where L is lightness (0% to 100%), C is chroma (0 to 0.4), and H is hue (0 to 360). An optional alpha value can be added after a slash: <code class="text-ink">oklch(0.7 0.15 250 / 50%)</code>.
       </p>
 
@@ -180,7 +180,7 @@ const seo = navItem?.seo || {
     <!-- 6. Why designers moved from RGB and HSL -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Why Designers Moved from RGB and HSL</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         HSL's lightness is not perceptually uniform. Pure yellow (<code class="text-ink">hsl(60, 100%, 50%)</code>) and pure blue (<code class="text-ink">hsl(240, 100%, 50%)</code>) both claim 50% lightness, but the human eye perceives yellow as overwhelmingly bright and blue as very dark. OKLCH fixes this: at 70% lightness, yellow and blue look equally bright.
       </p>
 
@@ -234,13 +234,13 @@ const seo = navItem?.seo || {
     <!-- 7. Can I use OKLCH? Browser support -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Can I use OKLCH?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Yes. <code class="text-ink">oklch()</code> is a <strong class="text-ink">Baseline</strong> feature, meaning it is widely available across all modern browsers. According to MDN, it has been available across browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         For older browsers that do not support OKLCH, use the progressive enhancement pattern: declare a HEX or RGB fallback first, then override with OKLCH. Browsers that do not understand OKLCH will simply ignore the second declaration and use the fallback.
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         <strong class="text-ink">Verified source:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() browser compatibility</a>
       </p>
     </section>
@@ -248,16 +248,16 @@ const seo = navItem?.seo || {
     <!-- 8. When did Tailwind CSS start using OKLCH? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">When did Tailwind CSS start using OKLCH?</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Tailwind CSS v4.0, released on <strong class="text-ink">January 22, 2025</strong>, moved its entire default color palette from RGB to OKLCH. The v4.0 release notes state: "We've upgraded the entire default color palette from rgb to oklch, taking advantage of the wider gamut to make the colors more vivid in places where we were previously limited by the sRGB color space."
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         This means every color in Tailwind's default palette — from <code class="text-ink">red-500</code> to <code class="text-ink">blue-600</code> — is now defined in OKLCH. Custom colors defined in the <code class="text-ink">@theme</code> block also use OKLCH by default.
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS v4.0 release blog post</a>
       </p>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         <a href="/learn/oklch-in-tailwind-css-v4" class="text-accent-text hover:underline">Read the full Tailwind CSS v4 guide — @theme, migration and opacity modifiers →</a>
       </p>
     </section>
@@ -265,7 +265,7 @@ const seo = navItem?.seo || {
     <!-- 9. OKLCH vs HSL vs RGB -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">OKLCH vs HSL vs RGB</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         The table below compares the three color models across the properties that matter for design systems.
       </p>
 
@@ -320,7 +320,7 @@ const seo = navItem?.seo || {
         </table>
       </div>
 
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         <a href="/learn/oklch-vs-hsl-vs-rgb" class="text-accent-text hover:underline">Read the full comparison guide →</a>
       </p>
     </section>
@@ -328,7 +328,7 @@ const seo = navItem?.seo || {
     <!-- 10. Try it -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Try it: OKLCH Converters</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         The best way to understand OKLCH is to use it. Convert any color to OKLCH and see how the perceptual values work:
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -47,7 +47,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 1. Intro -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">The Flaw in HSL Lightness</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           HSL calculates lightness as a crude geometric average of maximum and minimum RGB channels: <code class="text-ink">(max(R,G,B) + min(R,G,B)) / 2</code>. This ignores the biological reality of human eyes, which are 30 times more sensitive to green and yellow light than blue light. Converting to OKLCH solves this permanently.
         </p>
       </section>
@@ -60,7 +60,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
           <li>Our engine converts HSL to RGB, then applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.</li>
           <li>The result is a perceptually uniform OKLCH value where equal lightness looks equally bright across all hues.</li>
         </ol>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">The math path:</strong> HSL → RGB (cylindrical to Cartesian) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).
         </p>
       </section>
@@ -101,7 +101,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>.link &#123;{'\n'}  color: hsl(217, 91%, 60%); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
@@ -111,7 +111,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
         <h2 class="text-base font-semibold text-ink">Gamut Note: HSL is Always sRGB</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Standard <code class="text-ink">hsl()</code> values are confined to the sRGB gamut by definition. Converting from HSL to OKLCH is therefore always gamut-safe. However, the perceptual improvement is significant: HSL's uneven lightness means that <code class="text-ink">hsl(60, 100%, 50%)</code> (yellow) looks almost white while <code class="text-ink">hsl(240, 100%, 50%)</code> (blue) looks very dark, despite both having 50% lightness. OKLCH fixes this.
         </p>
       </section>

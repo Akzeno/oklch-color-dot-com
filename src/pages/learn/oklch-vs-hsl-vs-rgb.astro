@@ -56,7 +56,7 @@ const comparisonRows = [
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-sm font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         RGB describes how displays emit light, HSL rearranges that into hue-saturation-lightness for human convenience, and OKLCH models how humans actually see. This guide compares all three on the properties that decide real design work — and is honest about where the older notations still win.
       </p>
       <p class="text-xs font-mono text-mute">
@@ -104,7 +104,7 @@ const comparisonRows = [
     <!-- 3. Lightness demo (build-time ramps) -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">The Same Lightness Steps: HSL vs OKLCH</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         Both rows below walk the identical lightness values — 20, 35, 50, 65, 80 — for the same yellow hue. In OKLCH each step is a fixed perceptual increment, so the row reads as an evenly spaced ramp. In HSL the top steps crowd toward white while the bottom steps bunch into darkness, because HSL's lightness is channel math, not perception:
       </p>
 
@@ -138,7 +138,7 @@ const comparisonRows = [
         </div>
       </div>
 
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         The same trap appears at a single value: HSL <code class="text-ink">hsl(60 100% 50%)</code> yellow and <code class="text-ink">hsl(240 100% 50%)</code> blue both claim 50% lightness, yet one reads as near-white glare and the other as a deep dark. OKLCH resolves this — a color at 50% lightness carries the same perceived brightness whatever its hue, which is what makes it safe to generate palettes from numeric rules.
       </p>
     </section>
@@ -146,14 +146,14 @@ const comparisonRows = [
     <!-- 4. Why RGB is different in kind -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Why RGB Is a Different Kind of Value</h2>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         RGB is not a failed competitor — it is a different category. <code class="text-ink">rgb(255 0 0)</code> states how hard each channel drives on an sRGB display; it makes no claim about how bright or saturated the result looks, because that depends on the eye, not the signal. Two consequences follow:
       </p>
       <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
         <li><strong class="text-ink">"Lighter" has no channel.</strong> Making an RGB color lighter means raising all three numbers by an amount that differs per hue — which is exactly the guesswork HSL was invented to avoid, and OKLCH actually solves.</li>
         <li><strong class="text-ink">Interpolation is physical, not perceptual.</strong> An RGB gradient between saturated red and blue passes through a desaturated midpoint because channel math says so, not because the eye wants it.</li>
       </ul>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         HEX is RGB with different packaging — <code class="text-ink">#ff0000</code> and <code class="text-ink">rgb(255 0 0)</code> are the same color. Every argument here about RGB applies equally to hex codes.
       </p>
     </section>
@@ -167,7 +167,7 @@ const comparisonRows = [
         <li><strong class="text-ink">Small, hand-tuned one-offs.</strong> A single border color tweaked by eye does not need a color space argument — HSL's hue dial is quick and fine.</li>
         <li><strong class="text-ink">Auditing legacy code.</strong> When you cannot change a stylesheet, understanding HSL's distortions is enough to predict where its scales misbehave.</li>
       </ul>
-      <p class="text-xs font-mono text-body leading-relaxed">
+      <p class="text-xs md:text-sm font-mono text-body">
         The rule of thumb: <strong class="text-ink">keep your system OKLCH, convert at the edges.</strong> Every converter on this site exists for exactly those boundary crossings.
       </p>
     </section>

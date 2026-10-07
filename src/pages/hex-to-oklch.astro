@@ -53,7 +53,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-lg font-semibold text-ink">
           Why Convert HEX Colors to OKLCH?
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Hexadecimal color codes (<code class="text-ink">#RRGGBB</code>) have served the web for decades, but they are tied to device-dependent sRGB color spaces. When building dynamic design systems, tweaking the brightness of a HEX color requires complex, inaccurate math. In contrast, OKLCH separates lightness, chroma, and hue into independent parameters: you can change lightness from 40% to 80% without affecting the chromatic purity or shifting the hue angle.
         </p>
       </section>
@@ -68,7 +68,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
           <li>Our engine immediately calculates the exact perceptual Lightness (<code class="text-ink">L</code>), Chroma (<code class="text-ink">C</code>), and Hue (<code class="text-ink">H</code>).</li>
           <li>Click <strong class="text-ink">Copy</strong> to copy the output or <strong class="text-ink">+ Cart</strong> to store this token into your role collection.</li>
         </ol>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">The math path:</strong> HEX → sRGB (0-255) → linear RGB (gamma decode) → Oklab (LMS cone response matrices) → OKLCH (cylindrical transform). The result is a perceptually uniform color where equal lightness values look equally bright across all hues.
         </p>
       </section>
@@ -124,12 +124,12 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-sm font-semibold text-ink">
           Copy-Ready CSS with Progressive Enhancement
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Use the HEX value as a fallback for older browsers, then override with OKLCH for modern browsers:
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>.button-primary &#123;{'\n'}  color: #3b82f6;{'\n'}  color: {sampleOklch};{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">

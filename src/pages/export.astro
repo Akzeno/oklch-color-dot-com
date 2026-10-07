@@ -43,7 +43,7 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           VS Code-Style Inline Color Decorators
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Notice the tiny rounded color squares rendered before every color token value above. Just like in VS Code, each square displays a live preview with a 1px border and transparent checkerboard backing. These decorators are marked <code class="text-ink">aria-hidden="true"</code> and are strictly excluded from copying, ensuring your clipboard always receives pure, valid CSS code.
         </p>
       </section>
@@ -64,12 +64,12 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           Sample Export Output
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Here is an example of what a Tailwind CSS v4 <code class="text-ink">@theme</code> block looks like when exported:
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>@theme &#123;{'\n'}  --color-primary-50: oklch(0.965 0.015 265);{'\n'}  --color-primary-100: oklch(0.935 0.028 265);{'\n'}  --color-primary-200: oklch(0.85 0.07 265);{'\n'}  --color-primary-300: oklch(0.72 0.12 265);{'\n'}  --color-primary-400: oklch(0.60 0.17 265);{'\n'}  --color-primary-500: oklch(0.55 0.20 265);{'\n'}  --color-primary-600: oklch(0.50 0.20 265);{'\n'}  --color-primary-700: oklch(0.45 0.19 265);{'\n'}  --color-primary-800: oklch(0.38 0.15 265);{'\n'}  --color-primary-900: oklch(0.30 0.10 265);{'\n'}  --color-primary-950: oklch(0.22 0.06 265);{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           This generates utilities like <code class="text-ink">bg-primary-500</code>, <code class="text-ink">text-primary-700</code>, and <code class="text-ink">border-primary-300</code> automatically.
         </p>
       </section>
@@ -78,13 +78,13 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           Tailwind CSS v4 Integration
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Tailwind CSS v4 uses CSS-first configuration. Instead of a <code class="text-ink">tailwind.config.js</code> file, you define your design tokens directly in your CSS using the <code class="text-ink">@theme</code> block. Any custom property prefixed with <code class="text-ink">--color-</code> automatically becomes a set of color utilities.
         </p>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           For example, <code class="text-ink">--color-brand-accent: oklch(0.55 0.20 265)</code> in your <code class="text-ink">@theme</code> block generates <code class="text-ink">bg-brand-accent</code>, <code class="text-ink">text-brand-accent</code>, <code class="text-ink">border-brand-accent</code>, and all other color utilities for that token.
         </p>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           <a href="/learn/oklch-in-tailwind-css-v4" class="text-accent-text hover:underline">Learn more about OKLCH in Tailwind CSS v4 →</a>
         </p>
       </section>

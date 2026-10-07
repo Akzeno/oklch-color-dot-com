@@ -571,7 +571,7 @@ export default function ColorPickerIsland() {
               onCommit={resolveTargetRole}
               suggestions={Object.values(cart.roles).map((r) => ({ value: r.id, label: r.name }))}
               class="min-w-0 max-w-[16rem]"
-              inputClass="hud !py-1 !px-2 font-mono text-label w-full min-w-0 cursor-text"
+              inputClass="hud !py-3 !px-3 font-mono text-label w-full min-w-0 cursor-text"
               ariaLabel="Custom color variable name"
               placeholder="brand-accent"
             />

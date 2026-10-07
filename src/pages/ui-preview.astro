@@ -52,7 +52,7 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           Understanding WCAG 2.1 vs. APCA Contrast
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           While WCAG 2.1 uses a static mathematical ratio (4.5:1 for normal text, 3:1 for large text), the modern Advanced Perceptual Contrast Algorithm (APCA) accounts for spatial frequency, font weight, and polarity (dark-on-light vs light-on-dark). Our preview tool evaluates your color tokens under both systems to guarantee accessible UI states in both dark and light modes.
         </p>
       </section>
@@ -74,12 +74,12 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           Sample Token Output
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           When you export your colors, you get production-ready CSS custom properties. Here is an example of what a typical token set looks like:
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>:root &#123;{'\n'}  --color-primary-500: oklch(0.55 0.20 265);{'\n'}  --color-danger-500: oklch(0.58 0.21 25);{'\n'}  --color-success-500: oklch(0.62 0.15 150);{'\n'}  --color-surface: oklch(1 0 0);{'\n'}  --color-ink: oklch(0.21 0 0);{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           These tokens work with Tailwind CSS v4's <code class="text-ink">@theme</code> block and can be used directly in your CSS or JavaScript.
         </p>
       </section>
@@ -88,7 +88,7 @@ const seo = navItem?.seo || {
         <h2 class="text-base font-semibold text-ink">
           Contrast Scoring Explained
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           The preview evaluates every text/background pair in your UI components. Here is how to read the scores:
         </p>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">

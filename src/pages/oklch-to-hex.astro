@@ -52,7 +52,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-lg font-semibold text-ink">
           Why Convert OKLCH to HEX?
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           While modern browsers and CSS frameworks like Tailwind v4 natively support OKLCH, legacy tools — such as older image software, email templates, or SVG renderers — still demand hexadecimal values. Our converter maps OKLCH values into standard HEX, providing an exact clamped fallback for wide-gamut Display-P3 colors.
         </p>
       </section>
@@ -67,7 +67,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
           <li>Our engine converts the cylindrical OKLCH coordinates back through Oklab to linear RGB, then gamma-encodes to sRGB.</li>
           <li>The result is a 6-digit HEX code (or 8-digit with alpha) that you can copy or save to your cart.</li>
         </ol>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS matrix) → gamma-encoded sRGB → HEX. If the color falls outside sRGB, chroma is clamped to the nearest in-gamut value.
         </p>
       </section>
@@ -123,12 +123,12 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-sm font-semibold text-ink">
           Copy-Ready CSS with Progressive Enhancement
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Ship the HEX fallback first, then override with OKLCH for modern browsers:
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>.button-primary &#123;{'\n'}  color: #3b82f6; /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
@@ -140,7 +140,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-base font-semibold text-ink">
           Gamut Note: What Happens Outside sRGB
         </h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Because HEX is physically confined to sRGB, high-chroma OKLCH colors (such as vibrant cyans or punchy greens with <code class="text-ink">C &gt; 0.22</code>) cannot be rendered accurately in HEX. Our tool calculates the closest possible in-gamut chroma without distorting the perceptual hue angle, ensuring your fallback hex colors look harmonious.
         </p>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">

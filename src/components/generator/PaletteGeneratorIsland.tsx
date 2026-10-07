@@ -408,7 +408,7 @@ export default function PaletteGeneratorIsland() {
               onCommit={resolveTargetRole}
               suggestions={Object.values(cart.roles).map((r) => ({ value: r.id, label: r.name }))}
               class="min-w-0 w-full lg:w-44"
-              inputClass="hud !py-1.5 font-mono text-label w-full min-w-0 cursor-text"
+              inputClass="hud !py-3 !px-3 font-mono text-label w-full min-w-0 cursor-text"
               ariaLabel="Custom color variable name"
               placeholder="brand-accent"
             />

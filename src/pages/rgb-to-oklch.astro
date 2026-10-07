@@ -47,7 +47,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 1. Intro -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">Why Convert RGB to OKLCH?</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           RGB mixes red, green, and blue light components, but it is completely non-linear with respect to human vision. Mixing equal parts RGB produces irregular visual steps. By converting into OKLCH, you gain access to linear perceptual lightness, enabling harmonious tints and shades for modern design systems.
         </p>
       </section>
@@ -60,7 +60,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
           <li>Our engine normalizes the 0-255 channels to 0-1, applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.</li>
           <li>The result is a perceptually uniform OKLCH value with exact Lightness, Chroma, and Hue.</li>
         </ol>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">The math path:</strong> RGB (0-255) → normalized sRGB (0-1) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).
         </p>
       </section>
@@ -101,7 +101,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>.alert &#123;{'\n'}  color: rgb(239, 68, 68); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
@@ -111,7 +111,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
         <h2 class="text-base font-semibold text-ink">Gamut Note: RGB is Always sRGB</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           Standard <code class="text-ink">rgb()</code> values are confined to the sRGB gamut by definition. Converting from RGB to OKLCH is therefore always gamut-safe — the resulting OKLCH value will never exceed sRGB boundaries. However, if you paste a <code class="text-ink">color(display-p3 ...)</code> value, the converter will detect the wider gamut and flag it accordingly.
         </p>
       </section>

@@ -110,7 +110,7 @@
   --text-title--font-weight: 600;
 
   --text-card: 14px;
-  --text-card--line-height: 20px;
+  --text-card--line-height: 44px;
   --text-card--letter-spacing: -0.2px;
   --text-card--font-weight: 500;
 
@@ -119,7 +119,7 @@
   --text-label--font-weight: 500;
 
   --text-hud: 13px;
-  --text-hud--line-height: 18px;
+  --text-hud--line-height: 44px;
   --text-hud--font-weight: 400;
 
   --text-micro: 11px;
@@ -316,7 +316,7 @@ body {
     color: var(--color-ink);
     font-family: var(--font-mono);
     font-size: var(--text-hud);
-    line-height: 18px;
+    line-height: 44px;
     padding: 8px 12px;
   }
 
@@ -818,19 +818,19 @@ input[type='range'] {
   background: transparent;
   cursor: pointer;
   width: 100%;
-  height: 20px;
+  height: 44px;
   margin: 0;
 }
 
 input[type='range']::-webkit-slider-runnable-track {
-  height: 12px;
+  height: 8px;
   border-radius: 9999px;
   border: 1px solid var(--color-hairline);
   background: var(--track-gradient, var(--color-canvas-elevated));
 }
 
 input[type='range']::-moz-range-track {
-  height: 12px;
+  height: 8px;
   border-radius: 9999px;
   border: 1px solid var(--color-hairline);
   background: var(--track-gradient, var(--color-canvas-elevated));
@@ -841,9 +841,9 @@ input[type='range']::-moz-range-track {
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 20px;
-  width: 20px;
-  margin-top: -5px;
+  height: 44px;
+  width: 44px;
+  margin-top: -19px;
   border-radius: 9999px;
   background-color: var(--color-ink);
   border: 2px solid var(--color-canvas);
@@ -856,8 +856,8 @@ input[type='range']::-webkit-slider-thumb:hover {
 }
 
 input[type='range']::-moz-range-thumb {
-  height: 18px;
-  width: 18px;
+  height: 44px;
+  width: 44px;
   border-radius: 9999px;
   background-color: var(--color-ink);
   border: 2px solid var(--color-canvas);

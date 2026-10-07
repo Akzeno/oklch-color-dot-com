@@ -47,7 +47,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 1. Intro -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">Why Convert OKLCH to HSL?</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           While modern front-end workflows embrace OKLCH, certain legacy CSS preprocessors, email clients, or native apps continue to mandate HSL formats. Our engine translates OKLCH into standard 360-degree HSL values with graceful gamut clamping.
         </p>
       </section>
@@ -60,7 +60,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
           <li>Our engine converts OKLCH to Oklab, then through the inverse LMS matrix to linear RGB, then gamma-encodes to sRGB.</li>
           <li>sRGB is converted to HSL cylindrical coordinates: hue (0-360), saturation (0-100%), lightness (0-100%).</li>
         </ol>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS) → gamma-encoded sRGB → HSL (cylindrical transform).
         </p>
       </section>
@@ -101,7 +101,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
         <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>.link &#123;{'\n'}  color: hsl(217, 91%, 60%); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs font-mono text-body leading-relaxed pt-2">
+        <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
@@ -111,7 +111,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
         <h2 class="text-base font-semibold text-ink">Gamut Note: Automatic sRGB Mapping</h2>
-        <p class="text-xs font-mono text-body leading-relaxed">
+        <p class="text-xs md:text-sm font-mono text-body">
           When an OKLCH color falls outside the sRGB gamut, our engine automatically clamps chroma to the nearest in-gamut value while preserving hue. The resulting HSL value is always valid and renders consistently across all displays.
         </p>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
