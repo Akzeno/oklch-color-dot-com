@@ -3,6 +3,7 @@ import {
   ArrowLeftRight,
   BarChart3,
   BookOpen,
+  ChevronDown,
   Code2,
   LayoutTemplate,
   Palette,
@@ -36,10 +37,25 @@ interface SidebarProps {
 export default function SidebarIsland({ currentPath }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
+  /*
+   * The four /learn guides are content pages, not tools — showing them as
+   * top-level links put them on equal footing with the picker, palettes and
+   * converters the sidebar exists to reach. They now live in one collapsed
+   * "Learn" disclosure at the bottom of the rail: still one click away (and
+   * untouched in the nav config, so the sitemap, footer and schema keep
+   * emitting them), but out of the way until wanted.
+   *
+   * The section opens itself when one of its pages is active, so the current
+   * page is never hidden from the nav it lives in.
+   */
+  const [learnOpen, setLearnOpen] = useState(false);
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem('sidebar_collapsed');
       if (stored !== null) setCollapsed(stored === 'true');
+      const learnStored = localStorage.getItem('sidebar_learn_open');
+      if (learnStored !== null) setLearnOpen(learnStored === 'true');
     } catch {
       // Private-mode storage failures must not break navigation.
     }
@@ -64,6 +80,28 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
     return <Cmp class={className} aria-hidden="true" strokeWidth={1.75} />;
   };
 
+  const primaryItems = navigationConfig.filter((item) => item.group !== 'learn');
+  const learnItems = navigationConfig.filter((item) => item.group === 'learn');
+  const learnActive = learnItems.some(
+    (item) => normalize(item.path) === normalizedCurrent
+  );
+
+  // A guide is on screen, so its section has to be open to show the active
+  // link — expansion wins over the remembered preference.
+  useEffect(() => {
+    if (learnActive) setLearnOpen(true);
+  }, [learnActive]);
+
+  const toggleLearn = () => {
+    const next = !learnOpen;
+    setLearnOpen(next);
+    try {
+      localStorage.setItem('sidebar_learn_open', String(next));
+    } catch {
+      // ignore
+    }
+  };
+
   /*
    * Active state is communicated three ways at once — a left rail bar, a
    * raised background, and ink-bright type — because this is the one control
@@ -82,7 +120,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
       aria-label="Primary"
     >
       <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto no-scrollbar">
-        {navigationConfig.map((item) => {
+        {primaryItems.map((item) => {
           const children = item.children ?? [];
           const isActive = normalize(item.path) === normalizedCurrent;
           const isChildActive = children.some((c) => normalize(c.path) === normalizedCurrent);
@@ -149,6 +187,66 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
             </a>
           );
         })}
+
+        {/*
+          One disclosure in place of four top-level links. The header mirrors
+          the Converters group header (icon + eyebrow) so the rail still reads
+          as sections, but unlike that static label this one toggles — that is
+          the whole point of the section.
+        */}
+        {learnItems.length > 0 && (
+          <div>
+            <button
+              type="button"
+              onClick={toggleLearn}
+              aria-expanded={collapsed ? false : learnOpen}
+              aria-controls="sidebar-learn"
+              title="Learn"
+              class={`flex w-full items-center gap-2.5 px-2.5 pt-3 pb-1.5 rounded-md transition-colors duration-150 ${
+                learnActive ? 'text-ink' : 'text-mute hover:text-ink'
+              }`}
+            >
+              {iconFor('BookOpen', 'w-4 h-4 shrink-0')}
+              {!collapsed && (
+                <>
+                  <span class="eyebrow truncate flex-1 text-left">Learn</span>
+                  <ChevronDown
+                    class={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
+                      learnOpen ? 'rotate-180' : ''
+                    }`}
+                    aria-hidden="true"
+                    strokeWidth={2}
+                  />
+                </>
+              )}
+            </button>
+            {/* The container always exists, so `aria-controls` above never
+                names a missing id while the section is shut. */}
+            <div
+              id="sidebar-learn"
+              class={!collapsed && learnOpen ? 'space-y-0.5 mt-0.5' : undefined}
+            >
+              {!collapsed &&
+                learnOpen &&
+                learnItems.map((child) => {
+                  const on = normalize(child.path) === normalizedCurrent;
+                  return (
+                    <a
+                      key={child.id}
+                      href={child.path}
+                      aria-current={on ? 'page' : undefined}
+                      title={child.defaultLabel}
+                      class={`flex items-center gap-2.5 pl-7 pr-2.5 py-1.5 rounded-md font-mono text-label transition-colors duration-150 ${itemClass(on)} ${
+                        on ? 'font-medium' : ''
+                      }`}
+                    >
+                      {child.defaultLabel}
+                    </a>
+                  );
+                })}
+            </div>
+          </div>
+        )}
       </nav>
 
       <div class="p-2 border-t border-hairline-subtle">

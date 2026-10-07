@@ -62,10 +62,16 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
    * Built from the nav config rather than a hand-written list. The previous
    * copy duplicated all six converter routes inline, so the sheet went stale
    * the moment a converter was renamed in one place but not the other.
+   *
+   * Learn guides are pulled out of `secondary` the same way the desktop
+   * sidebar pulls them out of the top-level rail: they get their own section
+   * so the sheet stays a list of tools.
    */
   const converterGroup = navigationConfig.find((item) => item.children?.length);
+  const learnItems = navigationConfig.filter((item) => item.group === 'learn');
   const secondary = navigationConfig.filter(
-    (item) => !item.showInMobileBar && !item.children?.length
+    (item) =>
+      !item.showInMobileBar && !item.children?.length && item.group !== 'learn'
   );
 
   return (
@@ -161,6 +167,24 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
                         class="px-3 py-2 rounded-md border border-hairline-subtle bg-canvas-raised font-mono text-label text-body transition-colors duration-150"
                       >
                         {child.defaultLabel}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {learnItems.length > 0 && (
+                <div>
+                  <span class="eyebrow block mb-2">Learn</span>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    {learnItems.map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.path}
+                        onClick={() => setSheetOpen(false)}
+                        class="px-3 py-2 rounded-md border border-hairline-subtle bg-canvas-raised font-mono text-label text-body transition-colors duration-150"
+                      >
+                        {item.defaultLabel}
                       </a>
                     ))}
                   </div>
