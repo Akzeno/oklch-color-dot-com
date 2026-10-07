@@ -1,0 +1,173 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import { getNavItemByPath } from '../config/navigation';
+
+const navItem = getNavItemByPath('/about');
+const seo = navItem?.seo || {
+  title: 'About Us - OKLCH Color Tools',
+  metaDescription:
+    'Learn about OKLCH Color Tools: our mission to provide free, accessible color tools for designers and developers using the modern OKLCH color space.',
+  h1: 'About Us',
+  schemaType: 'Article',
+};
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  canonicalPath="/about"
+  schemaType="Article"
+>
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-ink">Home</a>
+      <span>/</span>
+      <span class="text-ink">About Us</span>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="space-y-3">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
+        {seo.h1}
+      </h1>
+      <p class="text-sm font-mono text-body leading-relaxed">
+        We're building the best free color tools for the modern web — powered by OKLCH, designed for accessibility, and built with love for the design and developer community.
+      </p>
+      <p class="text-xs font-mono text-mute">
+        Last updated: 2026-10-07
+      </p>
+    </div>
+
+    <!-- 1. Our Mission -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Our Mission</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We believe that working with color on the web should be intuitive, accessible, and enjoyable. For too long, designers and developers have struggled with color spaces that don't match human perception — HSL's uneven lightness, RGB's device dependency, and the muddy gradients that result from interpolating in the wrong color space.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH changes all of that. It's a perceptually uniform color space that makes it easy to create accessible, consistent, and beautiful color systems. Our mission is to make OKLCH accessible to everyone — not just color scientists — by building free, well-designed tools that handle the complexity for you.
+      </p>
+    </section>
+
+    <!-- 2. What We Built -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">What We Built</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH Color Tools is a comprehensive suite of free color tools for the modern web:
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a href="/" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Color Picker</span>
+          <span class="text-xs font-mono text-body">Interactive OKLCH picker with live L, C, H sliders, gamut detection, and one-click CSS export</span>
+        </a>
+        <a href="/oklch-color-palette-generator" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Palette Generator</span>
+          <span class="text-xs font-mono text-body">Generate accessible 50-950 OKLCH color scales from any base color</span>
+        </a>
+        <a href="/oklch-colors" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Palette Library</span>
+          <span class="text-xs font-mono text-body">Browse 16 curated OKLCH color palettes, each an 11-step scale ready for Tailwind v4</span>
+        </a>
+        <a href="/oklch-converter" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Converters</span>
+          <span class="text-xs font-mono text-body">Six bidirectional converters between OKLCH, HEX, RGB, and HSL with live gamut detection</span>
+        </a>
+        <a href="/ui-preview" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">UI Preview</span>
+          <span class="text-xs font-mono text-body">Preview your palette on real UI components with WCAG and APCA contrast scores</span>
+        </a>
+        <a href="/export" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+          <span class="text-sm font-semibold text-ink block">Export & Code</span>
+          <span class="text-xs font-mono text-body">Export design tokens as Tailwind v4 @theme blocks, CSS custom properties, or stylesheets</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 3. Why OKLCH -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Why OKLCH?</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH is a cylindrical representation of the Oklab color space, created by Björn Ottosson in 2020. It was designed to fix the perceptual flaws of existing color spaces:
+      </p>
+      <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
+        <li><strong class="text-ink">Perceptual uniformity:</strong> Equal lightness values look equally bright across all hues — something HSL cannot do</li>
+        <li><strong class="text-ink">Predictable palettes:</strong> Even lightness steps produce visually even color scales, making 50-950 systems trivial</li>
+        <li><strong class="text-ink">Wide gamut:</strong> OKLCH can describe Display-P3 colors that HSL and RGB cannot reach</li>
+        <li><strong class="text-ink">Smooth gradients:</strong> Interpolating in OKLCH avoids the muddy midtones of RGB interpolation</li>
+        <li><strong class="text-ink">Accessibility:</strong> Contrast ratios are more predictable because lightness is perceptually uniform</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        When Tailwind CSS v4 moved its entire default palette to OKLCH in January 2025, it signaled that this is the future of color on the web. We're here to help the community make that transition.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <a href="/learn/what-is-oklch" class="text-accent-text hover:underline">Learn more about OKLCH →</a>
+      </p>
+    </section>
+
+    <!-- 4. Our Values -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Our Values</h2>
+      <div class="space-y-3">
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-xs font-semibold text-ink block">Free Forever</span>
+          <span class="text-xs font-mono text-body block">All of our tools are free to use, with no accounts, no paywalls, and no usage limits. We believe good tools should be accessible to everyone.</span>
+        </div>
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-xs font-semibold text-ink block">Privacy First</span>
+          <span class="text-xs font-mono text-body block">All color processing happens in your browser. Your color data never leaves your device. We don't track you, and we don't sell data.</span>
+        </div>
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-xs font-semibold text-ink block">Open by Default</span>
+          <span class="text-xs font-mono text-body block">Our code is open source. We document our methods, cite our sources, and welcome contributions from the community.</span>
+        </div>
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-xs font-semibold text-ink block">Accessible to All</span>
+          <span class="text-xs font-mono text-body block">We design for accessibility from the start — keyboard navigation, screen reader support, and color contrast that meets WCAG standards.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. The Team -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">The Team</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH Color Tools is built and maintained by a small team of designers and developers who are passionate about color, accessibility, and the open web. We're not a big company — we're a community-driven project that exists to make the web a more colorful place.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We're always looking for feedback, bug reports, and contributions. If you'd like to get involved, we'd love to hear from you.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        <a href="/contact" class="text-accent-text hover:underline">Get in touch →</a>
+      </p>
+    </section>
+
+    <!-- 6. Technology -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Technology</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Our tools are built with modern web technologies:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li><strong class="text-ink">Astro</strong> — Static site generation with islands architecture</li>
+        <li><strong class="text-ink">Preact</strong> — Lightweight interactive components (only 4KB)</li>
+        <li><strong class="text-ink">Tailwind CSS v4</strong> — Utility-first styling with OKLCH design tokens</li>
+        <li><strong class="text-ink">Culori</strong> — Perceptually accurate color conversion math</li>
+        <li><strong class="text-ink">Cloudflare Pages</strong> — Global CDN with edge caching</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The result is a fast, privacy-friendly site that works entirely in your browser — no server-side processing, no data collection, no tracking.
+      </p>
+    </section>
+
+    <!-- Internal Links -->
+    <section class="space-y-3 pt-6 border-t border-hairline">
+      <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
+      <div class="flex flex-wrap gap-2">
+        <a href="/privacy" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
+        <a href="/terms" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
+        <a href="/contact" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+      </div>
+    </section>
+  </div>
+</AppLayout>

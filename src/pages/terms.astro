@@ -1,0 +1,189 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import { getNavItemByPath } from '../config/navigation';
+
+const navItem = getNavItemByPath('/terms');
+const seo = navItem?.seo || {
+  title: 'Terms & Conditions - OKLCH Color Tools',
+  metaDescription:
+    'Terms and conditions for using OKLCH Color Tools, including acceptable use, intellectual property, and limitation of liability.',
+  h1: 'Terms & Conditions',
+  schemaType: 'Article',
+};
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  canonicalPath="/terms"
+  schemaType="Article"
+>
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-ink">Home</a>
+      <span>/</span>
+      <span class="text-ink">Terms & Conditions</span>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="space-y-3">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
+        {seo.h1}
+      </h1>
+      <p class="text-sm font-mono text-body leading-relaxed">
+        These Terms & Conditions govern your use of OKLCH Color Tools. By using our website and services, you agree to these terms. If you do not agree, please do not use the Service.
+      </p>
+      <p class="text-xs font-mono text-mute">
+        Last updated: 2026-10-07
+      </p>
+    </div>
+
+    <!-- 1. Acceptance of Terms -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">1. Acceptance of Terms</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        By accessing or using OKLCH Color Tools ("the Service"), you agree to be bound by these Terms & Conditions and our <a href="/privacy" class="text-accent-text hover:underline">Privacy Policy</a>. If you do not agree to these terms, you must not use the Service.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the modified terms.
+      </p>
+    </section>
+
+    <!-- 2. Description of Service -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">2. Description of Service</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH Color Tools provides free online color tools including:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>OKLCH color picker with live sliders and gamut detection</li>
+        <li>Bidirectional converters between OKLCH, HEX, RGB, and HSL</li>
+        <li>OKLCH palette generator for accessible 50-950 color scales</li>
+        <li>Curated palette library with 16 pre-built color scales</li>
+        <li>UI preview tool with WCAG and APCA contrast checking</li>
+        <li>Design token export for Tailwind CSS v4 and CSS custom properties</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The Service is provided "as is" for personal and commercial use. All tools run client-side in your browser.
+      </p>
+    </section>
+
+    <!-- 3. Acceptable Use -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">3. Acceptable Use</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">You agree to use the Service only for lawful purposes. You must not:</p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>Use the Service for any illegal activity or purpose</li>
+        <li>Attempt to gain unauthorized access to our servers, systems, or networks</li>
+        <li>Interfere with or disrupt the Service or its infrastructure</li>
+        <li>Use automated tools (bots, scrapers) to access the Service at scale</li>
+        <li>Reverse engineer, decompile, or disassemble any part of the Service</li>
+        <li>Remove, alter, or obscure any copyright or attribution notices</li>
+        <li>Misrepresent your affiliation with OKLCH Color Tools</li>
+        <li>Use the Service to distribute malware, spam, or harmful content</li>
+      </ul>
+    </section>
+
+    <!-- 4. Intellectual Property -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">4. Intellectual Property</h2>
+
+      <h3 class="text-sm font-semibold text-ink">Our Content</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The Service, including its design, code, text, graphics, and color palettes, is owned by OKLCH Color Tools and is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works from our content without written permission.
+      </p>
+
+      <h3 class="text-sm font-semibold text-ink pt-2">Your Content</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        You retain all rights to the color values, palettes, and design tokens you create using the Service. We claim no ownership over your output. Since all processing happens client-side, we never receive or store your color data.
+      </p>
+
+      <h3 class="text-sm font-semibold text-ink pt-2">Open Source</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Our source code is available under an open source license. The color palettes in our library are inspired by open source projects like Radix Colors and Tailwind CSS. We credit our sources and encourage attribution when using palette designs.
+      </p>
+    </section>
+
+    <!-- 5. Disclaimer of Warranties -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">5. Disclaimer of Warranties</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The Service is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied. We do not warrant that:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>The Service will be uninterrupted, error-free, or free of viruses</li>
+        <li>The results obtained from the Service will be accurate or reliable</li>
+        <li>Any defects in the Service will be corrected</li>
+        <li>The Service will meet your specific requirements or expectations</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Color conversions are mathematically accurate within the limits of floating-point arithmetic and browser rendering. However, we cannot guarantee that colors will appear identically across all devices, browsers, and displays due to hardware differences and color management variations.
+      </p>
+    </section>
+
+    <!-- 6. Limitation of Liability -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">6. Limitation of Liability</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        To the fullest extent permitted by law, OKLCH Color Tools shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>Loss of profits, revenue, or business opportunities</li>
+        <li>Loss of data or color work</li>
+        <li>Design system failures or accessibility violations</li>
+        <li>Damages arising from the use of exported color values</li>
+        <li>Any damages resulting from reliance on conversion results</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Our total liability for any claim arising from the Service shall not exceed the amount you paid to use the Service (which is $0, since the Service is free).
+      </p>
+    </section>
+
+    <!-- 7. Third-Party Links and Services -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">7. Third-Party Links and Services</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The Service may contain links to third-party websites or services (such as MDN, Tailwind CSS documentation, or color science resources). We are not responsible for the content, privacy policies, or practices of these third parties. Your use of third-party services is at your own risk.
+      </p>
+    </section>
+
+    <!-- 8. Governing Law -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">8. Governing Law</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        These Terms & Conditions are governed by and construed in accordance with the laws of the jurisdiction in which the Service operator is registered, without regard to conflict of law principles. Any disputes arising from these terms shall be resolved in the courts of that jurisdiction.
+      </p>
+    </section>
+
+    <!-- 9. Severability -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">9. Severability</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        If any provision of these Terms & Conditions is found to be invalid or unenforceable, the remaining provisions will continue in full force and effect. The invalid provision will be modified to the minimum extent necessary to make it enforceable.
+      </p>
+    </section>
+
+    <!-- 10. Contact -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">10. Contact</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        If you have any questions about these Terms & Conditions, please contact us:
+      </p>
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">Email:</strong> <a href="mailto:legal@oklchcolor.com" class="text-accent-text hover:underline">legal@oklchcolor.com</a></p>
+        <p><strong class="text-ink">Contact page:</strong> <a href="/contact" class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
+      </div>
+    </section>
+
+    <!-- Internal Links -->
+    <section class="space-y-3 pt-6 border-t border-hairline">
+      <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
+      <div class="flex flex-wrap gap-2">
+        <a href="/privacy" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
+        <a href="/about" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
+        <a href="/contact" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+      </div>
+    </section>
+  </div>
+</AppLayout>

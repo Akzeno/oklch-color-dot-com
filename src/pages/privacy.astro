@@ -1,0 +1,202 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import { getNavItemByPath } from '../config/navigation';
+
+const navItem = getNavItemByPath('/privacy');
+const seo = navItem?.seo || {
+  title: 'Privacy Policy - OKLCH Color Tools',
+  metaDescription:
+    'Our privacy policy explains how we collect, use, and protect your data when using OKLCH color tools, converters, and palette generators.',
+  h1: 'Privacy Policy',
+  schemaType: 'Article',
+};
+---
+
+<AppLayout
+  title={seo.title}
+  description={seo.metaDescription}
+  canonicalPath="/privacy"
+  schemaType="Article"
+>
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-ink">Home</a>
+      <span>/</span>
+      <span class="text-ink">Privacy Policy</span>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="space-y-3">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
+        {seo.h1}
+      </h1>
+      <p class="text-sm font-mono text-body leading-relaxed">
+        Your privacy matters to us. This policy explains what information we collect, how we use it, and the choices you have when using OKLCH Color Tools.
+      </p>
+      <p class="text-xs font-mono text-mute">
+        Last updated: 2026-10-07
+      </p>
+    </div>
+
+    <!-- 1. Overview -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Overview</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        OKLCH Color Tools ("we", "our", or "us") operates oklchcolor.com, a free online color tool platform. This Privacy Policy describes how we handle information when you use our website, tools, and services (collectively, the "Service").
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Our Service is designed to work without requiring personal information. All color conversions, palette generation, and design token exports run entirely in your browser — your color data never leaves your device.
+      </p>
+    </section>
+
+    <!-- 2. Information We Collect -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Information We Collect</h2>
+
+      <h3 class="text-sm font-semibold text-ink">Information You Provide</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We collect information you voluntarily provide when you contact us through our contact form, email, or feedback channels. This may include:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>Your name and email address (when you contact us)</li>
+        <li>The content of your messages, feedback, or bug reports</li>
+        <li>Any screenshots or color values you choose to share</li>
+      </ul>
+
+      <h3 class="text-sm font-semibold text-ink pt-2">Information Collected Automatically</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Like most websites, we automatically collect certain technical information when you visit:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>Browser type and version</li>
+        <li>Operating system</li>
+        <li>Device type (desktop, tablet, mobile)</li>
+        <li>Pages visited and time spent on each page</li>
+        <li>Referring website or source</li>
+        <li>Approximate geographic location (country/region level)</li>
+      </ul>
+
+      <h3 class="text-sm font-semibold text-ink pt-2">Cookies and Local Storage</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We use browser localStorage to remember your preferences (theme selection, sidebar state, cart contents). This data stays on your device and is never transmitted to our servers. We do not use third-party tracking cookies or advertising cookies.
+      </p>
+    </section>
+
+    <!-- 3. How We Use Information -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">How We Use Information</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">We use the information we collect to:</p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>Provide, maintain, and improve the Service</li>
+        <li>Respond to your questions, feedback, and support requests</li>
+        <li>Analyze usage patterns to understand which tools are most helpful</li>
+        <li>Detect, prevent, and address technical issues or abuse</li>
+        <li>Comply with legal obligations</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We do not sell, rent, or trade your personal information to third parties.
+      </p>
+    </section>
+
+    <!-- 4. Data Storage and Security -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Data Storage and Security</h2>
+
+      <h3 class="text-sm font-semibold text-ink">Client-Side Processing</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        The core functionality of our Service — color picking, conversion, palette generation, and export — runs entirely in your browser using JavaScript. Your color values, palettes, and design tokens are never sent to our servers. This means:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li>Your color data remains on your device at all times</li>
+        <li>You can use our tools with your browser in offline mode (after initial page load)</li>
+        <li>We have no access to the colors you work with</li>
+      </ul>
+
+      <h3 class="text-sm font-semibold text-ink pt-2">Server-Side Data</h3>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Our website is hosted on Cloudflare Pages, a static hosting platform. We do not operate traditional application servers or databases. The limited data we do collect (contact form submissions, anonymous analytics) is processed using industry-standard security measures.
+      </p>
+    </section>
+
+    <!-- 5. Third-Party Services -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Third-Party Services</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We use a limited number of third-party services to operate and improve the Service:
+      </p>
+      <div class="space-y-3">
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-xs font-semibold text-ink block">Cloudflare</span>
+          <span class="text-xs font-mono text-body block">Hosting, CDN, and DDoS protection. Cloudflare may log standard server access logs (IP address, request details) as part of providing these services.</span>
+        </div>
+        <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
+          <span class="text-xs font-semibold text-ink block">Google Fonts</span>
+          <span class="text-xs font-mono text-body block">We use Geist and Geist Mono fonts served by Google Fonts. Google may collect standard technical information (IP address, browser type) when serving these fonts.</span>
+        </div>
+      </div>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We do not use third-party analytics services that track individual user behavior across websites.
+      </p>
+    </section>
+
+    <!-- 6. Your Rights -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Your Rights</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Depending on your location, you may have certain rights regarding your personal information:
+      </p>
+      <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
+        <li><strong class="text-ink">Access:</strong> Request a copy of the personal information we hold about you</li>
+        <li><strong class="text-ink">Correction:</strong> Request that we correct inaccurate information</li>
+        <li><strong class="text-ink">Deletion:</strong> Request that we delete your personal information</li>
+        <li><strong class="text-ink">Objection:</strong> Object to our processing of your information</li>
+        <li><strong class="text-ink">Portability:</strong> Request your information in a portable format</li>
+      </ul>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        To exercise any of these rights, please contact us at <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a>. We will respond to your request within 30 days.
+      </p>
+    </section>
+
+    <!-- 7. Children's Privacy -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Children's Privacy</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Our Service is not directed to children under the age of 13, and we do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will delete it.
+      </p>
+    </section>
+
+    <!-- 8. Changes to This Policy -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Changes to This Policy</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        We may update this Privacy Policy from time to time. When we do, we will revise the "Last updated" date at the top of this page. We encourage you to review this policy periodically to stay informed about how we protect your information.
+      </p>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        Significant changes will be announced on our homepage or via a notice on the Service.
+      </p>
+    </section>
+
+    <!-- 9. Contact Us -->
+    <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-ink">Contact Us</h2>
+      <p class="text-xs font-mono text-body leading-relaxed">
+        If you have any questions about this Privacy Policy or our data practices, please contact us:
+      </p>
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">Email:</strong> <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a></p>
+        <p><strong class="text-ink">Contact page:</strong> <a href="/contact" class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
+      </div>
+    </section>
+
+    <!-- Internal Links -->
+    <section class="space-y-3 pt-6 border-t border-hairline">
+      <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
+      <div class="flex flex-wrap gap-2">
+        <a href="/about" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
+        <a href="/terms" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
+        <a href="/contact" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+      </div>
+    </section>
+  </div>
+</AppLayout>
