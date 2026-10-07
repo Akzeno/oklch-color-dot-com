@@ -23,6 +23,10 @@ const groups = [
     heading: 'Learn',
     links: items.filter((i) => i.group === 'learn'),
   },
+  {
+    heading: 'Company',
+    links: items.filter((i) => i.group === 'system'),
+  },
 ];
 
 const currentPath = normalize(Astro.url.pathname);

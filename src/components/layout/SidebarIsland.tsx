@@ -5,9 +5,13 @@ import {
   BookOpen,
   ChevronDown,
   Code2,
+  FileText,
+  Info,
   LayoutTemplate,
+  Mail,
   Palette,
   Pipette,
+  Shield,
   Sparkles,
 } from 'lucide-preact';
 import type { LucideIcon } from 'lucide-preact';
@@ -28,6 +32,10 @@ const ICONS: Record<string, LucideIcon> = {
   Code2,
   BookOpen,
   BarChart3,
+  Shield,
+  Info,
+  FileText,
+  Mail,
 };
 
 interface SidebarProps {
@@ -49,6 +57,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
    * page is never hidden from the nav it lives in.
    */
   const [learnOpen, setLearnOpen] = useState(false);
+  const [systemOpen, setSystemOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -56,6 +65,8 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
       if (stored !== null) setCollapsed(stored === 'true');
       const learnStored = localStorage.getItem('sidebar_learn_open');
       if (learnStored !== null) setLearnOpen(learnStored === 'true');
+      const systemStored = localStorage.getItem('sidebar_system_open');
+      if (systemStored !== null) setSystemOpen(systemStored === 'true');
     } catch {
       // Private-mode storage failures must not break navigation.
     }
@@ -80,9 +91,13 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
     return <Cmp class={className} aria-hidden="true" strokeWidth={1.75} />;
   };
 
-  const primaryItems = navigationConfig.filter((item) => item.group !== 'learn');
+  const primaryItems = navigationConfig.filter((item) => item.group !== 'learn' && item.group !== 'system');
   const learnItems = navigationConfig.filter((item) => item.group === 'learn');
+  const systemItems = navigationConfig.filter((item) => item.group === 'system');
   const learnActive = learnItems.some(
+    (item) => normalize(item.path) === normalizedCurrent
+  );
+  const systemActive = systemItems.some(
     (item) => normalize(item.path) === normalizedCurrent
   );
 
@@ -92,11 +107,26 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
     if (learnActive) setLearnOpen(true);
   }, [learnActive]);
 
+  // Same for system pages (Privacy, About, Terms, Contact).
+  useEffect(() => {
+    if (systemActive) setSystemOpen(true);
+  }, [systemActive]);
+
   const toggleLearn = () => {
     const next = !learnOpen;
     setLearnOpen(next);
     try {
       localStorage.setItem('sidebar_learn_open', String(next));
+    } catch {
+      // ignore
+    }
+  };
+
+  const toggleSystem = () => {
+    const next = !systemOpen;
+    setSystemOpen(next);
+    try {
+      localStorage.setItem('sidebar_system_open', String(next));
     } catch {
       // ignore
     }
@@ -229,6 +259,64 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
               {!collapsed &&
                 learnOpen &&
                 learnItems.map((child) => {
+                  const on = normalize(child.path) === normalizedCurrent;
+                  return (
+                    <a
+                      key={child.id}
+                      href={child.path}
+                      aria-current={on ? 'page' : undefined}
+                      title={child.defaultLabel}
+                      class={`flex items-center gap-2.5 pl-7 pr-2.5 py-1.5 rounded-md font-mono text-label transition-colors duration-150 ${itemClass(on)} ${
+                        on ? 'font-medium' : ''
+                      }`}
+                    >
+                      {child.defaultLabel}
+                    </a>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
+        {/*
+          System pages (Privacy, About, Terms, Contact) live in their own
+          collapsed disclosure at the bottom of the rail, mirroring the Learn
+          section pattern. They are still one click away and always present in
+          the sitemap, footer and schema — just out of the way until wanted.
+        */}
+        {systemItems.length > 0 && (
+          <div>
+            <button
+              type="button"
+              onClick={toggleSystem}
+              aria-expanded={collapsed ? false : systemOpen}
+              aria-controls="sidebar-system"
+              title="Company"
+              class={`flex w-full items-center gap-2.5 px-2.5 pt-3 pb-1.5 rounded-md transition-colors duration-150 ${
+                systemActive ? 'text-ink' : 'text-mute hover:text-ink'
+              }`}
+            >
+              {iconFor('Info', 'w-4 h-4 shrink-0')}
+              {!collapsed && (
+                <>
+                  <span class="eyebrow truncate flex-1 text-left">Company</span>
+                  <ChevronDown
+                    class={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
+                      systemOpen ? 'rotate-180' : ''
+                    }`}
+                    aria-hidden="true"
+                    strokeWidth={2}
+                  />
+                </>
+              )}
+            </button>
+            <div
+              id="sidebar-system"
+              class={!collapsed && systemOpen ? 'space-y-0.5 mt-0.5' : undefined}
+            >
+              {!collapsed &&
+                systemOpen &&
+                systemItems.map((child) => {
                   const on = normalize(child.path) === normalizedCurrent;
                   return (
                     <a

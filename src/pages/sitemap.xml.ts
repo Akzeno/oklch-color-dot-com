@@ -54,6 +54,21 @@ function lastModified(files: string[]): string | null {
   }
 }
 
+/** Non-indexable paths that should never appear in the sitemap. */
+const EXCLUDED_PATHS = new Set(['/404', '/500']);
+
+/** Crawl hints: how often a page changes and its relative importance. */
+function crawlHints(path: string): { changefreq: string; priority: string } {
+  if (path === '/') return { changefreq: 'daily', priority: '1.0' };
+  if (path.startsWith('/oklch-colors')) return { changefreq: 'monthly', priority: '0.7' };
+  if (path.startsWith('/learn/')) return { changefreq: 'monthly', priority: '0.7' };
+  if (path.startsWith('/privacy') || path.startsWith('/about') || path.startsWith('/terms') || path.startsWith('/contact')) {
+    return { changefreq: 'yearly', priority: '0.3' };
+  }
+  // Tool pages (converters, picker, generator, preview, export).
+  return { changefreq: 'monthly', priority: '0.8' };
+}
+
 export const GET: APIRoute = ({ site }) => {
   if (!site) {
     throw new Error('astro.config.mjs must define `site` — sitemap URLs derive from it.');
@@ -63,21 +78,27 @@ export const GET: APIRoute = ({ site }) => {
 
   // Main navigation items (parents with children are already skipped).
   for (const item of getAllNavItemsFlat()) {
-    paths.push(item.path);
+    if (!EXCLUDED_PATHS.has(item.path)) {
+      paths.push(item.path);
+    }
   }
 
   // Individual palette detail pages.
   for (const palette of PALETTES) {
-    paths.push(`/oklch-colors/${palette.slug}`);
+    const path = `/oklch-colors/${palette.slug}`;
+    if (!EXCLUDED_PATHS.has(path)) {
+      paths.push(path);
+    }
   }
 
   const entries = paths
     .map((path) => {
       const loc = new URL(path, site).href;
       const lastmod = lastModified(sourceFilesFor(path));
+      const { changefreq, priority } = crawlHints(path);
       return `  <url>\n    <loc>${loc}</loc>${
         lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''
-      }\n  </url>`;
+      }\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
     })
     .join('\n');
 
