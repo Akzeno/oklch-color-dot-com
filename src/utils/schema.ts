@@ -23,6 +23,9 @@
 
 import { getNavItemByPath } from '../config/navigation';
 import { PALETTES } from '../data/palettes';
+import { getLocaleConfig, type LocaleCode } from '../i18n/config';
+import { localizedSeo } from '../i18n/seo';
+import { t } from '../i18n/translations';
 
 export type SchemaType = 'WebApplication' | 'CollectionPage' | 'Article';
 
@@ -37,15 +40,17 @@ export interface JsonLdInput {
   dateModified?: string;
   faqs?: Array<{ question: string; answer: string }>;
   noindex?: boolean;
+  /** Page locale — drives inLanguage, breadcrumb labels and localized URLs. */
+  locale?: LocaleCode;
 }
 
 const SITE_NAME = 'OKLCH Colors';
-const IN_LANGUAGE = 'en';
 
 /** Segment labels for path levels that have no nav item of their own. */
-const SEGMENT_LABELS: Record<string, string> = {
-  learn: 'Learn',
-};
+function segmentLabel(segment: string, locale: LocaleCode): string {
+  if (segment === 'learn') return t(locale, 'common.learn', 'Learn');
+  return segment;
+}
 
 interface Crumb {
   name: string;
@@ -54,13 +59,14 @@ interface Crumb {
 
 /**
  * Last breadcrumb label for a path:
- *   · a nav page       → its H1 from navigation.ts
+ *   · a nav page       → its H1 from navigation.ts (locale-overridden when
+ *                        a translation exists)
  *   · a palette detail → the palette's name from palettes.ts
  *   · anything else    → a title-cased final path segment
  */
-function lastCrumbLabel(path: string): string {
+function lastCrumbLabel(path: string, locale: LocaleCode): string {
   const nav = getNavItemByPath(path);
-  if (nav) return nav.seo.h1;
+  if (nav) return localizedSeo(path, locale).h1 || nav.seo.h1;
 
   const slug = path.replace(/^\/oklch-colors\//, '');
   const palette = PALETTES.find((p) => p.slug === slug);
@@ -73,14 +79,35 @@ function lastCrumbLabel(path: string): string {
     .join(' ');
 }
 
-/** Breadcrumb trail for a canonical path, home first. */
-function breadcrumbTrail(path: string, site: URL): Crumb[] {
-  const root = new URL('/', site).href;
+/** Breadcrumb trail for a canonical path, home first, URLs locale-prefixed. */
+function breadcrumbTrail(path: string, site: URL, locale: LocaleCode): Crumb[] {
+  const localeConfig = getLocaleConfig(locale);
+  const hrefFor = (p: string) =>
+    new URL(
+      localeConfig.isDefault
+        ? p
+        : p === '/'
+          ? localeConfig.prefix
+          : `${localeConfig.prefix}${p}`,
+      site
+    ).href;
+
+  const root = hrefFor('/');
   const normalized = path.replace(/\/$/, '') || '/';
-  if (normalized === '/') return [];
+  // Localized home pages live at non-root routes (/hi, /pt, …), and like every
+  // non-root route they carry a BreadcrumbList: a single "Home" crumb pointing
+  // at the localized landing page. The English home (the true root) still emits
+  // no breadcrumbs by design.
+  if (normalized === '/') {
+    return localeConfig.isDefault
+      ? []
+      : [{ name: t(locale, 'common.home', 'Home'), url: root }];
+  }
 
   const segments = normalized.split('/').filter(Boolean);
-  const crumbs: Crumb[] = [{ name: 'Home', url: root }];
+  const crumbs: Crumb[] = [
+    { name: t(locale, 'common.home', 'Home'), url: root },
+  ];
 
   segments.forEach((segment, i) => {
     // The last segment carries the page's own label (H1 / palette name);
@@ -89,9 +116,11 @@ function breadcrumbTrail(path: string, site: URL): Crumb[] {
     const partialPath = '/' + segments.slice(0, i + 1).join('/');
     const nav = getNavItemByPath(partialPath);
     const name = isLast
-      ? lastCrumbLabel(normalized)
-      : (nav?.seo.h1 ?? SEGMENT_LABELS[segment] ?? segment);
-    crumbs.push({ name, url: new URL(partialPath, site).href });
+      ? lastCrumbLabel(normalized, locale)
+      : (nav
+          ? localizedSeo(partialPath, locale).h1 || nav.seo.h1
+          : segmentLabel(segment, locale));
+    crumbs.push({ name, url: hrefFor(partialPath) });
   });
 
   return crumbs;
@@ -113,24 +142,24 @@ function organizationNode(site: URL) {
   };
 }
 
-function webSiteNode(site: URL) {
+function webSiteNode(site: URL, inLanguage: string) {
   const root = new URL('/', site).href;
   return {
     '@type': 'WebSite',
     '@id': `${root}#website`,
     name: SITE_NAME,
     url: root,
-    inLanguage: IN_LANGUAGE,
+    inLanguage,
     publisher: { '@id': `${root}#organization` },
   };
 }
 
-function pageNode(input: JsonLdInput, orgId: string) {
+function pageNode(input: JsonLdInput, orgId: string, inLanguage: string) {
   const base = {
     name: input.title,
     url: input.canonicalUrl,
     description: input.description,
-    inLanguage: IN_LANGUAGE,
+    inLanguage,
   };
 
   if (input.schemaType === 'Article') {
@@ -202,11 +231,17 @@ function faqNode(faqs: Array<{ question: string; answer: string }>) {
  * into a single <script type="application/ld+json"> tag.
  */
 export function buildJsonLdGraph(input: JsonLdInput) {
+  const locale = input.locale ?? 'en';
+  const inLanguage = getLocaleConfig(locale).locale;
   const org = organizationNode(input.site);
-  const graph: object[] = [org, webSiteNode(input.site), pageNode(input, org['@id'])];
+  const graph: object[] = [
+    org,
+    webSiteNode(input.site, inLanguage),
+    pageNode(input, org['@id'], inLanguage),
+  ];
 
   if (!input.noindex) {
-    const trail = breadcrumbTrail(input.canonicalPath, input.site);
+    const trail = breadcrumbTrail(input.canonicalPath, input.site, locale);
     if (trail.length > 0) graph.push(breadcrumbNode(trail));
   }
 

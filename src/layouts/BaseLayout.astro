@@ -8,25 +8,38 @@ import '../styles/global.css';
 import { getNavItemByPath } from '../config/navigation';
 import { ogImagePathFor } from '../utils/ogImage';
 import { buildJsonLdGraph } from '../utils/schema';
+import { getLocaleConfig, type LocaleCode } from '../i18n/config';
+import { generateAlternateLinks, getCanonicalPath } from '../i18n/routing';
 
 interface Props {
   title: string;
   description: string;
   keywords?: string[];
+  /** Locale-independent path (e.g. `/hex-to-oklch`). Localized here. */
   canonicalPath?: string;
   schemaType?: 'WebApplication' | 'CollectionPage' | 'Article';
   /** Set only on the 404 page — utility pages should never be indexed. */
   noindex?: boolean;
+  /** Page locale; English (default) has no URL prefix. */
+  locale?: LocaleCode;
 }
 
 const {
   title,
   description,
   keywords = ['oklch', 'color picker', 'css oklch', 'tailwind v4 theme', 'color palettes'],
-  canonicalPath = Astro.url.pathname,
+  canonicalPath,
   schemaType = 'WebApplication',
   noindex = false,
+  locale = 'en',
 } = Astro.props;
+
+// Pages pass an unprefixed canonical path; anything else (or a default
+// canonicalPath) is normalized by stripping any locale prefix before the
+// prefix is re-applied — `/hi/hex-to-oklch` + `hi` must never become
+// `/hi/hi/hex-to-oklch`.
+const basePath = getCanonicalPath(canonicalPath ?? Astro.url.pathname);
+const localeConfig = getLocaleConfig(locale);
 
 // Every absolute URL on the site derives from `site` in astro.config.mjs.
 // A missing `site` is a build error, never a silent hard-coded fallback.
@@ -35,12 +48,22 @@ if (!site) {
   throw new Error('astro.config.mjs must define `site` — all canonical/OG/sitemap URLs derive from it.');
 }
 
-const canonicalUrl = new URL(canonicalPath, site).href;
-const ogImageUrl = new URL(ogImagePathFor(canonicalPath), site).href;
+const localizedBasePath = localeConfig.isDefault
+  ? basePath
+  : basePath === '/'
+    ? localeConfig.prefix
+    : `${localeConfig.prefix}${basePath}`;
+const canonicalUrl = new URL(localizedBasePath, site).href;
+const ogImageUrl = new URL(ogImagePathFor(basePath), site).href;
+
+// hreflang alternates for every locale of this page (incl. x-default →
+// the English version). Suppressed on noindex pages — an unindexable page
+// should not advertise localized twins it does not have.
+const alternateLinks = noindex ? '' : generateAlternateLinks(basePath, site);
 
 // Article dates come from the central nav config, keyed by the page's own
 // canonical path — pages never hand their dates to the layout themselves.
-const navSeo = getNavItemByPath(canonicalPath)?.seo;
+const navSeo = getNavItemByPath(basePath)?.seo;
 const datePublished = navSeo?.datePublished;
 const dateModified = navSeo?.dateModified;
 const isArticle = schemaType === 'Article';
@@ -52,7 +75,7 @@ const isArticle = schemaType === 'Article';
 // other metadata on the site.
 const jsonLd = buildJsonLdGraph({
   site,
-  canonicalPath,
+  canonicalPath: basePath,
   canonicalUrl,
   title,
   description,
@@ -61,11 +84,12 @@ const jsonLd = buildJsonLdGraph({
   dateModified,
   faqs: navSeo?.faqs,
   noindex,
+  locale,
 });
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={localeConfig.locale} dir={localeConfig.dir}>
   <head>
     <!-- Google tag (gtag.js) - deferred to first user interaction -->
     <script is:inline>
@@ -215,11 +239,13 @@ const jsonLd = buildJsonLdGraph({
     <meta name="keywords" content={keywords.join(', ')} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
+    <!-- hreflang alternates: every locale of this page + x-default (English). -->
+    {alternateLinks && <Fragment set:html={alternateLinks} />}
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content={isArticle ? 'article' : 'website'} />
     <meta property="og:site_name" content="OKLCH Colors" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={localeConfig.locale.replace('-', '_')} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

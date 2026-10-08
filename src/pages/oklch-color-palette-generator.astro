@@ -1,16 +1,21 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import PaletteGeneratorIsland from '../components/generator/PaletteGeneratorIsland';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import type { LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/oklch-color-palette-generator');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/oklch-color-palette-generator', locale, {
   title: 'OKLCH Color Palette Generator | 50-950 Scales & Harmonies',
   metaDescription: 'Generate perceptually uniform 50-950 color scales and harmonious color palettes using OKLCH color space with automatic gamut-safe chroma clamping.',
   h1: 'OKLCH Color Palette Generator',
   keywords: ['oklch palette generator', 'color scale generator 50-950', 'oklch harmonies', 'tailwind v4 color scale generator'],
   schemaType: 'WebApplication',
-};
+});
 ---
 
 <AppLayout
@@ -19,6 +24,7 @@ const seo = navItem?.seo || {
   keywords={seo.keywords}
   canonicalPath="/oklch-color-palette-generator"
   schemaType={seo.schemaType}
+  locale={locale}
 >
   <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-10">
     <!-- Header -->

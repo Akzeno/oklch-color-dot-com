@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { execFileSync } from 'node:child_process';
 import { getAllNavItemsFlat } from '../config/navigation';
 import { PALETTES } from '../data/palettes';
+import { LOCALES, buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
 /**
  * Truthful <lastmod> comes from `git log -1` on each page's source/data file.
@@ -92,19 +93,44 @@ export const GET: APIRoute = ({ site }) => {
     }
   }
 
+  // Same canonical convention as the pages' own <link rel="canonical">:
+  // no trailing slash except root, and localized roots drop the slash too
+  // (`/hi`, never `/hi/`).
+  const localizedLoc = (path: string, code: LocaleCode) => {
+    const localized = buildLocalizedPath(path, code);
+    if (localized.length > 1 && localized.endsWith('/')) return localized.slice(0, -1);
+    return localized;
+  };
+
   const entries = paths
     .map((path) => {
-      const loc = new URL(path, site).href;
       const lastmod = lastModified(sourceFilesFor(path));
       const { changefreq, priority } = crawlHints(path);
-      return `  <url>\n    <loc>${loc}</loc>${
-        lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''
-      }\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+
+      // Every locale variant of this page, with hreflang alternates so
+      // search engines pair the translations instead of reading them as
+      // duplicates of each other. x-default points at the English version.
+      const alternates = [
+        ...LOCALES.map((l) => ({ lang: l.locale, path: localizedLoc(path, l.code) })),
+        { lang: 'x-default', path: localizedLoc(path, 'en') },
+      ]
+        .map(
+          (a) =>
+            `\n    <xhtml:link rel="alternate" hreflang="${a.lang}" href="${new URL(a.path, site).href}" />`
+        )
+        .join('');
+
+      return LOCALES.map((l) => {
+        const loc = new URL(localizedLoc(path, l.code), site).href;
+        return `  <url>\n    <loc>${loc}</loc>${
+          lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''
+        }${alternates}\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+      }).join('\n');
     })
     .join('\n');
 
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${entries}
 </urlset>`;
 

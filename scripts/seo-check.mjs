@@ -18,11 +18,16 @@
  *   · every indexable page is in sitemap.xml; sitemap has no duplicates;
  *     noindex pages are absent from it
  *   · no orphan pages: every indexable route is linked from another page
+ *   · i18n: every indexable page carries hreflang alternates for all locales
+ *     (plus x-default → the English version); titles and descriptions are
+ *     unique *within* a locale (across locales the same page legitimately
+ *     repeats until fully translated); breadcrumb "Home" may be localized
  *
  * Special cases:
  *   · /404 is the only page allowed (and required) to carry noindex.
- *     It is exempt from canonical, sitemap-membership and orphan checks —
- *     a utility page should never be reachable from the site graph.
+ *     /500 carries the same noindex — an error page should stay out of the
+ *     index. Both are exempt from canonical, sitemap-membership and orphan
+ *     checks — utility pages should never be reachable from the site graph.
  *   · External links are not fetched. This gate is deterministic offline.
  *
  * The canonical origin is read from astro.config.mjs, never hard-coded.
@@ -106,6 +111,33 @@ function resolvesInDist(urlPath) {
 }
 
 // ---------------------------------------------------------------------------
+// i18n helpers
+// ---------------------------------------------------------------------------
+
+/** URL prefixes of every non-default locale (lowercase, no slash). */
+const LOCALE_PREFIXES = ['hi', 'pt', 'zh-cn', 'zh-hk', 'es', 'fr', 'de'];
+const HREFLANG_CODES = ['en-US', 'hi-IN', 'pt-BR', 'zh-CN', 'zh-HK', 'es-ES', 'fr-FR', 'de-DE'];
+
+/** Route → locale code: /de/hex-to-oklch → 'de', /hex-to-oklch → 'en'. */
+function localeForRoute(route) {
+  const seg = route.split('/')[1]?.toLowerCase() ?? '';
+  return LOCALE_PREFIXES.includes(seg) ? seg : 'en';
+}
+
+/** Localized "Home" breadcrumb labels, read from the translation files. */
+const HOME_LABELS = new Set(['Home']);
+try {
+  const dir = 'src/i18n/translations';
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.json') || f === 'en.json') continue;
+    const dict = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+    if (dict?.common?.home) HOME_LABELS.add(dict.common.home);
+  }
+} catch (e) {
+  console.error(`WARN: could not read translation files for Home labels: ${e.message}`);
+}
+
+// ---------------------------------------------------------------------------
 // Parse every built page
 // ---------------------------------------------------------------------------
 
@@ -148,9 +180,15 @@ const pages = walk(DIST)
 
     const imgs = [...html.matchAll(/<img[^>]*>/g)].map((m) => m[0]);
 
+    const hreflangs = {};
+    for (const m of html.matchAll(/<link rel="alternate" hreflang="([^"]*)" href="([^"]*)"/g)) {
+      hreflangs[m[1]] = m[2];
+    }
+
     return {
       file,
       route,
+      locale: localeForRoute(route),
       title: decodeEntities(titleRaw),
       description: decodeEntities(descTag),
       h1Count: (html.match(/<h1[\s>]/g) || []).length,
@@ -161,26 +199,30 @@ const pages = walk(DIST)
       jsonLdBlocks,
       refs,
       imgs,
+      hreflangs,
       issues: [],
     };
   });
 
-const is404 = (p) => p.route === '/404';
+const isUtility = (p) => p.route === '/404' || p.route === '/500';
 
 // ---------------------------------------------------------------------------
 // Per-page checks
 // ---------------------------------------------------------------------------
 
 // -- title -----------------------------------------------------------------
+// Unique within a locale: /de/hex-to-oklch and /hex-to-oklch legitimately
+// share a title until the German override lands (both serve the same page).
 const titleSeen = new Map();
 for (const p of pages) {
   if (!p.title) p.issues.push('missing <title>');
   else if (p.title.length > 60) p.issues.push(`title ${p.title.length} chars >60`);
   else if (p.title.length < 10) p.issues.push(`title only ${p.title.length} chars`);
   if (p.title) {
-    const prev = titleSeen.get(p.title);
+    const key = `${p.locale}|${p.title}`;
+    const prev = titleSeen.get(key);
     if (prev) p.issues.push(`duplicate title with ${prev}`);
-    else titleSeen.set(p.title, p.route);
+    else titleSeen.set(key, p.route);
   }
 }
 
@@ -192,9 +234,10 @@ for (const p of pages) {
     p.issues.push(`description ${p.description.length} chars outside 70–160`);
   }
   if (p.description) {
-    const prev = descSeen.get(p.description);
+    const key = `${p.locale}|${p.description}`;
+    const prev = descSeen.get(key);
     if (prev) p.issues.push(`duplicate description with ${prev}`);
-    else descSeen.set(p.description, p.route);
+    else descSeen.set(key, p.route);
   }
 }
 
@@ -205,8 +248,8 @@ for (const p of pages) {
 
 // -- noindex policy --------------------------------------------------------
 for (const p of pages) {
-  if (is404(p) && !p.noindex) p.issues.push('404 page must carry noindex');
-  if (!is404(p) && p.noindex) p.issues.push('stray noindex on indexable page');
+  if (isUtility(p) && !p.noindex) p.issues.push('utility page must carry noindex');
+  if (!isUtility(p) && p.noindex) p.issues.push('stray noindex on indexable page');
 }
 
 // -- canonical (skipped for noindex pages) ---------------------------------
@@ -224,6 +267,42 @@ for (const p of pages) {
     const prev = canonicalSeen.get(p.canonical);
     if (prev) p.issues.push(`duplicate canonical with ${prev}`);
     else canonicalSeen.set(p.canonical, p.route);
+  }
+}
+
+// -- hreflang alternates (i18n) --------------------------------------------
+const CODE_PREFIX = {
+  'en-US': '', 'hi-IN': '/hi', 'pt-BR': '/pt', 'zh-CN': '/zh-cn',
+  'zh-HK': '/zh-hk', 'es-ES': '/es', 'fr-FR': '/fr', 'de-DE': '/de',
+};
+function stripLocaleRoute(route) {
+  const seg = route.split('/')[1]?.toLowerCase() ?? '';
+  if (!LOCALE_PREFIXES.includes(seg)) return route;
+  return route.slice(seg.length + 1) || '/';
+}
+function expectedLocalizedRoute(baseRoute, prefix) {
+  if (!prefix) return baseRoute === '/' ? '/' : baseRoute;
+  return baseRoute === '/' ? prefix : prefix + baseRoute;
+}
+for (const p of pages) {
+  if (p.noindex) continue;
+  const baseRoute = stripLocaleRoute(p.route);
+  for (const code of HREFLANG_CODES) {
+    const actual = p.hreflangs[code];
+    if (!actual) {
+      p.issues.push(`missing hreflang ${code}`);
+      continue;
+    }
+    const expected = ORIGIN + expectedLocalizedRoute(baseRoute, CODE_PREFIX[code]);
+    if (actual !== expected) p.issues.push(`hreflang ${code} mismatch: ${actual} != ${expected}`);
+  }
+  if (!p.hreflangs['x-default']) {
+    p.issues.push('missing hreflang x-default');
+  } else {
+    const expected = ORIGIN + (baseRoute === '/' ? '/' : baseRoute);
+    if (p.hreflangs['x-default'] !== expected) {
+      p.issues.push(`hreflang x-default mismatch: ${p.hreflangs['x-default']} != ${expected}`);
+    }
   }
 }
 
@@ -292,7 +371,7 @@ for (const p of pages) {
     const positions = items.map((i) => i.position);
     const okSeq = positions.every((v, i) => v === i + 1);
     if (items.length === 0 || !okSeq) p.issues.push('BreadcrumbList positions not 1..n');
-    else if (items[0].name !== 'Home') p.issues.push('BreadcrumbList must start with Home');
+    else if (!HOME_LABELS.has(items[0].name)) p.issues.push(`BreadcrumbList must start with Home (localized ok: got "${items[0].name}")`);
   }
 }
 
@@ -379,7 +458,7 @@ const padStart = (s, n) => String(s).padStart(n);
 
 const header = [
   pad('PAGE', 34), padStart('TTL', 4), padStart('DSC', 4), padStart('H1', 3),
-  padStart('CAN', 4), padStart('OG', 3), padStart('TW', 3), padStart('LD', 3),
+  padStart('CAN', 4), padStart('HFL', 4), padStart('OG', 3), padStart('TW', 3), padStart('LD', 3),
   padStart('LNK', 4), padStart('ALT', 4), padStart('ROB', 4), padStart('SMP', 4),
   padStart('ORP', 4), '  RESULT',
 ].join(' ');
@@ -400,6 +479,7 @@ for (const p of pages) {
     padStart(p.description.length || '-', 4),
     padStart(p.h1Count, 3),
     col(has('canonical')),
+    col(has('hreflang')),
     col(has('og:')),
     col(has('twitter')),
     col(has('JSON-LD') || has('json-ld') || has('Breadcrumb') || has('Article')),

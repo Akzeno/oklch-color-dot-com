@@ -1,15 +1,21 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
-import { getNavItemByPath } from '../../config/navigation';
+import { localizedSeo } from '../../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
 
-const navItem = getNavItemByPath('/learn/what-is-oklch');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/learn/what-is-oklch', locale, {
   title: 'What Is OKLCH? The Modern CSS Color Space Explained',
   metaDescription:
     'OKLCH explained: what L, C and H mean, how it differs from RGB and HSL, browser support, and why Tailwind CSS v4 uses it. With a free converter.',
   h1: 'What is OKLCH? The Modern CSS Color Space',
+  keywords: ['what is oklch', 'oklch color space', 'css oklch explained', 'oklch vs rgb hsl'],
   schemaType: 'Article',
-};
+});
 ---
 
 <AppLayout
@@ -17,11 +23,12 @@ const seo = navItem?.seo || {
   description={seo.metaDescription}
   canonicalPath="/learn/what-is-oklch"
   schemaType="Article"
+  locale={locale}
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
       <span>/</span>
       <span class="text-body">Learn</span>
       <span>/</span>
@@ -172,7 +179,7 @@ const seo = navItem?.seo || {
         <p><strong class="text-ink">Relative color syntax:</strong></p>
         <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>/* Lighten a color by 10% lightness */{'\n'}color: oklch(from var(--brand) calc(l + 0.1) c h);{'\n'}{'\n'}/* Shift hue by 30 degrees */{'\n'}color: oklch(from var(--brand) l c calc(h + 30));</code></pre>
         <p class="pt-1">
-          <a href="/learn/oklch-css-syntax" class="text-accent-text hover:underline">Full oklch() syntax reference — every value, alpha and fallback pattern →</a>
+          <a href={buildLocalizedPath('/learn/oklch-css-syntax', locale)} class="text-accent-text hover:underline">Full oklch() syntax reference — every value, alpha and fallback pattern →</a>
         </p>
       </div>
     </section>
@@ -258,7 +265,7 @@ const seo = navItem?.seo || {
         <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS v4.0 release blog post</a>
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        <a href="/learn/oklch-in-tailwind-css-v4" class="text-accent-text hover:underline">Read the full Tailwind CSS v4 guide — @theme, migration and opacity modifiers →</a>
+        <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="text-accent-text hover:underline">Read the full Tailwind CSS v4 guide — @theme, migration and opacity modifiers →</a>
       </p>
     </section>
 
@@ -321,7 +328,7 @@ const seo = navItem?.seo || {
       </div>
 
       <p class="text-xs md:text-sm font-mono text-body">
-        <a href="/learn/oklch-vs-hsl-vs-rgb" class="text-accent-text hover:underline">Read the full comparison guide →</a>
+        <a href={buildLocalizedPath('/learn/oklch-vs-hsl-vs-rgb', locale)} class="text-accent-text hover:underline">Read the full comparison guide →</a>
       </p>
     </section>
 
@@ -332,19 +339,19 @@ const seo = navItem?.seo || {
         The best way to understand OKLCH is to use it. Convert any color to OKLCH and see how the perceptual values work:
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <a href="/" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">OKLCH Color Picker</span>
           <span class="text-xs font-mono text-body">Interactive picker with live L, C, H sliders</span>
         </a>
-        <a href="/hex-to-oklch" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">HEX to OKLCH</span>
           <span class="text-xs font-mono text-body">Convert any HEX code to oklch()</span>
         </a>
-        <a href="/oklch-to-hex" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/oklch-to-hex', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">OKLCH to HEX</span>
           <span class="text-xs font-mono text-body">Convert oklch() back to HEX</span>
         </a>
-        <a href="/oklch-color-palette-generator" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">Palette Generator</span>
           <span class="text-xs font-mono text-body">Generate accessible 50-950 scales</span>
         </a>

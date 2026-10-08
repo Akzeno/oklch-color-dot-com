@@ -1,0 +1,172 @@
+{
+  "nav": {
+    "picker": "Farbwähler",
+    "palettes": "Paletten-Bibliothek",
+    "generator": "Palettengenerator",
+    "converters": "Konverter",
+    "hexToOklch": "HEX to OKLCH",
+    "oklchToHex": "OKLCH to HEX",
+    "rgbToOklch": "RGB to OKLCH",
+    "oklchToRgb": "OKLCH to RGB",
+    "hslToOklch": "HSL to OKLCH",
+    "oklchToHsl": "OKLCH to HSL",
+    "preview": "UI-Vorschau",
+    "export": "Export & Code",
+    "learn": "Was ist OKLCH?",
+    "oklchCssSyntax": "CSS-Syntax",
+    "oklchTailwindV4": "OKLCH in Tailwind v4",
+    "oklchVsHslRgb": "OKLCH vs HSL vs RGB",
+    "privacy": "Datenschutz",
+    "about": "Über uns",
+    "terms": "Nutzungsbedingungen",
+    "contact": "Kontakt"
+  },
+  "common": {
+    "language": "Sprache",
+    "home": "Startseite",
+    "more": "Mehr",
+    "allTools": "Alle Tools",
+    "close": "Schließen",
+    "learn": "Lernen",
+    "company": "Unternehmen",
+    "converters": "Konverter",
+    "tools": "Tools",
+    "primaryNav": "Hauptnavigation",
+    "siteFooter": "Seitenfuß",
+    "expandSidebar": "Seitenleiste ausklappen",
+    "collapseSidebar": "Seitenleiste einklappen",
+    "recommended": "Empfohlen zum Ausprobieren",
+    "footerTagline": "oklchcolor.com — kostenlose OKLCH-Farb-Tools, Konverter und Paletten."
+  },
+  "navShort": {
+    "picker": "Picker",
+    "palettes": "Paletten",
+    "converters": "Umwandeln",
+    "preview": "Vorschau",
+    "generator": "Generator",
+    "export": "Export",
+    "learn": "Lernen"
+  },
+  "seo": {
+    "index": {
+      "title": "OKLCH Farbwähler - CSS oklch() Tool für Tailwind v4",
+      "metaDescription": "Kostenloser OKLCH-Farbwähler mit Live-Slidern für L, C und H, Display-P3-Gamut-Warnungen und Export als Tailwind-CSS-v4-Token. oklch()-Werte sofort kopieren.",
+      "h1": "OKLCH Farbwähler",
+      "keywords": ["oklch farbwähler", "oklch picker", "css oklch", "display-p3 farbwähler", "perzeptiver farbwähler"]
+    },
+    "palettes": {
+      "title": "OKLCH Farbpaletten - 16 Skalen, 50-950, Tailwind v4",
+      "metaDescription": "16 kuratierte OKLCH-Farbpaletten, jede als 11-stufige 50-950-Skala. Jeden oklch()-Wert kopieren oder Farbstufen als Tailwind-CSS-v4-Tokens speichern.",
+      "h1": "OKLCH Farbpaletten",
+      "keywords": ["oklch farbpaletten", "oklch colors", "radix oklch", "tailwind v4 paletten", "barrierefreie farbskalen"]
+    },
+    "generator": {
+      "title": "OKLCH Palettengenerator - barrierefreie 50-950-Skala",
+      "metaDescription": "Erzeuge aus einer Basisfarbe eine barrierefreie 50-950-OKLCH-Palette mit gleichmäßiger Helligkeit und gamut-sicherer Chroma. Als CSS oder Tailwind v4 kopieren.",
+      "h1": "OKLCH Palettengenerator",
+      "keywords": ["oklch palettengenerator", "farbskalen generator 50-950", "oklch harmonien", "tailwind v4 farbskalen generator"]
+    },
+    "converterHub": {
+      "title": "OKLCH Konverter - HEX, RGB & HSL zu oklch() CSS",
+      "metaDescription": "Wähle den passenden OKLCH-Konverter: HEX-, RGB- oder HSL-Farben zu CSS oklch() wandeln – oder umgekehrt, mit Live-Gamut-Erkennung.",
+      "h1": "OKLCH Konverter",
+      "keywords": ["oklch konverter", "zu oklch konvertieren", "farbe zu oklch", "oklch farbkonverter"]
+    },
+    "hexToOklch": {
+      "title": "HEX zu OKLCH Converter - kostenloses CSS oklch() Tool",
+      "metaDescription": "Wandle 3-, 6- oder 8-stellige HEX-Farben sofort in CSS oklch() um. Kostenloser HEX-zu-OKLCH-Konverter mit Live-Erkennung für sRGB und Display-P3.",
+      "h1": "HEX zu OKLCH Converter",
+      "keywords": ["hex to oklch", "hex zu oklch", "hex oklch konverter"]
+    },
+    "oklchToHex": {
+      "title": "OKLCH zu HEX Converter - kostenloses CSS-Tool",
+      "metaDescription": "Wandle CSS oklch()-Werte sofort in 6- oder 8-stellige HEX um. Kostenloser OKLCH-zu-HEX-Konverter mit sRGB-Gamut-Clamping und Display-P3-Erkennung.",
+      "h1": "OKLCH zu HEX Converter",
+      "keywords": ["oklch to hex", "oklch zu hex", "oklch hex konverter"]
+    },
+    "rgbToOklch": {
+      "title": "RGB zu OKLCH Converter - kostenloses CSS oklch() Tool",
+      "metaDescription": "Wandle rgb()- und rgba()-Farben sofort in CSS oklch() um. Kostenloser RGB-zu-OKLCH-Konverter mit Live-Prüfung der Gamut-Grenzen.",
+      "h1": "RGB zu OKLCH Converter",
+      "keywords": ["rgb to oklch", "rgb zu oklch", "srgb zu oklch"]
+    },
+    "oklchToRgb": {
+      "title": "OKLCH zu RGB Converter - kostenloses CSS-Tool",
+      "metaDescription": "Wandle CSS oklch()-Werte für Legacy-CSS und Canvas in rgb() oder rgba() um. Kostenloser OKLCH-zu-RGB-Konverter mit automatischem Gamut-Mapping.",
+      "h1": "OKLCH zu RGB Converter",
+      "keywords": ["oklch to rgb", "oklch zu rgb", "oklch zu srgb konverter"]
+    },
+    "hslToOklch": {
+      "title": "HSL zu OKLCH Converter - kostenloses CSS oklch() Tool",
+      "metaDescription": "Wandle hsl()-Farben sofort in CSS oklch() um und behebe HSls ungleichmäßige empfundene Helligkeit. Kostenloser HSL-zu-OKLCH-Konverter mit Gamut-Prüfung.",
+      "h1": "HSL zu OKLCH Converter",
+      "keywords": ["hsl to oklch", "hsl zu oklch", "hsl oklch vergleich"]
+    },
+    "oklchToHsl": {
+      "title": "OKLCH zu HSL Converter - kostenloses CSS-Tool",
+      "metaDescription": "Wandle CSS oklch()-Farben sofort in hsl(h, s%, l%) um. Kostenloser OKLCH-zu-HSL-Konverter mit automatischem sRGB-Gamut-Mapping.",
+      "h1": "OKLCH zu HSL Converter",
+      "keywords": ["oklch to hsl", "oklch zu hsl", "oklch fallback hsl"]
+    },
+    "preview": {
+      "title": "UI-Farbvorschau - OKLCH-Paletten testen (WCAG & APCA)",
+      "metaDescription": "Prüfe deine OKLCH-Palette an echten UI-Komponenten mit WCAG 2.1 AA/AAA- und APCA-Kontrastwerten. Klicke ein Element an, um seinen Farb-Token zu tauschen.",
+      "h1": "UI-Farbvorschau",
+      "keywords": ["oklch ui vorschau", "kontrastprüfung oklch", "wcag apca kontrast matrix", "design token vorschau"]
+    },
+    "export": {
+      "title": "OKLCH Design Tokens exportieren - Tailwind v4 @theme",
+      "metaDescription": "Exportiere deine OKLCH-Farben als Tailwind-CSS-v4-@theme-Blöcke, CSS-Custom-Properties oder herunterladbare Stylesheet. Produktionsreife Design Tokens.",
+      "h1": "OKLCH Design Tokens exportieren",
+      "keywords": ["oklch export", "tailwind v4 @theme export", "css oklch variablen export", "design token generator"]
+    },
+    "whatIsOklch": {
+      "title": "Was ist OKLCH? Der moderne CSS-Farbraum im Überblick",
+      "metaDescription": "OKLCH erklärt: was L, C und H bedeuten, wie es sich von RGB und HSL unterscheidet, Browser-Support und warum Tailwind CSS v4 es nutzt – mit gratis Konverter.",
+      "h1": "Was ist OKLCH? Der moderne CSS-Farbraum",
+      "keywords": ["was ist oklch", "oklch vs hsl", "oklch farbraum guide", "css color 4 oklch"]
+    },
+    "cssSyntax": {
+      "title": "CSS oklch() Syntax - Werte, Alpha & Fallbacks",
+      "metaDescription": "Die komplette oklch()-CSS-Syntax: Werte für Helligkeit, Chroma und Farbton, Alpha nach dem Schrägstrich, Relative Color Syntax, Fallbacks und Browser-Support.",
+      "h1": "CSS oklch() Syntax: Helligkeit, Chroma, Farbton",
+      "keywords": ["css oklch", "oklch css syntax", "oklch funktion", "css color oklch"]
+    },
+    "tailwindV4": {
+      "title": "OKLCH in Tailwind CSS v4 - Farben, Palette & @theme",
+      "metaDescription": "So nutzt Tailwind CSS v4 OKLCH: die Standard-Palette, @theme-Farbvariablen, die Migration von v3 und Wide-Gamut-Farben im Design-System.",
+      "h1": "OKLCH in Tailwind CSS v4: Farben, Palette und @theme",
+      "keywords": ["tailwind css oklch", "tailwind v4 farben", "tailwind oklch palette", "tailwind @theme oklch"]
+    },
+    "vsHslRgb": {
+      "title": "OKLCH vs HSL vs RGB - Welcher Farbraum passt?",
+      "metaDescription": "OKLCH, HSL und RGB im Vergleich: wahrgenommene Gleichmäßigkeit, Helligkeitstreue, Verläufe und Gamut – mit Umrechnungstabellen und Migrations-Tipps für CSS.",
+      "h1": "OKLCH vs HSL vs RGB im Vergleich",
+      "keywords": ["oklch vs hsl", "oklch vs rgb", "hsl vs oklch", "warum oklch"]
+    },
+    "about": {
+      "title": "Über uns - OKLCH Color Tools für Designer und Entwickler",
+      "metaDescription": "Über OKLCH Color Tools: unsere Mission, Designer und Entwickler mit kostenlosen, barrierefreien Farbwerkzeugen für den modernen OKLCH-Farbraum zu unterstützen.",
+      "h1": "Über uns",
+      "keywords": ["über uns", "oklch color tools", "team", "mission"]
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung - OKLCH Color Tools",
+      "metaDescription": "Unsere Datenschutzerklärung erklärt, wie wir Daten bei der Nutzung der OKLCH-Farb-Tools, Konverter und Palettengeneratoren erfassen, verwenden und schützen.",
+      "h1": "Datenschutzerklärung",
+      "keywords": ["datenschutzerklärung", "oklch datenschutz", "datenschutz"]
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen - OKLCH Color Tools",
+      "metaDescription": "Nutzungsbedingungen für die Nutzung der OKLCH Color Tools, einschließlich zulässiger Verwendung, geistigem Eigentum und Haftungsbeschränkung.",
+      "h1": "Nutzungsbedingungen",
+      "keywords": ["nutzungsbedingungen", "agb", "oklch nutzungsbedingungen", "rechtliches"]
+    },
+    "contact": {
+      "title": "Kontakt aufnehmen - OKLCH Color Tools",
+      "metaDescription": "Melde dich beim Team der OKLCH Color Tools. Fragen, Feedback, Bug-Reports oder Partnerschaftsanfragen – wir freuen uns auf deine Nachricht.",
+      "h1": "Kontakt",
+      "keywords": ["kontakt", "oklch kontakt", "support", "feedback"]
+    }
+  }
+}

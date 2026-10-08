@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "picker": "Color Picker",
+    "palettes": "Palette Library",
+    "generator": "Palette Generator",
+    "converters": "Converters",
+    "hexToOklch": "HEX to OKLCH",
+    "oklchToHex": "OKLCH to HEX",
+    "rgbToOklch": "RGB to OKLCH",
+    "oklchToRgb": "OKLCH to RGB",
+    "hslToOklch": "HSL to OKLCH",
+    "oklchToHsl": "OKLCH to HSL",
+    "preview": "UI Preview",
+    "export": "Export & Code",
+    "learn": "What is OKLCH?",
+    "oklchCssSyntax": "CSS Syntax",
+    "oklchTailwindV4": "OKLCH in Tailwind v4",
+    "oklchVsHslRgb": "OKLCH vs HSL vs RGB",
+    "privacy": "Privacy Policy",
+    "about": "About Us",
+    "terms": "Terms & Conditions",
+    "contact": "Contact Us"
+  },
+  "common": {
+    "language": "Language",
+    "home": "Home",
+    "more": "More",
+    "allTools": "All tools",
+    "close": "Close",
+    "learn": "Learn",
+    "company": "Company",
+    "converters": "Converters",
+    "tools": "Tools",
+    "primaryNav": "Primary",
+    "siteFooter": "Site footer",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "recommended": "Recommended to try",
+    "footerTagline": "oklchcolor.com — free OKLCH color tools, converters and palettes."
+  },
+  "navShort": {
+    "picker": "Picker",
+    "palettes": "Palettes",
+    "converters": "Convert",
+    "preview": "Preview",
+    "generator": "Generator",
+    "export": "Export",
+    "learn": "Learn"
+  }
+}

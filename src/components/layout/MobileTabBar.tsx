@@ -39,7 +39,8 @@ const ICONS: Record<string, LucideIcon> = {
   BarChart3,
 };
 
-/** Short labels, authored rather than derived. */
+/** Short labels are resolved per-locale in AppLayout and passed in as props;
+ * the map here is only the English fallback. */
 const SHORT_LABELS: Record<string, string> = {
   picker: 'Picker',
   palettes: 'Palettes',
@@ -51,10 +52,42 @@ const SHORT_LABELS: Record<string, string> = {
 };
 
 interface MobileTabBarProps {
+  /** Canonical (unprefixed) path of the current page. */
   currentPath: string;
+  /** Locale URL prefix: '' for English, '/de' for German, … */
+  localePrefix?: string;
+  /** Nav labels resolved server-side for the active locale, keyed by nav id. */
+  navLabels?: Record<string, string>;
+  shortLabels?: Record<string, string>;
+  uiLabels?: {
+    more: string;
+    allTools: string;
+    close: string;
+    converters: string;
+    learn: string;
+    recommended: string;
+    primaryNav: string;
+  };
 }
 
-export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
+const FALLBACK_UI_LABELS: NonNullable<MobileTabBarProps['uiLabels']> = {
+  more: 'More',
+  allTools: 'All tools',
+  close: 'Close',
+  converters: 'Converters',
+  learn: 'Learn',
+  recommended: 'Recommended to try',
+  primaryNav: 'Primary',
+};
+
+export default function MobileTabBar({
+  currentPath,
+  localePrefix = '',
+  navLabels = {},
+  shortLabels = {},
+  uiLabels,
+}: MobileTabBarProps) {
+  const labels = uiLabels ?? FALLBACK_UI_LABELS;
   const [sheetOpen, setSheetOpen] = useState(false);
 
   /* First-visit notification badge */
@@ -82,6 +115,12 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
 
   const normalize = (p: string) => p.replace(/\/$/, '') || '/';
   const current = normalize(currentPath);
+  /** Locale-prefixed href: '' + '/' → '/', '/de' + '/' → '/de'. */
+  const hrefFor = (p: string) =>
+    localePrefix + (p === '/' ? '' : p) || '/';
+  const labelFor = (id: string, fallback: string) => navLabels[id] ?? fallback;
+  const shortLabelFor = (id: string, fallback: string) =>
+    shortLabels[id] ?? SHORT_LABELS[id] ?? fallback;
 
   const primary = navigationConfig
     .filter((item) => item.showInMobileBar)
@@ -107,7 +146,7 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
     <>
       <nav
         class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-canvas/95 backdrop-blur-lg border-t border-hairline pb-safe"
-        aria-label="Primary"
+        aria-label={labels.primaryNav}
       >
         <div class="flex items-stretch h-14 px-1">
           {primary.map((item) => {
@@ -116,14 +155,14 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
             return (
               <a
                 key={item.id}
-                href={item.path}
+                href={hrefFor(item.path)}
                 aria-current={active ? 'page' : undefined}
                 class={`flex flex-col items-center justify-center gap-0.5 flex-1 font-mono text-[10px] transition-colors duration-150 ${
                   active ? 'text-ink' : 'text-mute'
                 }`}
               >
                 {Ico && <Ico class="w-5 h-5" aria-hidden="true" strokeWidth={1.75} />}
-                <span>{SHORT_LABELS[item.id] ?? item.defaultLabel}</span>
+                <span>{shortLabelFor(item.id, item.defaultLabel)}</span>
               </a>
             );
           })}
@@ -138,10 +177,10 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
             <span class="relative">
               <MoreHorizontal class="w-5 h-5" aria-hidden="true" strokeWidth={1.75} />
               {showFirstVisitBadge && (
-                <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label="Recommended to try" />
+                <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label={labels.recommended} />
               )}
             </span>
-            <span>More</span>
+            <span>{labels.more}</span>
           </button>
         </div>
       </nav>
@@ -158,14 +197,14 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
             class="relative z-10 bg-canvas-card border-t border-hairline rounded-t-lg dock-in max-h-[80vh] overflow-y-auto pb-safe"
             role="dialog"
             aria-modal="true"
-            aria-label="All tools"
+            aria-label={labels.allTools}
           >
             <div class="flex items-center justify-between px-4 py-3 border-b border-hairline-subtle sticky top-0 bg-canvas-card">
-              <span class="eyebrow">All tools</span>
+              <span class="eyebrow">{labels.allTools}</span>
               <button
                 onClick={() => setSheetOpen(false)}
                 class="icon-btn -mr-1"
-                aria-label="Close"
+                aria-label={labels.close}
               >
                 <X class="w-4 h-4" aria-hidden="true" strokeWidth={2} />
               </button>
@@ -179,7 +218,7 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
                   return (
                     <a
                       key={item.id}
-                      href={item.path}
+                      href={hrefFor(item.path)}
                       onClick={() => {
                         setSheetOpen(false);
                         if (isFirstVisitTarget) dismissFirstVisitBadge();
@@ -189,10 +228,10 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
                       <span class="relative flex-shrink-0">
                         {Ico && <Ico class="w-4 h-4 text-mute" aria-hidden="true" strokeWidth={1.75} />}
                         {showFirstVisitBadge && isFirstVisitTarget && (
-                          <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label="Recommended to try" />
+                          <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label={labels.recommended} />
                         )}
                       </span>
-                      <span class="truncate">{item.defaultLabel}</span>
+                      <span class="truncate">{labelFor(item.id, item.defaultLabel)}</span>
                     </a>
                   );
                 })}
@@ -200,16 +239,16 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
 
               {converterGroup && (
                 <div>
-                  <span class="eyebrow block mb-2">Converters</span>
+                  <span class="eyebrow block mb-2">{labels.converters}</span>
                   <div class="grid grid-cols-2 gap-1.5">
                     {converterGroup.children!.map((child) => (
                       <a
                         key={child.id}
-                        href={child.path}
+                        href={hrefFor(child.path)}
                         onClick={() => setSheetOpen(false)}
                         class="px-3 py-2 rounded-md border border-hairline-subtle bg-canvas-raised font-mono text-label text-body transition-colors duration-150"
                       >
-                        {child.defaultLabel}
+                        {labelFor(child.id, child.defaultLabel)}
                       </a>
                     ))}
                   </div>
@@ -218,16 +257,16 @@ export default function MobileTabBar({ currentPath }: MobileTabBarProps) {
 
               {learnItems.length > 0 && (
                 <div>
-                  <span class="eyebrow block mb-2">Learn</span>
+                  <span class="eyebrow block mb-2">{labels.learn}</span>
                   <div class="grid grid-cols-2 gap-1.5">
                     {learnItems.map((item) => (
                       <a
                         key={item.id}
-                        href={item.path}
+                        href={hrefFor(item.path)}
                         onClick={() => setSheetOpen(false)}
                         class="px-3 py-2 rounded-md border border-hairline-subtle bg-canvas-raised font-mono text-label text-body transition-colors duration-150"
                       >
-                        {item.defaultLabel}
+                        {labelFor(item.id, item.defaultLabel)}
                       </a>
                     ))}
                   </div>

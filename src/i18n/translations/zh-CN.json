@@ -1,0 +1,172 @@
+{
+  "nav": {
+    "picker": "取色器",
+    "palettes": "色板库",
+    "generator": "色板生成器",
+    "converters": "转换器",
+    "hexToOklch": "HEX 转 OKLCH",
+    "oklchToHex": "OKLCH 转 HEX",
+    "rgbToOklch": "RGB 转 OKLCH",
+    "oklchToRgb": "OKLCH 转 RGB",
+    "hslToOklch": "HSL 转 OKLCH",
+    "oklchToHsl": "OKLCH 转 HSL",
+    "preview": "UI 预览",
+    "export": "导出与代码",
+    "learn": "什么是 OKLCH？",
+    "oklchCssSyntax": "CSS 语法",
+    "oklchTailwindV4": "OKLCH 与 Tailwind v4",
+    "oklchVsHslRgb": "OKLCH vs HSL vs RGB",
+    "privacy": "隐私政策",
+    "about": "关于我们",
+    "terms": "使用条款",
+    "contact": "联系我们"
+  },
+  "common": {
+    "language": "语言",
+    "home": "首页",
+    "more": "更多",
+    "allTools": "全部工具",
+    "close": "关闭",
+    "learn": "学习",
+    "company": "公司",
+    "converters": "转换器",
+    "tools": "工具",
+    "primaryNav": "主导航",
+    "siteFooter": "站点页脚",
+    "expandSidebar": "展开侧边栏",
+    "collapseSidebar": "收起侧边栏",
+    "recommended": "推荐试用",
+    "footerTagline": "oklchcolor.com — 免费的 OKLCH 颜色工具、转换器与色板。"
+  },
+  "navShort": {
+    "picker": "取色",
+    "palettes": "色板",
+    "converters": "转换",
+    "preview": "预览",
+    "generator": "生成",
+    "export": "导出",
+    "learn": "学习"
+  },
+  "seo": {
+    "index": {
+      "title": "OKLCH 取色器 - CSS oklch() 实时调色与 Tailwind v4 导出",
+      "metaDescription": "免费的 OKLCH 取色器，提供实时 L、C、H 滑块、Display-P3 色域警告与一键 Tailwind CSS v4 设计令牌导出，即时复制 oklch() 值。",
+      "h1": "OKLCH 取色器",
+      "keywords": ["oklch 取色器", "css oklch", "display-p3 颜色选择器", "感知均匀取色", "tailwind v4 颜色令牌"]
+    },
+    "palettes": {
+      "title": "OKLCH 色板库 - 16 组 50-950 色阶与 Tailwind v4",
+      "metaDescription": "浏览 16 组精选 OKLCH 色板，每组均为 11 级 50-950 色阶。复制任意 oklch() 值，或将色阶保存为 Tailwind CSS v4 设计令牌。",
+      "h1": "OKLCH 色板库",
+      "keywords": ["oklch 色板", "oklch colors", "radix oklch", "tailwind v4 色板", "无障碍色阶"]
+    },
+    "generator": {
+      "title": "OKLCH 色板生成器 - 无障碍 50-950 色阶",
+      "metaDescription": "输入任意基础色，即可生成亮度均匀、色域安全的无障碍 50-950 OKLCH 色板，支持一键复制为 CSS 或 Tailwind v4 代码。",
+      "h1": "OKLCH 色板生成器",
+      "keywords": ["oklch 色板生成器", "50-950 色阶生成", "oklch 调色", "tailwind v4 色阶生成器"]
+    },
+    "converterHub": {
+      "title": "OKLCH 转换器 - HEX、RGB、HSL 与 oklch() 互转",
+      "metaDescription": "选择你需要的 OKLCH 转换器：把 HEX、RGB 或 HSL 颜色转成 CSS oklch()，也可反向转回去，支持实时色域检测，结果一键复制。",
+      "h1": "OKLCH 转换器",
+      "keywords": ["oklch 转换器", "颜色转 oklch", "oklch 颜色转换", "转 oklch"]
+    },
+    "hexToOklch": {
+      "title": "HEX 转 OKLCH 转换器 - 免费 CSS oklch() 工具",
+      "metaDescription": "把 3 位、6 位或 8 位 HEX 颜色即时转换为 CSS oklch()。免费的 HEX 转 OKLCH 工具，支持 sRGB 与 Display-P3 实时色域检测。",
+      "h1": "HEX 转 OKLCH 转换器",
+      "keywords": ["hex 转 oklch", "hex to oklch", "hex 转 oklch 转换器"]
+    },
+    "oklchToHex": {
+      "title": "OKLCH 转 HEX 转换器 - 免费 CSS 颜色工具",
+      "metaDescription": "把 CSS oklch() 值即时转换为 6 位或 8 位 HEX。免费的 OKLCH 转 HEX 工具，内置 sRGB 色域截断与 Display-P3 检测。",
+      "h1": "OKLCH 转 HEX 转换器",
+      "keywords": ["oklch 转 hex", "oklch to hex", "oklch 转 rgb hex"]
+    },
+    "rgbToOklch": {
+      "title": "RGB 转 OKLCH 转换器 - 免费 CSS oklch() 工具",
+      "metaDescription": "把 rgb() 与 rgba() 颜色即时转换为 CSS oklch()。免费的 RGB 转 OKLCH 工具，支持实时色域边界检查，超出 sRGB 立即提醒。",
+      "h1": "RGB 转 OKLCH 转换器",
+      "keywords": ["rgb 转 oklch", "convert rgb to oklch", "srgb 转 oklch"]
+    },
+    "oklchToRgb": {
+      "title": "OKLCH 转 RGB 转换器 - 免费 CSS 颜色工具",
+      "metaDescription": "把 CSS oklch() 值转换为 rgb() 或 rgba()，适配旧版 CSS 与 canvas。免费的 OKLCH 转 RGB 工具，自动完成色域映射。",
+      "h1": "OKLCH 转 RGB 转换器",
+      "keywords": ["oklch 转 rgb", "oklch 转 rgba", "oklch 转 srgb 转换器"]
+    },
+    "hslToOklch": {
+      "title": "HSL 转 OKLCH 转换器 - 免费 CSS oklch() 工具",
+      "metaDescription": "把 hsl() 颜色即时转换为 CSS oklch()，顺便修正 HSL 感知亮度不均的问题。免费的 HSL 转 OKLCH 工具，支持色域检查。",
+      "h1": "HSL 转 OKLCH 转换器",
+      "keywords": ["hsl 转 oklch", "convert hsl to oklch", "hsl 与 oklch 对比"]
+    },
+    "oklchToHsl": {
+      "title": "OKLCH 转 HSL 转换器 - 免费 CSS 颜色工具",
+      "metaDescription": "把 CSS oklch() 颜色即时转换为 hsl(h, s%, l%)。免费的 OKLCH 转 HSL 工具，自动完成 sRGB 色域映射。",
+      "h1": "OKLCH 转 HSL 转换器",
+      "keywords": ["oklch 转 hsl", "oklch to hsl", "oklch 转 hsl 回退"]
+    },
+    "preview": {
+      "title": "UI 预览 - 用 WCAG 与 APCA 测试 OKLCH 色板",
+      "metaDescription": "在真实 UI 组件上预览你的 OKLCH 色板，并查看 WCAG 2.1 AA/AAA 与 APCA 对比度评分。点击任意元素即可替换它的颜色令牌。",
+      "h1": "UI 颜色预览",
+      "keywords": ["oklch ui 预览", "颜色对比度检查 oklch", "wcag apca 对比度", "设计令牌预览"]
+    },
+    "export": {
+      "title": "导出 OKLCH 设计令牌 - Tailwind v4 @theme 与 CSS",
+      "metaDescription": "把你的 OKLCH 颜色导出为 Tailwind CSS v4 @theme 代码块、CSS 自定义属性，或可下载的样式表，即拿即用的设计令牌。",
+      "h1": "导出 OKLCH 设计令牌",
+      "keywords": ["oklch 导出", "tailwind v4 @theme 导出", "css oklch 变量导出", "设计令牌生成器"]
+    },
+    "whatIsOklch": {
+      "title": "什么是 OKLCH？现代 CSS 颜色空间详解",
+      "metaDescription": "OKLCH 详解：L、C、H 分别代表什么，它与 RGB、HSL 有何区别，浏览器支持情况，以及 Tailwind CSS v4 为何采用它。附免费转换器。",
+      "h1": "什么是 OKLCH？现代 CSS 颜色空间",
+      "keywords": ["什么是 oklch", "oklch 与 hsl 对比", "oklch 颜色空间指南", "css color 4 oklch"]
+    },
+    "cssSyntax": {
+      "title": "CSS oklch() 语法 - 数值、Alpha 与回退方案",
+      "metaDescription": "完整的 oklch() CSS 语法：亮度、彩度与色相的取值，斜杠后的 alpha，相对颜色语法、渐进式回退方案与浏览器支持情况，附可复制的代码示例。",
+      "h1": "CSS oklch() 语法：亮度、彩度、色相与 Alpha",
+      "keywords": ["css oklch", "oklch css 语法", "oklch 函数", "css color oklch"]
+    },
+    "tailwindV4": {
+      "title": "OKLCH 与 Tailwind CSS v4 - 颜色、色板与 @theme",
+      "metaDescription": "Tailwind CSS v4 如何使用 OKLCH：默认色板、@theme 颜色变量、从 v3 迁移，以及在你的设计系统中落地广色域颜色。",
+      "h1": "OKLCH 与 Tailwind CSS v4：颜色、色板与 @theme",
+      "keywords": ["tailwind css oklch", "tailwind v4 颜色", "tailwind oklch 色板", "tailwind @theme oklch"]
+    },
+    "vsHslRgb": {
+      "title": "OKLCH vs HSL vs RGB - 该选哪种颜色空间",
+      "metaDescription": "对比 OKLCH、HSL 与 RGB：感知均匀性、亮度准确性、渐变表现与色域，并附转换表格与 CSS 迁移建议，帮你为项目选对最合适的颜色空间。",
+      "h1": "OKLCH vs HSL vs RGB：该选哪种颜色空间？",
+      "keywords": ["oklch vs hsl", "oklch vs rgb", "hsl 与 oklch 对比", "为什么用 oklch"]
+    },
+    "about": {
+      "title": "关于我们 - OKLCH Color Tools",
+      "metaDescription": "了解 OKLCH Color Tools：我们的使命是为设计师与开发者提供免费、易用的颜色工具，拥抱现代 OKLCH 颜色空间，让配色更简单。",
+      "h1": "关于我们",
+      "keywords": ["关于我们", "oklch 颜色工具", "团队", "使命"]
+    },
+    "contact": {
+      "title": "联系我们 - OKLCH Color Tools",
+      "metaDescription": "欢迎联系 OKLCH Color Tools 团队：无论是使用问题、改进建议、bug 报告还是合作洽谈，我们都期待听到你的声音，帮助我们把工具做得更好。",
+      "h1": "联系我们",
+      "keywords": ["联系我们", "oklch 联系", "支持", "反馈"]
+    },
+    "privacy": {
+      "title": "隐私政策 - OKLCH Color Tools",
+      "metaDescription": "我们的隐私政策说明：在使用 OKLCH 颜色工具、转换器与色板生成器时，我们如何收集、使用并保护你的数据，以及你作为用户可以行使哪些数据权利。",
+      "h1": "隐私政策",
+      "keywords": ["隐私政策", "oklch 隐私", "数据保护"]
+    },
+    "terms": {
+      "title": "使用条款 - OKLCH Color Tools",
+      "metaDescription": "使用 OKLCH Color Tools 前请阅读的条款与条件，涵盖可接受的使用范围、知识产权、免责声明与责任限制，继续使用本站服务即视为你同意这些条款。",
+      "h1": "使用条款",
+      "keywords": ["使用条款", "服务条款", "oklch 条款", "法律声明"]
+    }
+  }
+}

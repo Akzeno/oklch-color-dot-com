@@ -1,0 +1,99 @@
+---
+/**
+ * Language switcher. Renders one link per configured locale pointing at the
+ * *same page* in that language (the path is swapped, not reset), so switching
+ * languages never drops the visitor back on the home page.
+ *
+ * Native names only — each language is offered in its own script, which is
+ * the one label a lost visitor can always recognize. No flags: languages are
+ * not countries, and a flag picker is wrong for at least two entries here
+ * (Chinese has two scripts; Spanish is not Spain).
+ */
+import { LOCALES, buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
+
+interface Props {
+  locale?: LocaleCode;
+  /** Canonical (unprefixed) path of the current page. */
+  currentPath?: string;
+}
+
+const { locale = 'en', currentPath = '/' } = Astro.props;
+
+const options = LOCALES.map((l) => ({
+  code: l.code,
+  name: l.name,
+  url: buildLocalizedPath(currentPath, l.code),
+  isCurrent: l.code === locale,
+}));
+
+const label = t(locale, 'common.language', 'Language');
+const currentName = LOCALES.find((l) => l.code === locale)?.name ?? 'English';
+---
+
+<details class="relative group" data-language-switcher>
+  <summary
+    class="flex items-center gap-1.5 cursor-pointer list-none select-none rounded-md px-2 py-1.5 text-label text-body hover:text-ink transition-colors [&::-webkit-details-marker]:hidden"
+    title={label}
+    aria-label={label}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="shrink-0"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
+    </svg>
+    <span class="hidden sm:inline max-w-[9ch] truncate">{currentName}</span>
+  </summary>
+
+  <ul
+    class="absolute right-0 top-full mt-1 min-w-[11rem] rounded-md border border-hairline bg-canvas-elevated shadow-lg py-1 z-50"
+    aria-label={label}
+  >
+    {options.map((option) => (
+      <li>
+        <a
+          href={option.url}
+          hreflang={option.code}
+          lang={LOCALES.find((l) => l.code === option.code)?.locale}
+          aria-current={option.isCurrent ? 'true' : undefined}
+          class:list={[
+            'block px-3 py-1.5 text-xs font-mono transition-colors',
+            option.isCurrent
+              ? 'text-ink font-semibold bg-canvas-card'
+              : 'text-body hover:text-ink hover:bg-canvas-card',
+          ]}
+        >
+          {option.name}
+        </a>
+      </li>
+    ))}
+  </ul>
+</details>
+
+<script>
+  // Keep one switcher open at a time; clicking elsewhere closes it.
+  // Delegated on document so it survives Astro's client-side router swaps.
+  document.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target as Element | null;
+      if (!target) return;
+      for (const el of document.querySelectorAll('details[data-language-switcher][open]')) {
+        if (!el.contains(target)) el.removeAttribute('open');
+      }
+    },
+    { passive: true }
+  );
+</script>

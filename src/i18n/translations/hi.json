@@ -1,0 +1,172 @@
+{
+  "nav": {
+    "picker": "कलर पिकर",
+    "palettes": "पलेट लाइब्रेरी",
+    "generator": "पलेट जनरेटर",
+    "converters": "कन्वर्टर",
+    "hexToOklch": "HEX से OKLCH",
+    "oklchToHex": "OKLCH से HEX",
+    "rgbToOklch": "RGB से OKLCH",
+    "oklchToRgb": "OKLCH से RGB",
+    "hslToOklch": "HSL से OKLCH",
+    "oklchToHsl": "OKLCH से HSL",
+    "preview": "UI प्रीव्यू",
+    "export": "एक्सपोर्ट और कोड",
+    "learn": "OKLCH क्या है?",
+    "oklchCssSyntax": "CSS सिंटैक्स",
+    "oklchTailwindV4": "Tailwind v4 में OKLCH",
+    "oklchVsHslRgb": "OKLCH vs HSL vs RGB",
+    "privacy": "गोपनीयता नीति",
+    "about": "हमारे बारे में",
+    "terms": "नियम और शर्तें",
+    "contact": "संपर्क करें"
+  },
+  "common": {
+    "language": "भाषा",
+    "home": "होम",
+    "more": "अधिक",
+    "allTools": "सभी टूल",
+    "close": "बंद करें",
+    "learn": "सीखें",
+    "company": "कंपनी",
+    "converters": "कन्वर्टर",
+    "tools": "टूल",
+    "primaryNav": "प्राथमिक",
+    "siteFooter": "साइट फ़ुटर",
+    "expandSidebar": "साइडबार फैलाएँ",
+    "collapseSidebar": "साइडबार समेटें",
+    "recommended": "आज़माने के लिए अनुशंसित",
+    "footerTagline": "oklchcolor.com — मुफ़्त OKLCH रंग टूल, कन्वर्टर और पलेट।"
+  },
+  "navShort": {
+    "picker": "पिकर",
+    "palettes": "पलेट",
+    "converters": "कन्वर्ट",
+    "preview": "प्रीव्यू",
+    "generator": "जनरेटर",
+    "export": "एक्सपोर्ट",
+    "learn": "सीखें"
+  },
+  "seo": {
+    "index": {
+      "title": "OKLCH Color Picker – Tailwind v4 के लिए CSS oklch() टूल",
+      "metaDescription": "मुफ़्त OKLCH color picker – रीयल-टाइम L, C, H स्लाइडर, Display-P3 gamut चेतावनी और एक क्लिक में Tailwind CSS v4 token एक्सपोर्ट। oklch() वैल्यू तुरंत कॉपी करें।",
+      "h1": "OKLCH Color Picker",
+      "keywords": ["oklch कलर पिकर", "oklch पिकर", "css oklch", "display-p3 कलर पिकर", "संवेदी कलर पिकर"]
+    },
+    "palettes": {
+      "title": "OKLCH Color Palettes – 16 स्केल, 50-950, Tailwind v4",
+      "metaDescription": "16 चुनिंदा OKLCH पलेट ब्राउज़ करें – हर एक 11-स्टेप 50-950 स्केल। कोई भी oklch() वैल्यू कॉपी करें या shades को Tailwind CSS v4 token के रूप में सेव करें।",
+      "h1": "OKLCH कलर पलेट",
+      "keywords": ["oklch कलर पलेट", "oklch रंग", "radix oklch", "tailwind v4 पलेट", "सुलभ रंग स्केल"]
+    },
+    "generator": {
+      "title": "OKLCH Color Palette Generator – सुलभ 50-950 स्केल",
+      "metaDescription": "कोई भी base color डालें और सुलभ 50-950 OKLCH palette बनाएँ – समान lightness और gamut-safe chroma के साथ। CSS या Tailwind v4 में कॉपी करें।",
+      "h1": "OKLCH कलर पलेट जनरेटर",
+      "keywords": ["oklch पलेट जनरेटर", "रंग स्केल जनरेटर 50-950", "oklch harmonies", "tailwind v4 रंग स्केल जनरेटर"]
+    },
+    "converterHub": {
+      "title": "OKLCH Converter – HEX, RGB और HSL से oklch() CSS",
+      "metaDescription": "ज़रूरत का OKLCH converter चुनें: HEX, RGB या HSL रंगों को CSS oklch() में बदलें, या oklch() से वापस उनमें – live gamut detection के साथ।",
+      "h1": "OKLCH कन्वर्टर",
+      "keywords": ["oklch कन्वर्टर", "oklch में कन्वर्ट", "रंग से oklch", "oklch color converter"]
+    },
+    "hexToOklch": {
+      "title": "HEX से OKLCH Converter – मुफ़्त CSS oklch() टूल",
+      "metaDescription": "3, 6 या 8-डिजिट HEX रंगों को तुरंत CSS oklch() में बदलें। मुफ़्त HEX से OKLCH converter – live sRGB और Display-P3 gamut detection के साथ।",
+      "h1": "HEX से OKLCH कन्वर्टर",
+      "keywords": ["hex से oklch", "hex to oklch converter", "hex को oklch में बदलें"]
+    },
+    "oklchToHex": {
+      "title": "OKLCH से HEX Converter – मुफ़्त CSS Color टूल",
+      "metaDescription": "CSS oklch() वैल्यू को तुरंत 6 या 8-डिजिट HEX में बदलें। मुफ़्त OKLCH से HEX converter – sRGB gamut clamping और Display-P3 detection के साथ।",
+      "h1": "OKLCH से HEX कन्वर्टर",
+      "keywords": ["oklch से hex", "oklch to hex converter", "oklch to rgb hex"]
+    },
+    "rgbToOklch": {
+      "title": "RGB से OKLCH Converter – मुफ़्त CSS oklch() टूल",
+      "metaDescription": "rgb() और rgba() रंगों को तुरंत CSS oklch() में बदलें। मुफ़्त RGB से OKLCH converter – live gamut boundary जाँच के साथ।",
+      "h1": "RGB से OKLCH कन्वर्टर",
+      "keywords": ["rgb से oklch", "rgb को oklch में बदलें", "srgb से oklch"]
+    },
+    "oklchToRgb": {
+      "title": "OKLCH से RGB Converter – मुफ़्त CSS Color टूल",
+      "metaDescription": "CSS oklch() वैल्यू को legacy CSS और canvas के लिए rgb() या rgba() में बदलें। मुफ़्त OKLCH से RGB converter – automatic gamut mapping के साथ।",
+      "h1": "OKLCH से RGB कन्वर्टर",
+      "keywords": ["oklch से rgb", "oklch से rgba", "oklch to srgb converter"]
+    },
+    "hslToOklch": {
+      "title": "HSL से OKLCH Converter – मुफ़्त CSS oklch() टूल",
+      "metaDescription": "hsl() रंगों को तुरंत CSS oklch() में बदलें और HSL की असमान प्रतीत lightness को ठीक करें। मुफ़्त HSL से OKLCH converter – gamut जाँच के साथ।",
+      "h1": "HSL से OKLCH कन्वर्टर",
+      "keywords": ["hsl से oklch", "hsl को oklch में बदलें", "hsl oklch तुलना"]
+    },
+    "oklchToHsl": {
+      "title": "OKLCH से HSL Converter – मुफ़्त CSS Color टूल",
+      "metaDescription": "CSS oklch() रंगों को तुरंत hsl(h, s%, l%) में बदलें। मुफ़्त OKLCH से HSL converter – automatic sRGB gamut mapping के साथ।",
+      "h1": "OKLCH से HSL कन्वर्टर",
+      "keywords": ["oklch से hsl", "oklch to hsl converter", "oklch fallback to hsl"]
+    },
+    "preview": {
+      "title": "UI Color Preview – OKLCH पलेट टेस्ट (WCAG & APCA)",
+      "metaDescription": "अपने OKLCH palette को असली UI components पर प्रीव्यू करें – WCAG 2.1 AA/AAA और APCA contrast scores के साथ। किसी element पर क्लिक करके उसका color token बदलें।",
+      "h1": "UI कलर प्रीव्यू",
+      "keywords": ["oklch ui प्रीव्यू", "color contrast checker oklch", "wcag apca contrast matrix", "design token प्रीव्यू"]
+    },
+    "export": {
+      "title": "OKLCH Design Tokens एक्सपोर्ट – Tailwind v4 @theme & CSS",
+      "metaDescription": "अपने OKLCH रंगों को Tailwind CSS v4 @theme ब्लॉक, CSS custom properties या downloadable stylesheet के रूप में एक्सपोर्ट करें। Production-ready design tokens।",
+      "h1": "OKLCH Design Tokens एक्सपोर्ट",
+      "keywords": ["oklch एक्सपोर्ट", "tailwind v4 @theme एक्सपोर्ट", "css oklch variables एक्सपोर्ट", "design token जनरेटर"]
+    },
+    "whatIsOklch": {
+      "title": "OKLCH क्या है? आधुनिक CSS Color Space की व्याख्या",
+      "metaDescription": "OKLCH समझें: L, C और H का क्या अर्थ है, यह RGB और HSL से कैसे अलग है, browser support, और Tailwind CSS v4 इसे क्यों इस्तेमाल करता है। मुफ़्त converter के साथ।",
+      "h1": "OKLCH क्या है? आधुनिक CSS Color Space",
+      "keywords": ["oklch क्या है", "oklch vs hsl", "oklch color space guide", "css color 4 oklch"]
+    },
+    "cssSyntax": {
+      "title": "CSS oklch() Syntax – वैल्यू, Alpha और Fallbacks",
+      "metaDescription": "पूरा oklch() CSS syntax: lightness, chroma और hue वैल्यू, slash के बाद alpha, relative color syntax, progressive fallbacks और browser support।",
+      "h1": "CSS oklch() Syntax: Lightness, Chroma, Hue और Alpha",
+      "keywords": ["css oklch", "oklch css syntax", "oklch फ़ंक्शन", "css color oklch"]
+    },
+    "tailwindV4": {
+      "title": "Tailwind CSS v4 में OKLCH – रंग, पलेट और @theme",
+      "metaDescription": "Tailwind CSS v4 OKLCH कैसे इस्तेमाल करता है: default palette, @theme color variables, v3 से माइग्रेशन, और अपने design system में wide-gamut रंग शिप करना।",
+      "h1": "OKLCH in Tailwind CSS v4: रंग, पलेट और @theme",
+      "keywords": ["tailwind css oklch", "tailwind v4 रंग", "tailwind oklch palette", "tailwind @theme oklch"]
+    },
+    "vsHslRgb": {
+      "title": "OKLCH vs HSL vs RGB – कौन सा Color Space चुनें",
+      "metaDescription": "OKLCH vs HSL vs RGB की तुलना: perceptual uniformity, lightness सटीकता, gradients और gamut – conversion tables और CSS के लिए migration मार्गदर्शन के साथ।",
+      "h1": "OKLCH vs HSL vs RGB: कौन सा Color Space चुनें?",
+      "keywords": ["oklch vs hsl", "oklch vs rgb", "hsl vs oklch", "oklch क्यों इस्तेमाल करें"]
+    },
+    "about": {
+      "title": "हम कौन हैं? – OKLCH Color Tools और हमारा mission",
+      "metaDescription": "OKLCH Color Tools के बारे में जानें: आधुनिक OKLCH color space का उपयोग करके designers और developers के लिए मुफ़्त, सुलभ रंग टूल उपलब्ध कराना हमारा mission है।",
+      "h1": "हमारे बारे में",
+      "keywords": ["हमारे बारे में", "oklch color tools", "टीम", "mission"]
+    },
+    "contact": {
+      "title": "OKLCH Color Tools से संपर्क करें – सवाल और फीडबैक",
+      "metaDescription": "OKLCH Color Tools टीम से संपर्क करें। सवाल, फीडबैक, bug reports या partnership के प्रस्ताव – हम आपसे सुनना पसंद करेंगे।",
+      "h1": "संपर्क करें",
+      "keywords": ["संपर्क करें", "oklch संपर्क", "सपोर्ट", "फीडबैक"]
+    },
+    "privacy": {
+      "title": "गोपनीयता नीति – OKLCH Color Tools और डेटा सुरक्षा",
+      "metaDescription": "हमारी privacy policy बताती है कि OKLCH रंग टूल, converter और palette generator का उपयोग करते समय हम आपका डेटा कैसे इकट्ठा, उपयोग और सुरक्षित करते हैं।",
+      "h1": "गोपनीयता नीति",
+      "keywords": ["गोपनीयता नीति", "oklch privacy", "डेटा सुरक्षा"]
+    },
+    "terms": {
+      "title": "OKLCH Color Tools: स्वीकार्य उपयोग के नियम और शर्तें",
+      "metaDescription": "OKLCH Color Tools के उपयोग की शर्तें, जिनमें स्वीकार्य उपयोग, intellectual property और दायित्व की सीमा शामिल है।",
+      "h1": "नियम और शर्तें",
+      "keywords": ["नियम और शर्तें", "terms of service", "oklch नियम", "कानूनी"]
+    }
+  }
+}

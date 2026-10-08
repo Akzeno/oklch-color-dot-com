@@ -8,6 +8,7 @@ import {
   oklchToRgbString,
   oklchToHslString,
 } from '../../utils/color';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
 import PaletteDetailIsland from '../../components/palettes/PaletteDetailIsland';
 
 export function getStaticPaths() {
@@ -19,9 +20,10 @@ export function getStaticPaths() {
 
 interface Props {
   palette: PaletteItem;
+  locale?: LocaleCode;
 }
 
-const { palette } = Astro.props;
+const { palette, locale = 'en' } = Astro.props;
 
 /** Compress consecutive shade steps into ranges: [500,600,700,800,900,950] → "500-950". */
 function formatStepRange(steps: number[]): string {
@@ -65,13 +67,14 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
   description={description}
   canonicalPath={`/oklch-colors/${palette.slug}`}
   schemaType="CollectionPage"
+  locale={locale}
 >
   <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
       <span>/</span>
-      <a href="/oklch-colors" class="hover:text-ink">Palettes</a>
+      <a href={buildLocalizedPath('/oklch-colors', locale)} class="hover:text-ink">Palettes</a>
       <span>/</span>
       <span class="text-ink">{palette.name}</span>
     </nav>
@@ -204,16 +207,16 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
         values you see above, converted instantly with live gamut detection.
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <a href="/hex-to-oklch" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+        <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
           HEX to OKLCH converter
         </a>
-        <a href="/oklch-to-hex" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+        <a href={buildLocalizedPath('/oklch-to-hex', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
           OKLCH to HEX converter
         </a>
-        <a href="/rgb-to-oklch" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+        <a href={buildLocalizedPath('/rgb-to-oklch', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
           RGB to OKLCH converter
         </a>
-        <a href="/oklch-color-palette-generator" class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
+        <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
           Build your own palette
         </a>
       </div>
@@ -225,7 +228,7 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {relatedPalettes.map((related) => (
           <a
-            href={`/oklch-colors/${related.slug}`}
+            href={buildLocalizedPath(`/oklch-colors/${related.slug}`, locale)}
             class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors space-y-2"
           >
             <span class="text-sm font-semibold text-ink block">{related.name}</span>

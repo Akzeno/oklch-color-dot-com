@@ -44,10 +44,39 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 interface SidebarProps {
+  /** Canonical (unprefixed) path of the current page. */
   currentPath: string;
+  /** Locale URL prefix: '' for English, '/de' for German, … */
+  localePrefix?: string;
+  /** Nav labels resolved server-side for the active locale, keyed by nav id. */
+  navLabels?: Record<string, string>;
+  /** Section/aria labels for the active locale. */
+  uiLabels?: {
+    learn: string;
+    company: string;
+    expandSidebar: string;
+    collapseSidebar: string;
+    recommended: string;
+    primaryNav: string;
+  };
 }
 
-export default function SidebarIsland({ currentPath }: SidebarProps) {
+const FALLBACK_UI_LABELS: NonNullable<SidebarProps['uiLabels']> = {
+  learn: 'Learn',
+  company: 'Company',
+  expandSidebar: 'Expand sidebar',
+  collapseSidebar: 'Collapse sidebar',
+  recommended: 'Recommended to try',
+  primaryNav: 'Primary',
+};
+
+export default function SidebarIsland({
+  currentPath,
+  localePrefix = '',
+  navLabels = {},
+  uiLabels,
+}: SidebarProps) {
+  const labels = uiLabels ?? FALLBACK_UI_LABELS;
   const [collapsed, setCollapsed] = useState(false);
 
   /* First-visit notification badge */
@@ -112,6 +141,10 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
 
   const normalize = (p: string) => p.replace(/\/$/, '') || '/';
   const normalizedCurrent = normalize(currentPath);
+  /** Locale-prefixed href: '' + '/' → '/', '/de' + '/' → '/de'. */
+  const hrefFor = (p: string) =>
+    localePrefix + (p === '/' ? '' : p) || '/';
+  const labelFor = (id: string, fallback: string) => navLabels[id] ?? fallback;
 
   const iconFor = (name: string, className: string) => {
     const Cmp = ICONS[name];
@@ -175,7 +208,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
       class={`hidden md:flex flex-col shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] border-r border-hairline bg-canvas select-none transition-[width] duration-150 ${
         collapsed ? 'w-[52px]' : 'w-[208px]'
       }`}
-      aria-label="Primary"
+      aria-label={labels.primaryNav}
     >
       <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto no-scrollbar">
         {primaryItems.map((item) => {
@@ -203,7 +236,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
                     {iconFor(item.icon, 'w-4 h-4')}
                   </span>
                   {!collapsed && (
-                    <span class="eyebrow truncate">{item.defaultLabel}</span>
+                    <span class="eyebrow truncate">{labelFor(item.id, item.defaultLabel)}</span>
                   )}
                 </div>
                 {!collapsed && (
@@ -213,14 +246,14 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
                       return (
                         <a
                           key={child.id}
-                          href={child.path}
+                          href={hrefFor(child.path)}
                           aria-current={on ? 'page' : undefined}
-                          title={child.defaultLabel}
+                          title={labelFor(child.id, child.defaultLabel)}
                           class={`flex items-center gap-2.5 pl-7 pr-2.5 py-1.5 rounded-md font-mono text-label transition-colors duration-150 ${itemClass(on)} ${
                             on ? 'font-medium' : ''
                           }`}
                         >
-                          {child.defaultLabel}
+                          {labelFor(child.id, child.defaultLabel)}
                         </a>
                       );
                     })}
@@ -233,9 +266,9 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
           return (
             <a
               key={item.id}
-              href={item.path}
+              href={hrefFor(item.path)}
               aria-current={isActive ? 'page' : undefined}
-              title={item.defaultLabel}
+              title={labelFor(item.id, item.defaultLabel)}
               class={`flex items-center gap-2.5 px-2.5 py-2 rounded-md text-label transition-colors duration-150 ${itemClass(isActive)}`}
               onClick={() => item.id === FIRST_VISIT_TARGET_ID && dismissFirstVisitBadge()}
             >
@@ -245,10 +278,10 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
                 </span>
                 {showFirstVisitBadge &&
                   item.id === FIRST_VISIT_TARGET_ID && (
-                    <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label="Recommended to try" />
+                    <span class="absolute -top-0 -right-0 w-2.5 h-2.5 bg-first-visit rounded-full ring-1 ring-canvas animate-badge-pulse" aria-label={labels.recommended} />
                   )}
               </span>
-              {!collapsed && <span class="truncate">{item.defaultLabel}</span>}
+              {!collapsed && <span class="truncate">{labelFor(item.id, item.defaultLabel)}</span>}
             </a>
           );
         })}
@@ -266,7 +299,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
               onClick={toggleLearn}
               aria-expanded={collapsed ? false : learnOpen}
               aria-controls="sidebar-learn"
-              title="Learn"
+              title={labels.learn}
               class={`flex w-full items-center gap-2.5 px-2.5 pt-3 pb-1.5 rounded-md transition-colors duration-150 ${
                 learnActive ? 'text-ink' : 'text-mute hover:text-ink'
               }`}
@@ -274,7 +307,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
               {iconFor('BookOpen', 'w-4 h-4 shrink-0')}
               {!collapsed && (
                 <>
-                  <span class="eyebrow truncate flex-1 text-left">Learn</span>
+                  <span class="eyebrow truncate flex-1 text-left">{labels.learn}</span>
                   <ChevronDown
                     class={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
                       learnOpen ? 'rotate-180' : ''
@@ -298,14 +331,14 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
                   return (
                     <a
                       key={child.id}
-                      href={child.path}
+                      href={hrefFor(child.path)}
                       aria-current={on ? 'page' : undefined}
-                      title={child.defaultLabel}
+                      title={labelFor(child.id, child.defaultLabel)}
                       class={`flex items-center gap-2.5 pl-7 pr-2.5 py-1.5 rounded-md font-mono text-label transition-colors duration-150 ${itemClass(on)} ${
                         on ? 'font-medium' : ''
                       }`}
                     >
-                      {child.defaultLabel}
+                      {labelFor(child.id, child.defaultLabel)}
                     </a>
                   );
                 })}
@@ -326,7 +359,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
               onClick={toggleSystem}
               aria-expanded={collapsed ? false : systemOpen}
               aria-controls="sidebar-system"
-              title="Company"
+              title={labels.company}
               class={`flex w-full items-center gap-2.5 px-2.5 pt-3 pb-1.5 rounded-md transition-colors duration-150 ${
                 systemActive ? 'text-ink' : 'text-mute hover:text-ink'
               }`}
@@ -334,7 +367,7 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
               {iconFor('Info', 'w-4 h-4 shrink-0')}
               {!collapsed && (
                 <>
-                  <span class="eyebrow truncate flex-1 text-left">Company</span>
+                  <span class="eyebrow truncate flex-1 text-left">{labels.company}</span>
                   <ChevronDown
                     class={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
                       systemOpen ? 'rotate-180' : ''
@@ -356,14 +389,14 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
                   return (
                     <a
                       key={child.id}
-                      href={child.path}
+                      href={hrefFor(child.path)}
                       aria-current={on ? 'page' : undefined}
-                      title={child.defaultLabel}
+                      title={labelFor(child.id, child.defaultLabel)}
                       class={`flex items-center gap-2.5 pl-7 pr-2.5 py-1.5 rounded-md font-mono text-label transition-colors duration-150 ${itemClass(on)} ${
                         on ? 'font-medium' : ''
                       }`}
                     >
-                      {child.defaultLabel}
+                      {labelFor(child.id, child.defaultLabel)}
                     </a>
                   );
                 })}
@@ -376,8 +409,8 @@ export default function SidebarIsland({ currentPath }: SidebarProps) {
         <button
           onClick={toggleCollapse}
           class={`icon-btn w-full ${collapsed ? '' : ''}`}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? labels.expandSidebar : labels.collapseSidebar}
+          aria-label={collapsed ? labels.expandSidebar : labels.collapseSidebar}
           aria-expanded={!collapsed}
         >
           <svg

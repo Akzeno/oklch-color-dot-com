@@ -2,19 +2,24 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import ConverterIsland from '../components/converters/ConverterIsland';
 import RelatedTools from '../components/common/RelatedTools.astro';
-import { getNavItemByPath } from '../config/navigation';
 import { getBuildTimeColorTable } from '../utils/seoTables';
 import { parseAnyToOklch, formatOklch } from '../utils/color';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/oklch-to-hex');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/oklch-to-hex', locale, {
   title: 'OKLCH to HEX Converter - Free CSS Color Tool',
   metaDescription:
     'Convert CSS oklch() values to 6 or 8-digit HEX instantly. Free OKLCH to HEX converter with sRGB gamut clamping and Display-P3 detection.',
   h1: 'OKLCH to HEX Converter',
   keywords: ['oklch to hex', 'oklch to hex converter', 'oklch to rgb hex'],
   schemaType: 'WebApplication',
-};
+});
 
 const examplesTable = getBuildTimeColorTable('oklch-to-hex');
 
@@ -28,6 +33,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
   keywords={seo.keywords}
   canonicalPath="/oklch-to-hex"
   schemaType={seo.schemaType}
+  locale={locale}
 >
   <div class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-10">
     <!-- Header -->
@@ -193,11 +199,11 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       </section>
 
       <!-- 7. Related Tools -->
-      <RelatedTools currentPath="/oklch-to-hex" />
+      <RelatedTools currentPath="/oklch-to-hex" locale={locale} />
 
       <!-- 8. Learn Link -->
       <div class="pt-4 border-t border-hairline">
-        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+        <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
           Learn more about OKLCH →
         </a>
       </div>

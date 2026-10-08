@@ -2,17 +2,22 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import ExportIsland from '../components/export/ExportIsland';
 import RelatedTools from '../components/common/RelatedTools.astro';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/export');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/export', locale, {
   title: 'Export OKLCH Design Tokens - Tailwind v4 @theme & CSS',
   metaDescription:
     'Export your OKLCH colors as Tailwind CSS v4 @theme blocks, CSS custom properties, or a downloadable stylesheet. Production-ready design tokens.',
   h1: 'Export OKLCH Design Tokens',
   keywords: ['oklch export', 'tailwind v4 @theme export', 'css oklch variables export', 'design token generator'],
   schemaType: 'WebApplication',
-};
+});
 ---
 
 <AppLayout
@@ -21,6 +26,7 @@ const seo = navItem?.seo || {
   keywords={seo.keywords}
   canonicalPath="/export"
   schemaType={seo.schemaType}
+  locale={locale}
 >
   <div class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-10">
     <div class="space-y-2">
@@ -53,7 +59,7 @@ const seo = navItem?.seo || {
           How to Export Design Tokens
         </h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li><strong class="text-ink">Collect colors:</strong> Use the <a href="/" class="text-accent-text hover:underline">color picker</a>, <a href="/oklch-colors" class="text-accent-text hover:underline">palette library</a>, or <a href="/oklch-color-palette-generator" class="text-accent-text hover:underline">generator</a> to add colors to your cart.</li>
+          <li><strong class="text-ink">Collect colors:</strong> Use the <a href={buildLocalizedPath('/', locale)} class="text-accent-text hover:underline">color picker</a>, <a href={buildLocalizedPath('/oklch-colors', locale)} class="text-accent-text hover:underline">palette library</a>, or <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="text-accent-text hover:underline">generator</a> to add colors to your cart.</li>
           <li><strong class="text-ink">Assign roles:</strong> Each color is assigned to a semantic role (e.g. Primary, Danger, Success). You can rename roles to match your design system.</li>
           <li><strong class="text-ink">Choose format:</strong> Select Tailwind v4 <code class="text-ink">@theme</code>, CSS custom properties, or JSON.</li>
           <li><strong class="text-ink">Copy or download:</strong> Copy the code to your clipboard or download it as a <code class="text-ink">.css</code> file.</li>
@@ -85,16 +91,16 @@ const seo = navItem?.seo || {
           For example, <code class="text-ink">--color-brand-accent: oklch(0.55 0.20 265)</code> in your <code class="text-ink">@theme</code> block generates <code class="text-ink">bg-brand-accent</code>, <code class="text-ink">text-brand-accent</code>, <code class="text-ink">border-brand-accent</code>, and all other color utilities for that token.
         </p>
         <p class="text-xs md:text-sm font-mono text-body">
-          <a href="/learn/oklch-in-tailwind-css-v4" class="text-accent-text hover:underline">Learn more about OKLCH in Tailwind CSS v4 →</a>
+          <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="text-accent-text hover:underline">Learn more about OKLCH in Tailwind CSS v4 →</a>
         </p>
       </section>
 
       <!-- Related Tools -->
-      <RelatedTools currentPath="/export" />
+      <RelatedTools currentPath="/export" locale={locale} />
 
       <!-- Learn Link -->
       <div class="pt-4 border-t border-hairline">
-        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+        <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
           Learn more about OKLCH →
         </a>
       </div>

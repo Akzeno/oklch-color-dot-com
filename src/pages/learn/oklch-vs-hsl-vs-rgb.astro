@@ -1,16 +1,21 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
-import { getNavItemByPath } from '../../config/navigation';
+import { localizedSeo } from '../../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
 
-const navItem = getNavItemByPath('/learn/oklch-vs-hsl-vs-rgb');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/learn/oklch-vs-hsl-vs-rgb', locale, {
   title: 'OKLCH vs HSL vs RGB - Which Color Space to Use',
   metaDescription:
     'OKLCH vs HSL vs RGB compared: perceptual uniformity, lightness accuracy, gradients and gamut — with conversion tables and migration guidance for CSS.',
   h1: 'OKLCH vs HSL vs RGB: Which Color Space Should You Use?',
   keywords: ['oklch vs hsl', 'oklch vs rgb', 'hsl vs oklch', 'why use oklch'],
   schemaType: 'Article' as const,
-};
+});
 
 /*
  * Build-time comparison ramps. The HSL row is plain CSS hsl() at fixed hue and
@@ -40,11 +45,12 @@ const comparisonRows = [
   keywords={seo.keywords}
   canonicalPath="/learn/oklch-vs-hsl-vs-rgb"
   schemaType="Article"
+  locale={locale}
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
       <span>/</span>
       <span class="text-body">Learn</span>
       <span>/</span>
@@ -182,15 +188,15 @@ const comparisonRows = [
         <li>Leave RGB/HEX exports in place for tools that need them; they are derived artifacts now, not the source of truth.</li>
       </ol>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-        <a href="/hex-to-oklch" class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
+        <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
           <span class="text-ink font-semibold block">HEX → OKLCH</span>
           <span class="text-body">Start with your base colors</span>
         </a>
-        <a href="/hsl-to-oklch" class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
+        <a href={buildLocalizedPath('/hsl-to-oklch', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
           <span class="text-ink font-semibold block">HSL → OKLCH</span>
           <span class="text-body">From hsl() stylesheets</span>
         </a>
-        <a href="/oklch-color-palette-generator" class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
+        <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
           <span class="text-ink font-semibold block">Palette Generator</span>
           <span class="text-body">Rebuild the 50-950 scale</span>
         </a>
@@ -238,19 +244,19 @@ const comparisonRows = [
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
       <h2 class="text-lg font-semibold text-ink">Related Guides</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <a href="/learn/what-is-oklch" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">What is OKLCH?</span>
           <span class="text-xs font-mono text-body">Full introduction to the color space</span>
         </a>
-        <a href="/learn/oklch-css-syntax" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/learn/oklch-css-syntax', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">CSS oklch() Syntax</span>
           <span class="text-xs font-mono text-body">Function reference with examples</span>
         </a>
-        <a href="/learn/oklch-in-tailwind-css-v4" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">OKLCH in Tailwind v4</span>
           <span class="text-xs font-mono text-body">The palette switch, explained</span>
         </a>
-        <a href="/oklch-converter" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/oklch-converter', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">OKLCH Converter Hub</span>
           <span class="text-xs font-mono text-body">All six conversion directions</span>
         </a>

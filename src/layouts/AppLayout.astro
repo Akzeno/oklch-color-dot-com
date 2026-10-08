@@ -6,18 +6,70 @@ import SidebarIsland from '../components/layout/SidebarIsland';
 import MobileTabBar from '../components/layout/MobileTabBar';
 import CartDrawerIsland from '../components/cart/CartDrawerIsland';
 import Toast from '../components/common/Toast';
+import { getLocaleConfig, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
+import { navigationConfig } from '../config/navigation';
+import { getCanonicalPath } from '../i18n/routing';
 
 interface Props {
   title: string;
   description: string;
   keywords?: string[];
+  /** Locale-independent path — the localized URL is derived from `locale`. */
   canonicalPath?: string;
   schemaType?: 'WebApplication' | 'CollectionPage' | 'Article';
   noindex?: boolean;
+  locale?: LocaleCode;
 }
 
-const { title, description, keywords, canonicalPath, schemaType, noindex } = Astro.props;
-const currentPath = Astro.url.pathname;
+const {
+  title,
+  description,
+  keywords,
+  canonicalPath,
+  schemaType,
+  noindex,
+  locale = 'en',
+} = Astro.props;
+
+// Islands (Preact) cannot receive functions as props, so every label the
+// sidebar and mobile tab bar render is resolved here, server-side, into
+// plain serializable maps keyed by nav item id.
+const navLabels: Record<string, string> = {};
+for (const item of navigationConfig) {
+  navLabels[item.id] = t(locale, item.labelKey, item.defaultLabel);
+  for (const child of item.children ?? []) {
+    navLabels[child.id] = t(locale, child.labelKey, child.defaultLabel);
+  }
+}
+
+const uiLabels = {
+  learn: t(locale, 'common.learn', 'Learn'),
+  company: t(locale, 'common.company', 'Company'),
+  converters: t(locale, 'common.converters', 'Converters'),
+  more: t(locale, 'common.more', 'More'),
+  allTools: t(locale, 'common.allTools', 'All tools'),
+  close: t(locale, 'common.close', 'Close'),
+  expandSidebar: t(locale, 'common.expandSidebar', 'Expand sidebar'),
+  collapseSidebar: t(locale, 'common.collapseSidebar', 'Collapse sidebar'),
+  recommended: t(locale, 'common.recommended', 'Recommended to try'),
+  primaryNav: t(locale, 'common.primaryNav', 'Primary'),
+};
+
+const shortLabels: Record<string, string> = {
+  picker: t(locale, 'navShort.picker', 'Picker'),
+  palettes: t(locale, 'navShort.palettes', 'Palettes'),
+  converters: t(locale, 'navShort.converters', 'Convert'),
+  preview: t(locale, 'navShort.preview', 'Preview'),
+  generator: t(locale, 'navShort.generator', 'Generator'),
+  export: t(locale, 'navShort.export', 'Export'),
+  learn: t(locale, 'navShort.learn', 'Learn'),
+};
+
+// Active-state matching in the islands compares against the *canonical*
+// (unprefixed) path; hrefs get the locale prefix via `localePrefix`.
+const currentPath = getCanonicalPath(Astro.url.pathname);
+const localePrefix = getLocaleConfig(locale).prefix;
 ---
 
 <BaseLayout
@@ -27,13 +79,20 @@ const currentPath = Astro.url.pathname;
   canonicalPath={canonicalPath}
   schemaType={schemaType}
   noindex={noindex}
+  locale={locale}
 >
   <!-- Header -->
-  <Header />
+  <Header locale={locale} currentPath={currentPath} showLanguageSwitcher={!noindex} />
 
   <!-- Nav rail + main workspace -->
   <div class="flex-1 flex min-h-[calc(100vh-3.5rem)]">
-    <SidebarIsland client:visible currentPath={currentPath} />
+    <SidebarIsland
+      client:visible
+      currentPath={currentPath}
+      localePrefix={localePrefix}
+      navLabels={navLabels}
+      uiLabels={uiLabels}
+    />
 
     <!--
       `overflow-x-clip` only. Clamping the axis matters here because a wide
@@ -51,12 +110,19 @@ const currentPath = Astro.url.pathname;
     <main class="flex-1 min-w-0 pb-16 md:pb-10 overflow-x-clip">
       <slot />
       <!-- SSR footer links: guarantees every page links to every section. -->
-      <Footer />
+      <Footer locale={locale} currentPath={currentPath} />
     </main>
   </div>
 
   <!-- Mobile Bottom Tab Bar -->
-  <MobileTabBar client:visible currentPath={currentPath} />
+  <MobileTabBar
+    client:visible
+    currentPath={currentPath}
+    localePrefix={localePrefix}
+    navLabels={navLabels}
+    shortLabels={shortLabels}
+    uiLabels={uiLabels}
+  />
 
   <!-- Global Slide-Over / Bottom-Sheet Cart Island -->
   <CartDrawerIsland client:idle />

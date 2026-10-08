@@ -1,15 +1,21 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/about');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/about', locale, {
   title: 'About Us - OKLCH Color Tools',
   metaDescription:
     'Learn about OKLCH Color Tools: our mission to provide free, accessible color tools for designers and developers using the modern OKLCH color space.',
   h1: 'About Us',
+  keywords: ['about ok lch', 'oklch color tools', 'color tools mission'],
   schemaType: 'Article',
-};
+});
 ---
 
 <AppLayout
@@ -17,11 +23,12 @@ const seo = navItem?.seo || {
   description={seo.metaDescription}
   canonicalPath="/about"
   schemaType="Article"
+  locale={locale}
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
       <span>/</span>
       <span class="text-ink">About Us</span>
     </nav>
@@ -57,27 +64,27 @@ const seo = navItem?.seo || {
         OKLCH Color Tools is a comprehensive suite of free color tools for the modern web:
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <a href="/" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">Color Picker</span>
           <span class="text-xs font-mono text-body">Interactive OKLCH picker with live L, C, H sliders, gamut detection, and one-click CSS export</span>
         </a>
-        <a href="/oklch-color-palette-generator" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">Palette Generator</span>
           <span class="text-xs font-mono text-body">Generate accessible 50-950 OKLCH color scales from any base color</span>
         </a>
-        <a href="/oklch-colors" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/oklch-colors', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">Palette Library</span>
           <span class="text-xs font-mono text-body">Browse 16 curated OKLCH color palettes, each an 11-step scale ready for Tailwind v4</span>
         </a>
-        <a href="/oklch-converter" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/oklch-converter', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">Converters</span>
           <span class="text-xs font-mono text-body">Six bidirectional converters between OKLCH, HEX, RGB, and HSL with live gamut detection</span>
         </a>
-        <a href="/ui-preview" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/ui-preview', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">UI Preview</span>
           <span class="text-xs font-mono text-body">Preview your palette on real UI components with WCAG and APCA contrast scores</span>
         </a>
-        <a href="/export" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
+        <a href={buildLocalizedPath('/export', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
           <span class="text-sm font-semibold text-ink block">Export & Code</span>
           <span class="text-xs font-mono text-body">Export design tokens as Tailwind v4 @theme blocks, CSS custom properties, or stylesheets</span>
         </a>
@@ -101,7 +108,7 @@ const seo = navItem?.seo || {
         When Tailwind CSS v4 moved its entire default palette to OKLCH in January 2025, it signaled that this is the future of color on the web. We're here to help the community make that transition.
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        <a href="/learn/what-is-oklch" class="text-accent-text hover:underline">Learn more about OKLCH →</a>
+        <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-accent-text hover:underline">Learn more about OKLCH →</a>
       </p>
     </section>
 
@@ -138,7 +145,7 @@ const seo = navItem?.seo || {
         We're always looking for feedback, bug reports, and contributions. If you'd like to get involved, we'd love to hear from you.
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        <a href="/contact" class="text-accent-text hover:underline">Get in touch →</a>
+        <a href={buildLocalizedPath('/contact', locale)} class="text-accent-text hover:underline">Get in touch →</a>
       </p>
     </section>
 
@@ -164,9 +171,9 @@ const seo = navItem?.seo || {
     <section class="space-y-3 pt-6 border-t border-hairline">
       <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
       <div class="flex flex-wrap gap-2">
-        <a href="/privacy" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
-        <a href="/terms" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
-        <a href="/contact" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+        <a href={buildLocalizedPath('/privacy', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
+        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
+        <a href={buildLocalizedPath('/contact', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
       </div>
     </section>
   </div>

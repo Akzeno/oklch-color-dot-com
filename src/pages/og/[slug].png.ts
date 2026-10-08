@@ -51,6 +51,17 @@ export function getStaticPaths() {
     },
   });
 
+  // Same for the 500 page — its og:image must resolve like every other page's.
+  paths.push({
+    params: { slug: '500' },
+    props: {
+      spec: {
+        title: 'Something Went Wrong - OKLCH Color Tools',
+        subtitle: 'An unexpected error occurred. Pick a tool below to get back to converting OKLCH colors.',
+      },
+    },
+  });
+
   return paths;
 }
 

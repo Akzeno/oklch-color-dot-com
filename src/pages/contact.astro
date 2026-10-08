@@ -1,15 +1,21 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/contact');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/contact', locale, {
   title: 'Contact Us - OKLCH Color Tools',
   metaDescription:
     'Get in touch with the OKLCH Color Tools team. Questions, feedback, bug reports, or partnership inquiries — we\'d love to hear from you.',
   h1: 'Contact Us',
+  keywords: ['contact ok lch', 'oklch support', 'color tools feedback'],
   schemaType: 'Article',
-};
+});
 ---
 
 <AppLayout
@@ -17,11 +23,12 @@ const seo = navItem?.seo || {
   description={seo.metaDescription}
   canonicalPath="/contact"
   schemaType="Article"
+  locale={locale}
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
       <span>/</span>
       <span class="text-ink">Contact Us</span>
     </nav>
@@ -181,9 +188,9 @@ const seo = navItem?.seo || {
     <section class="space-y-3 pt-6 border-t border-hairline">
       <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
       <div class="flex flex-wrap gap-2">
-        <a href="/privacy" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
-        <a href="/about" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
-        <a href="/terms" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
+        <a href={buildLocalizedPath('/privacy', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
+        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
+        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
       </div>
     </section>
   </div>

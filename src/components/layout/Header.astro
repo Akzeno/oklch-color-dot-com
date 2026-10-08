@@ -1,20 +1,37 @@
 ---
 import CartTriggerButton from '../cart/CartTriggerButton';
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitcher from '../common/LanguageSwitcher.astro';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+
+interface Props {
+  locale?: LocaleCode;
+  /** Canonical (unprefixed) path of the current page. */
+  currentPath?: string;
+  /**
+   * Utility pages (404/500, which are noindex and have no localized twins)
+   * hide the language switcher — there is nothing to switch to.
+   */
+  showLanguageSwitcher?: boolean;
+}
+
+const { locale = 'en', currentPath = '/', showLanguageSwitcher = true } = Astro.props;
+const homeHref = buildLocalizedPath('/', locale);
 ---
 
 {/*
   Shell header. 56px, hairline bottom, sticky.
 
-  The language switcher that used to sit here is still gone: it linked to
-  `/es`, `/de` and `/fr`, none of which exist, so all three were 404s. Reintroduce
-  it when there is a locale to switch to.
+  The language switcher is back and this time it points at real pages: every
+  locale listed here exists under its /locale/ prefix (see src/pages/[lang]/).
+  It sits left of the theme toggle so the right edge keeps its original
+  order — theme, cart — that muscle memory depends on.
 
-  The theme toggle is back, and this time it has something to switch *to* — see
+  The theme toggle has something to switch *to* — see
   `ThemeToggle.astro` and the token overrides in `global.css`.
 */}
 <header class="h-14 shrink-0 border-b border-hairline bg-canvas/90 backdrop-blur-md sticky top-0 z-30 px-4 flex items-center justify-between">
-  <a href="/" class="flex items-center gap-2.5 text-ink hover:opacity-80 transition-opacity">
+  <a href={homeHref} class="flex items-center gap-2.5 text-ink hover:opacity-80 transition-opacity">
     <!-- Brand mark -->
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" class="shrink-0">
       <defs>
@@ -52,6 +69,7 @@ import ThemeToggle from './ThemeToggle.astro';
   </a>
 
   <div class="flex items-center gap-1.5">
+    {showLanguageSwitcher && <LanguageSwitcher locale={locale} currentPath={currentPath} />}
     <ThemeToggle />
     <CartTriggerButton client:load transition:persist />
   </div>

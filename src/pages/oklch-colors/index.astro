@@ -3,17 +3,22 @@ import AppLayout from '../../layouts/AppLayout.astro';
 import PaletteCard from '../../components/palettes/PaletteCard.astro';
 import RelatedTools from '../../components/common/RelatedTools.astro';
 import { PALETTES, CATEGORIES } from '../../data/palettes';
-import { getNavItemByPath } from '../../config/navigation';
+import { localizedSeo } from '../../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
 
-const navItem = getNavItemByPath('/oklch-colors');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/oklch-colors', locale, {
   title: 'OKLCH Color Palettes - 16 Scales, 50-950, Tailwind v4',
   metaDescription:
     'Browse 16 curated OKLCH color palettes, each an 11-step 50-950 scale. Copy any oklch() value or save shades as Tailwind CSS v4 design tokens.',
   h1: 'OKLCH Color Palettes',
   keywords: ['oklch color palettes', 'oklch colors', 'radix oklch', 'tailwind v4 palettes', 'accessible color scales'],
   schemaType: 'CollectionPage',
-};
+});
 ---
 
 <AppLayout
@@ -22,6 +27,7 @@ const seo = navItem?.seo || {
   keywords={seo.keywords}
   canonicalPath="/oklch-colors"
   schemaType={seo.schemaType}
+  locale={locale}
 >
   <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-8">
     <!-- Header Section -->
@@ -47,7 +53,7 @@ const seo = navItem?.seo || {
     <div class="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar border-b border-hairline">
       {CATEGORIES.map((cat) => (
         <a
-          href={cat.id === 'all' ? '/oklch-colors' : `/oklch-colors#${cat.id}`}
+          href={cat.id === 'all' ? buildLocalizedPath('/oklch-colors', locale) : buildLocalizedPath(`/oklch-colors#${cat.id}`, locale)}
           class="px-3 py-1.5 rounded-full text-xs font-mono bg-canvas-card hover:bg-canvas-elevated text-body hover:text-ink border border-hairline transition-colors whitespace-nowrap"
         >
           {cat.label}
@@ -59,7 +65,7 @@ const seo = navItem?.seo || {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {PALETTES.map((palette) => (
         <div id={palette.category}>
-          <PaletteCard palette={palette} />
+          <PaletteCard palette={palette} locale={locale} />
         </div>
       ))}
     </div>
@@ -102,11 +108,11 @@ const seo = navItem?.seo || {
       </section>
 
       <!-- Related Tools -->
-      <RelatedTools currentPath="/oklch-colors" />
+      <RelatedTools currentPath="/oklch-colors" locale={locale} />
 
       <!-- Learn Link -->
       <div class="pt-4 border-t border-hairline">
-        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+        <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
           Learn more about OKLCH →
         </a>
       </div>

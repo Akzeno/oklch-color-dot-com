@@ -1,0 +1,12 @@
+---
+import Page from '../oklch-to-hsl.astro';
+import { NON_DEFAULT_LOCALES, localeCodeFromParam } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return NON_DEFAULT_LOCALES.map((l) => ({ params: { lang: l.prefix.slice(1) } }));
+}
+
+const locale = localeCodeFromParam(Astro.params.lang);
+---
+
+<Page locale={locale} />

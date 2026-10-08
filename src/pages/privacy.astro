@@ -1,15 +1,21 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/privacy');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/privacy', locale, {
   title: 'Privacy Policy - OKLCH Color Tools',
   metaDescription:
     'Our privacy policy explains how we collect, use, and protect your data when using OKLCH color tools, converters, and palette generators.',
   h1: 'Privacy Policy',
+  keywords: ['oklch privacy policy', 'color tools privacy', 'data protection oklch'],
   schemaType: 'Article',
-};
+});
 ---
 
 <AppLayout
@@ -17,11 +23,12 @@ const seo = navItem?.seo || {
   description={seo.metaDescription}
   canonicalPath="/privacy"
   schemaType="Article"
+  locale={locale}
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
       <span>/</span>
       <span class="text-ink">Privacy Policy</span>
     </nav>
@@ -185,7 +192,7 @@ const seo = navItem?.seo || {
       </p>
       <div class="space-y-2 text-xs font-mono text-body">
         <p><strong class="text-ink">Email:</strong> <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a></p>
-        <p><strong class="text-ink">Contact page:</strong> <a href="/contact" class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
+        <p><strong class="text-ink">Contact page:</strong> <a href={buildLocalizedPath('/contact', locale)} class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
       </div>
     </section>
 
@@ -193,9 +200,9 @@ const seo = navItem?.seo || {
     <section class="space-y-3 pt-6 border-t border-hairline">
       <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
       <div class="flex flex-wrap gap-2">
-        <a href="/about" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
-        <a href="/terms" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
-        <a href="/contact" class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
+        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
+        <a href={buildLocalizedPath('/contact', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
       </div>
     </section>
   </div>

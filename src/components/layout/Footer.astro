@@ -4,35 +4,53 @@
  * so it can never go stale when a route is renamed. Every page gets it through
  * AppLayout, which guarantees no page is an orphan and spreads link equity from
  * the long-tail pages (palettes, learn) back to the converters and vice versa.
+ *
+ * Links are locale-prefixed from the current page's locale, so a visitor on
+ * /de/hex-to-oklch keeps browsing German pages instead of falling back to
+ * English with every click.
  */
 import { getAllNavItemsFlat } from '../../config/navigation';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { localizedSeo } from '../../i18n/seo';
+import { t } from '../../i18n/translations';
+
+interface Props {
+  locale?: LocaleCode;
+  /** Canonical (unprefixed) path of the current page. */
+  currentPath?: string;
+}
+
+const { locale = 'en', currentPath = '/' } = Astro.props;
 
 const items = getAllNavItemsFlat();
 const normalize = (p: string) => p.replace(/\/$/, '') || '/';
+const current = normalize(currentPath);
 
 const groups = [
   {
-    heading: 'Converters',
+    heading: t(locale, 'common.converters', 'Converters'),
     links: items.filter((i) => i.group === 'converters'),
   },
   {
-    heading: 'Tools',
+    heading: t(locale, 'common.tools', 'Tools'),
     links: items.filter((i) => i.group === 'tools'),
   },
   {
-    heading: 'Learn',
+    heading: t(locale, 'common.learn', 'Learn'),
     links: items.filter((i) => i.group === 'learn'),
   },
   {
-    heading: 'Company',
+    heading: t(locale, 'common.company', 'Company'),
     links: items.filter((i) => i.group === 'system'),
   },
 ];
 
-const currentPath = normalize(Astro.url.pathname);
+/** Link text: the localized H1 when a translation exists, else the English H1. */
+const labelFor = (path: string, fallback: string) =>
+  localizedSeo(path, locale).h1 || fallback;
 ---
 
-<footer class="border-t border-hairline bg-canvas-card mt-8" aria-label="Site footer">
+<footer class="border-t border-hairline bg-canvas-card mt-8" aria-label={t(locale, 'common.siteFooter', 'Site footer')}>
   <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
     {groups.map((group) => (
       <nav aria-label={group.heading}>
@@ -43,16 +61,16 @@ const currentPath = normalize(Astro.url.pathname);
           {group.links.map((item) => (
             <li>
               <a
-                href={item.path}
+                href={buildLocalizedPath(item.path, locale)}
                 class:list={[
                   'text-xs font-mono transition-colors',
-                  normalize(item.path) === currentPath
+                  normalize(item.path) === current
                     ? 'text-ink font-semibold'
                     : 'text-body hover:text-ink',
                 ]}
-                aria-current={normalize(item.path) === currentPath ? 'page' : undefined}
+                aria-current={normalize(item.path) === current ? 'page' : undefined}
               >
-                {item.seo.h1}
+                {labelFor(item.path, item.seo.h1)}
               </a>
             </li>
           ))}
@@ -62,7 +80,7 @@ const currentPath = normalize(Astro.url.pathname);
   </div>
   <div class="border-t border-hairline">
     <p class="max-w-6xl mx-auto px-4 py-4 text-[11px] font-mono text-mute">
-      oklchcolor.com — free OKLCH color tools, converters and palettes.
+      {t(locale, 'common.footerTagline', 'oklchcolor.com — free OKLCH color tools, converters and palettes.')}
     </p>
   </div>
 </footer>

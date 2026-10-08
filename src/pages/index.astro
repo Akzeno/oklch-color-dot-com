@@ -1,17 +1,24 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import ColorPickerIsland from '../components/picker/ColorPickerIsland';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 import { getBuildTimeColorTable } from '../utils/seoTables';
 
-const navItem = getNavItemByPath('/');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+// English SEO lives in navigation.ts; localized overrides (when they exist)
+// come from the locale dictionaries via i18n/seo.ts.
+const seo = localizedSeo('/', locale, {
   title: 'OKLCH Color Picker & Converter | Real-time P3 & sRGB Gamut',
   metaDescription: 'Interactive OKLCH color picker with live visual slider tracks, Display-P3 gamut clipping boundaries, sRGB fallback, and role-based design token collection.',
   h1: 'OKLCH Color Picker',
   keywords: ['oklch color picker', 'oklch picker', 'css oklch', 'display-p3 color picker'],
   schemaType: 'WebApplication',
-};
+});
 
 const examplesTable = getBuildTimeColorTable();
 ---
@@ -22,6 +29,7 @@ const examplesTable = getBuildTimeColorTable();
   keywords={seo.keywords}
   canonicalPath="/"
   schemaType={seo.schemaType}
+  locale={locale}
 >
   <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-12">
     <!-- Page Header & H1 -->
@@ -198,10 +206,10 @@ const examplesTable = getBuildTimeColorTable();
       <!-- 6. Internal Links Footer Strip -->
       <section class="pt-4 border-t border-hairline flex items-center justify-between flex-wrap gap-4 text-xs font-mono text-mute">
         <div class="flex items-center gap-4">
-          <a href="/oklch-colors" class="hover:text-ink transition-colors">Palette Library →</a>
-          <a href="/oklch-color-palette-generator" class="hover:text-ink transition-colors">Palette Generator →</a>
-          <a href="/hex-to-oklch" class="hover:text-ink transition-colors">HEX Converter →</a>
-          <a href="/learn/what-is-oklch" class="hover:text-ink transition-colors">Learn Guide →</a>
+          <a href={buildLocalizedPath('/oklch-colors', locale)} class="hover:text-ink transition-colors">Palette Library →</a>
+          <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="hover:text-ink transition-colors">Palette Generator →</a>
+          <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="hover:text-ink transition-colors">HEX Converter →</a>
+          <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="hover:text-ink transition-colors">Learn Guide →</a>
         </div>
         <span>oklchcolor.com &copy; 2026</span>
       </section>

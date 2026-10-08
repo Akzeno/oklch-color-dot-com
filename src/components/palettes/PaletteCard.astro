@@ -1,14 +1,16 @@
 ---
 import type { PaletteItem } from '../../data/palettes';
 import { SHADE_STEPS, formatOklch } from '../../utils/color';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
 
 interface Props {
   palette: PaletteItem;
+  locale?: LocaleCode;
 }
 
-const { palette } = Astro.props;
+const { palette, locale = 'en' } = Astro.props;
 const steps = SHADE_STEPS.filter((s) => palette.shades[s]);
-const href = `/oklch-colors/${palette.slug}`;
+const href = buildLocalizedPath(`/oklch-colors/${palette.slug}`, locale);
 ---
 
 {/*

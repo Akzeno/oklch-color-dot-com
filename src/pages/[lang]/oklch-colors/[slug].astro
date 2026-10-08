@@ -1,0 +1,19 @@
+---
+import Page from '../../oklch-colors/[slug].astro';
+import { NON_DEFAULT_LOCALES, localeCodeFromParam } from '../../../i18n/config';
+import { PALETTES, type PaletteItem } from '../../../data/palettes';
+
+export function getStaticPaths() {
+  return NON_DEFAULT_LOCALES.flatMap((l) =>
+    PALETTES.map((palette) => ({
+      params: { lang: l.prefix.slice(1), slug: palette.slug },
+      props: { palette },
+    }))
+  );
+}
+
+const locale = localeCodeFromParam(Astro.params.lang);
+const { palette } = Astro.props as { palette: PaletteItem };
+---
+
+<Page locale={locale} palette={palette} />

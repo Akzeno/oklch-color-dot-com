@@ -3,17 +3,22 @@ import AppLayout from '../layouts/AppLayout.astro';
 import UIPreviewIsland from '../components/preview/UIPreviewIsland';
 import CartSidebar from '../components/preview/CartSidebar';
 import RelatedTools from '../components/common/RelatedTools.astro';
-import { getNavItemByPath } from '../config/navigation';
+import { localizedSeo } from '../i18n/seo';
+import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
-const navItem = getNavItemByPath('/ui-preview');
-const seo = navItem?.seo || {
+interface Props {
+  locale?: LocaleCode;
+}
+const { locale = 'en' } = Astro.props;
+
+const seo = localizedSeo('/ui-preview', locale, {
   title: 'UI Color Preview - Test OKLCH Palettes (WCAG & APCA)',
   metaDescription:
     'Preview your OKLCH palette on real UI components with WCAG 2.1 AA/AAA and APCA contrast scores. Click any element to swap its color token.',
   h1: 'UI Color Preview',
   keywords: ['oklch ui preview', 'color contrast checker oklch', 'wcag apca contrast matrix', 'design token preview'],
   schemaType: 'WebApplication',
-};
+});
 ---
 
 <AppLayout
@@ -22,6 +27,7 @@ const seo = navItem?.seo || {
   keywords={seo.keywords}
   canonicalPath="/ui-preview"
   schemaType={seo.schemaType}
+  locale={locale}
 >
   <div class="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 lg:pt-0 space-y-8 lg:space-y-12">
     <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-6 items-start">
@@ -62,7 +68,7 @@ const seo = navItem?.seo || {
           How to Use the UI Preview
         </h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li><strong class="text-ink">Collect colors:</strong> Use the <a href="/" class="text-accent-text hover:underline">color picker</a> or <a href="/oklch-colors" class="text-accent-text hover:underline">palette library</a> to add colors to your cart. Each color is assigned to a semantic role (e.g. Primary, Danger, Success).</li>
+          <li><strong class="text-ink">Collect colors:</strong> Use the <a href={buildLocalizedPath('/', locale)} class="text-accent-text hover:underline">color picker</a> or <a href={buildLocalizedPath('/oklch-colors', locale)} class="text-accent-text hover:underline">palette library</a> to add colors to your cart. Each color is assigned to a semantic role (e.g. Primary, Danger, Success).</li>
           <li><strong class="text-ink">Preview live:</strong> The preview above shows your colors applied to real UI components — buttons, cards, badges, forms, and navigation bars.</li>
           <li><strong class="text-ink">Swap tokens:</strong> Click any colored element to open a popover where you can swap its color token, copy its value, or save it to a different role.</li>
           <li><strong class="text-ink">Check contrast:</strong> Each component displays its WCAG 2.1 and APCA contrast scores. Green scores pass AA; red scores need attention.</li>
@@ -100,11 +106,11 @@ const seo = navItem?.seo || {
       </section>
 
       <!-- Related Tools -->
-      <RelatedTools currentPath="/ui-preview" />
+      <RelatedTools currentPath="/ui-preview" locale={locale} />
 
       <!-- Learn Link -->
       <div class="pt-4 border-t border-hairline">
-        <a href="/learn/what-is-oklch" class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
+        <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
           Learn more about OKLCH →
         </a>
       </div>
