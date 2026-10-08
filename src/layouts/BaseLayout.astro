@@ -67,13 +67,40 @@ const jsonLd = buildJsonLdGraph({
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DC8S1ZNSN7"></script>
+    <!-- Google tag (gtag.js) - deferred to first user interaction -->
     <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-DC8S1ZNSN7');
+      (function () {
+        var GA_ID = 'G-DC8S1ZNSN7';
+        var loaded = false;
+
+        function loadGtag() {
+          if (loaded) return;
+          loaded = true;
+
+          // Remove listeners
+          document.removeEventListener('click', loadGtag, { passive: true });
+          document.removeEventListener('scroll', loadGtag, { passive: true });
+          window.removeEventListener('load', loadGtag);
+
+          // Load gtag script
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+          document.head.appendChild(script);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', GA_ID);
+        }
+
+        // Load on first interaction (click, scroll, or after 3s idle)
+        document.addEventListener('click', loadGtag, { passive: true });
+        document.addEventListener('scroll', loadGtag, { passive: true });
+        window.addEventListener('load', loadGtag);
+        setTimeout(loadGtag, 3000);
+      })();
     </script>
 
     <meta charset="UTF-8" />

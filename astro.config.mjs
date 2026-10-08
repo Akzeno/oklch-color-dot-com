@@ -9,6 +9,10 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://oklchcolor.com',
   integrations: [preact()],
+  // Inline critical CSS to eliminate render-blocking stylesheet
+  build: {
+    inlineStylesheets: 'always',
+  },
   vite: {
     plugins: [tailwindcss()],
     build: {
