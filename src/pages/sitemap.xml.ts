@@ -60,12 +60,13 @@ const EXCLUDED_PATHS = new Set(['/404', '/500']);
 /** Crawl hints: how often a page changes and its relative importance. */
 function crawlHints(path: string): { changefreq: string; priority: string } {
   if (path === '/') return { changefreq: 'daily', priority: '1.0' };
+  if (path === '/oklch-color-palette-generator') return { changefreq: 'monthly', priority: '1.0' };
   if (path.startsWith('/oklch-colors')) return { changefreq: 'monthly', priority: '0.7' };
   if (path.startsWith('/learn/')) return { changefreq: 'monthly', priority: '0.7' };
   if (path.startsWith('/privacy') || path.startsWith('/about') || path.startsWith('/terms') || path.startsWith('/contact')) {
     return { changefreq: 'yearly', priority: '0.3' };
   }
-  // Tool pages (converters, picker, generator, preview, export).
+  // Tool pages (converters, picker, preview, export).
   return { changefreq: 'monthly', priority: '0.8' };
 }
 
