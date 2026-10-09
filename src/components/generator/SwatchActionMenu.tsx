@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'preac
 import { Check, Copy, Palette, Plus, X } from 'lucide-preact';
 import type { LucideIcon } from 'lucide-preact';
 import { formatOklch, getNearestShadeStep, type ColorModel, type ShadeStep } from '../../utils/color';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import ColorSwatch from '../common/ColorSwatch';
 
 /** Distance kept between the menu and the viewport edge / the swatch. */
@@ -71,6 +73,8 @@ export interface SwatchActionMenuProps {
    */
   onAddToPalette?: () => void;
   onClose: () => void;
+  /** Locale for the menu's own labels and aria text. */
+  locale?: LocaleCode;
 }
 
 export default function SwatchActionMenu({
@@ -84,6 +88,7 @@ export default function SwatchActionMenu({
   onSave,
   onAddToPalette,
   onClose,
+  locale = 'en',
 }: SwatchActionMenuProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   /*
@@ -246,7 +251,10 @@ export default function SwatchActionMenu({
       ref={panelRef}
       id={id}
       role="menu"
-      aria-label={`Actions for ${label}`}
+      aria-label={t(locale, 'ui.swatchMenu.actionsAria', 'Actions for {label}').replace(
+        '{label}',
+        label
+      )}
       onKeyDown={onKeyDown}
       class={`fixed z-[9999] dock w-[288px] max-w-[calc(100vw-1.5rem)] p-1.5 ${
         // The entrance animation scales the panel from 0.98, so it must not be
@@ -270,7 +278,7 @@ export default function SwatchActionMenu({
           </p>
         </div>
         {isP3 && (
-          <span class="font-mono text-micro text-gamut-p3 shrink-0" title="Inside Display-P3, outside sRGB">
+          <span class="font-mono text-micro text-gamut-p3 shrink-0" title={t(locale, 'ui.swatchMenu.p3Hint', 'Inside Display-P3, outside sRGB')}>
             P3
           </span>
         )}
@@ -278,21 +286,31 @@ export default function SwatchActionMenu({
           type="button"
           onClick={() => close(false)}
           class="icon-btn icon-btn-xs shrink-0"
-          aria-label="Close"
+          aria-label={t(locale, 'ui.swatchMenu.close', 'Close')}
         >
           <X class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
         </button>
       </div>
 
       {/* Clipboard: needs no configuration, so it is the shortest route out. */}
-      {item('Copy OKLCH', value, Copy, () => onCopy(value))}
-      {item('Copy hex', hex, Copy, () => onCopy(hex))}
+      {item(t(locale, 'ui.swatchMenu.copyOklch', 'Copy OKLCH'), value, Copy, () => onCopy(value))}
+      {item(t(locale, 'ui.swatchMenu.copyHex', 'Copy hex'), hex, Copy, () => onCopy(hex))}
 
       {/* The cart writes are a separate group because they are the ones with a
           consequence: they change the variable the user is building. */}
       <div class="mt-1 pt-1 border-t border-hairline">
-        {item('Save to variable', variable, Plus, () => onSave(false))}
-        {item('Copy and save', `${variable} · ${value}`, Check, () => onSave(true))}
+        {item(
+          t(locale, 'ui.swatchMenu.saveToVariable', 'Save to variable'),
+          variable,
+          Plus,
+          () => onSave(false)
+        )}
+        {item(
+          t(locale, 'ui.swatchMenu.copyAndSave', 'Copy and save'),
+          `${variable} · ${value}`,
+          Check,
+          () => onSave(true)
+        )}
       </div>
 
       {/* Last, and in its own group, because it is the only destination that
@@ -303,7 +321,12 @@ export default function SwatchActionMenu({
           neighbour. */}
       {onAddToPalette && (
         <div class="mt-1 pt-1 border-t border-hairline">
-          {item('Add to custom palette', `${value} → new row`, Palette, onAddToPalette)}
+          {item(
+            t(locale, 'ui.swatchMenu.addToPalette', 'Add to custom palette'),
+            t(locale, 'ui.swatchMenu.newRowDetail', '{value} → new row').replace('{value}', value),
+            Palette,
+            onAddToPalette
+          )}
         </div>
       )}
     </div>

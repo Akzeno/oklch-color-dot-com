@@ -1,6 +1,8 @@
 ---
 import { getAllNavItemsFlat } from '../../config/navigation';
 import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { localizedSeo } from '../../i18n/seo';
+import { t } from '../../i18n/translations';
 
 interface Props {
   currentPath: string;
@@ -34,33 +36,43 @@ const inverseMap: Record<string, string> = {
 const related = [];
 const seen = [current];
 
+/** Localized label + first meta-description sentence for a nav page. */
+const entryFor = (path: string, fallbackLabel: string, fallbackDescription: string) => {
+  const seo = localizedSeo(path, locale);
+  return {
+    path,
+    label: seo.h1 || fallbackLabel,
+    description: (seo.metaDescription || fallbackDescription).split('.')[0] + '.',
+  };
+};
+
 if (isConverter) {
   const inversePath = inverseMap[current];
   if (inversePath) {
     const inverse = converters.find((c) => normalize(c.path) === inversePath);
     if (inverse) {
-      related.push({ path: inverse.path, label: inverse.seo.h1, description: inverse.seo.metaDescription.split('.')[0] + '.' });
+      related.push(entryFor(inverse.path, inverse.seo.h1, inverse.seo.metaDescription));
       seen.push(normalize(inverse.path));
     }
   }
   for (const c of converters) {
     if (seen.indexOf(normalize(c.path)) === -1) {
-      related.push({ path: c.path, label: c.seo.h1, description: c.seo.metaDescription.split('.')[0] + '.' });
+      related.push(entryFor(c.path, c.seo.h1, c.seo.metaDescription));
       seen.push(normalize(c.path));
     }
   }
   const generator = allItems.find((i) => normalize(i.path) === '/oklch-color-palette-generator');
   if (generator) {
-    related.push({ path: generator.path, label: generator.seo.h1, description: generator.seo.metaDescription.split('.')[0] + '.' });
+    related.push(entryFor(generator.path, generator.seo.h1, generator.seo.metaDescription));
   }
   const palettes = allItems.find((i) => normalize(i.path) === '/oklch-colors');
   if (palettes) {
-    related.push({ path: palettes.path, label: palettes.seo.h1, description: palettes.seo.metaDescription.split('.')[0] + '.' });
+    related.push(entryFor(palettes.path, palettes.seo.h1, palettes.seo.metaDescription));
   }
 } else {
   for (const c of converters) {
     if (seen.indexOf(normalize(c.path)) === -1) {
-      related.push({ path: c.path, label: c.seo.h1, description: c.seo.metaDescription.split('.')[0] + '.' });
+      related.push(entryFor(c.path, c.seo.h1, c.seo.metaDescription));
       seen.push(normalize(c.path));
     }
   }
@@ -68,7 +80,7 @@ if (isConverter) {
   for (const toolPath of keyTools) {
     const tool = allItems.find((i) => normalize(i.path) === toolPath);
     if (tool && seen.indexOf(toolPath) === -1) {
-      related.push({ path: tool.path, label: tool.seo.h1, description: tool.seo.metaDescription.split('.')[0] + '.' });
+      related.push(entryFor(tool.path, tool.seo.h1, tool.seo.metaDescription));
       seen.push(toolPath);
     }
   }
@@ -85,7 +97,7 @@ const learnToShow = isLearnPage
   : learn.filter((i) => normalize(i.path) === '/learn/what-is-oklch');
 for (const item of learnToShow) {
   if (seen.indexOf(normalize(item.path)) === -1) {
-    related.push({ path: item.path, label: item.seo.h1, description: item.seo.metaDescription.split('.')[0] + '.' });
+    related.push(entryFor(item.path, item.seo.h1, item.seo.metaDescription));
     seen.push(normalize(item.path));
   }
 }
@@ -93,7 +105,7 @@ for (const item of learnToShow) {
 
 {related.length > 0 && (
   <section class="space-y-4 pt-6 border-t border-hairline">
-    <h2 class="text-lg font-semibold text-ink">Related Tools</h2>
+    <h2 class="text-lg font-semibold text-ink">{t(locale, 'common.relatedTools', 'Related Tools')}</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {related.map((item) => (
         <a

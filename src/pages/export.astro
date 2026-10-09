@@ -1,5 +1,6 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import { t } from '../i18n/translations';
 import ExportIsland from '../components/export/ExportIsland';
 import RelatedTools from '../components/common/RelatedTools.astro';
 import { localizedSeo } from '../i18n/seo';
@@ -33,65 +34,53 @@ const seo = localizedSeo('/export', locale, {
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Export your collected cart roles into production-ready Tailwind CSS v4 <code class="text-ink">@theme</code> blocks, vanilla CSS custom properties, or download as a clean stylesheet.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.export.heroSubtitle', 'Export your collected cart roles into production-ready Tailwind CSS v4 <code class="text-ink">@theme</code> blocks, vanilla CSS custom properties, or download as a clean stylesheet.')} />
     </div>
 
     <!-- Above-The-Fold Interactive Exporter -->
-    <section aria-label="Code Exporter Island with VS Code Inline Color Decorators">
-      <ExportIsland client:load />
+    <section aria-label={t(locale, 'pages.export.exporterSectionLabel', 'Code Exporter Island with VS Code Inline Color Decorators')}>
+      <ExportIsland client:load locale={locale} />
     </section>
 
     <!-- Technical Architecture Explanation -->
     <div class="space-y-6 pt-6 border-t border-hairline">
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          VS Code-Style Inline Color Decorators
+          {t(locale, 'pages.export.decoratorsTitle', 'VS Code-Style Inline Color Decorators')}
         </h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          Notice the tiny rounded color squares rendered before every color token value above. Just like in VS Code, each square displays a live preview with a 1px border and transparent checkerboard backing. These decorators are marked <code class="text-ink">aria-hidden="true"</code> and are strictly excluded from copying, ensuring your clipboard always receives pure, valid CSS code.
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.export.decoratorsBody', 'Notice the tiny rounded color squares rendered before every color token value above. Just like in VS Code, each square displays a live preview with a 1px border and transparent checkerboard backing. These decorators are marked <code class="text-ink">aria-hidden="true"</code> and are strictly excluded from copying, ensuring your clipboard always receives pure, valid CSS code.')} />
       </section>
 
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          How to Export Design Tokens
+          {t(locale, 'pages.export.howToTitle', 'How to Export Design Tokens')}
         </h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li><strong class="text-ink">Collect colors:</strong> Use the <a href={buildLocalizedPath('/', locale)} class="text-accent-text hover:underline">color picker</a>, <a href={buildLocalizedPath('/oklch-colors', locale)} class="text-accent-text hover:underline">palette library</a>, or <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="text-accent-text hover:underline">generator</a> to add colors to your cart.</li>
-          <li><strong class="text-ink">Assign roles:</strong> Each color is assigned to a semantic role (e.g. Primary, Danger, Success). You can rename roles to match your design system.</li>
-          <li><strong class="text-ink">Choose format:</strong> Select Tailwind v4 <code class="text-ink">@theme</code>, CSS custom properties, or JSON.</li>
-          <li><strong class="text-ink">Copy or download:</strong> Copy the code to your clipboard or download it as a <code class="text-ink">.css</code> file.</li>
+          <li set:html={t(locale, 'pages.export.step1', '<strong class="text-ink">Collect colors:</strong> Use the <a href="{pickerHref}" class="text-accent-text hover:underline">color picker</a>, <a href="{paletteHref}" class="text-accent-text hover:underline">palette library</a>, or <a href="{generatorHref}" class="text-accent-text hover:underline">generator</a> to add colors to your cart.').replace('{pickerHref}', buildLocalizedPath('/', locale)).replace('{paletteHref}', buildLocalizedPath('/oklch-colors', locale)).replace('{generatorHref}', buildLocalizedPath('/oklch-color-palette-generator', locale))} />
+          <li set:html={t(locale, 'pages.export.step2', '<strong class="text-ink">Assign roles:</strong> Each color is assigned to a semantic role (e.g. Primary, Danger, Success). You can rename roles to match your design system.')} />
+          <li set:html={t(locale, 'pages.export.step3', '<strong class="text-ink">Choose format:</strong> Select Tailwind v4 <code class="text-ink">@theme</code>, CSS custom properties, or JSON.')} />
+          <li set:html={t(locale, 'pages.export.step4', '<strong class="text-ink">Copy or download:</strong> Copy the code to your clipboard or download it as a <code class="text-ink">.css</code> file.')} />
         </ol>
       </section>
 
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          Sample Export Output
+          {t(locale, 'pages.export.sampleTitle', 'Sample Export Output')}
         </h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          Here is an example of what a Tailwind CSS v4 <code class="text-ink">@theme</code> block looks like when exported:
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.export.sampleBody', 'Here is an example of what a Tailwind CSS v4 <code class="text-ink">@theme</code> block looks like when exported:')} />
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>@theme &#123;{'\n'}  --color-primary-50: oklch(0.965 0.015 265);{'\n'}  --color-primary-100: oklch(0.935 0.028 265);{'\n'}  --color-primary-200: oklch(0.85 0.07 265);{'\n'}  --color-primary-300: oklch(0.72 0.12 265);{'\n'}  --color-primary-400: oklch(0.60 0.17 265);{'\n'}  --color-primary-500: oklch(0.55 0.20 265);{'\n'}  --color-primary-600: oklch(0.50 0.20 265);{'\n'}  --color-primary-700: oklch(0.45 0.19 265);{'\n'}  --color-primary-800: oklch(0.38 0.15 265);{'\n'}  --color-primary-900: oklch(0.30 0.10 265);{'\n'}  --color-primary-950: oklch(0.22 0.06 265);{'\n'}&#125;</code></pre>
-        <p class="text-xs md:text-sm font-mono text-body">
-          This generates utilities like <code class="text-ink">bg-primary-500</code>, <code class="text-ink">text-primary-700</code>, and <code class="text-ink">border-primary-300</code> automatically.
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.export.sampleUtilitiesNote', 'This generates utilities like <code class="text-ink">bg-primary-500</code>, <code class="text-ink">text-primary-700</code>, and <code class="text-ink">border-primary-300</code> automatically.')} />
       </section>
 
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          Tailwind CSS v4 Integration
+          {t(locale, 'pages.export.tailwindTitle', 'Tailwind CSS v4 Integration')}
         </h2>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.export.tailwindBody1', 'Tailwind CSS v4 uses CSS-first configuration. Instead of a <code class="text-ink">tailwind.config.js</code> file, you define your design tokens directly in your CSS using the <code class="text-ink">@theme</code> block. Any custom property prefixed with <code class="text-ink">--color-</code> automatically becomes a set of color utilities.')} />
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.export.tailwindBody2', 'For example, <code class="text-ink">--color-brand-accent: oklch(0.55 0.20 265)</code> in your <code class="text-ink">@theme</code> block generates <code class="text-ink">bg-brand-accent</code>, <code class="text-ink">text-brand-accent</code>, <code class="text-ink">border-brand-accent</code>, and all other color utilities for that token.')} />
         <p class="text-xs md:text-sm font-mono text-body">
-          Tailwind CSS v4 uses CSS-first configuration. Instead of a <code class="text-ink">tailwind.config.js</code> file, you define your design tokens directly in your CSS using the <code class="text-ink">@theme</code> block. Any custom property prefixed with <code class="text-ink">--color-</code> automatically becomes a set of color utilities.
-        </p>
-        <p class="text-xs md:text-sm font-mono text-body">
-          For example, <code class="text-ink">--color-brand-accent: oklch(0.55 0.20 265)</code> in your <code class="text-ink">@theme</code> block generates <code class="text-ink">bg-brand-accent</code>, <code class="text-ink">text-brand-accent</code>, <code class="text-ink">border-brand-accent</code>, and all other color utilities for that token.
-        </p>
-        <p class="text-xs md:text-sm font-mono text-body">
-          <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="text-accent-text hover:underline">Learn more about OKLCH in Tailwind CSS v4 →</a>
+          <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="text-accent-text hover:underline">{t(locale, 'pages.export.tailwindLearnLink', 'Learn more about OKLCH in Tailwind CSS v4 →')}</a>
         </p>
       </section>
 
@@ -101,7 +90,7 @@ const seo = localizedSeo('/export', locale, {
       <!-- Learn Link -->
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.export.learnMore', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { getNavItemByPath } from '../config/navigation';
 import { ogImagePathFor } from '../utils/ogImage';
 import { buildJsonLdGraph } from '../utils/schema';
 import { getLocaleConfig, type LocaleCode } from '../i18n/config';
+import { localizedSeo } from '../i18n/seo';
 import { generateAlternateLinks, getCanonicalPath } from '../i18n/routing';
 
 interface Props {
@@ -68,6 +69,11 @@ const datePublished = navSeo?.datePublished;
 const dateModified = navSeo?.dateModified;
 const isArticle = schemaType === 'Article';
 
+// FAQ JSON-LD goes through localizedSeo so locale dictionaries can supply
+// translated question/answer pairs; pages without an override keep the
+// English faqs from navigation.ts.
+const pageSeo = localizedSeo(basePath, locale, navSeo);
+
 // JSON-LD graph: WebSite + Organization + the page's own type + breadcrumbs,
 // assembled centrally in utils/schema.ts. This replaces the old flat node that
 // stamped WebApplication fields (applicationCategory, offers) onto Article and
@@ -82,7 +88,7 @@ const jsonLd = buildJsonLdGraph({
   schemaType,
   datePublished,
   dateModified,
-  faqs: navSeo?.faqs,
+  faqs: pageSeo.faqs,
   noindex,
   locale,
 });

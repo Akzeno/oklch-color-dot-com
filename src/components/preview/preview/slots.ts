@@ -8,6 +8,7 @@ import {
   type ShadeStep,
 } from '../../../utils/color';
 import type { CartState } from '../../../stores/cartStore';
+import type { LocaleCode } from '../../../i18n/config';
 
 /**
  * The semantic layer between "a token slot" and "a painted pixel".
@@ -470,6 +471,8 @@ export function worstOf(pairs: (ContrastPair | null)[]): ContrastPair | null {
  */
 export interface Paint {
   theme: Theme;
+  /** Locale for human-facing chrome rendered from this paint context. */
+  locale: LocaleCode;
   /** The stage. `canvas` is what every other surface is judged against. */
   canvas: SlotValue | null;
   surface: SlotValue | null;
@@ -513,13 +516,14 @@ export interface Paint {
   inventory: IntendedSlot[];
 }
 
-export function createPaint(cart: CartState, theme: Theme): Paint {
+export function createPaint(cart: CartState, theme: Theme, locale: LocaleCode = 'en'): Paint {
   const accents = Object.fromEntries(
     ACCENT_ROLES.map((role) => [role, accent(cart, role, theme)])
   ) as Record<AccentRole, AccentPair>;
 
   return {
     theme,
+    locale,
     canvas: stage(cart, 'canvas', theme),
     surface: stage(cart, 'surface', theme),
     raised: stage(cart, 'raised', theme),

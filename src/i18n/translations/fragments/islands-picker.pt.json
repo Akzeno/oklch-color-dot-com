@@ -1,0 +1,47 @@
+{
+  "ui": {
+    "picker": {
+      "copied": "{label} copiado",
+      "editing": "Editando",
+      "creating": "Criando",
+      "colourSentFrom": "cor enviada de {source}",
+      "thisPage": "esta página",
+      "back": "Voltar",
+      "cancelEdit": "Cancelar edição",
+      "useColour": "Usar cor",
+      "saveAndReturn": "Salvar e voltar",
+      "save": "Salvar",
+      "gamutClipped": "Recortado",
+      "gamutFaqHint": "O que este rótulo significa?",
+      "step": "etapa {step}",
+      "randomise": "Aleatorizar",
+      "randomiseColour": "Aleatorizar cor",
+      "copyOklch": "Copiar oklch()",
+      "copyOklchValue": "Copiar valor oklch",
+      "lightness": "Luminosidade",
+      "chroma": "Chroma",
+      "hue": "Matiz",
+      "alpha": "Alpha",
+      "maxNote": "max {value}",
+      "valueOf": "valor de {label}",
+      "copyLabel": "Copiar {label}",
+      "copyLabelValue": "Copiar valor de {label}",
+      "variable": "Variável",
+      "variableNameAria": "Nome da variável de cor personalizada",
+      "openTokenDrawer": "Abrir a gaveta de tokens",
+      "tokens": "Tokens",
+      "cart": "Carrinho",
+      "useColourOn": "Usar esta cor de volta em {source}",
+      "pageYouCameFrom": "a página de onde você veio",
+      "writeTo": "Gravar em {variable}",
+      "saveAs": "Salvar como {variable}",
+      "addStep": "Adicionar {name}"
+    },
+    "variableName": {
+      "suggestions": "Sugestões",
+      "suggestionsFor": "Sugestões de {label}",
+      "noVariables": "Nenhuma variável salva ainda — pressione Enter para usar este nome",
+      "noMatch": "Nenhuma correspondência — pressione Enter para usar \"{value}\""
+    }
+  }
+}

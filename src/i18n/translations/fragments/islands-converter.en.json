@@ -1,0 +1,27 @@
+{
+  "ui": {
+    "converter": {
+      "conversionDirection": "Conversion Direction",
+      "conversionModesAria": "Conversion modes",
+      "inputLabel": "Input ({format})",
+      "invalidSyntax": "Invalid syntax",
+      "enterValuePlaceholder": "Enter color value...",
+      "exampleLabel": "Example: {example}",
+      "previewSwatch": "Preview swatch",
+      "p3Gamut": "P3 Gamut",
+      "clamped": "Clamped",
+      "oklchOutput": "OKLCH Output",
+      "hexOutput": "HEX Output",
+      "rgbOutput": "RGB Output",
+      "hslOutput": "HSL Output",
+      "copyValue": "Copy value",
+      "copy": "Copy",
+      "addToCart": "Add to cart",
+      "cart": "+ Cart",
+      "targetShade": "Target shade: {lightness}% lightness",
+      "allFormats": "All Equivalent Formats (Click to copy)",
+      "copied": "Copied {label}",
+      "copyFailed": "Failed to copy {label}"
+    }
+  }
+}

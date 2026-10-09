@@ -3,6 +3,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 import ColorPickerIsland from '../components/picker/ColorPickerIsland';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 import { getBuildTimeColorTable } from '../utils/seoTables';
 
 interface Props {
@@ -38,13 +39,13 @@ const examplesTable = getBuildTimeColorTable();
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-body">
-        Explore perceptual color with live dynamic slider tracks, wide Display-P3 gamut monitoring, and persistent design-token collection for Tailwind CSS v4.
+        {t(locale, 'pages.index.subtitle', 'Explore perceptual color with live dynamic slider tracks, wide Display-P3 gamut monitoring, and persistent design-token collection for Tailwind CSS v4.')}
       </p>
     </div>
 
     <!-- Above-The-Fold Interactive Tool -->
     <section aria-label="Interactive OKLCH Color Picker">
-      <ColorPickerIsland client:load />
+      <ColorPickerIsland client:load locale={locale} />
     </section>
 
     <!-- Unique SEO & Educational Content Below The Fold -->
@@ -52,36 +53,30 @@ const examplesTable = getBuildTimeColorTable();
       <!-- 1. Intro Section -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">
-          Why Choose the OKLCH Color Space?
+          {t(locale, 'pages.index.whyChooseTitle', 'Why Choose the OKLCH Color Space?')}
         </h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          The OKLCH color space (Oklab Lightness, Chroma, Hue) solves the historic flaws of RGB and HSL. In HSL, blue and yellow with 50% lightness appear vastly different in perceived brightness to human eyes. OKLCH guarantees perceptual uniformity: 60% lightness looks equally bright regardless of hue angle, making accessible UI themes, dark modes, and dynamic color systems predictable and effortless.
+          {t(locale, 'pages.index.whyChooseBody', 'The OKLCH color space (Oklab Lightness, Chroma, Hue) solves the historic flaws of RGB and HSL. In HSL, blue and yellow with 50% lightness appear vastly different in perceived brightness to human eyes. OKLCH guarantees perceptual uniformity: 60% lightness looks equally bright regardless of hue angle, making accessible UI themes, dark modes, and dynamic color systems predictable and effortless.')}
         </p>
       </section>
 
       <!-- 2. How to Use Steps -->
       <section class="space-y-4">
         <h2 class="text-lg font-semibold text-ink">
-          How to Pick and Export Colors
+          {t(locale, 'pages.index.howToTitle', 'How to Pick and Export Colors')}
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-xl p-4 space-y-2">
-            <span class="text-xs font-bold text-gamut-p3">01. Adjust Lightness & Hue</span>
-            <p class="text-body leading-normal">
-              Move the sliders to set your base hue and lightness. The dynamic slider tracks render real-time color spectra along each individual axis.
-            </p>
+            <span class="text-xs font-bold text-gamut-p3">{t(locale, 'pages.index.step1Title', '01. Adjust Lightness & Hue')}</span>
+            <p class="text-body leading-normal" set:html={t(locale, 'pages.index.step1Body', 'Move the sliders to set your base hue and lightness. The dynamic slider tracks render real-time color spectra along each individual axis.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-xl p-4 space-y-2">
-            <span class="text-xs font-bold text-copy-success">02. Collect into Roles</span>
-            <p class="text-body leading-normal">
-              Click <strong class="text-ink">Add to Cart</strong> to assign your color to a semantic token role (<code class="text-ink">--color-trusty-button-500</code>). Colors auto-slot into shade steps 50 to 950.
-            </p>
+            <span class="text-xs font-bold text-copy-success">{t(locale, 'pages.index.step2Title', '02. Collect into Roles')}</span>
+            <p class="text-body leading-normal" set:html={t(locale, 'pages.index.step2Body', 'Click <strong class="text-ink">Add to Cart</strong> to assign your color to a semantic token role (<code class="text-ink">--color-trusty-button-500</code>). Colors auto-slot into shade steps 50 to 950.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-xl p-4 space-y-2">
-            <span class="text-xs font-bold text-gamut-warning">03. Export to Tailwind v4</span>
-            <p class="text-body leading-normal">
-              Open the Export page to copy a ready-to-use <code class="text-ink">@theme</code> block or download a custom CSS variable stylesheet with VS Code inline color decorators.
-            </p>
+            <span class="text-xs font-bold text-gamut-warning">{t(locale, 'pages.index.step3Title', '03. Export to Tailwind v4')}</span>
+            <p class="text-body leading-normal" set:html={t(locale, 'pages.index.step3Body', 'Open the Export page to copy a ready-to-use <code class="text-ink">@theme</code> block or download a custom CSS variable stylesheet with VS Code inline color decorators.')} />
           </div>
         </div>
       </section>
@@ -90,9 +85,9 @@ const examplesTable = getBuildTimeColorTable();
       <section class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold text-ink">
-            Popular Color Swatches & OKLCH Equivalents
+            {t(locale, 'pages.index.popularSwatchesTitle', 'Popular Color Swatches & OKLCH Equivalents')}
           </h2>
-          <span class="text-[11px] font-mono text-mute">Build-Time Computed</span>
+          <span class="text-[11px] font-mono text-mute">{t(locale, 'pages.index.tableComputed', 'Build-Time Computed')}</span>
         </div>
 
         <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
@@ -100,11 +95,11 @@ const examplesTable = getBuildTimeColorTable();
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th class="p-3">Color Swatch</th>
-                  <th class="p-3">Name</th>
-                  <th class="p-3">HEX Code</th>
-                  <th class="p-3">OKLCH CSS Value</th>
-                  <th class="p-3 text-right">Gamut Profile</th>
+                  <th class="p-3">{t(locale, 'pages.index.tableSwatch', 'Color Swatch')}</th>
+                  <th class="p-3">{t(locale, 'pages.index.tableName', 'Name')}</th>
+                  <th class="p-3">{t(locale, 'pages.index.tableHex', 'HEX Code')}</th>
+                  <th class="p-3">{t(locale, 'pages.index.tableOklch', 'OKLCH CSS Value')}</th>
+                  <th class="p-3 text-right">{t(locale, 'pages.index.tableGamut', 'Gamut Profile')}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-hairline">
@@ -135,18 +130,12 @@ const examplesTable = getBuildTimeColorTable();
       <!-- 4. Gotchas & Technical Notes -->
       <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
         <h2 class="text-base font-semibold text-ink">
-          Important Gotchas: Gamut Clipping & Browser Fallbacks
+          {t(locale, 'pages.index.gotchasTitle', 'Important Gotchas: Gamut Clipping & Browser Fallbacks')}
         </h2>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-          <li>
-            <strong class="text-ink">Display-P3 Gamut:</strong> OKLCH can describe colors outside the standard sRGB triangle. On displays that support P3, colors will appear more vivid. On older screens, modern browsers clamp chroma automatically.
-          </li>
-          <li>
-            <strong class="text-ink">Lightness Rounding:</strong> Lightness in CSS OKLCH can be expressed as a percentage (<code class="text-ink">62%</code>) or decimal (<code class="text-ink">0.62</code>). Both represent identical optical lightness.
-          </li>
-          <li>
-            <strong class="text-ink">Tailwind v4 @theme:</strong> When exported to Tailwind v4, custom CSS variables prefixed with <code class="text-ink">--color-&#123;role&#125;-&#123;step&#125;</code> instantly become utilities like <code class="text-ink">bg-trusty-button-500</code>.
-          </li>
+          <li set:html={t(locale, 'pages.index.gotcha1', '<strong class="text-ink">Display-P3 Gamut:</strong> OKLCH can describe colors outside the standard sRGB triangle. On displays that support P3, colors will appear more vivid. On older screens, modern browsers clamp chroma automatically.')} />
+          <li set:html={t(locale, 'pages.index.gotcha2', '<strong class="text-ink">Lightness Rounding:</strong> Lightness in CSS OKLCH can be expressed as a percentage (<code class="text-ink">62%</code>) or decimal (<code class="text-ink">0.62</code>). Both represent identical optical lightness.')} />
+          <li set:html={t(locale, 'pages.index.gotcha3', '<strong class="text-ink">Tailwind v4 @theme:</strong> When exported to Tailwind v4, custom CSS variables prefixed with <code class="text-ink">--color-{role}-{step}</code> instantly become utilities like <code class="text-ink">bg-trusty-button-500</code>.')} />
         </ul>
       </section>
 
@@ -158,47 +147,41 @@ const examplesTable = getBuildTimeColorTable();
            here orphans its badge. -->
       <section class="space-y-4">
         <h2 class="text-lg font-semibold text-ink">
-          Frequently Asked Questions
+          {t(locale, 'pages.index.faqTitle', 'Frequently Asked Questions')}
         </h2>
         <p class="text-[11px] font-mono text-mute -mt-2">
-          Using the badge on the colour canvas? Click it — sRGB, Display-P3 and Clipped each jump to their own answer here.
+          {t(locale, 'pages.index.faqSubtitle', 'Using the badge on the colour canvas? Click it — sRGB, Display-P3 and Clipped each jump to their own answer here.')}
         </p>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What is the difference between OKLCH and HSL?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.index.faq1Question', 'What is the difference between OKLCH and HSL?')}</h3>
             <p class="text-body leading-relaxed">
-              HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.
+              {t(locale, 'pages.index.faq1Answer', 'HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Do all modern browsers support CSS oklch()?</h3>
-            <p class="text-body leading-relaxed">
-              Yes! Chrome 111+, Safari 15.4+, Firefox 113+, and Edge 111+ support <code class="text-ink">oklch()</code> natively, representing over 93% global browser adoption.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.index.faq2Question', 'Do all modern browsers support CSS oklch()?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.index.faq2Answer', 'Yes! Chrome 111+, Safari 15.4+, Firefox 113+, and Edge 111+ support <code class="text-ink">oklch()</code> natively, representing over 93% global browser adoption.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">How does the color cart work?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.index.faq3Question', 'How does the color cart work?')}</h3>
             <p class="text-body leading-relaxed">
-              Whenever you click "Add to Cart" or tap a swatch from our palettes, that exact single color is placed into your chosen UI role (e.g. Primary, Trusty Button, Danger). It automatically slots into the closest shade step (50–950), which you can then preview on real dummy UI components or export to Tailwind v4.
+              {t(locale, 'pages.index.faq3Answer', 'Whenever you click "Add to Cart" or tap a swatch from our palettes, that exact single color is placed into your chosen UI role (e.g. Primary, Trusty Button, Danger). It automatically slots into the closest shade step (50–950), which you can then preview on real dummy UI components or export to Tailwind v4.')}
             </p>
           </div>
           <div id="faq-gamut-srgb" class="faq-flash bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What does "sRGB" mean on the gamut badge?</h3>
-            <p class="text-body leading-relaxed">
-              The color fits inside sRGB — the standard gamut that every screen, browser, and CSS color function can display. The badge's green dot means what you see on the canvas is exactly what the copied <code class="text-ink">oklch()</code> value will render: nothing is being clamped, so the swatch is a literal preview of the value.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.index.faq4Question', 'What does "sRGB" mean on the gamut badge?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.index.faq4Answer', 'The color fits inside sRGB — the standard gamut that every screen, browser, and CSS color function can display. The badge\'s green dot means what you see on the canvas is exactly what the copied <code class="text-ink">oklch()</code> value will render: nothing is being clamped, so the swatch is a literal preview of the value.')} />
           </div>
           <div id="faq-gamut-p3" class="faq-flash bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What does "Display-P3" mean on the gamut badge?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.index.faq5Question', 'What does "Display-P3" mean on the gamut badge?')}</h3>
             <p class="text-body leading-relaxed">
-              The color is more vivid than sRGB can reproduce, but still fits Display-P3 — the wider gamut used by modern phones, laptops, and monitors. Wide-gamut displays show it at full intensity; on older sRGB-only screens the browser gamut-maps it back toward sRGB, so it may look slightly less vivid there. It is a real, usable color — just one that benefits from a P3 display to appreciate fully.
+              {t(locale, 'pages.index.faq5Answer', 'The color is more vivid than sRGB can reproduce, but still fits Display-P3 — the wider gamut used by modern phones, laptops, and monitors. Wide-gamut displays show it at full intensity; on older sRGB-only screens the browser gamut-maps it back toward sRGB, so it may look slightly less vivid there. It is a real, usable color — just one that benefits from a P3 display to appreciate fully.')}
             </p>
           </div>
           <div id="faq-gamut-clipped" class="faq-flash bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What does "Clipped" mean on the gamut badge?</h3>
-            <p class="text-body leading-relaxed">
-              The color is too saturated even for Display-P3, so no current screen can show it as authored — the browser clamps it to the nearest displayable color and the swatch becomes an approximation of your OKLCH values rather than the values themselves. Lower the Chroma slider (its <code class="text-ink">max</code> label shows the sRGB ceiling for that lightness and hue) until the badge reads sRGB or Display-P3 to get a color you can trust.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.index.faq6Question', 'What does "Clipped" mean on the gamut badge?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.index.faq6Answer', 'The color is too saturated even for Display-P3, so no current screen can show it as authored — the browser clamps it to the nearest displayable color and the swatch becomes an approximation of your OKLCH values rather than the values themselves. Lower the Chroma slider (its <code class="text-ink">max</code> label shows the sRGB ceiling for that lightness and hue) until the badge reads sRGB or Display-P3 to get a color you can trust.')} />
           </div>
         </div>
       </section>
@@ -206,10 +189,10 @@ const examplesTable = getBuildTimeColorTable();
       <!-- 6. Internal Links Footer Strip -->
       <section class="pt-4 border-t border-hairline flex items-center justify-between flex-wrap gap-4 text-xs font-mono text-mute">
         <div class="flex items-center gap-4">
-          <a href={buildLocalizedPath('/oklch-colors', locale)} class="hover:text-ink transition-colors">Palette Library →</a>
-          <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="hover:text-ink transition-colors">Palette Generator →</a>
-          <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="hover:text-ink transition-colors">HEX Converter →</a>
-          <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="hover:text-ink transition-colors">Learn Guide →</a>
+          <a href={buildLocalizedPath('/oklch-colors', locale)} class="hover:text-ink transition-colors">{t(locale, 'pages.index.linkPalettes', 'Palette Library →')}</a>
+          <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="hover:text-ink transition-colors">{t(locale, 'pages.index.linkGenerator', 'Palette Generator →')}</a>
+          <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="hover:text-ink transition-colors">{t(locale, 'pages.index.linkHex', 'HEX Converter →')}</a>
+          <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="hover:text-ink transition-colors">{t(locale, 'pages.index.linkLearn', 'Learn Guide →')}</a>
         </div>
         <span>oklchcolor.com &copy; 2026</span>
       </section>

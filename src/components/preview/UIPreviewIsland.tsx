@@ -10,6 +10,8 @@ import {
 import { useCart } from '../../hooks/useCart';
 import type { ShadeStep, ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
+import { t } from '../../i18n/translations';
+import type { LocaleCode } from '../../i18n/config';
 import ColorActionPopover from './ColorActionPopover';
 import { createPaint, type Theme, type Paint } from './preview/slots';
 import { PaintPairContext, type PaintPair } from './preview/theme';
@@ -133,9 +135,11 @@ function writeGroupToUrl(id: GroupId) {
 function TabStrip({
   active,
   onSelect,
+  locale,
 }: {
   active: GroupId;
   onSelect: (id: GroupId) => void;
+  locale: LocaleCode;
 }) {
   const strip = useRef<HTMLDivElement>(null);
 
@@ -162,11 +166,15 @@ function TabStrip({
       <div
         ref={strip}
         role="tablist"
-        aria-label="Preview groups"
+        aria-label={t(locale, 'ui.preview.shell.tablistLabel', 'Preview groups')}
         // Keyboard help lives in the tooltip rather than a row of chrome: the
         // arrows work whether or not the reader has been told, and the row this
         // replaced spent 24px repeating what the highlighted tab already said.
-        title="Preview groups — use ← → to move, Home / End to jump"
+        title={t(
+          locale,
+          'ui.preview.shell.tablistTitle',
+          'Preview groups — use ← → to move, Home / End to jump'
+        )}
         onKeyDown={onKeyDown}
         class="flex items-center gap-1 overflow-x-auto no-scrollbar"
       >
@@ -183,15 +191,19 @@ function TabStrip({
               // Roving tabindex: one stop in the tab order, arrows move within.
               tabIndex={on ? 0 : -1}
               onClick={() => onSelect(g.id)}
-              title={g.blurb}
+              title={t(locale, `ui.preview.groups.${g.id}Blurb`, g.blurb)}
               class="chip shrink-0"
             >
-              {g.label}
+              {t(locale, `ui.preview.groups.${g.id}Title`, g.label)}
               {!g.implemented && (
                 <span
                   class="w-1.5 h-1.5 rounded-full bg-faint flex-shrink-0 ml-1"
-                  title="Planned — shows what it will cover, not yet built"
-                  aria-label="Not yet implemented"
+                  title={t(
+                    locale,
+                    'ui.preview.shell.plannedDotTitle',
+                    'Planned — shows what it will cover, not yet built'
+                  )}
+                  aria-label={t(locale, 'ui.preview.shell.plannedDotAria', 'Not yet implemented')}
                 />
               )}
             </button>
@@ -228,18 +240,25 @@ function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
   return (
     <PreviewFrame
       label={group.label}
-      description="Planned — not built in this slice."
-      hint="coming next"
+      description={t(
+        paint.locale,
+        'ui.preview.planned.description',
+        'Planned — not built in this slice.'
+      )}
+      hint={t(paint.locale, 'ui.preview.planned.hint', 'coming next')}
       canvasBg={paint.canvas?.css ?? '#0f0f0f'}
       borderCol={paint.border?.css ?? '#262626'}
       index={0}
       span
+      locale={paint.locale}
     >
       <div class="py-4 max-w-xl mx-auto">
         <p class="prose-hud">{group.blurb}</p>
 
         <div class="mt-4 pt-4 border-t border-hairline">
-          <span class="eyebrow block mb-2">Slots this group needs</span>
+          <span class="eyebrow block mb-2">
+            {t(paint.locale, 'ui.preview.planned.slotsEyebrow', 'Slots this group needs')}
+          </span>
           <div class="flex items-center gap-1.5 flex-wrap">
             {slots.map((s) => (
               <span
@@ -252,8 +271,19 @@ function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
                 class={`pill ${s.set > 0 ? 'text-ink border-border-focus' : 'text-faint border-dashed'}`}
                 title={
                   s.set > 0
-                    ? `--color-${s.role}: ${s.set} of ${s.total} steps set`
-                    : `--color-${s.role} is not set at all`
+                    ? t(
+                        paint.locale,
+                        'ui.preview.planned.slotSetTitle',
+                        `--color-${s.role}: ${s.set} of ${s.total} steps set`
+                      )
+                        .replace('{role}', s.role)
+                        .replace('{set}', String(s.set))
+                        .replace('{total}', String(s.total))
+                    : t(
+                        paint.locale,
+                        'ui.preview.planned.slotUnsetTitle',
+                        `--color-${s.role} is not set at all`
+                      ).replace('{role}', s.role)
                 }
               >
                 {s.role}
@@ -270,7 +300,7 @@ function PlannedGroup({ paint, id }: { paint: Paint; id: GroupId }) {
 }
 
 /* ─────────────────────── Main Island ──────────────────────── */
-export default function UIPreviewIsland() {
+export default function UIPreviewIsland({ locale = 'en' }: { locale?: LocaleCode }) {
   const cart = useCart();
   const [previewTheme, setPreviewTheme] = useState<Theme>('dark');
   /**
@@ -296,8 +326,8 @@ export default function UIPreviewIsland() {
    * panel and the group headers all speak for the global setting, and only a
    * card that has pinned itself speaks for anything else. See `preview/theme.ts`.
    */
-  const dark = useMemo(() => createPaint(cart, 'dark'), [cart]);
-  const light = useMemo(() => createPaint(cart, 'light'), [cart]);
+  const dark = useMemo(() => createPaint(cart, 'dark', locale), [cart, locale]);
+  const light = useMemo(() => createPaint(cart, 'light', locale), [cart, locale]);
   const paint = previewTheme === 'dark' ? dark : light;
   const pair = useMemo<PaintPair>(
     () => ({ dark, light, globalTheme: previewTheme }),
@@ -382,7 +412,12 @@ export default function UIPreviewIsland() {
   const handleApplyColor = (color: ColorModel, sourceLabel: string) => {
     if (!popover) return;
     setRoleShade(popover.roleId, popover.step, color, { silent: true });
-    showToast(`${sourceLabel} → --color-${popover.roleId}-${popover.step}`);
+    showToast(
+      t(locale, 'ui.preview.shell.toastApplied', '{source} → --color-{role}-{step}')
+        .replace('{source}', sourceLabel)
+        .replace('{role}', popover.roleId)
+        .replace('{step}', String(popover.step))
+    );
     setPopover(null);
   };
 
@@ -390,7 +425,11 @@ export default function UIPreviewIsland() {
   const handleDeleteShade = () => {
     if (!popover) return;
     removeShadeFromRole(popover.roleId, popover.step);
-    showToast(`Removed --color-${popover.roleId}-${popover.step}`);
+    showToast(
+      t(locale, 'ui.preview.shell.toastRemoved', 'Removed --color-{role}-{step}')
+        .replace('{role}', popover.roleId)
+        .replace('{step}', String(popover.step))
+    );
     setPopover(null);
   };
 
@@ -455,16 +494,22 @@ export default function UIPreviewIsland() {
           */}
           <div class="flex items-center justify-between gap-2 flex-wrap">
             <div class="theme-segment flex items-center gap-1 p-0.5 rounded-full border border-hairline bg-canvas-card">
-              {(['dark', 'light'] as const).map((t) => (
+              {(['dark', 'light'] as const).map((th) => (
                 <button
-                  key={t}
+                  key={th}
                   type="button"
-                  aria-pressed={previewTheme === t}
-                  onClick={() => setPreviewTheme(t)}
-                  title={`Paint every card that has not pinned itself with the ${t} theme`}
+                  aria-pressed={previewTheme === th}
+                  onClick={() => setPreviewTheme(th)}
+                  title={t(
+                    locale,
+                    'ui.preview.shell.themeCardTitle',
+                    `Paint every card that has not pinned itself with the ${th} theme`
+                  ).replace('{theme}', th)}
                   class="chip"
                 >
-                  {t === 'dark' ? 'Dark' : 'Light'}
+                  {th === 'dark'
+                    ? t(locale, 'ui.preview.shell.themeDark', 'Dark')
+                    : t(locale, 'ui.preview.shell.themeLight', 'Light')}
                 </button>
               ))}
             </div>
@@ -474,11 +519,11 @@ export default function UIPreviewIsland() {
               onClick={() => isCartOpenStore.set(true)}
               class="btn btn-quiet h-8"
             >
-              Manage roles
+              {t(locale, 'ui.preview.shell.manageRoles', 'Manage roles')}
             </button>
           </div>
 
-          <TabStrip active={activeGroup} onSelect={selectGroup} />
+          <TabStrip active={activeGroup} onSelect={selectGroup} locale={locale} />
 
           {/*
             Groups are rails, so the layout is a single full-width column.
@@ -515,6 +560,7 @@ export default function UIPreviewIsland() {
             onDeleteFullScale={handleDeleteFullScale}
             onOpenInPicker={handleOpenInPicker}
             onClose={() => setPopover(null)}
+            locale={locale}
           />
         )}
       </div>

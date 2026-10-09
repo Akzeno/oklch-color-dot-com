@@ -125,7 +125,7 @@ const localePrefix = getLocaleConfig(locale).prefix;
   />
 
   <!-- Global Slide-Over / Bottom-Sheet Cart Island -->
-  <CartDrawerIsland client:idle />
+  <CartDrawerIsland client:idle locale={locale} />
 
   <!-- Global Micro-Toast Notification Island -->
   <Toast client:idle />

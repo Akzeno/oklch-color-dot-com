@@ -33,13 +33,15 @@ import VariableNameInput from '../common/VariableNameInput';
 import SwatchStrip from '../palettes/SwatchStrip';
 import SwatchActionMenu from './SwatchActionMenu';
 import CustomPalettePanel from './CustomPalettePanel';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 
 const PRESETS = [
-  { label: 'Blue', hex: '#2563eb' },
-  { label: 'Emerald', hex: '#10b981' },
-  { label: 'Amber', hex: '#f59e0b' },
-  { label: 'Rose', hex: '#f43f5e' },
-  { label: 'Violet', hex: '#8b5cf6' },
+  { id: 'blue', label: 'Blue', hex: '#2563eb' },
+  { id: 'emerald', label: 'Emerald', hex: '#10b981' },
+  { id: 'amber', label: 'Amber', hex: '#f59e0b' },
+  { id: 'rose', label: 'Rose', hex: '#f43f5e' },
+  { id: 'violet', label: 'Violet', hex: '#8b5cf6' },
 ];
 
 /**
@@ -72,7 +74,11 @@ interface PendingSwatch {
   key: string;
 }
 
-export default function PaletteGeneratorIsland() {
+interface Props {
+  locale?: LocaleCode;
+}
+
+export default function PaletteGeneratorIsland({ locale = 'en' }: Props) {
   const cart = useCart();
   /**
    * The base colour, persisted.
@@ -195,7 +201,9 @@ export default function PaletteGeneratorIsland() {
   const copyText = async (value: string) => {
     const copied = await writeClipboard(value);
     showToast(
-      copied ? `Copied ${value}` : 'Clipboard blocked by the browser',
+      copied
+        ? t(locale, 'ui.generator.copiedValue', 'Copied {value}').replace('{value}', value)
+        : t(locale, 'ui.generator.clipboardBlocked', 'Clipboard blocked by the browser'),
       copied ? 'success' : 'info'
     );
   };
@@ -224,7 +232,8 @@ export default function PaletteGeneratorIsland() {
 
     // Named from the *returned* step, not the requested one: `addColorToCart`
     // picks the slot itself, so the step we asked for would be a guess.
-    return `${cart.roles[saved.roleId]?.name ?? saved.roleId}-${saved.step}`;
+    const role = cart.roles[saved.roleId];
+    return `${t(locale, 'ui.roles.' + saved.roleId, role?.name ?? saved.roleId)}-${saved.step}`;
   };
 
   /**
@@ -245,7 +254,12 @@ export default function PaletteGeneratorIsland() {
 
     if (alsoCopy) {
       showToast(
-        copied ? `${value} → ${landed}` : `Clipboard blocked · saved to ${landed}`,
+        copied
+          ? `${value} → ${landed}`
+          : t(locale, 'ui.generator.saveBlockedToast', 'Clipboard blocked · saved to {landed}').replace(
+              '{landed}',
+              landed
+            ),
         copied ? 'success' : 'info'
       );
     } else {
@@ -282,13 +296,20 @@ export default function PaletteGeneratorIsland() {
     const slotId = addPaletteSlotWithColor(color);
     setPendingFocusId(slotId);
 
-    showToast(`${formatOklch(color)} added to the custom palette`, 'success', {
-      label: 'Undo',
-      run: () => {
-        removePaletteSlot(slotId);
-        showToast('Removed from the custom palette');
-      },
-    });
+    showToast(
+      t(locale, 'ui.generator.addedToPalette', '{value} added to the custom palette').replace(
+        '{value}',
+        formatOklch(color)
+      ),
+      'success',
+      {
+        label: t(locale, 'ui.generator.undo', 'Undo'),
+        run: () => {
+          removePaletteSlot(slotId);
+          showToast(t(locale, 'ui.generator.removedFromPalette', 'Removed from the custom palette'));
+        },
+      }
+    );
   };
 
   /**
@@ -305,9 +326,13 @@ export default function PaletteGeneratorIsland() {
   }, [fullScale]);
 
   const harmonyGroups = [
-    { label: 'Complementary', note: '180°', colors: harmonies.complementary },
-    { label: 'Triadic', note: '±120°', colors: harmonies.triadic },
-    { label: 'Analogous', note: '±30°', colors: harmonies.analogous },
+    {
+      label: t(locale, 'ui.generator.harmonyComplementary', 'Complementary'),
+      note: '180°',
+      colors: harmonies.complementary,
+    },
+    { label: t(locale, 'ui.generator.harmonyTriadic', 'Triadic'), note: '±120°', colors: harmonies.triadic },
+    { label: t(locale, 'ui.generator.harmonyAnalogous', 'Analogous'), note: '±30°', colors: harmonies.analogous },
   ];
 
   return (
@@ -315,7 +340,7 @@ export default function PaletteGeneratorIsland() {
       {/* ── Base colour ── */}
       <div class="card !p-4 space-y-3">
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="eyebrow mr-1">Presets</span>
+          <span class="eyebrow mr-1">{t(locale, 'ui.generator.presetsLabel', 'Presets')}</span>
           {PRESETS.map((p) => (
             <button
               key={p.hex}
@@ -328,16 +353,16 @@ export default function PaletteGeneratorIsland() {
                 style={{ backgroundColor: p.hex }}
                 aria-hidden="true"
               />
-              {p.label}
+              {t(locale, `ui.generator.presets.${p.id}`, p.label)}
             </button>
           ))}
           <button
             onClick={() => setBaseHex(formatOklch(randomOklchColor()))}
             class="chip !py-1 !px-2.5 !text-micro ml-auto"
-            title="Generate a random in-gamut base colour"
+            title={t(locale, 'ui.generator.randomTitle', 'Generate a random in-gamut base colour')}
           >
             <Shuffle class="w-3 h-3" aria-hidden="true" strokeWidth={2} />
-            Random
+            {t(locale, 'ui.generator.random', 'Random')}
           </button>
         </div>
 
@@ -346,8 +371,15 @@ export default function PaletteGeneratorIsland() {
             color={baseColor}
             onClick={() => openInPicker(baseColor)}
             class="w-10 h-10 rounded-md border border-hairline hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
-            title={`${formatOklch(baseColor)} — click to change this colour`}
-            ariaLabel="Open the color picker to change the base colour"
+            title={t(locale, 'ui.generator.baseSwatchTitle', '{value} — click to change this colour').replace(
+              '{value}',
+              formatOklch(baseColor)
+            )}
+            ariaLabel={t(
+              locale,
+              'ui.generator.baseSwatchAria',
+              'Open the color picker to change the base colour'
+            )}
           >
             {/* Painted on hover only, so the affordance is discoverable without
                 ever tinting the colour the user is judging. Plain `:hover` works
@@ -375,7 +407,7 @@ export default function PaletteGeneratorIsland() {
               value={baseHex}
               spellcheck={false}
               autocomplete="off"
-              aria-label="Base colour in any format"
+              aria-label={t(locale, 'ui.generator.baseInputAria', 'Base colour in any format')}
               onInput={(e) => setBaseHex((e.target as HTMLInputElement).value)}
               class="flex-1 min-w-0 bg-transparent font-mono text-hud text-ink focus:outline-none"
               placeholder="#2563eb · oklch(55% 0.22 255)"
@@ -387,7 +419,7 @@ export default function PaletteGeneratorIsland() {
           </div>
 
           <label class="flex items-center gap-2 lg:ml-auto" htmlFor="generator-variable-name">
-            <span class="eyebrow shrink-0">Variable</span>
+            <span class="eyebrow shrink-0">{t(locale, 'ui.generator.variableLabel', 'Variable')}</span>
             {/*
               A text field with a suggestion menu of existing roles, not a
               `<select>` and not a `<datalist>` anymore. It has to accept a name
@@ -406,11 +438,15 @@ export default function PaletteGeneratorIsland() {
               value={varNameInput}
               onChange={setVarNameInput}
               onCommit={resolveTargetRole}
-              suggestions={Object.values(cart.roles).map((r) => ({ value: r.id, label: r.name }))}
+              suggestions={Object.values(cart.roles).map((r) => ({
+                value: r.id,
+                label: t(locale, 'ui.roles.' + r.id, r.name),
+              }))}
               class="min-w-0 w-full lg:w-44"
               inputClass="hud !py-3 !px-3 font-mono text-label w-full min-w-0 cursor-text"
-              ariaLabel="Custom color variable name"
+              ariaLabel={t(locale, 'ui.generator.variableNameAria', 'Custom color variable name')}
               placeholder="brand-accent"
+              locale={locale}
             />
           </label>
         </div>
@@ -420,7 +456,8 @@ export default function PaletteGeneratorIsland() {
             transform is not obvious, and `--color-Brand Accent-*` is not a
             variable anyone can write. */}
         <p class="font-mono text-micro text-faint">
-          writes to <span class="text-mute">--color-{targetSlug}-*</span>
+          {t(locale, 'ui.generator.writesTo', 'writes to')}{' '}
+          <span class="text-mute">--color-{targetSlug}-*</span>
         </p>
 
         <button
@@ -428,34 +465,46 @@ export default function PaletteGeneratorIsland() {
           class="btn btn-primary w-full sm:w-auto"
         >
           <Plus class="w-4 h-4" aria-hidden="true" strokeWidth={2.5} />
-          Fill --color-{targetSlug}-* with all {SHADE_STEPS.length} steps
+          {t(locale, 'ui.generator.fillAllSteps', 'Fill --color-{slug}-* with all {count} steps')
+            .replace('{slug}', targetSlug)
+            .replace('{count}', String(SHADE_STEPS.length))}
         </button>
       </div>
 
       {/* ── Generated scale ── */}
       <div>
         <div class="flex items-baseline justify-between gap-3 mb-2">
-          <span class="eyebrow">50–950 scale</span>
-          <span class="eyebrow">gamut-clamped</span>
+          <span class="eyebrow">{t(locale, 'ui.generator.scaleHeading', '50–950 scale')}</span>
+          <span class="eyebrow">{t(locale, 'ui.generator.gamutClamped', 'gamut-clamped')}</span>
         </div>
         <SwatchStrip
           shades={scaleRecord}
           onPick={(color, step, anchor) =>
-            openMenu({ color, step, anchor, key: `step-${step}`, label: `Step ${step}` })
+            openMenu({
+              color,
+              step,
+              anchor,
+              key: `step-${step}`,
+              label: t(locale, 'ui.generator.stepLabel', 'Step {step}').replace('{step}', String(step)),
+            })
           }
-          label="Generated scale"
+          label={t(locale, 'ui.generator.generatedScale', 'Generated scale')}
           menu={{ id: MENU_ID, openStep: pending?.step ?? null }}
+          locale={locale}
         />
         <p class="mt-2 font-mono text-micro text-mute">
-          Click a step to copy its value or save it as --color-{targetSlug}-&lt;step&gt;, or add it to
-          the custom palette below.
+          {t(
+            locale,
+            'ui.generator.scaleHint',
+            'Click a step to copy its value or save it as --color-{slug}-<step>, or add it to the custom palette below.'
+          ).replace('{slug}', targetSlug)}
         </p>
       </div>
 
       {/* ── Harmonies ── */}
       <div>
         <div class="mb-2">
-          <span class="eyebrow">Hue harmonies</span>
+          <span class="eyebrow">{t(locale, 'ui.generator.hueHarmonies', 'Hue harmonies')}</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {harmonyGroups.map((g) => (
@@ -485,8 +534,18 @@ export default function PaletteGeneratorIsland() {
                           label: `${g.label} ${i + 1}`,
                         })
                       }
-                      title={`${g.label} ${i + 1}: ${formatOklch(color)} — click to copy or save it`}
-                      aria-label={`${g.label} ${i + 1}: ${formatOklch(color)}`}
+                      title={t(
+                        locale,
+                        'ui.generator.harmonySwatchTitle',
+                        '{label} {index}: {value} — click to copy or save it'
+                      )
+                        .replace('{label}', g.label)
+                        .replace('{index}', String(i + 1))
+                        .replace('{value}', formatOklch(color))}
+                      aria-label={t(locale, 'ui.generator.harmonySwatchAria', '{label} {index}: {value}')
+                        .replace('{label}', g.label)
+                        .replace('{index}', String(i + 1))
+                        .replace('{value}', formatOklch(color))}
                       aria-haspopup="menu"
                       aria-expanded={isOpen}
                       aria-controls={isOpen ? MENU_ID : undefined}
@@ -507,6 +566,7 @@ export default function PaletteGeneratorIsland() {
         onEdit={(color, slotId) => openInPicker(color, { slot: slotId })}
         focusSlot={pendingFocusId}
         onFocusSlot={clearPendingFocus}
+        locale={locale}
       />
 
       {/* One menu, pointed at whichever swatch was clicked last. Rendered outside
@@ -524,6 +584,7 @@ export default function PaletteGeneratorIsland() {
           onSave={saveOnly}
           onAddToPalette={addToPalette}
           onClose={() => setPending(null)}
+          locale={locale}
         />
       )}
     </div>

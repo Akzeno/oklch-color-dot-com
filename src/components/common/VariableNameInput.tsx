@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { TargetedEvent, TargetedKeyboardEvent } from 'preact';
 import { Check } from 'lucide-preact';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 
 /**
  * One row of the suggestion menu: the value that lands in the field, plus the
@@ -32,6 +34,8 @@ export interface VariableNameInputProps {
   suggestions: VariableNameSuggestion[];
   placeholder?: string;
   ariaLabel?: string;
+  /** Locale for the menu's own strings (aria-label, empty states). */
+  locale?: LocaleCode;
   /** Classes for the wrapper the menu is positioned against — sizing lives here. */
   class?: string;
   /** Classes for the input itself. */
@@ -70,6 +74,7 @@ export default function VariableNameInput({
   suggestions,
   placeholder,
   ariaLabel,
+  locale = 'en',
   class: wrapperClass = '',
   inputClass = '',
 }: VariableNameInputProps) {
@@ -284,7 +289,14 @@ export default function VariableNameInput({
         id={listId}
         role="listbox"
         hidden={!open}
-        aria-label={ariaLabel ? `${ariaLabel} suggestions` : 'Suggestions'}
+        aria-label={
+          ariaLabel
+            ? t(locale, 'ui.variableName.suggestionsFor', '{label} suggestions').replace(
+                '{label}',
+                ariaLabel
+              )
+            : t(locale, 'ui.variableName.suggestions', 'Suggestions')
+        }
         // Cancelling mousedown keeps focus on the input — without it, pressing
         // a row blurs the field, the menu unmounts, and the click lands on
         // nothing. It also stops a scrollbar press from shutting the menu
@@ -303,8 +315,16 @@ export default function VariableNameInput({
             class="px-2.5 py-1.5 font-mono text-micro text-faint"
           >
             {suggestions.length === 0
-              ? 'No variables saved yet — press Enter to use this name'
-              : `No match — press Enter to use "${value.trim()}"`}
+              ? t(
+                  locale,
+                  'ui.variableName.noVariables',
+                  'No variables saved yet — press Enter to use this name'
+                )
+              : t(
+                  locale,
+                  'ui.variableName.noMatch',
+                  'No match — press Enter to use "{value}"'
+                ).replace('{value}', value.trim())}
           </li>
         ) : (
           matches.map((s, i) => {

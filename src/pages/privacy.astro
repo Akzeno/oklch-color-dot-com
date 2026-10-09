@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -27,10 +28,10 @@ const seo = localizedSeo('/privacy', locale, {
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label={t(locale, 'pages.privacy.breadcrumbLabel', 'Breadcrumb')}>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'pages.privacy.breadcrumbHome', 'Home')}</a>
       <span>/</span>
-      <span class="text-ink">Privacy Policy</span>
+      <span class="text-ink">{t(locale, 'pages.privacy.breadcrumbPrivacy', 'Privacy Policy')}</span>
     </nav>
 
     <!-- Header Section -->
@@ -39,170 +40,168 @@ const seo = localizedSeo('/privacy', locale, {
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-body">
-        Your privacy matters to us. This policy explains what information we collect, how we use it, and the choices you have when using OKLCH Color Tools.
+        {t(locale, 'pages.privacy.subtitle', 'Your privacy matters to us. This policy explains what information we collect, how we use it, and the choices you have when using OKLCH Color Tools.')}
       </p>
       <p class="text-xs font-mono text-mute">
-        Last updated: 2026-10-07
+        {t(locale, 'pages.privacy.lastUpdated', 'Last updated: 2026-10-07')}
       </p>
     </div>
 
     <!-- 1. Overview -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Overview</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.overviewTitle', 'Overview')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH Color Tools ("we", "our", or "us") operates oklchcolor.com, a free online color tool platform. This Privacy Policy describes how we handle information when you use our website, tools, and services (collectively, the "Service").
+        {t(locale, 'pages.privacy.overviewBody1', 'OKLCH Color Tools ("we", "our", or "us") operates oklchcolor.com, a free online color tool platform. This Privacy Policy describes how we handle information when you use our website, tools, and services (collectively, the "Service").')}
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        Our Service is designed to work without requiring personal information. All color conversions, palette generation, and design token exports run entirely in your browser — your color data never leaves your device.
+        {t(locale, 'pages.privacy.overviewBody2', 'Our Service is designed to work without requiring personal information. All color conversions, palette generation, and design token exports run entirely in your browser — your color data never leaves your device.')}
       </p>
     </section>
 
     <!-- 2. Information We Collect -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Information We Collect</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.collectTitle', 'Information We Collect')}</h2>
 
-      <h3 class="text-sm font-semibold text-ink">Information You Provide</h3>
+      <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.privacy.providedTitle', 'Information You Provide')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        We collect information you voluntarily provide when you contact us through our contact form, email, or feedback channels. This may include:
+        {t(locale, 'pages.privacy.providedIntro', 'We collect information you voluntarily provide when you contact us through our contact form, email, or feedback channels. This may include:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Your name and email address (when you contact us)</li>
-        <li>The content of your messages, feedback, or bug reports</li>
-        <li>Any screenshots or color values you choose to share</li>
+        <li>{t(locale, 'pages.privacy.provided1', 'Your name and email address (when you contact us)')}</li>
+        <li>{t(locale, 'pages.privacy.provided2', 'The content of your messages, feedback, or bug reports')}</li>
+        <li>{t(locale, 'pages.privacy.provided3', 'Any screenshots or color values you choose to share')}</li>
       </ul>
 
-      <h3 class="text-sm font-semibold text-ink pt-2">Information Collected Automatically</h3>
+      <h3 class="text-sm font-semibold text-ink pt-2">{t(locale, 'pages.privacy.autoTitle', 'Information Collected Automatically')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        Like most websites, we automatically collect certain technical information when you visit:
+        {t(locale, 'pages.privacy.autoIntro', 'Like most websites, we automatically collect certain technical information when you visit:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Browser type and version</li>
-        <li>Operating system</li>
-        <li>Device type (desktop, tablet, mobile)</li>
-        <li>Pages visited and time spent on each page</li>
-        <li>Referring website or source</li>
-        <li>Approximate geographic location (country/region level)</li>
+        <li>{t(locale, 'pages.privacy.auto1', 'Browser type and version')}</li>
+        <li>{t(locale, 'pages.privacy.auto2', 'Operating system')}</li>
+        <li>{t(locale, 'pages.privacy.auto3', 'Device type (desktop, tablet, mobile)')}</li>
+        <li>{t(locale, 'pages.privacy.auto4', 'Pages visited and time spent on each page')}</li>
+        <li>{t(locale, 'pages.privacy.auto5', 'Referring website or source')}</li>
+        <li>{t(locale, 'pages.privacy.auto6', 'Approximate geographic location (country/region level)')}</li>
       </ul>
 
-      <h3 class="text-sm font-semibold text-ink pt-2">Cookies and Local Storage</h3>
+      <h3 class="text-sm font-semibold text-ink pt-2">{t(locale, 'pages.privacy.cookiesTitle', 'Cookies and Local Storage')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        We use browser localStorage to remember your preferences (theme selection, sidebar state, cart contents). This data stays on your device and is never transmitted to our servers. We do not use third-party tracking cookies or advertising cookies.
+        {t(locale, 'pages.privacy.cookiesBody', 'We use browser localStorage to remember your preferences (theme selection, sidebar state, cart contents). This data stays on your device and is never transmitted to our servers. We do not use third-party tracking cookies or advertising cookies.')}
       </p>
     </section>
 
     <!-- 3. How We Use Information -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">How We Use Information</h2>
-      <p class="text-xs md:text-sm font-mono text-body">We use the information we collect to:</p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.useTitle', 'How We Use Information')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body">{t(locale, 'pages.privacy.useIntro', 'We use the information we collect to:')}</p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Provide, maintain, and improve the Service</li>
-        <li>Respond to your questions, feedback, and support requests</li>
-        <li>Analyze usage patterns to understand which tools are most helpful</li>
-        <li>Detect, prevent, and address technical issues or abuse</li>
-        <li>Comply with legal obligations</li>
+        <li>{t(locale, 'pages.privacy.use1', 'Provide, maintain, and improve the Service')}</li>
+        <li>{t(locale, 'pages.privacy.use2', 'Respond to your questions, feedback, and support requests')}</li>
+        <li>{t(locale, 'pages.privacy.use3', 'Analyze usage patterns to understand which tools are most helpful')}</li>
+        <li>{t(locale, 'pages.privacy.use4', 'Detect, prevent, and address technical issues or abuse')}</li>
+        <li>{t(locale, 'pages.privacy.use5', 'Comply with legal obligations')}</li>
       </ul>
       <p class="text-xs md:text-sm font-mono text-body">
-        We do not sell, rent, or trade your personal information to third parties.
+        {t(locale, 'pages.privacy.useNote', 'We do not sell, rent, or trade your personal information to third parties.')}
       </p>
     </section>
 
     <!-- 4. Data Storage and Security -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Data Storage and Security</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.storageTitle', 'Data Storage and Security')}</h2>
 
-      <h3 class="text-sm font-semibold text-ink">Client-Side Processing</h3>
+      <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.privacy.clientTitle', 'Client-Side Processing')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        The core functionality of our Service — color picking, conversion, palette generation, and export — runs entirely in your browser using JavaScript. Your color values, palettes, and design tokens are never sent to our servers. This means:
+        {t(locale, 'pages.privacy.clientIntro', 'The core functionality of our Service — color picking, conversion, palette generation, and export — runs entirely in your browser using JavaScript. Your color values, palettes, and design tokens are never sent to our servers. This means:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Your color data remains on your device at all times</li>
-        <li>You can use our tools with your browser in offline mode (after initial page load)</li>
-        <li>We have no access to the colors you work with</li>
+        <li>{t(locale, 'pages.privacy.client1', 'Your color data remains on your device at all times')}</li>
+        <li>{t(locale, 'pages.privacy.client2', 'You can use our tools with your browser in offline mode (after initial page load)')}</li>
+        <li>{t(locale, 'pages.privacy.client3', 'We have no access to the colors you work with')}</li>
       </ul>
 
-      <h3 class="text-sm font-semibold text-ink pt-2">Server-Side Data</h3>
+      <h3 class="text-sm font-semibold text-ink pt-2">{t(locale, 'pages.privacy.serverTitle', 'Server-Side Data')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        Our website is hosted on Cloudflare Pages, a static hosting platform. We do not operate traditional application servers or databases. The limited data we do collect (contact form submissions, anonymous analytics) is processed using industry-standard security measures.
+        {t(locale, 'pages.privacy.serverBody', 'Our website is hosted on Cloudflare Pages, a static hosting platform. We do not operate traditional application servers or databases. The limited data we do collect (contact form submissions, anonymous analytics) is processed using industry-standard security measures.')}
       </p>
     </section>
 
     <!-- 5. Third-Party Services -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Third-Party Services</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.thirdTitle', 'Third-Party Services')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        We use a limited number of third-party services to operate and improve the Service:
+        {t(locale, 'pages.privacy.thirdIntro', 'We use a limited number of third-party services to operate and improve the Service:')}
       </p>
       <div class="space-y-3">
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-xs font-semibold text-ink block">Cloudflare</span>
-          <span class="text-xs font-mono text-body block">Hosting, CDN, and DDoS protection. Cloudflare may log standard server access logs (IP address, request details) as part of providing these services.</span>
+          <span class="text-xs font-semibold text-ink block">{t(locale, 'pages.privacy.cloudflareName', 'Cloudflare')}</span>
+          <span class="text-xs font-mono text-body block">{t(locale, 'pages.privacy.cloudflareBody', 'Hosting, CDN, and DDoS protection. Cloudflare may log standard server access logs (IP address, request details) as part of providing these services.')}</span>
         </div>
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-xs font-semibold text-ink block">Google Fonts</span>
-          <span class="text-xs font-mono text-body block">We use Geist and Geist Mono fonts served by Google Fonts. Google may collect standard technical information (IP address, browser type) when serving these fonts.</span>
+          <span class="text-xs font-semibold text-ink block">{t(locale, 'pages.privacy.googleFontsName', 'Google Fonts')}</span>
+          <span class="text-xs font-mono text-body block">{t(locale, 'pages.privacy.googleFontsBody', 'We use Geist and Geist Mono fonts served by Google Fonts. Google may collect standard technical information (IP address, browser type) when serving these fonts.')}</span>
         </div>
       </div>
       <p class="text-xs md:text-sm font-mono text-body">
-        We do not use third-party analytics services that track individual user behavior across websites.
+        {t(locale, 'pages.privacy.thirdNote', 'We do not use third-party analytics services that track individual user behavior across websites.')}
       </p>
     </section>
 
     <!-- 6. Your Rights -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Your Rights</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.rightsTitle', 'Your Rights')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        Depending on your location, you may have certain rights regarding your personal information:
+        {t(locale, 'pages.privacy.rightsIntro', 'Depending on your location, you may have certain rights regarding your personal information:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li><strong class="text-ink">Access:</strong> Request a copy of the personal information we hold about you</li>
-        <li><strong class="text-ink">Correction:</strong> Request that we correct inaccurate information</li>
-        <li><strong class="text-ink">Deletion:</strong> Request that we delete your personal information</li>
-        <li><strong class="text-ink">Objection:</strong> Object to our processing of your information</li>
-        <li><strong class="text-ink">Portability:</strong> Request your information in a portable format</li>
+        <li set:html={t(locale, 'pages.privacy.rights1', '<strong class="text-ink">Access:</strong> Request a copy of the personal information we hold about you')} />
+        <li set:html={t(locale, 'pages.privacy.rights2', '<strong class="text-ink">Correction:</strong> Request that we correct inaccurate information')} />
+        <li set:html={t(locale, 'pages.privacy.rights3', '<strong class="text-ink">Deletion:</strong> Request that we delete your personal information')} />
+        <li set:html={t(locale, 'pages.privacy.rights4', '<strong class="text-ink">Objection:</strong> Object to our processing of your information')} />
+        <li set:html={t(locale, 'pages.privacy.rights5', '<strong class="text-ink">Portability:</strong> Request your information in a portable format')} />
       </ul>
-      <p class="text-xs md:text-sm font-mono text-body">
-        To exercise any of these rights, please contact us at <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a>. We will respond to your request within 30 days.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.privacy.rightsBody', 'To exercise any of these rights, please contact us at <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a>. We will respond to your request within 30 days.')} />
     </section>
 
     <!-- 7. Children's Privacy -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Children's Privacy</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.childrenTitle', 'Children\'s Privacy')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        Our Service is not directed to children under the age of 13, and we do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will delete it.
+        {t(locale, 'pages.privacy.childrenBody', 'Our Service is not directed to children under the age of 13, and we do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will delete it.')}
       </p>
     </section>
 
     <!-- 8. Changes to This Policy -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Changes to This Policy</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.changesTitle', 'Changes to This Policy')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        We may update this Privacy Policy from time to time. When we do, we will revise the "Last updated" date at the top of this page. We encourage you to review this policy periodically to stay informed about how we protect your information.
+        {t(locale, 'pages.privacy.changesBody1', 'We may update this Privacy Policy from time to time. When we do, we will revise the "Last updated" date at the top of this page. We encourage you to review this policy periodically to stay informed about how we protect your information.')}
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        Significant changes will be announced on our homepage or via a notice on the Service.
+        {t(locale, 'pages.privacy.changesBody2', 'Significant changes will be announced on our homepage or via a notice on the Service.')}
       </p>
     </section>
 
     <!-- 9. Contact Us -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Contact Us</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.privacy.contactTitle', 'Contact Us')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        If you have any questions about this Privacy Policy or our data practices, please contact us:
+        {t(locale, 'pages.privacy.contactIntro', 'If you have any questions about this Privacy Policy or our data practices, please contact us:')}
       </p>
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">Email:</strong> <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a></p>
-        <p><strong class="text-ink">Contact page:</strong> <a href={buildLocalizedPath('/contact', locale)} class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
+        <p><strong class="text-ink">{t(locale, 'pages.privacy.contactEmailLabel', 'Email:')}</strong> <a href="mailto:privacy@oklchcolor.com" class="text-accent-text hover:underline">privacy@oklchcolor.com</a></p>
+        <p><strong class="text-ink">{t(locale, 'pages.privacy.contactPageLabel', 'Contact page:')}</strong> <a href={buildLocalizedPath('/contact', locale)} class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
       </div>
     </section>
 
     <!-- Internal Links -->
     <section class="space-y-3 pt-6 border-t border-hairline">
-      <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
+      <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.privacy.relatedTitle', 'Related Pages')}</h2>
       <div class="flex flex-wrap gap-2">
-        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
-        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
-        <a href={buildLocalizedPath('/contact', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.privacy.linkAbout', 'About Us')}</a>
+        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.privacy.linkTerms', 'Terms & Conditions')}</a>
+        <a href={buildLocalizedPath('/contact', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.privacy.linkContact', 'Contact Us')}</a>
       </div>
     </section>
   </div>

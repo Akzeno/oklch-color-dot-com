@@ -99,7 +99,7 @@ check('empty slots are still rendered through the grid',
 check('an empty slot is a button that opens the picker',
   /onClick=\{\(\) => openPicker\(activeRole\.id, step, null\)\}/.test(drawer));
 check('and it says what it will author',
-  /title=\{`Author --color-\$\{activeRole\.id\}-\$\{step\}/.test(drawer));
+  /t\(locale, 'ui\.cart\.authorSlotTitle'[\s\S]{0,120}?--color-\$\{activeRole\.id\}-\$\{step\}/.test(drawer));
 
 console.log('\n=== There is also one guaranteed way forward ===');
 // The dashed cells are compact; a role with no colours should not have to spot

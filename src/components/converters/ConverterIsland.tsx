@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'preact/hooks';
 import { useStore } from '@nanostores/preact';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import {
   createOklchColor,
   formatOklch,
@@ -24,6 +26,7 @@ export type ConverterMode =
 
 interface ConverterIslandProps {
   initialMode?: ConverterMode;
+  locale?: LocaleCode;
 }
 
 const DEFAULT_COLOR = createOklchColor(0.62, 0.19, 255);
@@ -44,7 +47,10 @@ const MODES: { id: ConverterMode; label: string }[] = [
   { id: 'oklch-to-hsl', label: 'OKLCH → HSL' },
 ];
 
-export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: ConverterIslandProps) {
+export default function ConverterIsland({
+  initialMode = 'hex-to-oklch',
+  locale = 'en',
+}: ConverterIslandProps) {
   const cart = useStore(cartStore);
   const [mode, setMode] = useState<ConverterMode>(initialMode);
 
@@ -74,22 +80,22 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
       case 'hex-to-oklch':
       case 'rgb-to-oklch':
       case 'hsl-to-oklch':
-        return { label: 'OKLCH Output', value: oklchOutput };
+        return { label: t(locale, 'ui.converter.oklchOutput', 'OKLCH Output'), value: oklchOutput };
       case 'oklch-to-hex':
-        return { label: 'HEX Output', value: hexOutput };
+        return { label: t(locale, 'ui.converter.hexOutput', 'HEX Output'), value: hexOutput };
       case 'oklch-to-rgb':
-        return { label: 'RGB Output', value: rgbOutput };
+        return { label: t(locale, 'ui.converter.rgbOutput', 'RGB Output'), value: rgbOutput };
       case 'oklch-to-hsl':
-        return { label: 'HSL Output', value: hslOutput };
+        return { label: t(locale, 'ui.converter.hslOutput', 'HSL Output'), value: hslOutput };
     }
-  }, [mode, oklchOutput, hexOutput, rgbOutput, hslOutput]);
+  }, [mode, oklchOutput, hexOutput, rgbOutput, hslOutput, locale]);
 
   const copyValue = async (val: string, label: string) => {
     try {
       await navigator.clipboard.writeText(val);
-      showToast(`Copied ${label}`);
+      showToast(t(locale, 'ui.converter.copied', 'Copied {label}').replace('{label}', label));
     } catch {
-      showToast(`Failed to copy ${label}`);
+      showToast(t(locale, 'ui.converter.copyFailed', 'Failed to copy {label}').replace('{label}', label));
     }
   };
 
@@ -113,9 +119,13 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
       {/* Mode Direction Switcher Pills */}
       <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-hairline">
         <span class="text-xs font-mono uppercase tracking-wider text-mute">
-          Conversion Direction
+          {t(locale, 'ui.converter.conversionDirection', 'Conversion Direction')}
         </span>
-        <div class="flex items-center gap-1.5 flex-wrap" role="tablist" aria-label="Conversion modes">
+        <div
+          class="flex items-center gap-1.5 flex-wrap"
+          role="tablist"
+          aria-label={t(locale, 'ui.converter.conversionModesAria', 'Conversion modes')}
+        >
           {MODES.map((m) => (
             <button
               key={m.id}
@@ -138,10 +148,15 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
         <div class="md:col-span-5 space-y-2">
           <div class="flex items-center justify-between">
             <label for="color-input" class="text-xs font-mono text-body block">
-              Input ({inputFormat.toUpperCase()})
+              {t(locale, 'ui.converter.inputLabel', 'Input ({format})').replace(
+                '{format}',
+                inputFormat.toUpperCase()
+              )}
             </label>
             {!isValidInput && (
-              <span class="text-[10px] font-mono text-gamut-warning">Invalid syntax</span>
+              <span class="text-[10px] font-mono text-gamut-warning">
+                {t(locale, 'ui.converter.invalidSyntax', 'Invalid syntax')}
+              </span>
             )}
           </div>
           <div
@@ -156,11 +171,18 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
               value={inputValue}
               onInput={(e) => setInputValue((e.target as HTMLInputElement).value)}
               class="w-full bg-transparent text-sm font-mono text-ink focus:outline-none"
-              placeholder="Enter color value..."
+              placeholder={t(
+                locale,
+                'ui.converter.enterValuePlaceholder',
+                'Enter color value...'
+              )}
             />
           </div>
           <span class="text-[11px] font-mono text-mute block">
-            Example: {MODE_EXAMPLES[inputFormat] ?? MODE_EXAMPLES.hex}
+            {t(locale, 'ui.converter.exampleLabel', 'Example: {example}').replace(
+              '{example}',
+              MODE_EXAMPLES[inputFormat] ?? MODE_EXAMPLES.hex
+            )}
           </span>
         </div>
 
@@ -168,7 +190,7 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
         <div class="md:col-span-2 flex flex-col items-center justify-center">
           <div
             class="w-14 h-14 rounded-xl border border-hairline shadow-lg relative checker-bg flex items-center justify-center group overflow-hidden"
-            title="Preview swatch"
+            title={t(locale, 'ui.converter.previewSwatch', 'Preview swatch')}
           >
             <div
               class="absolute inset-0 transition-colors"
@@ -179,9 +201,13 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
             {parsedColor.inSRGB ? (
               <span class="text-[10px] font-mono text-copy-success">sRGB</span>
             ) : parsedColor.inP3 ? (
-              <span class="text-[10px] font-mono text-gamut-p3">P3 Gamut</span>
+              <span class="text-[10px] font-mono text-gamut-p3">
+                {t(locale, 'ui.converter.p3Gamut', 'P3 Gamut')}
+              </span>
             ) : (
-              <span class="text-[10px] font-mono text-gamut-warning">Clamped</span>
+              <span class="text-[10px] font-mono text-gamut-warning">
+                {t(locale, 'ui.converter.clamped', 'Clamped')}
+              </span>
             )}
           </div>
         </div>
@@ -205,21 +231,25 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
               <button
                 onClick={() => copyValue(primaryOutput.value, primaryOutput.label)}
                 class="touch-target px-2.5 py-1 rounded bg-canvas-elevated hover:bg-hairline text-xs font-mono text-ink transition-colors"
-                title="Copy value"
+                title={t(locale, 'ui.converter.copyValue', 'Copy value')}
               >
-                Copy
+                {t(locale, 'ui.converter.copy', 'Copy')}
               </button>
               <button
                 onClick={() => addColorToCart(parsedColor, cart.activeRoleId)}
                 class="touch-target px-2.5 py-1 rounded bg-ink hover:bg-ink-hover text-xs font-mono text-ink-inverse font-medium transition-colors"
-                title="Add to cart"
+                title={t(locale, 'ui.converter.addToCart', 'Add to cart')}
               >
-                + Cart
+                {t(locale, 'ui.converter.cart', '+ Cart')}
               </button>
             </div>
           </div>
           <span class="text-[11px] font-mono text-mute block">
-            Target shade: {Math.round(parsedColor.l * 1000) / 10}% lightness
+            {t(
+              locale,
+              'ui.converter.targetShade',
+              'Target shade: {lightness}% lightness'
+            ).replace('{lightness}', String(Math.round(parsedColor.l * 1000) / 10))}
           </span>
         </div>
       </div>
@@ -227,7 +257,11 @@ export default function ConverterIsland({ initialMode = 'hex-to-oklch' }: Conver
       {/* All Secondary Representations */}
       <div class="pt-4 border-t border-hairline">
         <span class="text-[11px] font-mono uppercase tracking-wider text-mute block mb-2.5">
-          All Equivalent Formats (Click to copy)
+          {t(
+            locale,
+            'ui.converter.allFormats',
+            'All Equivalent Formats (Click to copy)'
+          )}
         </span>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 font-mono text-xs">
           {[

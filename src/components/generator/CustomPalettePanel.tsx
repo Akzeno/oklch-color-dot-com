@@ -17,6 +17,8 @@ import {
   type CustomPaletteSlot,
 } from '../../stores/customPaletteStore';
 import { useCustomPalette } from '../../hooks/useCustomPalette';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import ColorSwatch from '../common/ColorSwatch';
 
 const FORMATS: { id: CustomPaletteFormat; label: string; filename: string }[] = [
@@ -75,6 +77,8 @@ export interface CustomPalettePanelProps {
   focusSlot?: string | null;
   /** Tells the page the caret request was honoured, so it is not replayed. */
   onFocusSlot?: (id: string | null) => void;
+  /** Locale for the panel's own labels and toasts. */
+  locale?: LocaleCode;
 }
 
 /**
@@ -107,7 +111,7 @@ export interface CustomPalettePanelProps {
  * `parseAnyToOklch` does, normalises on commit, and leaves a half-typed value
  * alone rather than guessing at it.
  */
-export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: CustomPalettePanelProps) {
+export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot, locale = 'en' }: CustomPalettePanelProps) {
   const slots = useCustomPalette();
   const [format, setFormat] = useState<CustomPaletteFormat>('theme');
   const [copied, setCopied] = useState(false);
@@ -213,7 +217,9 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
   const copyValue = async (value: string) => {
     const copiedOk = await writeClipboard(value);
     showToast(
-      copiedOk ? `Copied ${value}` : 'Clipboard blocked by the browser',
+      copiedOk
+        ? t(locale, 'ui.generator.copiedValue', 'Copied {value}').replace('{value}', value)
+        : t(locale, 'ui.generator.clipboardBlocked', 'Clipboard blocked by the browser'),
       copiedOk ? 'success' : 'info'
     );
   };
@@ -223,8 +229,11 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
     const copiedOk = await writeClipboard(block);
     showToast(
       copiedOk
-        ? `Copied ${lines.length} ${lines.length === 1 ? 'variable' : 'variables'}`
-        : 'Clipboard blocked by the browser',
+        ? (lines.length === 1
+            ? t(locale, 'ui.generator.panel.copiedVariableOne', 'Copied {count} variable')
+            : t(locale, 'ui.generator.panel.copiedVariableMany', 'Copied {count} variables')
+          ).replace('{count}', String(lines.length))
+        : t(locale, 'ui.generator.clipboardBlocked', 'Clipboard blocked by the browser'),
       copiedOk ? 'success' : 'info'
     );
     // The confirmation is short-lived, and the button keeps its real label after
@@ -247,13 +256,22 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
     const variable = paletteVariable(slot, index);
     removePaletteSlot(slot.id);
     dropDraft(slot.id);
-    showToast(`Removed ${variable}`, 'success', {
-      label: 'Undo',
-      run: () => {
-        restorePaletteSlot(slot, index);
-        showToast(`Restored ${variable}`);
-      },
-    });
+    showToast(
+      t(locale, 'ui.generator.panel.removed', 'Removed {variable}').replace('{variable}', variable),
+      'success',
+      {
+        label: t(locale, 'ui.generator.undo', 'Undo'),
+        run: () => {
+          restorePaletteSlot(slot, index);
+          showToast(
+            t(locale, 'ui.generator.panel.restored', 'Restored {variable}').replace(
+              '{variable}',
+              variable
+            )
+          );
+        },
+      }
+    );
   };
 
   /** Emptying every row is the one action undo has to restore wholesale. */
@@ -262,23 +280,40 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
     const snapshot = slots;
     replaceCustomPalette([]);
     dropDraft();
-    showToast(`Cleared ${snapshot.length} colours`, 'success', {
-      label: 'Undo',
-      run: () => {
-        replaceCustomPalette(snapshot);
-        showToast('Palette restored');
-      },
-    });
+    showToast(
+      t(locale, 'ui.generator.panel.cleared', 'Cleared {count} colours').replace(
+        '{count}',
+        String(snapshot.length)
+      ),
+      'success',
+      {
+        label: t(locale, 'ui.generator.undo', 'Undo'),
+        run: () => {
+          replaceCustomPalette(snapshot);
+          showToast(t(locale, 'ui.generator.panel.paletteRestored', 'Palette restored'));
+        },
+      }
+    );
   };
 
   return (
     <div class="card !p-4 space-y-3">
       <div class="flex items-start justify-between gap-3 flex-wrap">
         <div class="space-y-1">
-          <span class="eyebrow">Custom palette</span>
+          <span class="eyebrow">{t(locale, 'ui.generator.panel.title', 'Custom palette')}</span>
           <p class="font-mono text-micro text-faint">
-            {slots.length} independent {slots.length === 1 ? 'colour' : 'colours'} · no shared
-            scale · paste a value or click a swatch to edit it
+            {(slots.length === 1
+              ? t(
+                  locale,
+                  'ui.generator.panel.subtitleOne',
+                  '{count} independent colour · no shared scale · paste a value or click a swatch to edit it'
+                )
+              : t(
+                  locale,
+                  'ui.generator.panel.subtitleMany',
+                  '{count} independent colours · no shared scale · paste a value or click a swatch to edit it'
+                )
+            ).replace('{count}', String(slots.length))}
           </p>
         </div>
 
@@ -286,14 +321,18 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
           <button
             onClick={() => setFocusId(addPaletteSlot())}
             class="chip !py-1 !px-2.5 !text-micro"
-            title="Add a colour to the palette"
+            title={t(locale, 'ui.generator.panel.addColourHint', 'Add a colour to the palette')}
           >
             <Plus class="w-3 h-3" aria-hidden="true" strokeWidth={2.5} />
-            Add colour
+            {t(locale, 'ui.generator.panel.addColour', 'Add colour')}
           </button>
           {slots.length > 0 && (
-            <button onClick={clearAll} class="chip !py-1 !px-2.5 !text-micro" title="Remove every colour from this palette">
-              Clear
+            <button
+              onClick={clearAll}
+              class="chip !py-1 !px-2.5 !text-micro"
+              title={t(locale, 'ui.generator.panel.clearHint', 'Remove every colour from this palette')}
+            >
+              {t(locale, 'ui.generator.panel.clear', 'Clear')}
             </button>
           )}
         </div>
@@ -312,8 +351,11 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
 
       {slots.length === 0 ? (
         <p class="font-mono text-micro text-mute">
-          No colours yet. Add one, then paste a value into it — or click its swatch to change it in
-          the color picker.
+          {t(
+            locale,
+            'ui.generator.panel.empty',
+            'No colours yet. Add one, then paste a value into it — or click its swatch to change it in the color picker.'
+          )}
         </p>
       ) : (
         <ul class="space-y-2">
@@ -337,8 +379,16 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                     onEdit(slot.color, slot.id);
                   }}
                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-md border border-hairline shrink-0 hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
-                  title={`Edit ${label} in the color picker`}
-                  ariaLabel={`Open the color picker to edit ${label}`}
+                  title={t(
+                    locale,
+                    'ui.generator.panel.editHint',
+                    'Edit {label} in the color picker'
+                  ).replace('{label}', label)}
+                  ariaLabel={t(
+                    locale,
+                    'ui.generator.panel.editAria',
+                    'Open the color picker to edit {label}'
+                  ).replace('{label}', label)}
                 >
                   {/* Hover-only, like the base swatch: the affordance is
                       discoverable without tinting the colour being judged. The
@@ -364,7 +414,11 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                     value={slot.name}
                     spellcheck={false}
                     autocomplete="off"
-                    aria-label={`Variable name for ${label}`}
+                    aria-label={t(
+                      locale,
+                      'ui.generator.panel.variableNameAria',
+                      'Variable name for {label}'
+                    ).replace('{label}', label)}
                     placeholder="brand"
                     onInput={(e) => renamePaletteSlot(slot.id, (e.target as HTMLInputElement).value)}
                     class="hud !py-1 w-full font-mono text-label cursor-text"
@@ -386,7 +440,11 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                       value={shown}
                       spellcheck={false}
                       autocomplete="off"
-                      aria-label={`Colour value for ${label}`}
+                      aria-label={t(
+                        locale,
+                        'ui.generator.panel.colourValueAria',
+                        'Colour value for {label}'
+                      ).replace('{label}', label)}
                       aria-invalid={unparsed ? 'true' : undefined}
                       placeholder="#2563eb · oklch(55% 0.22 255)"
                       onInput={(e) => {
@@ -417,8 +475,15 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                       type="button"
                       onClick={() => copyValue(value)}
                       class="icon-btn icon-btn-xs shrink-0"
-                      aria-label={`Copy the value of ${label}`}
-                      title={`Copy ${value}`}
+                      aria-label={t(
+                        locale,
+                        'ui.generator.panel.copyValueAria',
+                        'Copy the value of {label}'
+                      ).replace('{label}', label)}
+                      title={t(locale, 'ui.generator.panel.copyValueHint', 'Copy {value}').replace(
+                        '{value}',
+                        value
+                      )}
                     >
                       <Copy class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
                     </button>
@@ -426,7 +491,7 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                       {variable}
                     </span>
                     {slot.color.inP3 && !slot.color.inSRGB && (
-                      <span class="font-mono text-micro text-gamut-p3 shrink-0" title="Inside Display-P3, outside sRGB">
+                      <span class="font-mono text-micro text-gamut-p3 shrink-0" title={t(locale, 'ui.generator.panel.p3Hint', 'Inside Display-P3, outside sRGB')}>
                         P3
                       </span>
                     )}
@@ -439,8 +504,11 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                       is no longer typing and it is clear it will never parse. */}
                   {unparsed && (
                     <p class="font-mono text-micro text-gamut-warning">
-                      Not a colour — paste hex, rgb(), hsl() or oklch(). The row still holds{' '}
-                      {value}.
+                      {t(
+                        locale,
+                        'ui.generator.panel.unparsed',
+                        'Not a colour — paste hex, rgb(), hsl() or oklch(). The row still holds {value}.'
+                      ).replace('{value}', value)}
                     </p>
                   )}
                 </div>
@@ -449,8 +517,14 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
                   type="button"
                   onClick={() => remove(slot, index)}
                   class="icon-btn icon-btn-xs shrink-0 mt-0.5"
-                  aria-label={`Remove ${variable}`}
-                  title={`Remove ${variable}`}
+                  aria-label={t(locale, 'ui.generator.panel.removeAria', 'Remove {variable}').replace(
+                    '{variable}',
+                    variable
+                  )}
+                  title={t(locale, 'ui.generator.panel.removeAria', 'Remove {variable}').replace(
+                    '{variable}',
+                    variable
+                  )}
                 >
                   <Trash2 class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
                 </button>
@@ -468,7 +542,7 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
       {slots.length > 0 && (
         <>
           <div class="flex items-center justify-between gap-3 flex-wrap">
-            <div class="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Palette format">
+            <div class="flex items-center gap-1.5 flex-wrap" role="group" aria-label={t(locale, 'ui.generator.panel.formatGroupAria', 'Palette format')}>
               {FORMATS.map((fmt) => (
                 <button
                   key={fmt.id}
@@ -485,14 +559,19 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
               onClick={copyBlock}
               disabled={!block}
               class="btn btn-quiet !min-h-9 !px-3"
-              title={`Copy ${lines.length} ${lines.length === 1 ? 'variable' : 'variables'} as ${meta.label}`}
+              title={(lines.length === 1
+                ? t(locale, 'ui.generator.panel.copyAllHintOne', 'Copy {count} variable as {format}')
+                : t(locale, 'ui.generator.panel.copyAllHintMany', 'Copy {count} variables as {format}')
+              )
+                .replace('{count}', String(lines.length))
+                .replace('{format}', meta.label)}
             >
               {copied ? (
                 <Check class="w-4 h-4 text-copy-success" aria-hidden="true" strokeWidth={2.5} />
               ) : (
                 <Copy class="w-4 h-4" aria-hidden="true" strokeWidth={2} />
               )}
-              <span>{copied ? 'Copied' : 'Copy all'}</span>
+              <span>{copied ? t(locale, 'ui.generator.panel.copied', 'Copied') : t(locale, 'ui.generator.panel.copyAll', 'Copy all')}</span>
             </button>
           </div>
 
@@ -505,7 +584,11 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
           */}
           {duplicates.length > 0 && (
             <p class="font-mono text-micro text-mute">
-              Duplicate name dropped from the block:{' '}
+              {t(
+                locale,
+                'ui.generator.panel.duplicatesNote',
+                'Duplicate name dropped from the block:'
+              )}{' '}
               <span class="text-body">{duplicates.join(', ')}</span>
             </p>
           )}
@@ -514,7 +597,10 @@ export default function CustomPalettePanel({ onEdit, focusSlot, onFocusSlot }: C
             <div class="flex items-center justify-between gap-3 px-3 py-2 bg-canvas-card border-b border-hairline">
               <span class="font-mono text-micro text-mute">{meta.filename}</span>
               <span class="eyebrow">
-                {lines.length} {lines.length === 1 ? 'variable' : 'variables'}
+                {(lines.length === 1
+                  ? t(locale, 'ui.generator.panel.variableCountOne', '{count} variable')
+                  : t(locale, 'ui.generator.panel.variableCountMany', '{count} variables')
+                ).replace('{count}', String(lines.length))}
               </span>
             </div>
             <pre class="m-0 p-3 font-mono text-micro text-ink whitespace-pre overflow-x-auto">

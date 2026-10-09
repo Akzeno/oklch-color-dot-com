@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { scorePair, worstOf } from '../slots';
+import { t } from '../../../../i18n/translations';
 import {
   KitAvatar,
   KitBadge,
@@ -45,59 +46,123 @@ import type { Paint } from '../slots';
  */
 export function NavigationGroup({ paint }: { paint: Paint }) {
   const worst = worstOf([
-    scorePair('Primary on canvas', paint.accents.primary.fill, paint.fixture.canvas),
-    scorePair('Text on canvas', paint.text, paint.fixture.canvas),
-    scorePair('Muted on surface', paint.muted, paint.fixture.surface),
+    scorePair(
+      t(paint.locale, 'ui.preview.navigation.pairPrimaryOnCanvas', 'Primary on canvas'),
+      paint.accents.primary.fill,
+      paint.fixture.canvas
+    ),
+    scorePair(
+      t(paint.locale, 'ui.preview.navigation.pairTextOnCanvas', 'Text on canvas'),
+      paint.text,
+      paint.fixture.canvas
+    ),
+    scorePair(
+      t(paint.locale, 'ui.preview.navigation.pairMutedOnSurface', 'Muted on surface'),
+      paint.muted,
+      paint.fixture.surface
+    ),
   ]);
 
   return (
     <div class="space-y-8">
       <Rail
-        label="Chrome"
-        description="The same three neutrals stacked five ways. If the steps between them are too close, this is where it shows."
-        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        label={t(paint.locale, 'ui.preview.navigation.chromeTitle', 'Chrome')}
+        description={t(
+          paint.locale,
+          'ui.preview.navigation.chromeDesc',
+          'The same three neutrals stacked five ways. If the steps between them are too close, this is where it shows.'
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.navigation.hintBgText', 'set background + text to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
-        <Specimen name="Top bar" variant="Solid">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameTopBar', 'Top bar')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantSolid', 'Solid')}
+        >
           {(paint) => (
             <KitToolbar paint={paint} title="Acme" />
           )}
         </Specimen>
 
-        <Specimen name="Sidebar" variant="Rails">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameSidebar', 'Sidebar')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantRails', 'Rails')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-2 space-y-0.5">
-              {['Overview', 'Palettes', 'Tokens', 'Exports'].map((item, i) => (
+              {[
+                t(paint.locale, 'ui.preview.navigation.itemOverview', 'Overview'),
+                t(paint.locale, 'ui.preview.navigation.itemPalettes', 'Palettes'),
+                t(paint.locale, 'ui.preview.navigation.itemTokens', 'Tokens'),
+                t(paint.locale, 'ui.preview.navigation.itemExports', 'Exports'),
+              ].map((item, i) => (
                 <KitNavRow key={item} paint={paint} label={item} active={i === 1} trailing={i === 1 ? '24' : undefined} />
               ))}
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Tabs" variant="Underline">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameTabs', 'Tabs')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantUnderline', 'Underline')}
+        >
           {(paint) => (
-            <KitTabs paint={paint} items={['Home', 'Profile', 'Settings']} active={1} />
+            <KitTabs
+              paint={paint}
+              items={[
+                t(paint.locale, 'ui.preview.navigation.tabHome', 'Home'),
+                t(paint.locale, 'ui.preview.navigation.tabProfile', 'Profile'),
+                t(paint.locale, 'ui.preview.navigation.tabSettings', 'Settings'),
+              ]}
+              active={1}
+            />
           )}
         </Specimen>
 
-        <Specimen name="Breadcrumbs" variant="Trail">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameBreadcrumbs', 'Breadcrumbs')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantTrail', 'Trail')}
+        >
           {(paint) => (
             <div class="w-full space-y-2.5">
-              <KitBreadcrumbs paint={paint} items={['Projects', 'Acme', 'Tokens']} />
+              <KitBreadcrumbs
+                paint={paint}
+                items={[
+                  t(paint.locale, 'ui.preview.navigation.crumbProjects', 'Projects'),
+                  t(paint.locale, 'ui.preview.navigation.crumbAcme', 'Acme'),
+                  t(paint.locale, 'ui.preview.navigation.crumbTokens', 'Tokens'),
+                ]}
+              />
               <KitEdge paint={paint} side="bottom" />
               <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                Only the last crumb is ink. Everything behind it has to read as
-                de-emphasised without disappearing.
+                {t(
+                  paint.locale,
+                  'ui.preview.navigation.contentOnlyLastCrumb',
+                  'Only the last crumb is ink. Everything behind it has to read as de-emphasised without disappearing.'
+                )}
               </KitMuted>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Dock" variant="Mobile">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameDock', 'Dock')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantMobile', 'Mobile')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-2">
               <div class="grid grid-cols-4 gap-1">
-                {['Home', 'Search', 'Save', 'You'].map((item, i) => (
+                {[
+                  t(paint.locale, 'ui.preview.navigation.dockHome', 'Home'),
+                  t(paint.locale, 'ui.preview.navigation.dockSearch', 'Search'),
+                  t(paint.locale, 'ui.preview.navigation.dockSave', 'Save'),
+                  t(paint.locale, 'ui.preview.navigation.dockYou', 'You'),
+                ].map((item, i) => (
                   <div key={item} class="flex flex-col items-center gap-1 py-1">
                     <span
                       class="w-5 h-5 rounded-md"
@@ -123,10 +188,18 @@ export function NavigationGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Identity &amp; Actions"
-        description="What a nav bar carries beside its links. The accent has to hold a 30px avatar and a 9px tab label at once."
+        label={t(paint.locale, 'ui.preview.navigation.identityTitle', 'Identity & Actions')}
+        description={t(
+          paint.locale,
+          'ui.preview.navigation.identityDesc',
+          'What a nav bar carries beside its links. The accent has to hold a 30px avatar and a 9px tab label at once.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Account" variant="Avatar">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameAccount', 'Account')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantAvatar', 'Avatar')}
+        >
           {(paint) => (
             <div class="flex items-center gap-2.5">
               <KitAvatar paint={paint} role="primary" initials="EV" size={30} />
@@ -135,14 +208,17 @@ export function NavigationGroup({ paint }: { paint: Paint }) {
                   Ella Vance
                 </KitText>
                 <KitMuted paint={paint} class="block text-[10px] truncate">
-                  Pro workspace
+                  {t(paint.locale, 'ui.preview.navigation.contentProWorkspace', 'Pro workspace')}
                 </KitMuted>
               </div>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Notifications" variant="Count">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameNotifications', 'Notifications')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantCount', 'Count')}
+        >
           {(paint) => (
             <div class="flex items-center gap-2">
               <KitIconButton paint={paint} role="primary" glyph="dots" variant="soft" />
@@ -151,26 +227,44 @@ export function NavigationGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Command" variant="Trigger">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameCommand', 'Command')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantTrigger', 'Trigger')}
+        >
           {(paint) => (
             <div class="w-full space-y-2">
-              <KitSearch paint={paint} placeholder="Search or jump to…" />
-              <KitButton paint={paint} role="trusty-button" label="New palette" variant="solid" size="sm" />
+              <KitSearch
+                paint={paint}
+                placeholder={t(paint.locale, 'ui.preview.navigation.placeholderSearchOrJump', 'Search or jump to…')}
+              />
+              <KitButton
+                paint={paint}
+                role="trusty-button"
+                label={t(paint.locale, 'ui.preview.navigation.labelNewPalette', 'New palette')}
+                variant="solid"
+                size="sm"
+              />
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Menu" variant="In bar">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.nameMenu', 'Menu')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantInBar', 'In bar')}
+        >
           {(paint) => (
             <KitSurface paint={paint} level="raised" class="w-full rounded-xl border p-1 space-y-0.5">
-              <KitMenuRow paint={paint} label="Duplicate" glyph="plus" />
-              <KitMenuRow paint={paint} label="Move to…" glyph="dots" />
-              <KitMenuRow paint={paint} label="Delete" glyph="x" />
+              <KitMenuRow paint={paint} label={t(paint.locale, 'ui.preview.navigation.menuDuplicate', 'Duplicate')} glyph="plus" />
+              <KitMenuRow paint={paint} label={t(paint.locale, 'ui.preview.navigation.menuMoveTo', 'Move to…')} glyph="dots" />
+              <KitMenuRow paint={paint} label={t(paint.locale, 'ui.preview.navigation.menuDelete', 'Delete')} glyph="x" />
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Pagination" variant="Pages">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.navigation.namePagination', 'Pagination')}
+          variant={t(paint.locale, 'ui.preview.navigation.variantPages', 'Pages')}
+        >
           {(paint) => (
             <div class="flex items-center gap-1">
               {[1, 2, 3].map((n) => (

@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'preact/hooks';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import { Check, Copy, Download, Paintbrush, Pencil, Trash2, X } from 'lucide-preact';
 import {
   removeShadeWithUndo,
@@ -62,7 +64,11 @@ function slugFromInput(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export default function ExportIsland() {
+interface Props {
+  locale?: LocaleCode;
+}
+
+export default function ExportIsland({ locale = 'en' }: Props) {
   const cart = useCart();
   const [activeFormat, setActiveFormat] = useState<ExportFormat>('tailwind-v4');
   const [wrapLines, setWrapLines] = useState(false);
@@ -106,7 +112,11 @@ export default function ExportIsland() {
   /** Generate raw plaintext code for copying and download (zero HTML, zero swatches) */
   const fullRawCode = useMemo(() => {
     if (tokenLines.length === 0) {
-      return '/* No colors in cart yet. Add swatches or generate scales first! */';
+      return t(
+        locale,
+        'ui.export.emptyComment',
+        '/* No colors in cart yet. Add swatches or generate scales first! */'
+      );
     }
 
     if (activeFormat === 'tailwind-v4') {
@@ -137,11 +147,11 @@ export default function ExportIsland() {
     }
 
     return '';
-  }, [tokenLines, activeFormat, cart]);
+  }, [tokenLines, activeFormat, cart, locale]);
 
   const handleCopyAll = () => {
     navigator.clipboard.writeText(fullRawCode);
-    showToast('Code block copied');
+    showToast(t(locale, 'ui.export.toastCodeCopied', 'Code block copied'));
   };
 
   const handleCopyLine = (line: CodeLineItem) => {
@@ -150,12 +160,17 @@ export default function ExportIsland() {
         ? `${line.variableName}: ${line.colorValue};`
         : `${line.variableName}: ${line.fallbackValue};\n${line.variableName}: ${line.colorValue};`;
     navigator.clipboard.writeText(text);
-    showToast(`${line.variableName} copied`);
+    showToast(
+      t(locale, 'ui.export.toastLineCopied', '{variable} copied').replace(
+        '{variable}',
+        line.variableName
+      )
+    );
   };
 
   const handleCopyValueOnly = (val: string) => {
     navigator.clipboard.writeText(val);
-    showToast('Value copied');
+    showToast(t(locale, 'ui.export.toastValueCopied', 'Value copied'));
   };
 
   /**
@@ -241,7 +256,12 @@ export default function ExportIsland() {
     link.download = isJson ? 'oklch-tokens.json' : 'oklch-tokens.css';
     link.click();
     URL.revokeObjectURL(url);
-    showToast(`${link.download} downloaded`);
+    showToast(
+      t(locale, 'ui.export.toastDownloaded', '{file} downloaded').replace(
+        '{file}',
+        link.download
+      )
+    );
   };
 
   const meta = FORMATS.find((f) => f.id === activeFormat)!;
@@ -252,7 +272,11 @@ export default function ExportIsland() {
           primary-weight buttons, which is what they are: one of the four is
           selected at a time. */}
       <div class="flex items-center justify-between gap-3 flex-wrap">
-        <div class="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Export format">
+        <div
+          class="flex items-center gap-1.5 flex-wrap"
+          role="group"
+          aria-label={t(locale, 'ui.export.formatGroupAria', 'Export format')}
+        >
           {FORMATS.map((fmt) => (
             <button
               key={fmt.id}
@@ -261,11 +285,17 @@ export default function ExportIsland() {
               class="chip"
               title={
                 fmt.id === 'css-fallback'
-                  ? 'Emit a HEX line before each OKLCH line for older browsers'
+                  ? t(
+                      locale,
+                      'ui.export.fallbackChipHint',
+                      'Emit a HEX line before each OKLCH line for older browsers'
+                    )
                   : undefined
               }
             >
-              {fmt.label}
+              {fmt.id === 'css-fallback'
+                ? t(locale, 'ui.export.formatFallbackLabel', 'Fallback')
+                : fmt.label}
             </button>
           ))}
         </div>
@@ -275,17 +305,17 @@ export default function ExportIsland() {
             onClick={() => setWrapLines(!wrapLines)}
             aria-pressed={wrapLines}
             class="chip"
-            title="Toggle line wrapping"
+            title={t(locale, 'ui.export.wrapHint', 'Toggle line wrapping')}
           >
-            Wrap
+            {t(locale, 'ui.export.wrapLabel', 'Wrap')}
           </button>
           <button onClick={handleDownloadFile} class="btn btn-quiet !min-h-9 !px-3">
             <Download class="w-4 h-4" aria-hidden="true" strokeWidth={2} />
-            <span class="hidden sm:inline">Download</span>
+            <span class="hidden sm:inline">{t(locale, 'ui.export.downloadLabel', 'Download')}</span>
           </button>
           <button onClick={handleCopyAll} class="btn btn-primary !min-h-9 !px-4" id="export-copy-all-btn">
             <Copy class="w-4 h-4" aria-hidden="true" strokeWidth={2} />
-            Copy all
+            {t(locale, 'ui.export.copyAllLabel', 'Copy all')}
           </button>
         </div>
       </div>
@@ -303,7 +333,12 @@ export default function ExportIsland() {
       <div class="well overflow-hidden">
         <div class="flex items-center justify-between gap-3 px-4 py-2 bg-canvas-card border-b border-hairline">
           <span class="font-mono text-micro text-mute">{meta.filename}</span>
-          <span class="eyebrow">{tokenLines.length} tokens</span>
+          <span class="eyebrow">
+            {t(locale, 'ui.export.tokenCount', '{count} tokens').replace(
+              '{count}',
+              String(tokenLines.length)
+            )}
+          </span>
         </div>
 
         <div
@@ -342,7 +377,11 @@ export default function ExportIsland() {
                             type="text"
                             name="slug"
                             value={slugInput}
-                            aria-label="Variable name to rename this token to"
+                            aria-label={t(
+                              locale,
+                              'ui.export.renameInputAria',
+                              'Variable name to rename this token to'
+                            )}
                             onInput={(e) => setSlugInput((e.target as HTMLInputElement).value)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
@@ -373,7 +412,7 @@ export default function ExportIsland() {
                           <button
                             onClick={() => handleCopyValueOnly(line.fallbackValue!)}
                             class="text-body hover:text-ink transition-colors duration-150"
-                            title="Copy HEX fallback"
+                            title={t(locale, 'ui.export.copyHexHint', 'Copy HEX fallback')}
                           >
                             {line.fallbackValue}
                           </button>
@@ -393,7 +432,7 @@ export default function ExportIsland() {
                       <button
                         onClick={() => handleCopyValueOnly(line.colorValue)}
                         class="text-ink hover:underline underline-offset-4 decoration-hairline transition-colors duration-150"
-                        title="Copy value"
+                        title={t(locale, 'ui.export.copyValueHint', 'Copy value')}
                       >
                         {line.colorValue}
                       </button>
@@ -411,16 +450,20 @@ export default function ExportIsland() {
                           onClick={commitRename}
                           disabled={!slugFromInput(slugInput)}
                           class="icon-btn !h-6 !w-6"
-                          title="Save name"
-                          aria-label={`Save the new name for --color-${line.roleId}-*`}
+                          title={t(locale, 'ui.export.saveNameHint', 'Save name')}
+                          aria-label={t(
+                            locale,
+                            'ui.export.saveNameAria',
+                            'Save the new name for --color-{role}-*'
+                          ).replace('{role}', line.roleId)}
                         >
                           <Check class="w-3 h-3" aria-hidden="true" strokeWidth={2} />
                         </button>
                         <button
                           onClick={() => setRenaming(null)}
                           class="icon-btn !h-6 !w-6"
-                          title="Cancel"
-                          aria-label="Cancel rename"
+                          title={t(locale, 'ui.export.cancelHint', 'Cancel')}
+                          aria-label={t(locale, 'ui.export.cancelRenameAria', 'Cancel rename')}
                         >
                           <X class="w-3 h-3" aria-hidden="true" strokeWidth={1.75} />
                         </button>
@@ -438,34 +481,79 @@ export default function ExportIsland() {
                         <button
                           onClick={() => handleCopyLine(line)}
                           class="icon-btn !h-6 !w-6"
-                          title={`Copy ${line.variableName}`}
-                          aria-label={`Copy ${line.variableName}`}
+                          title={t(locale, 'ui.export.copyVariable', 'Copy {variable}').replace(
+                            '{variable}',
+                            line.variableName
+                          )}
+                          aria-label={t(
+                            locale,
+                            'ui.export.copyVariable',
+                            'Copy {variable}'
+                          ).replace('{variable}', line.variableName)}
                         >
                           <Copy class="w-3 h-3" aria-hidden="true" strokeWidth={2} />
                         </button>
                         <button
                           onClick={() => beginRename(line)}
                           class="icon-btn !h-6 !w-6"
-                          title={`Rename --color-${line.roleId}-* (${variableCount} ${
-                            variableCount === 1 ? 'variable' : 'variables'
-                          })`}
-                          aria-label={`Rename the ${variableCount} --color-${line.roleId}-* variables`}
+                          title={(variableCount === 1
+                            ? t(
+                                locale,
+                                'ui.export.renameTooltipOne',
+                                'Rename --color-{role}-* ({count} variable)'
+                              )
+                            : t(
+                                locale,
+                                'ui.export.renameTooltipMany',
+                                'Rename --color-{role}-* ({count} variables)'
+                              )
+                          )
+                            .replace('{role}', line.roleId)
+                            .replace('{count}', String(variableCount))}
+                          aria-label={(variableCount === 1
+                            ? t(
+                                locale,
+                                'ui.export.renameAriaOne',
+                                'Rename the {count} --color-{role}-* variables'
+                              )
+                            : t(
+                                locale,
+                                'ui.export.renameAriaMany',
+                                'Rename the {count} --color-{role}-* variables'
+                              )
+                          )
+                            .replace('{role}', line.roleId)
+                            .replace('{count}', String(variableCount))}
                         >
                           <Pencil class="w-3 h-3" aria-hidden="true" strokeWidth={1.75} />
                         </button>
                         <button
                           onClick={() => handleEditColor(line)}
                           class="icon-btn !h-6 !w-6"
-                          title="Edit this colour in the picker"
-                          aria-label={`Edit ${line.variableName} in the colour picker`}
+                          title={t(
+                            locale,
+                            'ui.export.editColourHint',
+                            'Edit this colour in the picker'
+                          )}
+                          aria-label={t(
+                            locale,
+                            'ui.export.editColourAria',
+                            'Edit {variable} in the colour picker'
+                          ).replace('{variable}', line.variableName)}
                         >
                           <Paintbrush class="w-3 h-3" aria-hidden="true" strokeWidth={1.75} />
                         </button>
                         <button
                           onClick={() => handleRemoveVariable(line)}
                           class="icon-btn !h-6 !w-6"
-                          title={`Remove ${line.variableName} (undoable)`}
-                          aria-label={`Remove ${line.variableName}`}
+                          title={t(locale, 'ui.export.removeHint', 'Remove {variable} (undoable)').replace(
+                            '{variable}',
+                            line.variableName
+                          )}
+                          aria-label={t(locale, 'ui.export.removeAria', 'Remove {variable}').replace(
+                            '{variable}',
+                            line.variableName
+                          )}
                         >
                           <Trash2 class="w-3 h-3" aria-hidden="true" strokeWidth={1.75} />
                         </button>
@@ -501,13 +589,19 @@ export default function ExportIsland() {
           >
             <path d="m9 18 6-6-6-6" />
           </svg>
-          Using these in Tailwind v4
+          {t(locale, 'ui.export.tailwindNoteTitle', 'Using these in Tailwind v4')}
         </summary>
         <div class="px-4 pb-4 space-y-2">
-          <p class="prose-hud">
-            Anything declared in <code>@theme</code> as <code>--color-*</code> becomes a utility
-            automatically — no config file, no plugin.
-          </p>
+          <p
+            class="prose-hud"
+            dangerouslySetInnerHTML={{
+              __html: t(
+                locale,
+                'ui.export.tailwindNoteBody',
+                'Anything declared in <code>@theme</code> as <code>--color-*</code> becomes a utility automatically — no config file, no plugin.'
+              ),
+            }}
+          />
           <pre class="well !rounded-sm p-3 font-mono text-micro text-body overflow-x-auto">
 <code>&lt;button class="bg-primary-500 text-white hover:bg-primary-600
   px-4 py-2 rounded-md"&gt;</code>

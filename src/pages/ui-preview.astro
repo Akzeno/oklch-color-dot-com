@@ -1,5 +1,6 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import { t } from '../i18n/translations';
 import UIPreviewIsland from '../components/preview/UIPreviewIsland';
 import CartSidebar from '../components/preview/CartSidebar';
 import RelatedTools from '../components/common/RelatedTools.astro';
@@ -37,71 +38,67 @@ const seo = localizedSeo('/ui-preview', locale, {
             {seo.h1}
           </h1>
           <p class="text-xs md:text-sm font-mono text-body">
-            Preview your persistent cart roles live across real-world dummy UI components with WCAG 2.1 AA/AAA and APCA contrast scoring.
-            Every coloured element is a token slot — click or right-click one to swap its colour.
-            Each card has its own Dark/Light control, so one specimen can be flipped without touching the rest.
+            {t(locale, 'pages.preview.heroSubtitle', 'Preview your persistent cart roles live across real-world dummy UI components with WCAG 2.1 AA/AAA and APCA contrast scoring. Every coloured element is a token slot — click or right-click one to swap its colour. Each card has its own Dark/Light control, so one specimen can be flipped without touching the rest.')}
           </p>
         </div>
 
         <!-- Above-The-Fold Interactive UI Preview -->
-        <section aria-label="Dynamic UI Component Preview Island">
-          <UIPreviewIsland client:load />
+        <section aria-label={t(locale, 'pages.preview.islandLabel', 'Dynamic UI Component Preview Island')}>
+          <UIPreviewIsland client:load locale={locale} />
         </section>
       </div>
 
-      <CartSidebar client:visible />
+      <CartSidebar client:visible locale={locale} />
     </div>
 
     <!-- Accessibility Guidance -->
     <div class="space-y-6 pt-6 border-t border-hairline">
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          Understanding WCAG 2.1 vs. APCA Contrast
+          {t(locale, 'pages.preview.wcagApcTitle', 'Understanding WCAG 2.1 vs. APCA Contrast')}
         </h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          While WCAG 2.1 uses a static mathematical ratio (4.5:1 for normal text, 3:1 for large text), the modern Advanced Perceptual Contrast Algorithm (APCA) accounts for spatial frequency, font weight, and polarity (dark-on-light vs light-on-dark). Our preview tool evaluates your color tokens under both systems to guarantee accessible UI states in both dark and light modes.
+          {t(locale, 'pages.preview.wcagApcBody', 'While WCAG 2.1 uses a static mathematical ratio (4.5:1 for normal text, 3:1 for large text), the modern Advanced Perceptual Contrast Algorithm (APCA) accounts for spatial frequency, font weight, and polarity (dark-on-light vs light-on-dark). Our preview tool evaluates your color tokens under both systems to guarantee accessible UI states in both dark and light modes.')}
         </p>
       </section>
 
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          How to Use the UI Preview
+          {t(locale, 'pages.preview.howToTitle', 'How to Use the UI Preview')}
         </h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li><strong class="text-ink">Collect colors:</strong> Use the <a href={buildLocalizedPath('/', locale)} class="text-accent-text hover:underline">color picker</a> or <a href={buildLocalizedPath('/oklch-colors', locale)} class="text-accent-text hover:underline">palette library</a> to add colors to your cart. Each color is assigned to a semantic role (e.g. Primary, Danger, Success).</li>
-          <li><strong class="text-ink">Preview live:</strong> The preview above shows your colors applied to real UI components — buttons, cards, badges, forms, and navigation bars.</li>
-          <li><strong class="text-ink">Swap tokens:</strong> Click any colored element to open a popover where you can swap its color token, copy its value, or save it to a different role.</li>
-          <li><strong class="text-ink">Check contrast:</strong> Each component displays its WCAG 2.1 and APCA contrast scores. Green scores pass AA; red scores need attention.</li>
-          <li><strong class="text-ink">Toggle themes:</strong> Each card has its own Dark/Light control, so you can verify your colors work in both modes.</li>
+          <li set:html={t(locale, 'pages.preview.step1', '<strong class="text-ink">Collect colors:</strong> Use the <a href="{pickerHref}" class="text-accent-text hover:underline">color picker</a> or <a href="{paletteHref}" class="text-accent-text hover:underline">palette library</a> to add colors to your cart. Each color is assigned to a semantic role (e.g. Primary, Danger, Success).').replace('{pickerHref}', buildLocalizedPath('/', locale)).replace('{paletteHref}', buildLocalizedPath('/oklch-colors', locale))} />
+          <li set:html={t(locale, 'pages.preview.step2', '<strong class="text-ink">Preview live:</strong> The preview above shows your colors applied to real UI components — buttons, cards, badges, forms, and navigation bars.')} />
+          <li set:html={t(locale, 'pages.preview.step3', '<strong class="text-ink">Swap tokens:</strong> Click any colored element to open a popover where you can swap its color token, copy its value, or save it to a different role.')} />
+          <li set:html={t(locale, 'pages.preview.step4', '<strong class="text-ink">Check contrast:</strong> Each component displays its WCAG 2.1 and APCA contrast scores. Green scores pass AA; red scores need attention.')} />
+          <li set:html={t(locale, 'pages.preview.step5', '<strong class="text-ink">Toggle themes:</strong> Each card has its own Dark/Light control, so you can verify your colors work in both modes.')} />
         </ol>
       </section>
 
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          Sample Token Output
+          {t(locale, 'pages.preview.sampleTitle', 'Sample Token Output')}
         </h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          When you export your colors, you get production-ready CSS custom properties. Here is an example of what a typical token set looks like:
+          {t(locale, 'pages.preview.sampleBody', 'When you export your colors, you get production-ready CSS custom properties. Here is an example of what a typical token set looks like:')}
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
           <code>:root &#123;{'\n'}  --color-primary-500: oklch(0.55 0.20 265);{'\n'}  --color-danger-500: oklch(0.58 0.21 25);{'\n'}  --color-success-500: oklch(0.62 0.15 150);{'\n'}  --color-surface: oklch(1 0 0);{'\n'}  --color-ink: oklch(0.21 0 0);{'\n'}&#125;</code></pre>
-        <p class="text-xs md:text-sm font-mono text-body">
-          These tokens work with Tailwind CSS v4's <code class="text-ink">@theme</code> block and can be used directly in your CSS or JavaScript.
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.preview.sampleNote', 'These tokens work with Tailwind CSS v4\'s <code class="text-ink">@theme</code> block and can be used directly in your CSS or JavaScript.')} />
       </section>
 
       <section class="bg-canvas-card border border-hairline rounded-xl p-6 space-y-3">
         <h2 class="text-base font-semibold text-ink">
-          Contrast Scoring Explained
+          {t(locale, 'pages.preview.scoringTitle', 'Contrast Scoring Explained')}
         </h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          The preview evaluates every text/background pair in your UI components. Here is how to read the scores:
+          {t(locale, 'pages.preview.scoringBody', 'The preview evaluates every text/background pair in your UI components. Here is how to read the scores:')}
         </p>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-          <li><strong class="text-ink">WCAG 2.1 AA:</strong> Requires 4.5:1 for normal text and 3:1 for large text (18pt+ or 14pt+ bold).</li>
-          <li><strong class="text-ink">WCAG 2.1 AAA:</strong> Requires 7:1 for normal text and 4.5:1 for large text.</li>
-          <li><strong class="text-ink">APCA:</strong> A newer, more perceptually accurate contrast system. Scores above 60 are generally considered readable; above 75 is good; above 90 is excellent.</li>
-          <li><strong class="text-ink">Polarity matters:</strong> APCA treats dark-on-light and light-on-dark differently. White text on a dark background is not the same as dark text on a light background.</li>
+          <li set:html={t(locale, 'pages.preview.scoreWcagAa', '<strong class="text-ink">WCAG 2.1 AA:</strong> Requires 4.5:1 for normal text and 3:1 for large text (18pt+ or 14pt+ bold).')} />
+          <li set:html={t(locale, 'pages.preview.scoreWcagAaa', '<strong class="text-ink">WCAG 2.1 AAA:</strong> Requires 7:1 for normal text and 4.5:1 for large text.')} />
+          <li set:html={t(locale, 'pages.preview.scoreApc', '<strong class="text-ink">APCA:</strong> A newer, more perceptually accurate contrast system. Scores above 60 are generally considered readable; above 75 is good; above 90 is excellent.')} />
+          <li set:html={t(locale, 'pages.preview.scorePolarity', '<strong class="text-ink">Polarity matters:</strong> APCA treats dark-on-light and light-on-dark differently. White text on a dark background is not the same as dark text on a light background.')} />
         </ul>
       </section>
 
@@ -111,7 +108,7 @@ const seo = localizedSeo('/ui-preview', locale, {
       <!-- Learn Link -->
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.preview.learnMore', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

@@ -14,6 +14,8 @@ import { useCart } from '../../hooks/useCart';
 import { useShadeEditor, shadeEditorBoundary } from '../../hooks/useShadeEditor';
 import { SHADE_STEPS, BASE_SHADE_STEP, formatOklch, type ShadeStep, type ColorModel } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
+import { t } from '../../i18n/translations';
+import type { LocaleCode } from '../../i18n/config';
 import { Check, Code2, Copy, Pencil, Plus, Sparkles, Trash2, X } from 'lucide-preact';
 
 /**
@@ -42,8 +44,10 @@ import { Check, Code2, Copy, Pencil, Plus, Sparkles, Trash2, X } from 'lucide-pr
  *    gamut state and copy confirmation; emphasis here is carried by ink.
  */
 
-export default function CartSidebar() {
+export default function CartSidebar({ locale = 'en' }: { locale?: LocaleCode }) {
   const cart = useCart();
+  /** Human-facing name for a role: the localized override, or its stored name. */
+  const roleName = (role: { id: string; name: string }) => t(locale, `ui.roles.${role.id}`, role.name);
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
   const [roleInputName, setRoleInputName] = useState('');
   const [newRoleInput, setNewRoleInput] = useState('');
@@ -98,9 +102,13 @@ export default function CartSidebar() {
       {/* Header — the only place the totals appear. */}
       <div class="px-3 py-3 border-b border-hairline-subtle shrink-0">
         <div class="flex items-center justify-between gap-2 mb-2.5">
-          <h3 class="text-label text-ink">Design Tokens</h3>
+          <h3 class="text-label text-ink">
+            {t(locale, 'ui.preview.sidebar.title', 'Design Tokens')}
+          </h3>
           <span class="pill">
-            {filledShadesCount} tokens · {rolesArray.length} roles
+            {t(locale, 'ui.preview.sidebar.tokenRoleCount', '{tokens} tokens · {roles} roles')
+              .replace('{tokens}', String(filledShadesCount))
+              .replace('{roles}', String(rolesArray.length))}
           </span>
         </div>
 
@@ -111,7 +119,7 @@ export default function CartSidebar() {
               type="text"
               name="role"
               value={newRoleInput}
-              aria-label="New role name"
+              aria-label={t(locale, 'ui.preview.sidebar.newRoleNameLabel', 'New role name')}
               onInput={(e) => setNewRoleInput((e.target as HTMLInputElement).value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && newRoleInput.trim()) {
@@ -138,7 +146,7 @@ export default function CartSidebar() {
               }}
               class="btn btn-quiet h-8"
             >
-              Create
+              {t(locale, 'ui.preview.sidebar.create', 'Create')}
             </button>
             <button
               onClick={() => {
@@ -146,7 +154,7 @@ export default function CartSidebar() {
                 setIsCreatingRole(false);
               }}
               class="icon-btn"
-              aria-label="Cancel"
+              aria-label={t(locale, 'ui.preview.sidebar.cancel', 'Cancel')}
             >
               <X class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
             </button>
@@ -157,7 +165,7 @@ export default function CartSidebar() {
             class="btn btn-quiet w-full h-8"
           >
             <Plus class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
-            <span>New role</span>
+            <span>{t(locale, 'ui.preview.sidebar.newRole', 'New role')}</span>
           </button>
         )}
       </div>
@@ -220,19 +228,45 @@ export default function CartSidebar() {
             }}
             title={
               canExport
-                ? `Open Export & Code to copy or download ${filledShadesCount} CSS variable${filledShadesCount === 1 ? '' : 's'}`
-                : 'Add at least one color before exporting'
+                ? t(
+                    locale,
+                    'ui.preview.sidebar.exportTitle',
+                    'Open Export & Code to copy or download {count} {variables}'
+                  )
+                    .replace('{count}', String(filledShadesCount))
+                    .replace(
+                      '{variables}',
+                      t(
+                        locale,
+                        filledShadesCount === 1
+                          ? 'ui.preview.common.cssVariableSingle'
+                          : 'ui.preview.common.cssVariablePlural',
+                        filledShadesCount === 1 ? 'CSS variable' : 'CSS variables'
+                      )
+                    )
+                : t(
+                    locale,
+                    'ui.preview.sidebar.exportDisabledTitle',
+                    'Add at least one color before exporting'
+                  )
             }
             class={`btn w-full ${canExport ? 'btn-primary' : 'btn-quiet text-faint cursor-not-allowed'}`}
           >
             <Code2 class="w-4 h-4 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            <span>Export & Code</span>
+            <span>{t(locale, 'ui.preview.sidebar.exportCode', 'Export & Code')}</span>
             {/* Hidden while inert: "0 tokens" would just restate the disabled
                 state, and the tooltip already explains it. Full-strength
                 white, not dimmed: at 60% opacity the count lands at 2.8:1 on
                 the accent fill, and a dim that fails AA is not a hierarchy —
                 it is an absence. */}
-            {canExport && <span>{filledShadesCount} tokens</span>}
+            {canExport && (
+              <span>
+                {t(locale, 'ui.preview.sidebar.tokenCount', '{count} tokens').replace(
+                  '{count}',
+                  String(filledShadesCount)
+                )}
+              </span>
+            )}
           </a>
         </div>
 
@@ -263,7 +297,11 @@ export default function CartSidebar() {
               <div
                 role="button"
                 tabIndex={0}
-                aria-label={`Activate role ${role.name}`}
+                aria-label={t(
+                  locale,
+                  'ui.preview.sidebar.activateRoleAria',
+                  'Activate role {name}'
+                ).replace('{name}', roleName(role))}
                 aria-pressed={isActive}
                 onClick={() => setActiveRole(role.id)}
                 onKeyDown={(e) => {
@@ -282,7 +320,11 @@ export default function CartSidebar() {
                       type="text"
                       name="role"
                       value={roleInputName}
-                      aria-label={`Rename ${role.name}`}
+                      aria-label={t(
+                        locale,
+                        'ui.preview.sidebar.renameInputAria',
+                        'Rename {name}'
+                      ).replace('{name}', roleName(role))}
                       onInput={(e) => setRoleInputName((e.target as HTMLInputElement).value)}
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => {
@@ -299,7 +341,9 @@ export default function CartSidebar() {
                     />
                   ) : (
                     <span class="truncate">
-                      <span class={`text-label ${isActive ? 'text-ink' : 'text-body'}`}>{role.name}</span>
+                      <span class={`text-label ${isActive ? 'text-ink' : 'text-body'}`}>
+                        {roleName(role)}
+                      </span>
                       <span class="block font-mono text-micro text-faint leading-tight">
                         --color-{role.id}-*
                       </span>
@@ -316,8 +360,12 @@ export default function CartSidebar() {
                         setEditingRoleId(role.id);
                       }}
                       class="icon-btn icon-btn-sm"
-                      title="Rename role"
-                      aria-label={`Rename role ${role.name}`}
+                      title={t(locale, 'ui.preview.sidebar.renameRole', 'Rename role')}
+                      aria-label={t(
+                        locale,
+                        'ui.preview.sidebar.renameRoleAria',
+                        'Rename role {name}'
+                      ).replace('{name}', roleName(role))}
                     >
                       <Pencil class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
                     </button>
@@ -333,8 +381,8 @@ export default function CartSidebar() {
                           setEditingRoleId(null);
                         }}
                         class="icon-btn icon-btn-sm"
-                        title="Save name"
-                        aria-label="Save name"
+                        title={t(locale, 'ui.preview.sidebar.saveName', 'Save name')}
+                        aria-label={t(locale, 'ui.preview.sidebar.saveName', 'Save name')}
                       >
                         <Check class="w-3.5 h-3.5" strokeWidth={2} aria-hidden="true" />
                       </button>
@@ -344,8 +392,12 @@ export default function CartSidebar() {
                           setEditingRoleId(null);
                         }}
                         class="icon-btn icon-btn-sm"
-                        title="Cancel"
-                        aria-label="Cancel rename"
+                        title={t(locale, 'ui.preview.sidebar.cancel', 'Cancel')}
+                        aria-label={t(
+                          locale,
+                          'ui.preview.sidebar.cancelRename',
+                          'Cancel rename'
+                        )}
                       >
                         <X class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
                       </button>
@@ -358,8 +410,12 @@ export default function CartSidebar() {
                         deleteRole(role.id);
                       }}
                       class="icon-btn icon-btn-sm"
-                      title="Delete role"
-                      aria-label={`Delete role ${role.name}`}
+                      title={t(locale, 'ui.preview.sidebar.deleteRole', 'Delete role')}
+                      aria-label={t(
+                        locale,
+                        'ui.preview.sidebar.deleteRoleAria',
+                        'Delete role {name}'
+                      ).replace('{name}', roleName(role))}
                     >
                       <Trash2 class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
                     </button>
@@ -389,8 +445,16 @@ export default function CartSidebar() {
                           <button
                             type="button"
                             onClick={() => openPicker(role.id, step, null)}
-                            title={`Author --color-${role.id}-${step}`}
-                            aria-label={`Author --color-${role.id}-${step}`}
+                            title={t(
+                              locale,
+                              'ui.preview.sidebar.authorSlotTitle',
+                              'Author {variable}'
+                            ).replace('{variable}', `--color-${role.id}-${step}`)}
+                            aria-label={t(
+                              locale,
+                              'ui.preview.sidebar.authorSlotAria',
+                              'Author {variable}'
+                            ).replace('{variable}', `--color-${role.id}-${step}`)}
                             class="h-8 w-full rounded-md bg-canvas border border-dashed border-hairline hover:border-border-focus transition-colors duration-150"
                           />
                           <span class="block font-mono text-micro text-faint text-center mt-0.5">{step}</span>
@@ -421,8 +485,16 @@ export default function CartSidebar() {
                             <button
                               type="button"
                               class="absolute inset-0 z-0 cursor-pointer"
-                              aria-label={`Edit --color-${role.id}-${step} in the color picker`}
-                              title={`${css} · click to edit, right-click to remove`}
+                              aria-label={t(
+                                locale,
+                                'ui.preview.sidebar.editSlotPickerAria',
+                                'Edit {variable} in the color picker'
+                              ).replace('{variable}', `--color-${role.id}-${step}`)}
+                              title={t(
+                                locale,
+                                'ui.preview.sidebar.swatchTitle',
+                                '{value} · click to edit, right-click to remove'
+                              ).replace('{value}', css)}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openPicker(role.id, step, token.color);
@@ -437,7 +509,11 @@ export default function CartSidebar() {
                           {token.color.inP3 && !token.color.inSRGB && (
                             <span
                               class="absolute top-0.5 right-0.5 font-mono text-[9px] leading-none px-1 py-0.5 rounded bg-badge-surface text-gamut-p3"
-                              title="Inside Display-P3, outside sRGB — browsers will clamp it"
+                              title={t(
+                                locale,
+                                'ui.preview.sidebar.p3Title',
+                                'Inside Display-P3, outside sRGB — browsers will clamp it'
+                              )}
                             >
                               P3
                             </span>
@@ -449,7 +525,11 @@ export default function CartSidebar() {
                                 type="text"
                                 name="value"
                                 value={editor.value}
-                                aria-label={`Value of --color-${role.id}-${step}`}
+                                aria-label={t(
+                                  locale,
+                                  'ui.preview.sidebar.valueAria',
+                                  'Value of {variable}'
+                                ).replace('{variable}', `--color-${role.id}-${step}`)}
                                 onInput={(e) => editor.changeValue(role.id, step, (e.target as HTMLInputElement).value)}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
@@ -474,8 +554,16 @@ export default function CartSidebar() {
                                 editor.beginEdit(role.id, step, css);
                               }}
                               class="p-1 rounded bg-badge-surface hover:bg-canvas-elevated text-mute hover:text-ink transition-colors duration-150"
-                              title={`Edit ${css} in place`}
-                              aria-label={`Edit ${step} in place`}
+                              title={t(
+                                locale,
+                                'ui.preview.sidebar.editInPlaceTitle',
+                                'Edit {value} in place'
+                              ).replace('{value}', css)}
+                              aria-label={t(
+                                locale,
+                                'ui.preview.sidebar.editInPlaceAria',
+                                'Edit {step} in place'
+                              ).replace('{step}', String(step))}
                             >
                               <Pencil class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                             </button>
@@ -485,8 +573,16 @@ export default function CartSidebar() {
                                 navigator.clipboard.writeText(css);
                               }}
                               class="p-1 rounded bg-badge-surface hover:bg-canvas-elevated text-mute hover:text-ink transition-colors duration-150"
-                              title={`Copy ${css}`}
-                              aria-label={`Copy ${step} value`}
+                              title={t(
+                                locale,
+                                'ui.preview.sidebar.copyTitle',
+                                'Copy {value}'
+                              ).replace('{value}', css)}
+                              aria-label={t(
+                                locale,
+                                'ui.preview.sidebar.copyStepAria',
+                                'Copy {step} value'
+                              ).replace('{step}', String(step))}
                             >
                               <Copy class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                             </button>
@@ -496,8 +592,16 @@ export default function CartSidebar() {
                                 removeShadeWithUndo(role.id, step);
                               }}
                               class="p-1 rounded bg-badge-surface hover:bg-canvas-elevated text-mute hover:text-ink transition-colors duration-150"
-                              title="Remove shade (undoable)"
-                              aria-label={`Remove ${step}`}
+                              title={t(
+                                locale,
+                                'ui.preview.sidebar.removeShadeTitle',
+                                'Remove shade (undoable)'
+                              )}
+                              aria-label={t(
+                                locale,
+                                'ui.preview.sidebar.removeShadeAria',
+                                'Remove {step}'
+                              ).replace('{step}', String(step))}
                             >
                               <Trash2 class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                             </button>
@@ -529,7 +633,13 @@ export default function CartSidebar() {
                                 onChange={(e) =>
                                   editor.changeAxis(role.id, step, axis, (e.target as HTMLInputElement).value)
                                 }
-                                aria-label={`${axis.toUpperCase()} of --color-${role.id}-${step}`}
+                                aria-label={t(
+                                  locale,
+                                  'ui.preview.sidebar.axisAria',
+                                  '{axis} of {variable}'
+                                )
+                                  .replace('{axis}', axis.toUpperCase())
+                                  .replace('{variable}', `--color-${role.id}-${step}`)}
                                 class="w-full min-w-0 px-1.5 py-1 rounded bg-canvas-raised border border-hairline font-mono text-micro text-ink focus:outline-none focus:border-border-focus [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                               />
                             ))}
@@ -555,11 +665,15 @@ export default function CartSidebar() {
                 <div class="px-2.5 pb-2.5">
                   <button
                     onClick={() => openPicker(role.id, BASE_SHADE_STEP, null)}
-                    title={`Author the base shade (${BASE_SHADE_STEP}) in the color picker`}
+                    title={t(
+                      locale,
+                      'ui.preview.sidebar.authorBaseTitle',
+                      'Author the base shade ({step}) in the color picker'
+                    ).replace('{step}', String(BASE_SHADE_STEP))}
                     class="btn btn-quiet w-full h-8"
                   >
                     <Plus class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                    <span>Add color</span>
+                    <span>{t(locale, 'ui.preview.sidebar.addColor', 'Add color')}</span>
                   </button>
                 </div>
               )}
@@ -570,15 +684,30 @@ export default function CartSidebar() {
                   <div class="px-2 pb-2">
                     <div class="rounded-md border border-hairline bg-canvas-sunken p-2 space-y-2">
                       <p class="font-mono text-micro text-body leading-tight">
-                        Delete {shadeCount} color{shadeCount === 1 ? '' : 's'} from{' '}
-                        <span class="text-ink">{role.name}</span>?
+                        {t(
+                          locale,
+                          'ui.preview.sidebar.deleteScaleConfirmPrefix',
+                          'Delete {count} {color} from'
+                        )
+                          .replace('{count}', String(shadeCount))
+                          .replace(
+                            '{color}',
+                            t(
+                              locale,
+                              shadeCount === 1
+                                ? 'ui.preview.common.colorSingle'
+                                : 'ui.preview.common.colorPlural',
+                              shadeCount === 1 ? 'color' : 'colors'
+                            )
+                          )}{' '}
+                        <span class="text-ink">{roleName(role)}</span>?
                       </p>
                       <div class="grid grid-cols-2 gap-1.5">
                         <button
                           onClick={() => setConfirmingClearRoleId(null)}
                           class="btn btn-quiet h-8"
                         >
-                          Cancel
+                          {t(locale, 'ui.preview.sidebar.cancel', 'Cancel')}
                         </button>
                         <button
                           onClick={() => {
@@ -587,7 +716,7 @@ export default function CartSidebar() {
                           }}
                           class="btn btn-danger h-8"
                         >
-                          Delete scale
+                          {t(locale, 'ui.preview.sidebar.deleteScale', 'Delete scale')}
                         </button>
                       </div>
                     </div>
@@ -597,18 +726,40 @@ export default function CartSidebar() {
                     <button
                       onClick={() => generateFullScaleForRole(role.id)}
                       class="btn btn-quiet h-8"
-                      title="Generate the full 50–950 scale from the base color"
+                      title={t(
+                        locale,
+                        'ui.preview.sidebar.generateScaleTitle',
+                        'Generate the full 50–950 scale from the base color'
+                      )}
                     >
                       <Sparkles class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                      <span class="truncate">Full 50–950</span>
+                      <span class="truncate">
+                        {t(locale, 'ui.preview.sidebar.fullScale', 'Full 50–950')}
+                      </span>
                     </button>
                     <button
                       onClick={() => setConfirmingClearRoleId(role.id)}
                       class="btn btn-quiet h-8"
-                      title={`Delete all ${shadeCount} colors of ${role.name}`}
+                      title={t(
+                        locale,
+                        'ui.preview.sidebar.deleteScaleTitle',
+                        'Delete all {count} {color} of {role}'
+                      )
+                        .replace('{count}', String(shadeCount))
+                        .replace(
+                          '{color}',
+                          t(
+                            locale,
+                            'ui.preview.common.colorPlural',
+                            'colors'
+                          )
+                        )
+                        .replace('{role}', roleName(role))}
                     >
                       <Trash2 class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                      <span class="truncate">Delete scale</span>
+                      <span class="truncate">
+                        {t(locale, 'ui.preview.sidebar.deleteScale', 'Delete scale')}
+                      </span>
                     </button>
                   </div>
                 )
@@ -625,10 +776,14 @@ export default function CartSidebar() {
           <button
             onClick={() => clearAllScales()}
             class="btn btn-danger w-full h-8"
-            title="Remove every color from every role"
+            title={t(
+              locale,
+              'ui.preview.sidebar.clearAllTitle',
+              'Remove every color from every role'
+            )}
           >
             <Trash2 class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            <span>Clear all colors</span>
+            <span>{t(locale, 'ui.preview.sidebar.clearAll', 'Clear all colors')}</span>
           </button>
         </div>
       )}

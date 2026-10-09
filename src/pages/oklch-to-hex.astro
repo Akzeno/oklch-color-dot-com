@@ -6,6 +6,7 @@ import { getBuildTimeColorTable } from '../utils/seoTables';
 import { parseAnyToOklch, formatOklch } from '../utils/color';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -41,14 +42,12 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Convert CSS <code class="text-ink">oklch()</code> strings into standard 6-digit or 8-digit HEX format with automatic sRGB gamut clamping and wide Display-P3 detection.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.oklchToHex.subtitle', 'Convert CSS <code class="text-ink">oklch()</code> strings into standard 6-digit or 8-digit HEX format with automatic sRGB gamut clamping and wide Display-P3 detection.')} />
     </div>
 
     <!-- Above-The-Fold Interactive Tool -->
-    <section aria-label="OKLCH to HEX Converter Tool">
-      <ConverterIsland client:load initialMode="oklch-to-hex" />
+    <section aria-label={t(locale, 'pages.oklchToHex.toolAriaLabel', 'OKLCH to HEX Converter Tool')}>
+      <ConverterIsland client:load initialMode="oklch-to-hex" locale={locale} />
     </section>
 
     <!-- Unique Content Below The Fold -->
@@ -56,35 +55,33 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 1. Intro -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-ink">
-          Why Convert OKLCH to HEX?
+          {t(locale, 'pages.oklchToHex.whyTitle', 'Why Convert OKLCH to HEX?')}
         </h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          While modern browsers and CSS frameworks like Tailwind v4 natively support OKLCH, legacy tools — such as older image software, email templates, or SVG renderers — still demand hexadecimal values. Our converter maps OKLCH values into standard HEX, providing an exact clamped fallback for wide-gamut Display-P3 colors.
+          {t(locale, 'pages.oklchToHex.whyBody', 'While modern browsers and CSS frameworks like Tailwind v4 natively support OKLCH, legacy tools — such as older image software, email templates, or SVG renderers — still demand hexadecimal values. Our converter maps OKLCH values into standard HEX, providing an exact clamped fallback for wide-gamut Display-P3 colors.')}
         </p>
       </section>
 
       <!-- 2. How to Convert -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
         <h2 class="text-base font-semibold text-ink">
-          How to Convert OKLCH to HEX
+          {t(locale, 'pages.oklchToHex.howTitle', 'How to Convert OKLCH to HEX')}
         </h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li>Paste any <code class="text-ink">oklch()</code> value (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8)</code>) into the input field above.</li>
-          <li>Our engine converts the cylindrical OKLCH coordinates back through Oklab to linear RGB, then gamma-encodes to sRGB.</li>
-          <li>The result is a 6-digit HEX code (or 8-digit with alpha) that you can copy or save to your cart.</li>
+          <li set:html={t(locale, 'pages.oklchToHex.step1', 'Paste any <code class="text-ink">oklch()</code> value (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8)</code>) into the input field above.')} />
+          <li>{t(locale, 'pages.oklchToHex.step2', 'Our engine converts the cylindrical OKLCH coordinates back through Oklab to linear RGB, then gamma-encodes to sRGB.')}</li>
+          <li>{t(locale, 'pages.oklchToHex.step3', 'The result is a 6-digit HEX code (or 8-digit with alpha) that you can copy or save to your cart.')}</li>
         </ol>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS matrix) → gamma-encoded sRGB → HEX. If the color falls outside sRGB, chroma is clamped to the nearest in-gamut value.
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.oklchToHex.mathPath', '<strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS matrix) → gamma-encoded sRGB → HEX. If the color falls outside sRGB, chroma is clamped to the nearest in-gamut value.')} />
       </section>
 
       <!-- 3. Reference Table -->
       <section class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold text-ink">
-            OKLCH to HEX Reference Table
+            {t(locale, 'pages.oklchToHex.tableTitle', 'OKLCH to HEX Reference Table')}
           </h2>
-          <span class="text-[11px] font-mono text-mute">Build-Time Computed</span>
+          <span class="text-[11px] font-mono text-mute">{t(locale, 'pages.oklchToHex.tableBadge', 'Build-Time Computed')}</span>
         </div>
 
         <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
@@ -92,11 +89,11 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th class="p-3">Swatch</th>
-                  <th class="p-3">OKLCH Input Value</th>
-                  <th class="p-3">Color Label</th>
-                  <th class="p-3">Calculated HEX</th>
-                  <th class="p-3 text-right">Gamut Status</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToHex.thSwatch', 'Swatch')}</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToHex.thOklchInput', 'OKLCH Input Value')}</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToHex.thColorLabel', 'Color Label')}</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToHex.thHexOutput', 'Calculated HEX')}</th>
+                  <th class="p-3 text-right">{t(locale, 'pages.oklchToHex.thGamutStatus', 'Gamut Status')}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-hairline">
@@ -113,7 +110,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
                     <td class="p-3 text-body">{row.hex}</td>
                     <td class="p-3 text-right">
                       <span class="px-2 py-0.5 rounded text-[10px] bg-canvas-elevated text-mute">
-                        Exact Match
+                        {t(locale, 'pages.oklchToHex.exactMatchBadge', 'Exact Match')}
                       </span>
                     </td>
                   </tr>
@@ -127,72 +124,62 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 4. CSS Snippet -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
         <h2 class="text-sm font-semibold text-ink">
-          Copy-Ready CSS with Progressive Enhancement
+          {t(locale, 'pages.oklchToHex.cssTitle', 'Copy-Ready CSS with Progressive Enhancement')}
         </h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          Ship the HEX fallback first, then override with OKLCH for modern browsers:
+          {t(locale, 'pages.oklchToHex.cssIntro', 'Ship the HEX fallback first, then override with OKLCH for modern browsers:')}
         </p>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>.button-primary &#123;{'\n'}  color: #3b82f6; /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
-        </p>
+          <code>{t(locale, 'pages.oklchToHex.cssSnippet', '.button-primary {\n  color: #3b82f6; /* fallback */\n  color: {sample}; /* modern browsers */\n}').replace('{sample}', sampleOklch)}</code></pre>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.oklchToHex.themeLabel', '<strong class="text-ink">Tailwind CSS v4 @theme:</strong>')} />
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>@theme &#123;{'\n'}  --color-brand-blue: {sampleOklch};{'\n'}&#125;</code></pre>
+          <code>{t(locale, 'pages.oklchToHex.themeSnippet', '@theme {\n  --color-brand-blue: {sample};\n}').replace('{sample}', sampleOklch)}</code></pre>
       </section>
 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
         <h2 class="text-base font-semibold text-ink">
-          Gamut Note: What Happens Outside sRGB
+          {t(locale, 'pages.oklchToHex.gamutTitle', 'Gamut Note: What Happens Outside sRGB')}
         </h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          Because HEX is physically confined to sRGB, high-chroma OKLCH colors (such as vibrant cyans or punchy greens with <code class="text-ink">C &gt; 0.22</code>) cannot be rendered accurately in HEX. Our tool calculates the closest possible in-gamut chroma without distorting the perceptual hue angle, ensuring your fallback hex colors look harmonious.
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.oklchToHex.gamutBody', 'Because HEX is physically confined to sRGB, high-chroma OKLCH colors (such as vibrant cyans or punchy greens with <code class="text-ink">C &gt; 0.22</code>) cannot be rendered accurately in HEX. Our tool calculates the closest possible in-gamut chroma without distorting the perceptual hue angle, ensuring your fallback hex colors look harmonious.')} />
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-          <li>
-            <strong class="text-ink">Clamping vs. Display-P3:</strong> On a Display-P3 monitor, the original OKLCH color appears more vivid. On an sRGB monitor, the browser automatically tone-maps it. The HEX fallback always represents the sRGB-clamped version.
-          </li>
-          <li>
-            <strong class="text-ink">Alpha Channel:</strong> An OKLCH value with alpha (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code>) converts to an 8-digit HEX code (e.g. <code class="text-ink">#3b82f680</code>).
-          </li>
+          <li set:html={t(locale, 'pages.oklchToHex.clampItem', '<strong class="text-ink">Clamping vs. Display-P3:</strong> On a Display-P3 monitor, the original OKLCH color appears more vivid. On an sRGB monitor, the browser automatically tone-maps it. The HEX fallback always represents the sRGB-clamped version.')} />
+          <li set:html={t(locale, 'pages.oklchToHex.alphaItem', '<strong class="text-ink">Alpha Channel:</strong> An OKLCH value with alpha (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code>) converts to an 8-digit HEX code (e.g. <code class="text-ink">#3b82f680</code>).')} />
         </ul>
       </section>
 
       <!-- 6. FAQ -->
       <section class="space-y-4">
         <h2 class="text-lg font-semibold text-ink">
-          Frequently Asked Questions
+          {t(locale, 'pages.oklchToHex.faqTitle', 'Frequently Asked Questions')}
         </h2>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What happens if my OKLCH color is in Display-P3?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToHex.faq1Q', 'What happens if my OKLCH color is in Display-P3?')}</h3>
             <p class="text-body leading-relaxed">
-              If the color exceeds sRGB boundaries, our engine alerts you with a Display-P3 badge and automatically provides the optimal clamped sRGB HEX code as a graceful fallback. The hue and lightness are preserved as closely as possible.
+              {t(locale, 'pages.oklchToHex.faq1A', 'If the color exceeds sRGB boundaries, our engine alerts you with a Display-P3 badge and automatically provides the optimal clamped sRGB HEX code as a graceful fallback. The hue and lightness are preserved as closely as possible.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">How do I export HEX fallbacks in CSS?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToHex.faq2Q', 'How do I export HEX fallbacks in CSS?')}</h3>
             <p class="text-body leading-relaxed">
-              On our Export page, switch to the "HEX Fallback + OKLCH" tab to generate twin variable lines, ensuring full backward compatibility on legacy browsers.
+              {t(locale, 'pages.oklchToHex.faq2A', 'On our Export page, switch to the "HEX Fallback + OKLCH" tab to generate twin variable lines, ensuring full backward compatibility on legacy browsers.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Is the OKLCH to HEX conversion lossy?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToHex.faq3Q', 'Is the OKLCH to HEX conversion lossy?')}</h3>
             <p class="text-body leading-relaxed">
-              For sRGB colors, the conversion is lossless — you get back the exact same HEX value. For Display-P3 colors, the conversion to HEX requires clamping to sRGB, which is a lossy step. The OKLCH original remains the source of truth.
+              {t(locale, 'pages.oklchToHex.faq3A', 'For sRGB colors, the conversion is lossless — you get back the exact same HEX value. For Display-P3 colors, the conversion to HEX requires clamping to sRGB, which is a lossy step. The OKLCH original remains the source of truth.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Can I convert OKLCH with alpha to 8-digit HEX?</h3>
-            <p class="text-body leading-relaxed">
-              Yes. An OKLCH value like <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> converts to <code class="text-ink">#3b82f680</code> — the last two digits represent the alpha channel in hex.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToHex.faq4Q', 'Can I convert OKLCH with alpha to 8-digit HEX?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.oklchToHex.faq4A', 'Yes. An OKLCH value like <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> converts to <code class="text-ink">#3b82f680</code> — the last two digits represent the alpha channel in hex.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Why does my HEX color look different on different screens?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToHex.faq5Q', 'Why does my HEX color look different on different screens?')}</h3>
             <p class="text-body leading-relaxed">
-              HEX values are absolute sRGB colors. On a wide-gamut Display-P3 monitor, the browser may render them more vividly than on a standard sRGB monitor. This is expected behavior — the HEX value itself does not change.
+              {t(locale, 'pages.oklchToHex.faq5A', 'HEX values are absolute sRGB colors. On a wide-gamut Display-P3 monitor, the browser may render them more vividly than on a standard sRGB monitor. This is expected behavior — the HEX value itself does not change.')}
             </p>
           </div>
         </div>
@@ -204,7 +191,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 8. Learn Link -->
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.oklchToHex.learnMoreLink', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

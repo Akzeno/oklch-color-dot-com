@@ -1,0 +1,124 @@
+{
+  "pages": {
+    "rgbToOklch": {
+      "subtitle": "Converta <code class=\"text-ink\">rgb(r, g, b)</code> e <code class=\"text-ink\">rgba(r, g, b, a)</code> para o formato CSS OKLCH com verificações ao vivo dos limites do gamut.",
+      "toolAriaLabel": "Conversor RGB para OKLCH",
+      "whyTitle": "Por que converter RGB para OKLCH?",
+      "whyBody": "O RGB mistura os componentes de luz vermelha, verde e azul, mas é completamente não linear em relação à visão humana. Misturar partes iguais de RGB produz etapas visuais irregulares. Ao converter para OKLCH, você ganha luminosidade perceptual linear, permitindo tons e sombras harmoniosos para design systems modernos.",
+      "howTitle": "Como converter RGB para OKLCH",
+      "step1": "Cole qualquer valor <code class=\"text-ink\">rgb()</code> ou <code class=\"text-ink\">rgba()</code> (por exemplo, <code class=\"text-ink\">rgb(59, 130, 246)</code>) no campo de entrada acima.",
+      "step2": "Nosso motor normaliza os canais de 0-255 para 0-1, aplica a decodificação de gamma para obter RGB linear e então transforma através das matrizes de resposta de cones LMS do Oklab.",
+      "step3": "O resultado é um valor OKLCH perceptualmente uniforme, com Luminosidade, Chroma e Matiz exatas.",
+      "mathPath": "<strong class=\"text-ink\">O caminho matemático:</strong> RGB (0-255) → sRGB normalizado (0-1) → RGB linear (decodificação de gamma) → Oklab (matrizes LMS) → OKLCH (transformação cilíndrica).",
+      "tableTitle": "Valores de referência de RGB para OKLCH",
+      "thSwatch": "Amostra",
+      "thColor": "Cor",
+      "thRgbCode": "Código RGB",
+      "thOklchValue": "Valor OKLCH",
+      "cssTitle": "CSS pronto para copiar com aprimoramento progressivo",
+      "cssSnippet": ".alert {\n  color: rgb(239, 68, 68); /* fallback */\n  color: {sample}; /* navegadores modernos */\n}",
+      "themeLabel": "<strong class=\"text-ink\">Tailwind CSS v4 @theme:</strong>",
+      "themeSnippet": "@theme {\n  --color-alert-red: {sample};\n}",
+      "gamutTitle": "Nota sobre o gamut: RGB é sempre sRGB",
+      "gamutBody": "Valores <code class=\"text-ink\">rgb()</code> padrão estão confinados ao gamut sRGB por definição. Converter de RGB para OKLCH é, portanto, sempre seguro em relação ao gamut — o valor OKLCH resultante nunca excederá os limites do sRGB. No entanto, se você colar um valor <code class=\"text-ink\">color(display-p3 ...)</code>, o conversor detectará o gamut mais amplo e o sinalizará de acordo.",
+      "faqTitle": "Perguntas frequentes",
+      "faq1Q": "Posso converter rgba() com alpha para OKLCH?",
+      "faq1A": "Sim. <code class=\"text-ink\">rgba(59, 130, 246, 0.5)</code> converte para <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code> — o canal alpha é preservado como parâmetro após a barra.",
+      "faq2Q": "Qual é a diferença entre RGB e OKLCH?",
+      "faq2A": "O RGB é um modelo de cores aditivo dependente de dispositivo. O OKLCH é um espaço de cores perceptualmente uniforme, onde valores iguais de luminosidade parecem igualmente brilhantes. O OKLCH torna muito mais fácil criar sistemas de cores acessíveis e consistentes.",
+      "faq3Q": "A conversão de RGB para OKLCH é reversível?",
+      "faq3A": "Sim, para cores sRGB. Converter RGB → OKLCH → RGB produz os valores originais. A ida e volta é sem perdas dentro do gamut sRGB.",
+      "faq4Q": "Todos os navegadores suportam oklch()?",
+      "faq4A": "Sim. oklch() é um recurso do Baseline disponível em todos os navegadores modernos desde maio de 2023. Chrome, Edge, Safari e Firefox o suportam nativamente.",
+      "faq5Q": "Como uso OKLCH no Tailwind CSS v4?",
+      "faq5A": "O Tailwind v4 usa OKLCH em toda a sua paleta padrão. Defina cores personalizadas no seu bloco <code class=\"text-ink\">@theme</code> usando <code class=\"text-ink\">--color-{name}: oklch(...)</code> e o Tailwind gera os utilities automaticamente.",
+      "learnMoreLink": "Saiba mais sobre OKLCH →"
+    },
+    "oklchToRgb": {
+      "subtitle": "Converta valores modernos de OKLCH do CSS para a sintaxe padrão <code class=\"text-ink\">rgb(r, g, b)</code> em CSS legado e contextos de renderização de canvas.",
+      "toolAriaLabel": "Conversor de OKLCH para RGB",
+      "whyTitle": "Por que converter OKLCH para RGB?",
+      "whyBody": "Ao trabalhar com bibliotecas JavaScript legadas ou gráficos em HTML Canvas 2D que não têm suporte nativo a espaços de cores, converter OKLCH em strings RGB é essencial. Nosso motor aplica transformações de matriz exatas através das matrizes de resposta de cones LMS do Oklab.",
+      "howTitle": "Como converter OKLCH para RGB",
+      "step1": "Cole qualquer valor <code class=\"text-ink\">oklch()</code> (por exemplo, <code class=\"text-ink\">oklch(62.3% 0.188 259.8)</code>) no campo de entrada acima.",
+      "step2": "Nosso motor converte as coordenadas cilíndricas do OKLCH para Oklab cartesiano e então, através da matriz LMS inversa, para RGB linear.",
+      "step3": "O RGB linear é codificado com gamma para sRGB e formatado como <code class=\"text-ink\">rgb(r, g, b)</code> ou <code class=\"text-ink\">rgba(r, g, b, a)</code>.",
+      "mathPath": "<strong class=\"text-ink\">O caminho matemático:</strong> OKLCH → Oklab (cartesiano) → RGB linear (matriz LMS inversa) → sRGB com gamma codificado → string rgb().",
+      "tableTitle": "Valores de referência de OKLCH para RGB",
+      "thSwatch": "Amostra",
+      "thOklchInput": "Entrada OKLCH",
+      "thColorName": "Nome da cor",
+      "thRgbOutput": "Saída RGB",
+      "cssTitle": "CSS pronto para copiar com aprimoramento progressivo",
+      "cssSnippet": ".canvas-fill {\n  color: rgb(59, 130, 246); /* fallback */\n  color: {sample}; /* navegadores modernos */\n}",
+      "themeLabel": "<strong class=\"text-ink\">Tailwind CSS v4 @theme:</strong>",
+      "themeSnippet": "@theme {\n  --color-canvas-blue: {sample};\n}",
+      "gamutTitle": "Nota sobre o gamut: mapeamento automático para sRGB",
+      "gamutBody": "Quando uma cor OKLCH fica fora do gamut sRGB (comum em cianos e verdes de chroma alta), nosso motor limita a chroma automaticamente ao valor mais próximo dentro do gamut, preservando matiz e luminosidade. Isso garante que a saída RGB seja sempre válida e renderize de forma consistente em todos os displays.",
+      "p3Item": "<strong class=\"text-ink\">Cores Display-P3:</strong> Em monitores wide-gamut, a cor OKLCH original aparece mais vívida. A saída RGB representa a versão limitada ao sRGB.",
+      "alphaItem": "<strong class=\"text-ink\">Preservação do alpha:</strong> Um valor OKLCH com alpha converte para <code class=\"text-ink\">rgba(r, g, b, a)</code> com o canal alpha intacto.",
+      "faqTitle": "Perguntas frequentes",
+      "faq1Q": "Por que preciso de RGB se tenho OKLCH?",
+      "faq1A": "Ferramentas legadas — renderizadores de canvas, bibliotecas JavaScript mais antigas, clientes de e-mail e alguns editores de imagem — só entendem RGB. Converter OKLCH para RGB garante a compatibilidade com essas ferramentas.",
+      "faq2Q": "A conversão de OKLCH para RGB é com perdas?",
+      "faq2A": "Para cores sRGB, a conversão é sem perdas. Para cores Display-P3, o clamp para sRGB é uma etapa com perdas. O OKLCH original permanece como fonte da verdade.",
+      "faq3Q": "Posso usar o alpha do OKLCH em rgba()?",
+      "faq3A": "Sim. <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code> converte para <code class=\"text-ink\">rgba(59, 130, 246, 0.5)</code> — o canal alpha é preservado.",
+      "faq4Q": "O que acontece com cores fora do gamut?",
+      "faq4A": "O motor limita a chroma ao valor mais próximo dentro do gamut, preservando matiz e luminosidade. Você verá um distintivo de gamut indicando que a cor foi limitada.",
+      "faq5Q": "Como uso valores RGB no canvas?",
+      "faq5A": "Passe a string RGB diretamente para <code class=\"text-ink\">ctx.fillStyle</code> ou <code class=\"text-ink\">ctx.strokeStyle</code>. O Canvas 2D só entende sRGB, então a saída RGB é sempre segura para canvas.",
+      "learnMoreLink": "Saiba mais sobre OKLCH →"
+    }
+  },
+  "seo": {
+    "rgbToOklch": {
+      "faqs": [
+        {
+          "question": "Posso converter rgba() com alpha para OKLCH?",
+          "answer": "Sim. rgba(59, 130, 246, 0.5) converte para oklch(62.3% 0.188 259.8 / 0.5) — o canal alpha é preservado como parâmetro após a barra."
+        },
+        {
+          "question": "Qual é a diferença entre RGB e OKLCH?",
+          "answer": "O RGB é um modelo de cores aditivo dependente de dispositivo. O OKLCH é um espaço de cores perceptualmente uniforme, onde valores iguais de luminosidade parecem igualmente brilhantes. O OKLCH torna muito mais fácil criar sistemas de cores acessíveis e consistentes."
+        },
+        {
+          "question": "A conversão de RGB para OKLCH é reversível?",
+          "answer": "Sim, para cores sRGB. Converter RGB → OKLCH → RGB produz os valores originais. A ida e volta é sem perdas dentro do gamut sRGB."
+        },
+        {
+          "question": "Todos os navegadores suportam oklch()?",
+          "answer": "Sim. oklch() é um recurso do Baseline disponível em todos os navegadores modernos desde maio de 2023. Chrome, Edge, Safari e Firefox o suportam nativamente."
+        },
+        {
+          "question": "Como uso OKLCH no Tailwind CSS v4?",
+          "answer": "O Tailwind v4 usa OKLCH em toda a sua paleta padrão. Defina cores personalizadas no seu bloco @theme usando --color-{name}: oklch(...) e o Tailwind gera os utilities automaticamente."
+        }
+      ]
+    },
+    "oklchToRgb": {
+      "faqs": [
+        {
+          "question": "Por que preciso de RGB se tenho OKLCH?",
+          "answer": "Ferramentas legadas — renderizadores de canvas, bibliotecas JavaScript mais antigas, clientes de e-mail e alguns editores de imagem — só entendem RGB. Converter OKLCH para RGB garante a compatibilidade com essas ferramentas."
+        },
+        {
+          "question": "A conversão de OKLCH para RGB é com perdas?",
+          "answer": "Para cores sRGB, a conversão é sem perdas. Para cores Display-P3, o clamp para sRGB é uma etapa com perdas. O OKLCH original permanece como fonte da verdade."
+        },
+        {
+          "question": "Posso usar o alpha do OKLCH em rgba()?",
+          "answer": "Sim. oklch(62.3% 0.188 259.8 / 0.5) converte para rgba(59, 130, 246, 0.5) — o canal alpha é preservado."
+        },
+        {
+          "question": "O que acontece com cores fora do gamut?",
+          "answer": "O motor limita a chroma ao valor mais próximo dentro do gamut, preservando matiz e luminosidade. Você verá um distintivo de gamut indicando que a cor foi limitada."
+        },
+        {
+          "question": "Como uso valores RGB no canvas?",
+          "answer": "Passe a string RGB diretamente para ctx.fillStyle ou ctx.strokeStyle. O Canvas 2D só entende sRGB, então a saída RGB é sempre segura para canvas."
+        }
+      ]
+    }
+  }
+}

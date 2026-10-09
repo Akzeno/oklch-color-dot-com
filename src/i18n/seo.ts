@@ -77,5 +77,6 @@ export function localizedSeo(
     ...(override.metaDescription ? { metaDescription: override.metaDescription } : {}),
     ...(override.h1 ? { h1: override.h1 } : {}),
     ...(override.keywords ? { keywords: override.keywords } : {}),
+    ...(override.faqs ? { faqs: override.faqs } : {}),
   };
 }

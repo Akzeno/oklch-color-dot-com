@@ -2,6 +2,7 @@
 import AppLayout from '../../layouts/AppLayout.astro';
 import { localizedSeo } from '../../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -28,14 +29,54 @@ const hslRamp = steps.map((l) => ({ step: l, css: `hsl(60 100% ${l}%)` }));
 const oklchRamp = steps.map((l) => ({ step: l, css: `oklch(${l}% 0.15 100)` }));
 
 const comparisonRows = [
-  { prop: 'Perceptual uniformity', oklch: 'Yes — equal numbers look equal', hsl: 'No — lightness is distorted per hue', rgb: 'No — channels are device physics' },
-  { prop: 'Lightness you can trust', oklch: 'Yes — 50% is 50% for every hue', hsl: 'No — 50% yellow ≈ white, 50% blue ≈ dark', rgb: 'No lightness channel at all' },
-  { prop: 'Wide gamut (Display-P3)', oklch: 'Yes', hsl: 'No — sRGB only', rgb: 'No — sRGB only' },
-  { prop: 'Gradient interpolation', oklch: 'Even ramps with in oklch', hsl: 'Hue path is arbitrary', rgb: 'Muddy midtones between saturated colors' },
-  { prop: 'Deriving a lighter shade', oklch: 'Adjust L, keep C and H', hsl: 'Adjust L — but the result is not uniform', rgb: 'No single channel maps to "lighter"' },
-  { prop: 'Syntax', oklch: 'oklch(L C H)', hsl: 'hsl(H S% L%)', rgb: 'rgb(R G B) or hex' },
-  { prop: 'Browser support', oklch: 'Baseline since May 2023', hsl: 'Universal', rgb: 'Universal' },
-  { prop: 'Typical home', oklch: 'Design systems, Tailwind v4', hsl: 'Legacy stylesheets, quick tweaks', rgb: 'Canvas APIs, device output, hex tokens' },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowUniformityProp', 'Perceptual uniformity'),
+    oklch: t(locale, 'pages.vsHslRgb.rowUniformityOklch', 'Yes — equal numbers look equal'),
+    hsl: t(locale, 'pages.vsHslRgb.rowUniformityHsl', 'No — lightness is distorted per hue'),
+    rgb: t(locale, 'pages.vsHslRgb.rowUniformityRgb', 'No — channels are device physics'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowLightnessProp', 'Lightness you can trust'),
+    oklch: t(locale, 'pages.vsHslRgb.rowLightnessOklch', 'Yes — 50% is 50% for every hue'),
+    hsl: t(locale, 'pages.vsHslRgb.rowLightnessHsl', 'No — 50% yellow ≈ white, 50% blue ≈ dark'),
+    rgb: t(locale, 'pages.vsHslRgb.rowLightnessRgb', 'No lightness channel at all'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowWideGamutProp', 'Wide gamut (Display-P3)'),
+    oklch: t(locale, 'pages.vsHslRgb.rowWideGamutOklch', 'Yes'),
+    hsl: t(locale, 'pages.vsHslRgb.rowWideGamutHsl', 'No — sRGB only'),
+    rgb: t(locale, 'pages.vsHslRgb.rowWideGamutRgb', 'No — sRGB only'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowGradientProp', 'Gradient interpolation'),
+    oklch: t(locale, 'pages.vsHslRgb.rowGradientOklch', 'Even ramps with in oklch'),
+    hsl: t(locale, 'pages.vsHslRgb.rowGradientHsl', 'Hue path is arbitrary'),
+    rgb: t(locale, 'pages.vsHslRgb.rowGradientRgb', 'Muddy midtones between saturated colors'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowDeriveProp', 'Deriving a lighter shade'),
+    oklch: t(locale, 'pages.vsHslRgb.rowDeriveOklch', 'Adjust L, keep C and H'),
+    hsl: t(locale, 'pages.vsHslRgb.rowDeriveHsl', 'Adjust L — but the result is not uniform'),
+    rgb: t(locale, 'pages.vsHslRgb.rowDeriveRgb', 'No single channel maps to "lighter"'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowSyntaxProp', 'Syntax'),
+    oklch: t(locale, 'pages.vsHslRgb.rowSyntaxOklch', 'oklch(L C H)'),
+    hsl: t(locale, 'pages.vsHslRgb.rowSyntaxHsl', 'hsl(H S% L%)'),
+    rgb: t(locale, 'pages.vsHslRgb.rowSyntaxRgb', 'rgb(R G B) or hex'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowBrowserProp', 'Browser support'),
+    oklch: t(locale, 'pages.vsHslRgb.rowBrowserOklch', 'Baseline since May 2023'),
+    hsl: t(locale, 'pages.vsHslRgb.rowBrowserHsl', 'Universal'),
+    rgb: t(locale, 'pages.vsHslRgb.rowBrowserRgb', 'Universal'),
+  },
+  {
+    prop: t(locale, 'pages.vsHslRgb.rowHomeProp', 'Typical home'),
+    oklch: t(locale, 'pages.vsHslRgb.rowHomeOklch', 'Design systems, Tailwind v4'),
+    hsl: t(locale, 'pages.vsHslRgb.rowHomeHsl', 'Legacy stylesheets, quick tweaks'),
+    rgb: t(locale, 'pages.vsHslRgb.rowHomeRgb', 'Canvas APIs, device output, hex tokens'),
+  },
 ];
 ---
 
@@ -50,11 +91,11 @@ const comparisonRows = [
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'common.home', 'Home')}</a>
       <span>/</span>
-      <span class="text-body">Learn</span>
+      <span class="text-body">{t(locale, 'common.learn', 'Learn')}</span>
       <span>/</span>
-      <span class="text-ink">OKLCH vs HSL vs RGB</span>
+      <span class="text-ink">{t(locale, 'pages.vsHslRgb.breadcrumbCurrent', 'OKLCH vs HSL vs RGB')}</span>
     </nav>
 
     <!-- Header -->
@@ -63,31 +104,31 @@ const comparisonRows = [
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-body">
-        RGB describes how displays emit light, HSL rearranges that into hue-saturation-lightness for human convenience, and OKLCH models how humans actually see. This guide compares all three on the properties that decide real design work — and is honest about where the older notations still win.
+        {t(locale, 'pages.vsHslRgb.subtitle', 'RGB describes how displays emit light, HSL rearranges that into hue-saturation-lightness for human convenience, and OKLCH models how humans actually see. This guide compares all three on the properties that decide real design work — and is honest about where the older notations still win.')}
       </p>
       <p class="text-xs font-mono text-mute">
-        Last updated: 2026-10-07 · Maintained by the OKLCH Colors team
+        {t(locale, 'pages.vsHslRgb.lastUpdated', 'Last updated: 2026-10-07 · Maintained by the OKLCH Colors team')}
       </p>
     </div>
 
     <!-- 1. Short answer -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">The Short Answer</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.shortAnswerTitle', 'The Short Answer')}</h2>
       <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-        <li><strong class="text-ink">Start new color systems in OKLCH.</strong> Perceptual uniformity means lightness, scales and contrast behave predictably, and the notation is future-proof (Baseline, wide-gamut-ready, Tailwind v4's default).</li>
-        <li><strong class="text-ink">Read HSL where you inherit it.</strong> It is serviceable for quick tweaks and still universal, but its lightness is unreliable — any automated scale built on it will drift.</li>
-        <li><strong class="text-ink">Keep RGB for the boundaries.</strong> Canvas, WebGL, image data and existing hex tokens speak RGB; convert at the edge rather than throughout your stylesheet.</li>
+        <li set:html={t(locale, 'pages.vsHslRgb.shortAnswerList1', '<strong class="text-ink">Start new color systems in OKLCH.</strong> Perceptual uniformity means lightness, scales and contrast behave predictably, and the notation is future-proof (Baseline, wide-gamut-ready, Tailwind v4\'s default).')} />
+        <li set:html={t(locale, 'pages.vsHslRgb.shortAnswerList2', '<strong class="text-ink">Read HSL where you inherit it.</strong> It is serviceable for quick tweaks and still universal, but its lightness is unreliable — any automated scale built on it will drift.')} />
+        <li set:html={t(locale, 'pages.vsHslRgb.shortAnswerList3', '<strong class="text-ink">Keep RGB for the boundaries.</strong> Canvas, WebGL, image data and existing hex tokens speak RGB; convert at the edge rather than throughout your stylesheet.')} />
       </ul>
     </section>
 
     <!-- 2. Full comparison table -->
     <section class="space-y-4">
-      <h2 class="text-lg font-semibold text-ink">OKLCH vs HSL vs RGB — Full Comparison</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.comparisonTitle', 'OKLCH vs HSL vs RGB — Full Comparison')}</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs font-mono">
           <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
             <tr>
-              <th class="p-3">Property</th>
+              <th class="p-3">{t(locale, 'pages.vsHslRgb.tableHeaderProperty', 'Property')}</th>
               <th class="p-3">OKLCH</th>
               <th class="p-3">HSL</th>
               <th class="p-3">RGB</th>
@@ -109,9 +150,9 @@ const comparisonRows = [
 
     <!-- 3. Lightness demo (build-time ramps) -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">The Same Lightness Steps: HSL vs OKLCH</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.lightnessTitle', 'The Same Lightness Steps: HSL vs OKLCH')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        Both rows below walk the identical lightness values — 20, 35, 50, 65, 80 — for the same yellow hue. In OKLCH each step is a fixed perceptual increment, so the row reads as an evenly spaced ramp. In HSL the top steps crowd toward white while the bottom steps bunch into darkness, because HSL's lightness is channel math, not perception:
+        {t(locale, 'pages.vsHslRgb.lightnessIntro', 'Both rows below walk the identical lightness values — 20, 35, 50, 65, 80 — for the same yellow hue. In OKLCH each step is a fixed perceptual increment, so the row reads as an evenly spaced ramp. In HSL the top steps crowd toward white while the bottom steps bunch into darkness, because HSL\'s lightness is channel math, not perception:')}
       </p>
 
       <div class="space-y-3">
@@ -144,97 +185,87 @@ const comparisonRows = [
         </div>
       </div>
 
-      <p class="text-xs md:text-sm font-mono text-body">
-        The same trap appears at a single value: HSL <code class="text-ink">hsl(60 100% 50%)</code> yellow and <code class="text-ink">hsl(240 100% 50%)</code> blue both claim 50% lightness, yet one reads as near-white glare and the other as a deep dark. OKLCH resolves this — a color at 50% lightness carries the same perceived brightness whatever its hue, which is what makes it safe to generate palettes from numeric rules.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.vsHslRgb.lightnessBody', 'The same trap appears at a single value: HSL <code class="text-ink">hsl(60 100% 50%)</code> yellow and <code class="text-ink">hsl(240 100% 50%)</code> blue both claim 50% lightness, yet one reads as near-white glare and the other as a deep dark. OKLCH resolves this — a color at 50% lightness carries the same perceived brightness whatever its hue, which is what makes it safe to generate palettes from numeric rules.')} />
     </section>
 
     <!-- 4. Why RGB is different in kind -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Why RGB Is a Different Kind of Value</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        RGB is not a failed competitor — it is a different category. <code class="text-ink">rgb(255 0 0)</code> states how hard each channel drives on an sRGB display; it makes no claim about how bright or saturated the result looks, because that depends on the eye, not the signal. Two consequences follow:
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.rgbDifferentTitle', 'Why RGB Is a Different Kind of Value')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.vsHslRgb.rgbDifferentBody', 'RGB is not a failed competitor — it is a different category. <code class="text-ink">rgb(255 0 0)</code> states how hard each channel drives on an sRGB display; it makes no claim about how bright or saturated the result looks, because that depends on the eye, not the signal. Two consequences follow:')} />
       <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-        <li><strong class="text-ink">"Lighter" has no channel.</strong> Making an RGB color lighter means raising all three numbers by an amount that differs per hue — which is exactly the guesswork HSL was invented to avoid, and OKLCH actually solves.</li>
-        <li><strong class="text-ink">Interpolation is physical, not perceptual.</strong> An RGB gradient between saturated red and blue passes through a desaturated midpoint because channel math says so, not because the eye wants it.</li>
+        <li set:html={t(locale, 'pages.vsHslRgb.rgbDifferentList1', '<strong class="text-ink">"Lighter" has no channel.</strong> Making an RGB color lighter means raising all three numbers by an amount that differs per hue — which is exactly the guesswork HSL was invented to avoid, and OKLCH actually solves.')} />
+        <li set:html={t(locale, 'pages.vsHslRgb.rgbDifferentList2', '<strong class="text-ink">Interpolation is physical, not perceptual.</strong> An RGB gradient between saturated red and blue passes through a desaturated midpoint because channel math says so, not because the eye wants it.')} />
       </ul>
-      <p class="text-xs md:text-sm font-mono text-body">
-        HEX is RGB with different packaging — <code class="text-ink">#ff0000</code> and <code class="text-ink">rgb(255 0 0)</code> are the same color. Every argument here about RGB applies equally to hex codes.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.vsHslRgb.hexRgbBody', 'HEX is RGB with different packaging — <code class="text-ink">#ff0000</code> and <code class="text-ink">rgb(255 0 0)</code> are the same color. Every argument here about RGB applies equally to hex codes.')} />
     </section>
 
     <!-- 5. When HSL and RGB still win -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">When to Stay with HSL or RGB</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.whenToStayTitle', 'When to Stay with HSL or RGB')}</h2>
       <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-        <li><strong class="text-ink">Reading or writing APIs that demand RGB.</strong> Canvas <code class="text-ink">getImageData</code>, WebGL uniforms, and most charting libraries take 0-255 channels — convert OKLCH → RGB at that boundary.</li>
-        <li><strong class="text-ink">Handing colors to tools that only parse hex.</strong> Design tokens in Figma plugins, older build pipelines, or brand guidelines fixed on hex values: keep the system in OKLCH, export HEX.</li>
-        <li><strong class="text-ink">Small, hand-tuned one-offs.</strong> A single border color tweaked by eye does not need a color space argument — HSL's hue dial is quick and fine.</li>
-        <li><strong class="text-ink">Auditing legacy code.</strong> When you cannot change a stylesheet, understanding HSL's distortions is enough to predict where its scales misbehave.</li>
+        <li set:html={t(locale, 'pages.vsHslRgb.whenToStayList1', '<strong class="text-ink">Reading or writing APIs that demand RGB.</strong> Canvas <code class="text-ink">getImageData</code>, WebGL uniforms, and most charting libraries take 0-255 channels — convert OKLCH → RGB at that boundary.')} />
+        <li set:html={t(locale, 'pages.vsHslRgb.whenToStayList2', '<strong class="text-ink">Handing colors to tools that only parse hex.</strong> Design tokens in Figma plugins, older build pipelines, or brand guidelines fixed on hex values: keep the system in OKLCH, export HEX.')} />
+        <li set:html={t(locale, 'pages.vsHslRgb.whenToStayList3', '<strong class="text-ink">Small, hand-tuned one-offs.</strong> A single border color tweaked by eye does not need a color space argument — HSL\'s hue dial is quick and fine.')} />
+        <li set:html={t(locale, 'pages.vsHslRgb.whenToStayList4', '<strong class="text-ink">Auditing legacy code.</strong> When you cannot change a stylesheet, understanding HSL\'s distortions is enough to predict where its scales misbehave.')} />
       </ul>
-      <p class="text-xs md:text-sm font-mono text-body">
-        The rule of thumb: <strong class="text-ink">keep your system OKLCH, convert at the edges.</strong> Every converter on this site exists for exactly those boundary crossings.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.vsHslRgb.ruleOfThumbBody', 'The rule of thumb: <strong class="text-ink">keep your system OKLCH, convert at the edges.</strong> Every converter on this site exists for exactly those boundary crossings.')} />
     </section>
 
     <!-- 6. Migration -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Moving an Existing Palette to OKLCH</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.migrationTitle', 'Moving an Existing Palette to OKLCH')}</h2>
       <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-        <li>Convert each base color to <code class="text-ink">oklch()</code> — the round trip is lossless for sRGB colors, so nothing visibly changes on day one.</li>
-        <li>Rebuild shades from lightness steps instead of inherited hex values. This is where the improvement shows: equal L steps finally look equal.</li>
-        <li>Re-check contrast with a real ratio — perceptual lightness makes WCAG results far more predictable, but always verify rather than assume.</li>
-        <li>Leave RGB/HEX exports in place for tools that need them; they are derived artifacts now, not the source of truth.</li>
+        <li set:html={t(locale, 'pages.vsHslRgb.migrationStep1', 'Convert each base color to <code class="text-ink">oklch()</code> — the round trip is lossless for sRGB colors, so nothing visibly changes on day one.')} />
+        <li>{t(locale, 'pages.vsHslRgb.migrationStep2', 'Rebuild shades from lightness steps instead of inherited hex values. This is where the improvement shows: equal L steps finally look equal.')}</li>
+        <li>{t(locale, 'pages.vsHslRgb.migrationStep3', 'Re-check contrast with a real ratio — perceptual lightness makes WCAG results far more predictable, but always verify rather than assume.')}</li>
+        <li>{t(locale, 'pages.vsHslRgb.migrationStep4', 'Leave RGB/HEX exports in place for tools that need them; they are derived artifacts now, not the source of truth.')}</li>
       </ol>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
         <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
-          <span class="text-ink font-semibold block">HEX → OKLCH</span>
-          <span class="text-body">Start with your base colors</span>
+          <span class="text-ink font-semibold block">{t(locale, 'pages.vsHslRgb.linkHexTitle', 'HEX → OKLCH')}</span>
+          <span class="text-body">{t(locale, 'pages.vsHslRgb.linkHexBody', 'Start with your base colors')}</span>
         </a>
         <a href={buildLocalizedPath('/hsl-to-oklch', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
-          <span class="text-ink font-semibold block">HSL → OKLCH</span>
-          <span class="text-body">From hsl() stylesheets</span>
+          <span class="text-ink font-semibold block">{t(locale, 'pages.vsHslRgb.linkHslTitle', 'HSL → OKLCH')}</span>
+          <span class="text-body">{t(locale, 'pages.vsHslRgb.linkHslBody', 'From hsl() stylesheets')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
-          <span class="text-ink font-semibold block">Palette Generator</span>
-          <span class="text-body">Rebuild the 50-950 scale</span>
+          <span class="text-ink font-semibold block">{t(locale, 'pages.vsHslRgb.linkGeneratorTitle', 'Palette Generator')}</span>
+          <span class="text-body">{t(locale, 'pages.vsHslRgb.linkGeneratorBody', 'Rebuild the 50-950 scale')}</span>
         </a>
       </div>
     </section>
 
     <!-- 7. FAQ -->
     <section class="space-y-4">
-      <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.faqTitle', 'Frequently Asked Questions')}</h2>
       <div class="space-y-3 font-mono text-xs">
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Is OKLCH always better than HSL?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.vsHslRgb.faq1Question', 'Is OKLCH always better than HSL?')}</h3>
           <p class="text-body leading-relaxed">
-            For building and maintaining color systems, yes — perceptual uniformity fixes real defects in HSL's lightness. For quick hand tweaks or code that must speak HSL, the difference rarely matters. "Better" here means predictable under automation, not invalid.
+            {t(locale, 'pages.vsHslRgb.faq1Answer', 'For building and maintaining color systems, yes — perceptual uniformity fixes real defects in HSL\'s lightness. For quick hand tweaks or code that must speak HSL, the difference rarely matters. "Better" here means predictable under automation, not invalid.')}
           </p>
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Why does HSL lightness fail?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.vsHslRgb.faq2Question', 'Why does HSL lightness fail?')}</h3>
           <p class="text-body leading-relaxed">
-            HSL derives lightness from RGB channel values rather than from vision: lightness is the midpoint between the strongest and weakest channel. Human brightness perception doesn't work that way, so equal HSL lightness numbers deliver very different perceived brightness across hues.
+            {t(locale, 'pages.vsHslRgb.faq2Answer', 'HSL derives lightness from RGB channel values rather than from vision: lightness is the midpoint between the strongest and weakest channel. Human brightness perception doesn\'t work that way, so equal HSL lightness numbers deliver very different perceived brightness across hues.')}
           </p>
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Do I lose colors by moving from RGB to OKLCH?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.vsHslRgb.faq3Question', 'Do I lose colors by moving from RGB to OKLCH?')}</h3>
           <p class="text-body leading-relaxed">
-            No, going the other way can only expand: OKLCH encodes everything sRGB can (round-trips are lossless) plus colors beyond it. The one clamp happens converting a wide-gamut OKLCH value down to sRGB, where chroma is reduced to the nearest displayable color.
+            {t(locale, 'pages.vsHslRgb.faq3Answer', 'No, going the other way can only expand: OKLCH encodes everything sRGB can (round-trips are lossless) plus colors beyond it. The one clamp happens converting a wide-gamut OKLCH value down to sRGB, where chroma is reduced to the nearest displayable color.')}
           </p>
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Are OKLCH gradients really different?</h3>
-          <p class="text-body leading-relaxed">
-            Yes. Interpolating in OKLCH keeps lightness and chroma moving evenly, so a two-color ramp stays vivid through the midpoint. The equivalent RGB ramp desaturates in the middle because channel averaging pulls toward gray. Write <code class="text-ink">linear-gradient(in oklch, ...)</code> to get the perceptual path.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.vsHslRgb.faq4Question', 'Are OKLCH gradients really different?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.vsHslRgb.faq4Answer', 'Yes. Interpolating in OKLCH keeps lightness and chroma moving evenly, so a two-color ramp stays vivid through the midpoint. The equivalent RGB ramp desaturates in the middle because channel averaging pulls toward gray. Write <code class="text-ink">linear-gradient(in oklch, ...)</code> to get the perceptual path.')} />
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Which notation should new projects use?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.vsHslRgb.faq5Question', 'Which notation should new projects use?')}</h3>
           <p class="text-body leading-relaxed">
-            OKLCH for everything inside the design system, with RGB/HEX conversions only at tool boundaries. It is Baseline-supported, wide-gamut ready, and already the default palette notation of Tailwind CSS v4 — the direction the ecosystem is going.
+            {t(locale, 'pages.vsHslRgb.faq5Answer', 'OKLCH for everything inside the design system, with RGB/HEX conversions only at tool boundaries. It is Baseline-supported, wide-gamut ready, and already the default palette notation of Tailwind CSS v4 — the direction the ecosystem is going.')}
           </p>
         </div>
       </div>
@@ -242,36 +273,36 @@ const comparisonRows = [
 
     <!-- 8. Related -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Related Guides</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.vsHslRgb.relatedTitle', 'Related Guides')}</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">What is OKLCH?</span>
-          <span class="text-xs font-mono text-body">Full introduction to the color space</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.vsHslRgb.related1Title', 'What is OKLCH?')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.vsHslRgb.related1Body', 'Full introduction to the color space')}</span>
         </a>
         <a href={buildLocalizedPath('/learn/oklch-css-syntax', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">CSS oklch() Syntax</span>
-          <span class="text-xs font-mono text-body">Function reference with examples</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.vsHslRgb.related2Title', 'CSS oklch() Syntax')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.vsHslRgb.related2Body', 'Function reference with examples')}</span>
         </a>
         <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">OKLCH in Tailwind v4</span>
-          <span class="text-xs font-mono text-body">The palette switch, explained</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.vsHslRgb.related3Title', 'OKLCH in Tailwind v4')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.vsHslRgb.related3Body', 'The palette switch, explained')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-converter', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">OKLCH Converter Hub</span>
-          <span class="text-xs font-mono text-body">All six conversion directions</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.vsHslRgb.related4Title', 'OKLCH Converter Hub')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.vsHslRgb.related4Body', 'All six conversion directions')}</span>
         </a>
       </div>
     </section>
 
     <!-- 9. Sources -->
     <section class="space-y-3 pt-6 border-t border-hairline">
-      <h2 class="text-sm font-semibold text-ink">Sources</h2>
+      <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.vsHslRgb.sourcesTitle', 'Sources')}</h2>
       <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
-        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">Björn Ottosson — Oklab: a perceptual color space</a></li>
-        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">W3C — CSS Color Module Level 4</a></li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() browser compatibility</a></li>
-        <li><a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — v4.0 release (palette in OKLCH)</a></li>
-        <li><a href="https://www.w3.org/TR/WCAG22/" class="text-accent-text hover:underline" target="_blank" rel="noopener">W3C — WCAG 2.2 contrast criteria</a></li>
+        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.vsHslRgb.source1', 'Björn Ottosson — Oklab: a perceptual color space')}</a></li>
+        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.vsHslRgb.source2', 'W3C — CSS Color Module Level 4')}</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.vsHslRgb.source3', 'MDN — oklch() browser compatibility')}</a></li>
+        <li><a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.vsHslRgb.source4', 'Tailwind CSS — v4.0 release (palette in OKLCH)')}</a></li>
+        <li><a href="https://www.w3.org/TR/WCAG22/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.vsHslRgb.source5', 'W3C — WCAG 2.2 contrast criteria')}</a></li>
       </ul>
     </section>
   </div>

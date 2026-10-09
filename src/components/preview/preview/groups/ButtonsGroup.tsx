@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { Swatch, unsetStyle } from '../Swatch';
+import { t } from '../../../../i18n/translations';
 import {
   ACCENT,
   scorePair,
@@ -65,18 +66,26 @@ function split(paint: Paint) {
   };
 }
 
-/** The label a role gets on a button: its own name, title-cased. */
-function actionLabel(role: AccentRole) {
-  return role
+/** The label a role gets on a button: its own localized name, title-cased. */
+function actionLabel(paint: Paint, role: AccentRole) {
+  const titleCased = role
     .split('-')
     .map((w) => w[0]!.toUpperCase() + w.slice(1))
     .join(' ');
+  return t(paint.locale, `ui.roles.${role}`, titleCased);
 }
 
 /** The semantic pair this group exists for, scored for one role. */
 function accentPair(paint: Paint, role: AccentRole): ContrastPair | null {
   const pair = paint.accents[role];
-  return scorePair(`${actionLabel(role)} content on fill`, pair.on, pair.fill);
+  return scorePair(
+    t(paint.locale, 'ui.preview.buttons.pairContentOnFill', '{role} content on fill').replace(
+      '{role}',
+      actionLabel(paint, role)
+    ),
+    pair.on,
+    pair.fill
+  );
 }
 
 export function ButtonsGroup({ paint }: { paint: Paint }) {
@@ -89,49 +98,93 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
   return (
     <div class="space-y-8">
       <Rail
-        label="Variants"
-        description="One card per variant, all painted from the Trusty Button role on an identical backdrop."
-        hint={worst ? `${worst.wcag}:1` : 'set an accent to score'}
+        label={t(paint.locale, 'ui.preview.buttons.variantsTitle', 'Variants')}
+        description={t(
+          paint.locale,
+          'ui.preview.buttons.variantsDesc',
+          'One card per variant, all painted from the Trusty Button role on an identical backdrop.'
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.buttons.scoreHint', 'set an accent to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
         {VARIANTS.map(({ variant, name }) => (
-          <Specimen key={variant} name="Button" variant={name}>
+          <Specimen
+            key={variant}
+            name={t(paint.locale, 'ui.preview.buttons.nameButton', 'Button')}
+            variant={t(paint.locale, `ui.preview.buttons.variant${name}`, name)}
+          >
             {(paint) => (
-              <KitButton paint={paint} role={ROLE} label="Continue" variant={variant} withIcon />
+              <KitButton
+                paint={paint}
+                role={ROLE}
+                label={t(paint.locale, 'ui.preview.buttons.labelContinue', 'Continue')}
+                variant={variant}
+                withIcon
+              />
             )}
           </Specimen>
         ))}
       </Rail>
 
       <Rail
-        label="Sizes & Icon Buttons"
-        description="The same fill at three sizes, then the icon-only control in each of its three treatments."
+        label={t(paint.locale, 'ui.preview.buttons.sizesTitle', 'Sizes & Icon Buttons')}
+        description={t(
+          paint.locale,
+          'ui.preview.buttons.sizesDesc',
+          'The same fill at three sizes, then the icon-only control in each of its three treatments.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Button" variant="Small">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameButton', 'Button')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantSmall', 'Small')}
+        >
           {(paint) => (
-            <KitButton paint={paint} role={ROLE} label="Save changes" size="sm" />
+            <KitButton
+              paint={paint}
+              role={ROLE}
+              label={t(paint.locale, 'ui.preview.buttons.labelSaveChanges', 'Save changes')}
+              size="sm"
+            />
           )}
         </Specimen>
 
-        <Specimen name="Icon button" variant="Solid">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameIconButton', 'Icon button')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantSolid', 'Solid')}
+        >
           {(paint) => (
             <KitIconButton paint={paint} role={ROLE} glyph="plus" variant="solid" />
           )}
         </Specimen>
 
-        <Specimen name="Icon button" variant="Soft">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameIconButton', 'Icon button')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantSoft', 'Soft')}
+        >
           {(paint) => (
             <KitIconButton paint={paint} role={ROLE} glyph="check" variant="soft" />
           )}
         </Specimen>
 
-        <Specimen name="Icon button" variant="Outline">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameIconButton', 'Icon button')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantOutline', 'Outline')}
+        >
           {(paint) => (
             <KitIconButton paint={paint} role={ROLE} glyph="dots" variant="outline" />
           )}
         </Specimen>
 
-        <Specimen name="Icon row" variant="Toolbar">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameIconRow', 'Icon row')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantToolbar', 'Toolbar')}
+        >
           {(paint) => (
             <KitIconRow paint={paint} role={ROLE} />
           )}
@@ -144,35 +197,73 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
         badge has not survived the button.
       */}
       <Rail
-        label="Same Pair, Other Shapes"
-        description="Badges and avatars take the same fill and foreground as the button — over a tenth of its area."
+        label={t(paint.locale, 'ui.preview.buttons.shapesTitle', 'Same Pair, Other Shapes')}
+        description={t(
+          paint.locale,
+          'ui.preview.buttons.shapesDesc',
+          'Badges and avatars take the same fill and foreground as the button — over a tenth of its area.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Badge" variant="Solid">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantSolid', 'Solid')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="info" label="New" variant="solid" />
+            <KitBadge
+              paint={paint}
+              role="info"
+              label={t(paint.locale, 'ui.preview.buttons.badgeNew', 'New')}
+              variant="solid"
+            />
           )}
         </Specimen>
-        <Specimen name="Badge" variant="Soft">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantSoft', 'Soft')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="info" label="Draft" variant="soft" />
+            <KitBadge
+              paint={paint}
+              role="info"
+              label={t(paint.locale, 'ui.preview.buttons.badgeDraft', 'Draft')}
+              variant="soft"
+            />
           )}
         </Specimen>
-        <Specimen name="Badge" variant="Outline">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantOutline', 'Outline')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="info" label="Beta" variant="outline" />
+            <KitBadge
+              paint={paint}
+              role="info"
+              label={t(paint.locale, 'ui.preview.buttons.badgeBeta', 'Beta')}
+              variant="outline"
+            />
           )}
         </Specimen>
-        <Specimen name="Avatar" variant="Solid">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameAvatar', 'Avatar')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantSolid', 'Solid')}
+        >
           {(paint) => (
             <KitAvatar paint={paint} role="primary" initials="EV" variant="solid" />
           )}
         </Specimen>
-        <Specimen name="Avatar" variant="Gradient">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameAvatar', 'Avatar')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantGradient', 'Gradient')}
+        >
           {(paint) => (
             <KitAvatar paint={paint} role="primary" initials="EV" variant="gradient" />
           )}
         </Specimen>
-        <Specimen name="Avatar" variant="Stack">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.buttons.nameAvatar', 'Avatar')}
+          variant={t(paint.locale, 'ui.preview.buttons.variantStack', 'Stack')}
+        >
           {(paint) => (
             <KitAvatarStack paint={paint} />
           )}
@@ -180,18 +271,37 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Every Accent Role"
-        description="One card per role, so a palette that only breaks on `danger` cannot hide behind six healthy buttons."
+        label={t(paint.locale, 'ui.preview.buttons.rolesTitle', 'Every Accent Role')}
+        description={t(
+          paint.locale,
+          'ui.preview.buttons.rolesDesc',
+          'One card per role, so a palette that only breaks on `danger` cannot hide behind six healthy buttons.'
+        )}
+        locale={paint.locale}
       >
         {ready.length === 0 && (
           <p class="prose-hud self-center pr-4">
-            No accent roles set yet — add one in the Design Tokens panel.
+            {t(
+              paint.locale,
+              'ui.preview.buttons.noAccents',
+              'No accent roles set yet — add one in the Design Tokens panel.'
+            )}
           </p>
         )}
         {ready.map((role) => (
-          <Specimen key={role} name={actionLabel(role)} variant="Solid">
+          <Specimen
+            key={role}
+            name={actionLabel(paint, role)}
+            variant={t(paint.locale, 'ui.preview.buttons.variantSolid', 'Solid')}
+          >
             {(paint) => (
-              <KitButton paint={paint} role={role} label={actionLabel(role)} variant="solid" size="sm" />
+              <KitButton
+                paint={paint}
+                role={role}
+                label={actionLabel(paint, role)}
+                variant="solid"
+                size="sm"
+              />
             )}
           </Specimen>
         ))}
@@ -200,11 +310,20 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
       {/* Roles with no 500. Clickable, because authoring that token is the point. */}
       {waiting.length > 0 && (
         <Rail
-          label="Awaiting Tokens"
-          description="Accent roles with no 500 slot — click one to author it."
+          label={t(paint.locale, 'ui.preview.buttons.awaitingTitle', 'Awaiting Tokens')}
+          description={t(
+            paint.locale,
+            'ui.preview.buttons.awaitingDesc',
+            'Accent roles with no 500 slot — click one to author it.'
+          )}
+          locale={paint.locale}
         >
           {waiting.map((role) => (
-            <Specimen key={role} name={actionLabel(role)} variant="Not set">
+            <Specimen
+              key={role}
+              name={actionLabel(paint, role)}
+              variant={t(paint.locale, 'ui.preview.buttons.variantNotSet', 'Not set')}
+            >
               {(paint) => (
                 <Swatch
                   slot={null}
@@ -212,6 +331,7 @@ export function ButtonsGroup({ paint }: { paint: Paint }) {
                   step={ACCENT.fill[paint.theme]}
                   pending
                   part="bg"
+                  locale={paint.locale}
                   class="px-2.5 py-1.5 rounded-lg font-mono text-[10px] border text-center"
                   style={unsetStyle(paint.theme)}
                 >

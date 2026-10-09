@@ -1,0 +1,37 @@
+{
+  "ui": {
+    "export": {
+      "formatGroupAria": "Export format",
+      "fallbackChipHint": "Emit a HEX line before each OKLCH line for older browsers",
+      "formatFallbackLabel": "Fallback",
+      "wrapHint": "Toggle line wrapping",
+      "wrapLabel": "Wrap",
+      "downloadLabel": "Download",
+      "copyAllLabel": "Copy all",
+      "tokenCount": "{count} tokens",
+      "emptyComment": "/* No colors in cart yet. Add swatches or generate scales first! */",
+      "toastCodeCopied": "Code block copied",
+      "toastLineCopied": "{variable} copied",
+      "toastValueCopied": "Value copied",
+      "toastDownloaded": "{file} downloaded",
+      "renameInputAria": "Variable name to rename this token to",
+      "copyHexHint": "Copy HEX fallback",
+      "copyValueHint": "Copy value",
+      "saveNameHint": "Save name",
+      "saveNameAria": "Save the new name for --color-{role}-*",
+      "cancelHint": "Cancel",
+      "cancelRenameAria": "Cancel rename",
+      "copyVariable": "Copy {variable}",
+      "renameTooltipOne": "Rename --color-{role}-* ({count} variable)",
+      "renameTooltipMany": "Rename --color-{role}-* ({count} variables)",
+      "renameAriaOne": "Rename the {count} --color-{role}-* variables",
+      "renameAriaMany": "Rename the {count} --color-{role}-* variables",
+      "editColourHint": "Edit this colour in the picker",
+      "editColourAria": "Edit {variable} in the colour picker",
+      "removeHint": "Remove {variable} (undoable)",
+      "removeAria": "Remove {variable}",
+      "tailwindNoteTitle": "Using these in Tailwind v4",
+      "tailwindNoteBody": "Anything declared in <code>@theme</code> as <code>--color-*</code> becomes a utility automatically — no config file, no plugin."
+    }
+  }
+}

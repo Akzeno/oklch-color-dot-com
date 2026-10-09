@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { scorePair, worstOf } from '../slots';
+import { t } from '../../../../i18n/translations';
 import {
   KitAvatar,
   KitBadge,
@@ -51,8 +52,16 @@ import type { Paint } from '../slots';
  */
 export function OverlaysGroup({ paint }: { paint: Paint }) {
   const worst = worstOf([
-    scorePair('Panel title on raised', paint.text, paint.fixture.raised),
-    scorePair('Panel body on raised', paint.muted, paint.fixture.raised),
+    scorePair(
+      t(paint.locale, 'ui.preview.overlays.pairPanelTitleOnRaised', 'Panel title on raised'),
+      paint.text,
+      paint.fixture.raised
+    ),
+    scorePair(
+      t(paint.locale, 'ui.preview.overlays.pairPanelBodyOnRaised', 'Panel body on raised'),
+      paint.muted,
+      paint.fixture.raised
+    ),
   ]);
 
   /** The backdrop every card in this group sits on: real content, dimmed. */
@@ -73,12 +82,24 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
   return (
     <div class="space-y-8">
       <Rail
-        label="Over a Scrim"
-        description="Content behind, scrim, panel. The panel's own edge has to separate it from what it is covering."
-        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        label={t(paint.locale, 'ui.preview.overlays.scrimTitle', 'Over a Scrim')}
+        description={t(
+          paint.locale,
+          'ui.preview.overlays.scrimDesc',
+          "Content behind, scrim, panel. The panel's own edge has to separate it from what it is covering."
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.overlays.hintBgText', 'set background + text to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
-        <Specimen name="Modal" variant="Dialog">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.nameModal', 'Modal')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantDialog', 'Dialog')}
+        >
           {(paint) => (
             <div class="relative w-full h-full">
               <Backdrop>
@@ -100,21 +121,40 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
                 class="absolute inset-x-3 top-4 rounded-xl border p-2.5 shadow-lg space-y-1.5"
               >
                 <KitText paint={paint} class="block text-[12px] font-semibold">
-                  Delete palette?
+                  {t(paint.locale, 'ui.preview.overlays.contentDeletePalette', 'Delete palette?')}
                 </KitText>
                 <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                  Crimson Danger and its 11 shades will be removed.
+                  {t(
+                    paint.locale,
+                    'ui.preview.overlays.contentCrimsonRemoved',
+                    'Crimson Danger and its 11 shades will be removed.'
+                  )}
                 </KitMuted>
                 <div class="flex items-center gap-1.5 pt-0.5">
-                  <KitButton paint={paint} role="danger" label="Delete" variant="solid" size="sm" />
-                  <KitButton paint={paint} role="secondary" label="Cancel" variant="ghost" size="sm" />
+                  <KitButton
+                    paint={paint}
+                    role="danger"
+                    label={t(paint.locale, 'ui.preview.overlays.labelDelete', 'Delete')}
+                    variant="solid"
+                    size="sm"
+                  />
+                  <KitButton
+                    paint={paint}
+                    role="secondary"
+                    label={t(paint.locale, 'ui.preview.overlays.labelCancel', 'Cancel')}
+                    variant="ghost"
+                    size="sm"
+                  />
                 </div>
               </KitSurface>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Drawer" variant="Side">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.nameDrawer', 'Drawer')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantSide', 'Side')}
+        >
           {(paint) => (
             <div class="relative w-full h-full">
               <Backdrop>
@@ -137,33 +177,50 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
                 <div class="flex items-center gap-2">
                   <KitAvatar paint={paint} role="primary" initials="EV" size={22} />
                   <KitText paint={paint} class="text-[11px] font-semibold truncate">
-                    Details
+                    {t(paint.locale, 'ui.preview.overlays.contentDetails', 'Details')}
                   </KitText>
                 </div>
-                {[0, 1, 2].map((i) => (
-                  <div key={i}>
-                    {i > 0 && <KitEdge paint={paint} side="top" class="block" />}
-                    <KitMenuRow paint={paint} label={['Owner', 'Updated', 'Colour space'][i]!} trailing={['EV', '4m ago', 'sRGB'][i]!} />
-                  </div>
-                ))}
+                {[0, 1, 2].map((i) => {
+                  const labels = [
+                    t(paint.locale, 'ui.preview.overlays.rowOwner', 'Owner'),
+                    t(paint.locale, 'ui.preview.overlays.rowUpdated', 'Updated'),
+                    t(paint.locale, 'ui.preview.overlays.rowColourSpace', 'Colour space'),
+                  ];
+                  const trailings = ['EV', t(paint.locale, 'ui.preview.overlays.rowUpdatedTrailing', '4m ago'), 'sRGB'];
+                  return (
+                    <div key={i}>
+                      {i > 0 && <KitEdge paint={paint} side="top" class="block" />}
+                      <KitMenuRow paint={paint} label={labels[i]!} trailing={trailings[i]!} />
+                    </div>
+                  );
+                })}
               </KitSurface>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Menu" variant="Dropdown">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.nameMenu', 'Menu')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantDropdown', 'Dropdown')}
+        >
           {(paint) => (
             <div class="relative w-full h-full flex items-start justify-center pt-3">
-              <KitButton paint={paint} role="primary" label="Options" variant="outline" size="sm" />
+              <KitButton
+                paint={paint}
+                role="primary"
+                label={t(paint.locale, 'ui.preview.overlays.labelOptions', 'Options')}
+                variant="outline"
+                size="sm"
+              />
               <KitSurface paint={paint} level="raised" class="absolute top-11 w-[9.5rem] rounded-xl border p-1 shadow-lg">
                 <KitMenu
                   paint={paint}
                   selected={1}
                   rows={[
-                    { label: 'Rename', trailing: '⌘R' },
-                    { label: 'Duplicate' },
-                    { label: 'Export JSON' },
-                    { label: 'Delete' },
+                    { label: t(paint.locale, 'ui.preview.overlays.menuRename', 'Rename'), trailing: '⌘R' },
+                    { label: t(paint.locale, 'ui.preview.overlays.menuDuplicate', 'Duplicate') },
+                    { label: t(paint.locale, 'ui.preview.overlays.menuExportJson', 'Export JSON') },
+                    { label: t(paint.locale, 'ui.preview.overlays.menuDelete', 'Delete') },
                   ]}
                 />
               </KitSurface>
@@ -171,10 +228,18 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Select" variant="Combobox">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.nameSelect', 'Select')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantCombobox', 'Combobox')}
+        >
           {(paint) => (
             <div class="relative w-full h-full">
-              <KitField paint={paint} label="Colour model" value="OKLCH" kind="select" />
+              <KitField
+                paint={paint}
+                label={t(paint.locale, 'ui.preview.overlays.labelColourModel', 'Colour model')}
+                value="OKLCH"
+                kind="select"
+              />
               <KitSurface paint={paint} level="raised" class="absolute top-[3.4rem] inset-x-0 rounded-xl border p-1 shadow-lg">
                 <KitMenu
                   paint={paint}
@@ -186,7 +251,10 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Popover" variant="Anchored">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.namePopover', 'Popover')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantAnchored', 'Anchored')}
+        >
           {(paint) => (
             <div class="relative w-full h-full">
               <KitSurface paint={paint} class="w-full rounded-xl border p-2.5 space-y-2">
@@ -194,8 +262,18 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
                   primary-500
                 </KitText>
                 <div class="flex items-center gap-1.5">
-                  <KitBadge paint={paint} role="info" label="in sRGB" variant="soft" />
-                  <KitBadge paint={paint} role="warning" label="out of P3" variant="outline" />
+                  <KitBadge
+                    paint={paint}
+                    role="info"
+                    label={t(paint.locale, 'ui.preview.overlays.badgeInSrgb', 'in sRGB')}
+                    variant="soft"
+                  />
+                  <KitBadge
+                    paint={paint}
+                    role="warning"
+                    label={t(paint.locale, 'ui.preview.overlays.badgeOutOfP3', 'out of P3')}
+                    variant="outline"
+                  />
                 </div>
               </KitSurface>
               <span
@@ -212,8 +290,11 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
                 class="absolute inset-x-0 bottom-0 rounded-xl border p-2.5 shadow-lg"
               >
                 <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                  The arrow is filled with the panel and edged with its border, so
-                  it can never disagree with either.
+                  {t(
+                    paint.locale,
+                    'ui.preview.overlays.contentArrow',
+                    'The arrow is filled with the panel and edged with its border, so it can never disagree with either.'
+                  )}
                 </KitMuted>
               </KitSurface>
             </div>
@@ -222,14 +303,22 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Palette &amp; Command"
-        description="Two overlays with no scrim — they replace the page rather than sit over it, so they stack two surfaces and nothing else."
+        label={t(paint.locale, 'ui.preview.overlays.commandTitle', 'Palette & Command')}
+        description={t(
+          paint.locale,
+          'ui.preview.overlays.commandDesc',
+          'Two overlays with no scrim — they replace the page rather than sit over it, so they stack two surfaces and nothing else.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Palette" variant="Picker">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.namePalette', 'Palette')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantPicker', 'Picker')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-2.5 space-y-2">
               <KitText paint={paint} class="block text-[11px] font-semibold">
-                Shade
+                {t(paint.locale, 'ui.preview.overlays.contentShade', 'Shade')}
               </KitText>
               <div class="flex gap-1">
                 {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((step) => (
@@ -252,19 +341,32 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Command" variant="Palette">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.nameCommand', 'Command')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantPalette', 'Palette')}
+        >
           {(paint) => (
             <KitSurface paint={paint} level="raised" class="w-full rounded-xl border p-1.5 space-y-1.5 shadow-lg">
-              <KitSearch paint={paint} placeholder="Type a command…" />
+              <KitSearch
+                paint={paint}
+                placeholder={t(paint.locale, 'ui.preview.overlays.placeholderTypeCommand', 'Type a command…')}
+              />
               <KitEdge paint={paint} side="top" class="block" />
-              {['Generate scale', 'Export as JSON', 'Copy token URL'].map((c, i) => (
+              {[
+                t(paint.locale, 'ui.preview.overlays.cmdGenerateScale', 'Generate scale'),
+                t(paint.locale, 'ui.preview.overlays.cmdExportJson', 'Export as JSON'),
+                t(paint.locale, 'ui.preview.overlays.cmdCopyTokenUrl', 'Copy token URL'),
+              ].map((c, i) => (
                 <KitMenuRow key={c} paint={paint} label={c} selected={i === 0} glyph="check" />
               ))}
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Banner" variant="Dismissible">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.overlays.nameBanner', 'Banner')}
+          variant={t(paint.locale, 'ui.preview.overlays.variantDismissible', 'Dismissible')}
+        >
           {(paint) => (
             <div class="w-full rounded-xl border p-2.5" style={{ borderColor: paint.fixture.border?.css ?? 'transparent', backgroundColor: paint.fixture.surface?.css ?? 'transparent' }}>
               <div class="flex items-start gap-2">
@@ -273,7 +375,7 @@ export function OverlaysGroup({ paint }: { paint: Paint }) {
                   style={{ backgroundColor: paint.accents.info.fill?.css ?? 'transparent' }}
                 />
                 <KitText paint={paint} class="flex-1 text-[11px] leading-[15px]">
-                  You are previewing on a light canvas.
+                  {t(paint.locale, 'ui.preview.overlays.contentLightCanvas', 'You are previewing on a light canvas.')}
                 </KitText>
                 <span aria-hidden="true" style={{ color: paint.fixture.ink }}>
                   <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" strokeWidth={2} stroke="currentColor">

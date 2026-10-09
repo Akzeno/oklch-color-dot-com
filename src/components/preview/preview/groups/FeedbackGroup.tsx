@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { scorePair, worstOf, type AccentRole, type Paint } from '../slots';
+import { t } from '../../../../i18n/translations';
 import {
   KitAlert,
   KitBadge,
@@ -37,31 +38,69 @@ import {
  * editing `danger-500` repaints the fill, the edge, the title and the badge in
  * one go — and nothing here can hold a colour nobody set.
  */
-const TONES: { role: AccentRole; title: string; body: string }[] = [
-  { role: 'success', title: 'Scale generated', body: '11 steps from 50 to 950.' },
-  { role: 'info', title: 'Clipped to sRGB', body: 'Two steps fell outside the gamut.' },
-  { role: 'warning', title: 'Contrast is marginal', body: 'The badge reads 3.4:1 on surface.' },
-  { role: 'danger', title: 'Token not found', body: '--color-primary-250 does not exist.' },
-];
-
 export function FeedbackGroup({ paint }: { paint: Paint }) {
+  /** A role's own localized name, title-cased — `Success`, `Warning`, … */
+  const roleName = (role: AccentRole) =>
+    t(paint.locale, `ui.roles.${role}`, role[0]!.toUpperCase() + role.slice(1));
+  const pairLabel = (role: AccentRole) =>
+    t(paint.locale, 'ui.preview.feedback.pairTitleOnCanvas', '{role} title on canvas').replace(
+      '{role}',
+      roleName(role)
+    );
+
+  const TONES: { role: AccentRole; title: string; body: string }[] = [
+    {
+      role: 'success',
+      title: t(paint.locale, 'ui.preview.feedback.toneSuccessTitle', 'Scale generated'),
+      body: t(paint.locale, 'ui.preview.feedback.toneSuccessBody', '11 steps from 50 to 950.'),
+    },
+    {
+      role: 'info',
+      title: t(paint.locale, 'ui.preview.feedback.toneInfoTitle', 'Clipped to sRGB'),
+      body: t(paint.locale, 'ui.preview.feedback.toneInfoBody', 'Two steps fell outside the gamut.'),
+    },
+    {
+      role: 'warning',
+      title: t(paint.locale, 'ui.preview.feedback.toneWarningTitle', 'Contrast is marginal'),
+      body: t(paint.locale, 'ui.preview.feedback.toneWarningBody', 'The badge reads 3.4:1 on surface.'),
+    },
+    {
+      role: 'danger',
+      title: t(paint.locale, 'ui.preview.feedback.toneDangerTitle', 'Token not found'),
+      body: t(paint.locale, 'ui.preview.feedback.toneDangerBody', '--color-primary-250 does not exist.'),
+    },
+  ];
+
   const worst = worstOf([
-    scorePair('Success title on canvas', paint.accents.success.fill, paint.fixture.canvas),
-    scorePair('Warning title on canvas', paint.accents.warning.fill, paint.fixture.canvas),
-    scorePair('Danger title on canvas', paint.accents.danger.fill, paint.fixture.canvas),
-    scorePair('Info title on canvas', paint.accents.info.fill, paint.fixture.canvas),
+    scorePair(pairLabel('success'), paint.accents.success.fill, paint.fixture.canvas),
+    scorePair(pairLabel('warning'), paint.accents.warning.fill, paint.fixture.canvas),
+    scorePair(pairLabel('danger'), paint.accents.danger.fill, paint.fixture.canvas),
+    scorePair(pairLabel('info'), paint.accents.info.fill, paint.fixture.canvas),
   ]);
 
   return (
     <div class="space-y-8">
       <Rail
-        label="One Per Tone"
-        description="All four semantic roles at the same size, on the same canvas — so a palette that only breaks on one of them cannot hide."
-        hint={worst ? `${worst.wcag}:1` : 'set the four tones to score'}
+        label={t(paint.locale, 'ui.preview.feedback.onePerToneTitle', 'One Per Tone')}
+        description={t(
+          paint.locale,
+          'ui.preview.feedback.onePerToneDesc',
+          'All four semantic roles at the same size, on the same canvas — so a palette that only breaks on one of them cannot hide.'
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.feedback.scoreHint', 'set the four tones to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
         {TONES.map(({ role, title, body }) => (
-          <Specimen key={role} name="Alert" variant={role[0]!.toUpperCase() + role.slice(1)}>
+          <Specimen
+            key={role}
+            name={t(paint.locale, 'ui.preview.feedback.nameAlert', 'Alert')}
+            variant={roleName(role)}
+          >
             {(paint) => (
               <KitAlert paint={paint} role={role} title={title} body={body} />
             )}
@@ -70,31 +109,71 @@ export function FeedbackGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Badges &amp; States"
-        description="Badges carry tone at 11px with no body copy to fall back on, and the empty state is the one screen nobody ever designs."
+        label={t(paint.locale, 'ui.preview.feedback.badgesTitle', 'Badges & States')}
+        description={t(
+          paint.locale,
+          'ui.preview.feedback.badgesDesc',
+          'Badges carry tone at 11px with no body copy to fall back on, and the empty state is the one screen nobody ever designs.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Badge" variant="Success">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantSuccess', 'Success')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="success" label="Passing" variant="solid" />
+            <KitBadge
+              paint={paint}
+              role="success"
+              label={t(paint.locale, 'ui.preview.feedback.badgePassing', 'Passing')}
+              variant="solid"
+            />
           )}
         </Specimen>
-        <Specimen name="Badge" variant="Warning">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantWarning', 'Warning')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="warning" label="Marginal" variant="solid" />
+            <KitBadge
+              paint={paint}
+              role="warning"
+              label={t(paint.locale, 'ui.preview.feedback.badgeMarginal', 'Marginal')}
+              variant="solid"
+            />
           )}
         </Specimen>
-        <Specimen name="Badge" variant="Danger">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantDanger', 'Danger')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="danger" label="Fail" variant="solid" />
+            <KitBadge
+              paint={paint}
+              role="danger"
+              label={t(paint.locale, 'ui.preview.feedback.badgeFail', 'Fail')}
+              variant="solid"
+            />
           )}
         </Specimen>
-        <Specimen name="Badge" variant="Soft">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameBadge', 'Badge')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantSoft', 'Soft')}
+        >
           {(paint) => (
-            <KitBadge paint={paint} role="info" label="Draft" variant="soft" />
+            <KitBadge
+              paint={paint}
+              role="info"
+              label={t(paint.locale, 'ui.preview.feedback.badgeDraft', 'Draft')}
+              variant="soft"
+            />
           )}
         </Specimen>
 
-        <Specimen name="Empty state" variant="First run">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameEmptyState', 'Empty state')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantFirstRun', 'First run')}
+        >
           {(paint) => (
             <KitEmptyState paint={paint} />
           )}
@@ -102,44 +181,76 @@ export function FeedbackGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Progress &amp; Recovery"
-        description="A bar and a toast: the two surfaces that appear mid-task, on top of whatever the user was already reading."
+        label={t(paint.locale, 'ui.preview.feedback.progressTitle', 'Progress & Recovery')}
+        description={t(
+          paint.locale,
+          'ui.preview.feedback.progressDesc',
+          'A bar and a toast: the two surfaces that appear mid-task, on top of whatever the user was already reading.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Progress" variant="Bar">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameProgress', 'Progress')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantBar', 'Bar')}
+        >
           {(paint) => (
             <KitProgress paint={paint} role="primary" at={0.62} />
           )}
         </Specimen>
-        <Specimen name="Progress" variant="Danger">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameProgress', 'Progress')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantDanger', 'Danger')}
+        >
           {(paint) => (
             <KitProgress paint={paint} role="danger" at={0.24} />
           )}
         </Specimen>
 
-        <Specimen name="Toast" variant="Success">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameToast', 'Toast')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantSuccess', 'Success')}
+        >
           {(paint) => (
             <KitSurfaceish paint={paint} tone="success">
-              Copied --color-primary-500
+              {t(paint.locale, 'ui.preview.feedback.toastCopied', 'Copied --color-primary-500')}
             </KitSurfaceish>
           )}
         </Specimen>
-        <Specimen name="Toast" variant="Error">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameToast', 'Toast')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantError', 'Error')}
+        >
           {(paint) => (
             <KitSurfaceish paint={paint} tone="danger">
-              Could not write to clipboard
+              {t(paint.locale, 'ui.preview.feedback.toastClipboardError', 'Could not write to clipboard')}
             </KitSurfaceish>
           )}
         </Specimen>
 
-        <Specimen name="Undo" variant="Offer">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.feedback.nameUndo', 'Undo')}
+          variant={t(paint.locale, 'ui.preview.feedback.variantOffer', 'Offer')}
+        >
           {(paint) => (
             <div class="w-full space-y-2.5">
               <KitText paint={paint} class="block text-[12px] leading-[16px]">
-                2 shades removed from Crimson Danger.
+                {t(paint.locale, 'ui.preview.feedback.undoText', '2 shades removed from Crimson Danger.')}
               </KitText>
               <div class="flex items-center gap-1.5">
-                <KitButton paint={paint} role="success" label="Undo" variant="soft" size="sm" />
-                <KitButton paint={paint} role="secondary" label="Dismiss" variant="ghost" size="sm" />
+                <KitButton
+                  paint={paint}
+                  role="success"
+                  label={t(paint.locale, 'ui.preview.feedback.labelUndo', 'Undo')}
+                  variant="soft"
+                  size="sm"
+                />
+                <KitButton
+                  paint={paint}
+                  role="secondary"
+                  label={t(paint.locale, 'ui.preview.feedback.labelDismiss', 'Dismiss')}
+                  variant="ghost"
+                  size="sm"
+                />
               </div>
             </div>
           )}

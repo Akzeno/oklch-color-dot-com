@@ -1,6 +1,8 @@
 import type { ComponentChildren, CSSProperties, JSX } from 'preact';
 import { ACCENT, type SlotValue, type Theme } from './slots';
 import { formatOklch, type ShadeStep } from '../../../utils/color';
+import { t } from '../../../i18n/translations';
+import type { LocaleCode } from '../../../i18n/config';
 
 /**
  * The only way a colour is allowed onto the showcase canvas.
@@ -79,6 +81,8 @@ export interface SwatchProps {
   part: SwatchPart;
   /** Overrides the default tooltip for a resolved slot. */
   note?: string;
+  /** Locale for human-facing chrome (the tooltip). */
+  locale?: LocaleCode;
   /** Render as something other than a `div`. */
   as?: keyof JSX.IntrinsicElements;
   class?: string;
@@ -89,11 +93,28 @@ export interface SwatchProps {
 }
 
 /** Where the tooltip points, and what "unset" looks like, in one place. */
-function tooltip(slot: SlotValue, pending: boolean, note?: string): string {
+function tooltip(slot: SlotValue, pending: boolean, locale: LocaleCode, note?: string): string {
   const target = `--color-${slot.role}-${slot.requested}`;
-  if (pending) return `${target} not set — click to author it`;
-  if (slot.onNeutral) return `${target} not set — showing a placeholder neutral`;
-  if (slot.substituted) return `${target} not set — substituted ${slot.step}`;
+  if (pending)
+    return t(
+      locale,
+      'ui.preview.swatch.notSetAuthor',
+      `${target} not set — click to author it`
+    ).replace('{target}', target);
+  if (slot.onNeutral)
+    return t(
+      locale,
+      'ui.preview.swatch.placeholderNeutral',
+      `${target} not set — showing a placeholder neutral`
+    ).replace('{target}', target);
+  if (slot.substituted)
+    return t(
+      locale,
+      'ui.preview.swatch.substituted',
+      `${target} not set — substituted {step}`
+    )
+      .replace('{target}', target)
+      .replace('{step}', String(slot.step));
   return note ?? `${target} · ${slot.css}`;
 }
 
@@ -112,6 +133,7 @@ export function Swatch(props: SwatchProps) {
     role: _role,
     step: _step,
     pending = false,
+    locale = 'en',
     pendingCss,
     ...rest
   } = props;
@@ -184,7 +206,7 @@ export function Swatch(props: SwatchProps) {
       // colour on screen, so a consumer has to tell it apart from a hole.
       data-on-neutral={unset && !pending ? 'true' : undefined}
       data-pending={pending ? 'true' : undefined}
-      title={tooltip(slot, pending, note)}
+      title={tooltip(slot, pending, locale, note)}
       {...rest}
     >
       {children}

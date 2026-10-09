@@ -1,0 +1,27 @@
+{
+  "ui": {
+    "converter": {
+      "conversionDirection": "Direção da conversão",
+      "conversionModesAria": "Modos de conversão",
+      "inputLabel": "Entrada ({format})",
+      "invalidSyntax": "Sintaxe inválida",
+      "enterValuePlaceholder": "Digite um valor de cor...",
+      "exampleLabel": "Exemplo: {example}",
+      "previewSwatch": "Amostra de pré-visualização",
+      "p3Gamut": "Gamut P3",
+      "clamped": "Limitado",
+      "oklchOutput": "Saída OKLCH",
+      "hexOutput": "Saída HEX",
+      "rgbOutput": "Saída RGB",
+      "hslOutput": "Saída HSL",
+      "copyValue": "Copiar valor",
+      "copy": "Copiar",
+      "addToCart": "Adicionar ao carrinho",
+      "cart": "+ Carrinho",
+      "targetShade": "Tom alvo: {lightness}% de luminosidade",
+      "allFormats": "Todos os formatos equivalentes (clique para copiar)",
+      "copied": "Copiado: {label}",
+      "copyFailed": "Falha ao copiar {label}"
+    }
+  }
+}

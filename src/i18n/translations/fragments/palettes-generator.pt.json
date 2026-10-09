@@ -1,0 +1,133 @@
+{
+  "pages": {
+    "palettes": {
+      "intro": "Escalas de cores OKLCH curadas em 11 etapas (50–950). Abra qualquer paleta para copiar valores individuais ou salvá-los no seu carrinho de design tokens.",
+      "stats": "{count} paletas • 11 tons cada",
+      "whatTitle": "O que são cores OKLCH?",
+      "whatBody": "As cores OKLCH são definidas em um espaço de cores perceptualmente uniforme que separa a luminosidade (L), a chroma (C) e a matiz (H). Diferente do HSL, onde 50% de luminosidade parece completamente diferente para amarelo e azul, o OKLCH garante que valores iguais de luminosidade pareçam igualmente brilhantes em todas as matizes. Isso torna o OKLCH ideal para construir sistemas de cores acessíveis e previsíveis.",
+      "scaleTitle": "Como funciona a escala 50-950 em 11 etapas",
+      "scaleBody1": "Cada paleta é uma escala de 11 etapas, da etapa 50 (mais clara, quase branca) à etapa 950 (mais escura, quase preta). As etapas seguem uma curva de luminosidade perceptualmente uniforme: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950. A etapa 500 é a cor base. A chroma é reduzida automaticamente nas etapas muito claras e muito escuras para manter cada tom seguro dentro do gamut e visualmente limpo.",
+      "scaleBody2": "Esta é a mesma escala usada na paleta padrão do Tailwind CSS v4 e no Radix Colors. Ela oferece um conjunto completo de tons claros e escuros para qualquer papel de UI — fundos, bordas, texto e estados interativos.",
+      "tailwindTitle": "Como usar uma paleta no Tailwind CSS v4",
+      "tailwindBody1": "Abra qualquer página de paleta e copie o trecho <code class=\"text-ink\">@theme</code> do Tailwind v4. Cole-o no seu arquivo CSS global:",
+      "tailwindCode": "@import \"tailwindcss\";\n\n@theme {\n  --color-brand-50: oklch(0.965 0.015 265);\n  --color-brand-100: oklch(0.935 0.028 265);\n  /* ... todos os 11 passos ... */\n  --color-brand-950: oklch(0.22 0.06 265);\n}",
+      "tailwindBody2": "O Tailwind v4 gera utilitários automaticamente para cada etapa: <code class=\"text-ink\">bg-brand-50</code>, <code class=\"text-ink\">text-brand-500</code>, <code class=\"text-ink\">border-brand-200</code>, e assim por diante.",
+      "learnMore": "Saiba mais sobre OKLCH →",
+      "cardAria": "Abrir a escala {name}, com {count} cores",
+      "cardColors": "{count} cores",
+      "cardView": "Ver"
+    },
+    "paletteDetail": {
+      "breadcrumbPalettes": "Paletas",
+      "aboutTitle": "Sobre a paleta {name}",
+      "introTail": "A escala é ancorada na matiz {hue} no OKLCH, então cada etapa mantém a mesma matiz enquanto a luminosidade se move em etapas perceptualmente uniformes de 50 a 950. A etapa 500 ({midHex}) é a sua cor base. Os tons {aaWhite} passam no WCAG 2.1 AA sobre branco e os tons {aaBlack} passam sobre preto, então use a ponta clara para fundos e a ponta escura para texto sobre superfícies claras (ou vice-versa). Cada valor está pronto para copiar como oklch(), HEX, RGB ou HSL.",
+      "shadeSteps": "Etapas de tom",
+      "copyHint": "Copie um valor ou salve-o em uma variável sua",
+      "tableTitle": "Detalhamento das etapas de tom (50 a 950)",
+      "thSwatch": "Amostra",
+      "thStep": "Etapa de tom",
+      "thOklch": "Valor CSS OKLCH",
+      "thFallback": "Fallback sRGB",
+      "thRgb": "RGB",
+      "thHsl": "HSL",
+      "thWcagBlack": "WCAG sobre preto",
+      "thWcagWhite": "WCAG sobre branco",
+      "thGamut": "Gamut",
+      "snippetTitle": "Trecho Tailwind v4 @theme para {name}",
+      "snippetHint": "Copie para o global.css",
+      "convertersTitle": "Converter os tons de {name}",
+      "convertersBody": "Vai trabalhar com esses tons em outro formato? Use o conversor correspondente — os mesmos valores que você vê acima, convertidos na hora com detecção de gamut ao vivo.",
+      "linkHexToOklch": "Conversor HEX para OKLCH",
+      "linkOklchToHex": "Conversor OKLCH para HEX",
+      "linkRgbToOklch": "Conversor RGB para OKLCH",
+      "linkBuild": "Crie sua própria paleta",
+      "relatedTitle": "Paletas relacionadas"
+    },
+    "generator": {
+      "intro": "Digite qualquer cor base para calcular automaticamente uma escala de tons 50–950 acessível, com luminosidade óptica uniforme e limitação de chroma segura dentro do gamut — ou monte abaixo uma paleta personalizada de cores não relacionadas, em que cada cor pode ser colada como texto, alterada no color picker ou coletada diretamente da escala com um clique na amostra que você gosta.",
+      "toolAria": "Ferramenta do Gerador de Paletas de Cores OKLCH",
+      "howTitle": "Como funciona nosso gerador de escalas perceptuais",
+      "howBody": "Geradores de paleta tradicionais interpolam valores HEX ou RGB às cegas, fazendo os tons médios ficarem lamacentos, as matizes mudarem inesperadamente e os destaques perderem pureza de cor. Em contraste, nosso gerador trabalha diretamente nas coordenadas cilíndricas 3D do espaço de cores OKLCH:",
+      "step1Title": "1. Curva de luminosidade alvo",
+      "step1Body": "Mapeia a luminosidade em 11 etapas matematicamente balanceadas, de 97% (etapa 50) até 13% (etapa 950), mantendo passos visuais uniformes entre os tons.",
+      "step2Title": "2. Limitação de chroma segura no gamut",
+      "step2Body": "Calcula a chroma máxima permitida dentro dos gamuts sRGB e Display-P3 para cada nível de luminosidade individual, evitando artefatos de clipping severos.",
+      "step3Title": "3. Constância da matiz",
+      "step3Body": "Trava o ângulo de matiz exatamente em todas as etapas de tom, eliminando o famoso bug do \"roxo que vira rosa-acinzentado\" visto em geradores RGB.",
+      "harmoniesTitle": "Calculando harmonias pelos ângulos cilíndricos de matiz",
+      "harmoniesBody": "Como o OKLCH organiza as cores ao longo de um círculo cilíndrico contínuo de 360 graus, gerar paletas complementares, triádicas e análogas é feito por rotações matemáticas exatas de ângulo, preservando a constância de luminosidade e chroma:",
+      "compItem": "<strong>Complementar:</strong> ângulo de matiz + 180° para contraste visual máximo.",
+      "triadicItem": "<strong>Triádica:</strong> ângulos de matiz ± 120° para esquemas triádicos vibrantes e equilibrados.",
+      "analogousItem": "<strong>Análoga:</strong> ângulos de matiz ± 30° para gradientes suaves e adjacentes e acentos de UI tranquilos.",
+      "faqTitle": "Perguntas frequentes",
+      "faq1Question": "Posso montar uma paleta de cores diferentes em vez da escala de uma única cor?",
+      "faq1Answer": "Sim — o painel <strong>Custom palette</strong> logo abaixo das harmonias. Uma escala 50–950 é uma única matiz subindo e descendo na luminosidade, então as onze etapas são variações da mesma cor; uma paleta de marca de verdade é o oposto, e é para isso que esse painel serve. Adicione uma linha, clique na amostra dela para alterá-la no color picker e digite o nome da variável que o seu próprio sistema já usa. <strong>O valor de cada linha é um campo de texto</strong>, então você pode colar uma cor direto — hex, <code class=\"text-ink\">rgb()</code>, <code class=\"text-ink\">hsl()</code> ou <code class=\"text-ink\">oklch()</code>, de uma folha de marca, do devtools ou da escala acima — e pressionar Enter; a linha é normalizada para o <code class=\"text-ink\">oklch()</code> exato que será copiado. <strong>Copy all</strong> pega o conjunto inteiro como um bloco <code class=\"text-ink\">@theme</code> do Tailwind v4, um bloco <code class=\"text-ink\">:root</code> ou JSON, e a prévia acima daquele botão é, caractere por caractere, o que cai na sua área de transferência. Duas linhas com o mesmo nome descartam a segunda do bloco, em vez de deixar o navegador escolher um vencedor em silêncio. A sua paleta — e a cor base da qual a escala acima é gerada — ficam armazenadas neste navegador, então ambas sobrevivem a um refresh e a uma ida e volta pelo picker.",
+      "faq2Question": "Posso exportar a escala gerada diretamente para o Tailwind CSS v4?",
+      "faq2Answer": "Sim! Digite qualquer nome de variável no campo <strong>Variable</strong> acima (por exemplo <code class=\"text-ink\">brand-accent</code>) e clique em \"Fill --color-brand-accent-*\". O papel é criado no primeiro uso, então você nunca precisa adicioná-lo ao carrinho antes. Depois, visite a página de exportação para copiar o seu bloco <code class=\"text-ink\">@theme</code> completo do Tailwind v4.",
+      "faq3Question": "O que acontece quando clico em uma amostra?",
+      "faq3Answer": "Um pequeno menu abre ao lado da amostra, então copiar um único valor e coletá-lo são escolhas separadas em vez de um chute. Escolha <strong>Copy OKLCH</strong> ou <strong>Copy hex</strong> para colocar o valor na área de transferência, <strong>Save to variable</strong> para gravá-lo em <code class=\"text-ink\">--color-&lt;your-name&gt;-&lt;step&gt;</code>, <strong>Copy and save</strong> para fazer as duas coisas de uma vez, ou <strong>Add to custom palette</strong> quando você gosta daquela etapa e quer ela como uma variável <code class=\"text-ink\">--color-&lt;name&gt;</code> independente no painel abaixo — a nova linha pega a cor exatamente como mostrada e posiciona o cursor no campo de nome. O carrinho só é reescrito quando você escolhe uma das duas ações de salvar, e o mesmo menu aparece em cada amostra de harmonia de matiz. O botão <strong>Random</strong> ao lado dos presets lança uma nova cor base dentro do gamut para explorar.",
+      "faq4Question": "Por que os tons extremamente claros e escuros têm menos chroma?",
+      "faq4Answer": "Na percepção visual humana e na física, à medida que as cores se aproximam do branco puro (100% de luminosidade) ou do preto puro (0% de luminosidade), o triângulo do gamut estreita até um ponto. Reduzir a chroma naturalmente nas etapas 50, 100, 900 e 950 produz tokens de UI limpos e sofisticados em vez de pastéis neon ásperos."
+    },
+    "paletteData": {
+      "gray": {
+        "description": "Escala de cinza neutro perceptualmente uniforme, sem matiz cromática, ideal para canvases de UI e hierarquias de texto."
+      },
+      "slate": {
+        "description": "Escala slate de subtom frio que oferece contraste nítido para ferramentas de desenvolvedor modernas e interfaces de dashboard."
+      },
+      "zinc": {
+        "description": "Zinc industrial profundo com variação quente-fria mínima, feita para cards em dark mode e layouts de alta densidade."
+      },
+      "trusty-blue": {
+        "description": "A cor canônica de ação primária, com alta clareza em sRGB e matiz estável sob transformações extremas de luminosidade."
+      },
+      "electric-indigo": {
+        "description": "Indigo vibrante e de alto contraste, projetado para botões CTA primários e estados de foco em web apps modernas."
+      },
+      "violet-pulse": {
+        "description": "Roxo royal rico com profundidade cromática Display-P3 em wide gamut, feito para portfólios criativos e branding de SaaS."
+      },
+      "emerald-trust": {
+        "description": "Verde esmeralda acessível, otimizado para confirmações de checkout positivas, métricas de saúde e badges de status verificado."
+      },
+      "forest-calm": {
+        "description": "Escala verde orgânica e natural com chroma equilibrada para plataformas de sustentabilidade e dashboards financeiros."
+      },
+      "crimson-danger": {
+        "description": "Carmim de alta visibilidade para error boundaries, ações destrutivas em modais e banners de alerta do sistema."
+      },
+      "rose-signal": {
+        "description": "Vermelho rose moderno e quente que equilibra feedback urgente com uma estética visual não agressiva."
+      },
+      "amber-warning": {
+        "description": "Escala de aviso em âmbar de alta luminância, sem embaçamento perceptual, com contraste WCAG rigoroso sobre fundos escuros."
+      },
+      "sunfire-orange": {
+        "description": "Laranja cítrico vibrante para alertas de cautela, status pendentes e pills de badge que chamam a atenção."
+      },
+      "cyan-info": {
+        "description": "Escala de informação em ciano nítida, projetada para banners de notificação, tooltips informativos e telemetria de dados ao vivo."
+      },
+      "sky-breeze": {
+        "description": "Escala azul azure arejada para painéis informativos sutis e pills de tag secundárias."
+      },
+      "obsidian-dark": {
+        "description": "Paleta especializada de canvas e bordas para dark mode, indo de oklch(0.12 0 0) a oklch(0.35 0 0) para dark UIs impecáveis e sem distorção."
+      },
+      "midnight-slate": {
+        "description": "Tons de superfície midnight profundos que oferecem camadas de elevação sutil (canvas-card, canvas-elevated) sem poluição cromática."
+      }
+    },
+    "paletteCategories": {
+      "all": "Todas as paletas",
+      "brand": "Marca e divertidas",
+      "neutral": "Neutras e tons de cinza",
+      "success-trust": "Sucesso e confiança",
+      "danger": "Perigo e alertas",
+      "warning": "Aviso e âmbar",
+      "info": "Informações e ciano",
+      "dark-mode": "Superfícies dark mode"
+    }
+  }
+}

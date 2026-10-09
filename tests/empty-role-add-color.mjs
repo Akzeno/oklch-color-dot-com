@@ -77,7 +77,7 @@ console.log('\n=== The stale hint no longer advertises absent controls ===');
 check('"Click empty slot or generate scale" is gone',
   !sidebar.includes('Click empty slot or generate scale'));
 check('the empty state offers an "Add color" button',
-  /<span>Add color<\/span>/.test(sidebar));
+  /<span>\{t\(locale, 'ui\.preview\.sidebar\.addColor', 'Add color'\)\}<\/span>/.test(sidebar));
 
 console.log('\n=== The button targets the base step with a null colour ===');
 check('it calls openPicker(role.id, BASE_SHADE_STEP, null)',

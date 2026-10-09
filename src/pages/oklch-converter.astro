@@ -4,6 +4,7 @@ import RelatedTools from '../components/common/RelatedTools.astro';
 import { getNavItemByPath } from '../config/navigation';
 import { getBuildTimeColorTable } from '../utils/seoTables';
 import { localizedSeo } from '../i18n/seo';
+import { t } from '../i18n/translations';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
 interface Props {
@@ -34,37 +35,37 @@ const fullTable = getBuildTimeColorTable().slice(0, 8);
 const directions = [
   {
     from: 'HEX',
-    detail: '#3b82f6 from CSS, design tools, or color pickers',
+    detail: t(locale, 'pages.converterHub.hexDetail', '#3b82f6 from CSS, design tools, or color pickers'),
     path: '/hex-to-oklch',
     label: 'HEX to OKLCH',
   },
   {
     from: 'RGB',
-    detail: 'rgb(59 130 246) from legacy CSS or JavaScript',
+    detail: t(locale, 'pages.converterHub.rgbDetail', 'rgb(59 130 246) from legacy CSS or JavaScript'),
     path: '/rgb-to-oklch',
     label: 'RGB to OKLCH',
   },
   {
     from: 'HSL',
-    detail: 'hsl(217 91% 60%) from older stylesheets',
+    detail: t(locale, 'pages.converterHub.hslDetail', 'hsl(217 91% 60%) from older stylesheets'),
     path: '/hsl-to-oklch',
     label: 'HSL to OKLCH',
   },
   {
     from: 'oklch()',
-    detail: 'oklch(62.3% 0.188 259.8) when a tool only accepts HEX',
+    detail: t(locale, 'pages.converterHub.toHexDetail', 'oklch(62.3% 0.188 259.8) when a tool only accepts HEX'),
     path: '/oklch-to-hex',
     label: 'OKLCH to HEX',
   },
   {
     from: 'oklch()',
-    detail: 'for canvas, WebGL, or any API taking 0-255 channels',
+    detail: t(locale, 'pages.converterHub.toRgbDetail', 'for canvas, WebGL, or any API taking 0-255 channels'),
     path: '/oklch-to-rgb',
     label: 'OKLCH to RGB',
   },
   {
     from: 'oklch()',
-    detail: 'for systems that still read hue-saturation-lightness',
+    detail: t(locale, 'pages.converterHub.toHslDetail', 'for systems that still read hue-saturation-lightness'),
     path: '/oklch-to-hsl',
     label: 'OKLCH to HSL',
   },
@@ -85,14 +86,12 @@ const directions = [
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Six converters around one color space: move any web color into CSS <code class="text-ink">oklch()</code> notation, or move <code class="text-ink">oklch()</code> back out into HEX, RGB, or HSL. Pick your direction below.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.converterHub.subtitle', 'Six converters around one color space: move any web color into CSS <code class="text-ink">oklch()</code> notation, or move <code class="text-ink">oklch()</code> back out into HEX, RGB, or HSL. Pick your direction below.')} />
     </div>
 
     <!-- 1. Direction Picker -->
-    <section aria-label="Choose a conversion direction" class="space-y-3">
-      <h2 class="text-lg font-semibold text-ink">Choose Your Conversion Direction</h2>
+    <section aria-label={t(locale, 'pages.converterHub.directionPickerAriaLabel', 'Choose a conversion direction')} class="space-y-3">
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.converterHub.directionsTitle', 'Choose Your Conversion Direction')}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         {converters.map((c) => {
           const direction = directions.find((d) => d.path === c.path);
@@ -117,20 +116,18 @@ const directions = [
     <!-- 2. Same color in every notation -->
     <section class="space-y-4">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-ink">The Same Colors in HEX, RGB, HSL and OKLCH</h2>
-        <span class="text-[11px] font-mono text-mute">Build-Time Generated</span>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.converterHub.tableTitle', 'The Same Colors in HEX, RGB, HSL and OKLCH')}</h2>
+        <span class="text-[11px] font-mono text-mute">{t(locale, 'pages.converterHub.buildTimeLabel', 'Build-Time Generated')}</span>
       </div>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Every row is one color written four ways. If you already know one notation, find your value in its column and read across to the <code class="text-ink">oklch()</code> equivalent — no single-purpose tool visit required.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.converterHub.tableIntro', 'Every row is one color written four ways. If you already know one notation, find your value in its column and read across to the <code class="text-ink">oklch()</code> equivalent — no single-purpose tool visit required.')} />
 
       <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs font-mono">
             <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
               <tr>
-                <th class="p-3">Color</th>
-                <th class="p-3">Name</th>
+                <th class="p-3">{t(locale, 'pages.converterHub.thColor', 'Color')}</th>
+                <th class="p-3">{t(locale, 'pages.converterHub.thName', 'Name')}</th>
                 <th class="p-3">HEX</th>
                 <th class="p-3">RGB</th>
                 <th class="p-3">HSL</th>
@@ -162,77 +159,53 @@ const directions = [
     <!-- 3. Below-the-fold content -->
     <div class="space-y-10 pt-8 border-t border-hairline">
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-ink">How OKLCH Conversion Works</h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          All six converters run the same core pipeline, just entered or exited at different points. Incoming colors are decoded into sRGB channel values, gamma-decoded to linear light, transformed through the Oklab cone-response matrices, and expressed as lightness (L), chroma (C), and hue (H) for <code class="text-ink">oklch()</code>. Conversions in the other direction reverse those exact steps. Because the transformations are deterministic math rather than a lookup table, converting a color to OKLCH and straight back returns the original value for any color inside the sRGB gamut.
-        </p>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.converterHub.howItWorksTitle', 'How OKLCH Conversion Works')}</h2>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.converterHub.howItWorksBody', 'All six converters run the same core pipeline, just entered or exited at different points. Incoming colors are decoded into sRGB channel values, gamma-decoded to linear light, transformed through the Oklab cone-response matrices, and expressed as lightness (L), chroma (C), and hue (H) for <code class="text-ink">oklch()</code>. Conversions in the other direction reverse those exact steps. Because the transformations are deterministic math rather than a lookup table, converting a color to OKLCH and straight back returns the original value for any color inside the sRGB gamut.')} />
       </section>
 
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
-        <h2 class="text-base font-semibold text-ink">Which Direction Do You Need?</h2>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.converterHub.whichTitle', 'Which Direction Do You Need?')}</h2>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-          <li>
-            <strong class="text-ink">Writing new CSS or a Tailwind v4 theme?</strong> Convert <em>into</em> OKLCH. Once your values are <code class="text-ink">oklch()</code>, you can shift L or C independently to build scales and hover states without disturbing hue.
-          </li>
-          <li>
-            <strong class="text-ink">Handing a color to a tool that only reads HEX?</strong> Convert <em>out of</em> OKLCH with the OKLCH to HEX converter. The result is the exact sRGB hex the color came from.
-          </li>
-          <li>
-            <strong class="text-ink">Feeding canvas, WebGL, or a charting library?</strong> Use OKLCH to RGB — those APIs want 0-255 channel numbers, not a CSS string.
-          </li>
-          <li>
-            <strong class="text-ink">Maintaining an older stylesheet built on HSL?</strong> Convert HSL to OKLCH to modernize values, or OKLCH to HSL when a legacy system has to keep parsing hue-saturation-lightness.
-          </li>
+          <li set:html={t(locale, 'pages.converterHub.whichDir1', '<strong class="text-ink">Writing new CSS or a Tailwind v4 theme?</strong> Convert <em>into</em> OKLCH. Once your values are <code class="text-ink">oklch()</code>, you can shift L or C independently to build scales and hover states without disturbing hue.')} />
+          <li set:html={t(locale, 'pages.converterHub.whichDir2', '<strong class="text-ink">Handing a color to a tool that only reads HEX?</strong> Convert <em>out of</em> OKLCH with the OKLCH to HEX converter. The result is the exact sRGB hex the color came from.')} />
+          <li set:html={t(locale, 'pages.converterHub.whichDir3', '<strong class="text-ink">Feeding canvas, WebGL, or a charting library?</strong> Use OKLCH to RGB — those APIs want 0-255 channel numbers, not a CSS string.')} />
+          <li set:html={t(locale, 'pages.converterHub.whichDir4', '<strong class="text-ink">Maintaining an older stylesheet built on HSL?</strong> Convert HSL to OKLCH to modernize values, or OKLCH to HSL when a legacy system has to keep parsing hue-saturation-lightness.')} />
         </ul>
       </section>
 
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
-        <h2 class="text-base font-semibold text-ink">Gamut Notes Across All Six Converters</h2>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.converterHub.gamutTitle', 'Gamut Notes Across All Six Converters')}</h2>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-          <li>
-            <strong class="text-ink">Into OKLCH is always safe.</strong> HEX, RGB, and HSL inputs are sRGB colors by definition, so their OKLCH results never need gamut clipping.
-          </li>
-          <li>
-            <strong class="text-ink">Out of OKLCH may clamp.</strong> OKLCH can describe colors wider than sRGB. When you convert an out-of-gamut <code class="text-ink">oklch()</code> value to HEX, RGB, or HSL, chroma is reduced to the nearest in-gamut color — the hue and lightness are preserved.
-          </li>
-          <li>
-            <strong class="text-ink">Alpha travels with the color.</strong> Transparency converts across every direction and lands in the standard CSS slash syntax, e.g. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code>.
-          </li>
+          <li set:html={t(locale, 'pages.converterHub.gamut1', '<strong class="text-ink">Into OKLCH is always safe.</strong> HEX, RGB, and HSL inputs are sRGB colors by definition, so their OKLCH results never need gamut clipping.')} />
+          <li set:html={t(locale, 'pages.converterHub.gamut2', '<strong class="text-ink">Out of OKLCH may clamp.</strong> OKLCH can describe colors wider than sRGB. When you convert an out-of-gamut <code class="text-ink">oklch()</code> value to HEX, RGB, or HSL, chroma is reduced to the nearest in-gamut color — the hue and lightness are preserved.')} />
+          <li set:html={t(locale, 'pages.converterHub.gamut3', '<strong class="text-ink">Alpha travels with the color.</strong> Transparency converts across every direction and lands in the standard CSS slash syntax, e.g. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code>.')} />
         </ul>
       </section>
 
       <!-- Visible FAQ -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.converterHub.faqTitle', 'Frequently Asked Questions')}</h2>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What is an OKLCH converter?</h3>
-            <p class="text-body leading-relaxed">
-              An OKLCH converter translates a color between CSS <code class="text-ink">oklch()</code> notation and another notation such as HEX, RGB, or HSL. It is useful whenever one end of your pipeline speaks perceptual OKLCH and the other end still speaks channel-based or legacy color formats.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.converterHub.faq1Question', 'What is an OKLCH converter?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.converterHub.faq1Answer', 'An OKLCH converter translates a color between CSS <code class="text-ink">oklch()</code> notation and another notation such as HEX, RGB, or HSL. It is useful whenever one end of your pipeline speaks perceptual OKLCH and the other end still speaks channel-based or legacy color formats.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Is converting to OKLCH and back lossless?</h3>
-            <p class="text-body leading-relaxed">
-              Yes, for every sRGB color. The conversion pipeline is deterministic math with no rounding table behind it, so a HEX value round-trips to the identical 6-digit code. The one exception is converting an out-of-gamut <code class="text-ink">oklch()</code> value down to sRGB, where chroma must be clamped — by definition an approximation.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.converterHub.faq2Question', 'Is converting to OKLCH and back lossless?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.converterHub.faq2Answer', 'Yes, for every sRGB color. The conversion pipeline is deterministic math with no rounding table behind it, so a HEX value round-trips to the identical 6-digit code. The one exception is converting an out-of-gamut <code class="text-ink">oklch()</code> value down to sRGB, where chroma must be clamped — by definition an approximation.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Do browsers support oklch() without conversion?</h3>
-            <p class="text-body leading-relaxed">
-              Yes. <code class="text-ink">oklch()</code> is a Baseline feature available in all major browsers since May 2023, so modern stylesheets can use it directly. Conversion is for the boundaries of your toolchain — exports, legacy systems, and APIs — not for the browser itself. See the MDN compatibility table for details.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.converterHub.faq3Question', 'Do browsers support oklch() without conversion?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.converterHub.faq3Answer', 'Yes. <code class="text-ink">oklch()</code> is a Baseline feature available in all major browsers since May 2023, so modern stylesheets can use it directly. Conversion is for the boundaries of your toolchain — exports, legacy systems, and APIs — not for the browser itself. See the MDN compatibility table for details.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Does Tailwind CSS v4 need OKLCH conversion?</h3>
-            <p class="text-body leading-relaxed">
-              Tailwind v4 ships its default palette as OKLCH values, so custom colors defined in <code class="text-ink">@theme</code> can be written directly as <code class="text-ink">oklch()</code> with no conversion step. Use a converter only when your source values are still HEX, RGB, or HSL.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.converterHub.faq4Question', 'Does Tailwind CSS v4 need OKLCH conversion?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.converterHub.faq4Answer', 'Tailwind v4 ships its default palette as OKLCH values, so custom colors defined in <code class="text-ink">@theme</code> can be written directly as <code class="text-ink">oklch()</code> with no conversion step. Use a converter only when your source values are still HEX, RGB, or HSL.')} />
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What do the three OKLCH numbers mean?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.converterHub.faq5Question', 'What do the three OKLCH numbers mean?')}</h3>
             <p class="text-body leading-relaxed">
-              Lightness (L) runs from 0% to 100% and behaves like perceptual brightness; Chroma (C) is saturation, starting at 0 for gray; Hue (H) is the angle in degrees around the color wheel. Keeping them in separate channels is what lets you adjust brightness without shifting the color.
+              {t(locale, 'pages.converterHub.faq5Answer', 'Lightness (L) runs from 0% to 100% and behaves like perceptual brightness; Chroma (C) is saturation, starting at 0 for gray; Hue (H) is the angle in degrees around the color wheel. Keeping them in separate channels is what lets you adjust brightness without shifting the color.')}
             </p>
           </div>
         </div>
@@ -242,7 +215,7 @@ const directions = [
 
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.converterHub.learnMore', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

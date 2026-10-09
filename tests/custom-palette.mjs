@@ -472,7 +472,7 @@ console.log('\n=== A row’s value is a text field, so a colour can be pasted in
 // someone to retype `oklch(62.8% 0.216 254)` into a picker is a step with no
 // reason in it.
 check('the value is an input, not a label',
-  /aria-label=\{`Colour value for \$\{label\}`\}/.test(panel) &&
+  /aria-label=\{t\(\s*locale,\s*'ui\.generator\.panel\.colourValueAria',\s*'Colour value for \{label\}'\s*\)/.test(panel) &&
     /value=\{shown\}/.test(panel));
 check('it is parsed with the same reader as the base colour field',
   /parseAnyToOklch\(draft\.text\)/.test(panel) && /parseAnyToOklch\(text\)/.test(panel) &&
@@ -499,7 +499,7 @@ check('and it is only reported once typing is over, not on every keystroke',
   /draft !== undefined && draft\.failed/.test(panel) &&
     /\{ text, failed: false \}/.test(panel));
 check('the copy affordance survived becoming a field',
-  /aria-label=\{`Copy the value of \$\{label\}`\}/.test(panel));
+  /aria-label=\{t\(\s*locale,\s*'ui\.generator\.panel\.copyValueAria',\s*'Copy the value of \{label\}'\s*\)/.test(panel));
 // A picker round trip replaces the row from another page; a draft describing the
 // old colour would come back describing a colour that is no longer stored.
 check('opening the picker drops any half-typed value for that row',

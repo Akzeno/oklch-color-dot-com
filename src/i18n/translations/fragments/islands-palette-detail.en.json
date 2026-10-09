@@ -1,0 +1,31 @@
+{
+  "ui": {
+    "paletteDetail": {
+      "scaleEyebrow": "{name} scale",
+      "stepCountHint": "{count} colors · click a card to copy",
+      "variableLabel": "Variable",
+      "variableAria": "Custom color variable name",
+      "copyCssTitle": "Copy as a Tailwind v4 @theme block",
+      "copied": "Copied",
+      "copyCss": "Copy CSS",
+      "downloadJsonTitle": "Download as JSON tokens",
+      "cartWritesTo": "cart writes to",
+      "copiedValue": "Copied {value}",
+      "writeFailed": "Could not write to {token}",
+      "cartSaved": "{role} {step} → {token}",
+      "themeCopied": "@theme block copied",
+      "jsonDownloaded": "{file} downloaded",
+      "copyCardAria": "Copy {value}, hex {hex}",
+      "copyValueTitle": "Copy {value}",
+      "copyClipboardTitle": "Copy this value to the clipboard",
+      "copy": "Copy",
+      "saveAsTitle": "Save as {token}",
+      "saveStepAria": "Save step {step} to the color cart as {token}",
+      "cart": "Cart",
+      "p3Title": "Inside Display-P3, outside sRGB — browsers will clamp it"
+    },
+    "swatchStrip": {
+      "stepAria": "Step {step}: {value}, hex {hex}"
+    }
+  }
+}

@@ -2,6 +2,7 @@
 import AppLayout from '../../layouts/AppLayout.astro';
 import { localizedSeo } from '../../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -28,11 +29,11 @@ const seo = localizedSeo('/learn/what-is-oklch', locale, {
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'common.home', 'Home')}</a>
       <span>/</span>
-      <span class="text-body">Learn</span>
+      <span class="text-body">{t(locale, 'common.learn', 'Learn')}</span>
       <span>/</span>
-      <span class="text-ink">What is OKLCH</span>
+      <span class="text-ink">{t(locale, 'pages.whatIsOklch.breadcrumbWhatIs', 'What is OKLCH')}</span>
     </nav>
 
     <!-- Header Section -->
@@ -41,62 +42,60 @@ const seo = localizedSeo('/learn/what-is-oklch', locale, {
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH is a modern cylindrical representation of the Oklab color space designed specifically for human vision. It fixes the mathematical flaws of RGB and HSL by ensuring that identical numerical lightness values look equally bright across all hues.
+        {t(locale, 'pages.whatIsOklch.subtitle', 'OKLCH is a modern cylindrical representation of the Oklab color space designed specifically for human vision. It fixes the mathematical flaws of RGB and HSL by ensuring that identical numerical lightness values look equally bright across all hues.')}
       </p>
       <p class="text-xs font-mono text-mute">
-        Last updated: 2026-10-07 · Maintained by the OKLCH Colors team
+        {t(locale, 'pages.whatIsOklch.lastUpdated', 'Last updated: 2026-10-07 · Maintained by the OKLCH Colors team')}
       </p>
     </div>
 
     <!-- 1. What is OKLCH? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">What is OKLCH?</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.whatIsTitle', 'What is OKLCH?')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH is a perceptually uniform color space that describes colors using three values: Lightness (L), Chroma (C), and Hue (H). Unlike RGB and HSL, OKLCH is designed to match human color perception — equal changes in its numerical values produce equal changes in perceived color. This makes it ideal for creating accessible, consistent color systems in CSS.
+        {t(locale, 'pages.whatIsOklch.whatIsBody1', 'OKLCH is a perceptually uniform color space that describes colors using three values: Lightness (L), Chroma (C), and Hue (H). Unlike RGB and HSL, OKLCH is designed to match human color perception — equal changes in its numerical values produce equal changes in perceived color. This makes it ideal for creating accessible, consistent color systems in CSS.')}
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH is the cylindrical form of the Oklab color space, standardized in CSS Color Module Level 4. It is supported by all modern browsers and is the default color space for Tailwind CSS v4's entire palette.
+        {t(locale, 'pages.whatIsOklch.whatIsBody2', 'OKLCH is the cylindrical form of the Oklab color space, standardized in CSS Color Module Level 4. It is supported by all modern browsers and is the default color space for Tailwind CSS v4\'s entire palette.')}
       </p>
     </section>
 
     <!-- 2. What does OKLCH stand for? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">What does OKLCH stand for?</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH stands for <strong class="text-ink">O</strong>klab <strong class="text-ink">L</strong>ightness, <strong class="text-ink">C</strong>hroma, <strong class="text-ink">H</strong>ue. The "OK" comes from Oklab, the color space created by Björn Ottosson in 2020. Oklab itself is named after the LMS cone response model it uses (L, M, S), with "Ok" indicating that it is a perceptually uniform improvement over earlier models.
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.standsForTitle', 'What does OKLCH stand for?')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.whatIsOklch.standsForBody', 'OKLCH stands for <strong class="text-ink">O</strong>klab <strong class="text-ink">L</strong>ightness, <strong class="text-ink">C</strong>hroma, <strong class="text-ink">H</strong>ue. The "OK" comes from Oklab, the color space created by Björn Ottosson in 2020. Oklab itself is named after the LMS cone response model it uses (L, M, S), with "Ok" indicating that it is a perceptually uniform improvement over earlier models.')} />
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-[#fde047] font-bold block">L — Lightness</span>
-          <span class="text-body block">0% (black) to 100% (white). Perceptual brightness that matches human vision.</span>
+          <span class="text-[#fde047] font-bold block">{t(locale, 'pages.whatIsOklch.lTitle', 'L — Lightness')}</span>
+          <span class="text-body block">{t(locale, 'pages.whatIsOklch.lBody', '0% (black) to 100% (white). Perceptual brightness that matches human vision.')}</span>
         </div>
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-gamut-p3 font-bold block">C — Chroma</span>
-          <span class="text-body block">Color intensity. 0 is neutral gray; higher values are more vivid. Maximum ~0.4.</span>
+          <span class="text-gamut-p3 font-bold block">{t(locale, 'pages.whatIsOklch.cTitle', 'C — Chroma')}</span>
+          <span class="text-body block">{t(locale, 'pages.whatIsOklch.cBody', 'Color intensity. 0 is neutral gray; higher values are more vivid. Maximum ~0.4.')}</span>
         </div>
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-[#a78bfa] font-bold block">H — Hue</span>
-          <span class="text-body block">Color angle on the 360° wheel. 0° is magenta, 140° is green, 255° is blue.</span>
+          <span class="text-[#a78bfa] font-bold block">{t(locale, 'pages.whatIsOklch.hTitle', 'H — Hue')}</span>
+          <span class="text-body block">{t(locale, 'pages.whatIsOklch.hBody', 'Color angle on the 360° wheel. 0° is magenta, 140° is green, 255° is blue.')}</span>
         </div>
       </div>
     </section>
 
     <!-- 3. How does OKLCH work? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">How does OKLCH work?</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.howWorksTitle', 'How does OKLCH work?')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH works by transforming colors through a perceptually uniform color space. The L (Lightness) axis runs from black to white and is designed so that equal numerical steps look equally bright. The C (Chroma) axis measures color intensity as distance from the gray center. The H (Hue) axis is a circle of color angles. Together they form a cylinder: L is the vertical axis, C is the radius, and H is the angle around the center.
+        {t(locale, 'pages.whatIsOklch.howWorksBody1', 'OKLCH works by transforming colors through a perceptually uniform color space. The L (Lightness) axis runs from black to white and is designed so that equal numerical steps look equally bright. The C (Chroma) axis measures color intensity as distance from the gray center. The H (Hue) axis is a circle of color angles. Together they form a cylinder: L is the vertical axis, C is the radius, and H is the angle around the center.')}
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        The key property is perceptual uniformity: a color at 50% lightness looks equally bright whether it is red, blue, or yellow. This is not true of HSL, where 50% lightness yellow looks almost white and 50% lightness blue looks very dark.
+        {t(locale, 'pages.whatIsOklch.howWorksBody2', 'The key property is perceptual uniformity: a color at 50% lightness looks equally bright whether it is red, blue, or yellow. This is not true of HSL, where 50% lightness yellow looks almost white and 50% lightness blue looks very dark.')}
       </p>
     </section>
 
     <!-- 4. OKLCH Color Space Diagram -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">OKLCH Color Space Diagram</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.diagramTitle', 'OKLCH Color Space Diagram')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        The OKLCH color space can be visualized as a cylinder. Lightness (L) runs vertically from black (0%) at the bottom to white (100%) at the top. Chroma (C) is the radial distance from the center axis — the center is neutral gray, and the outer edge is the most vivid color possible at that lightness. Hue (H) is the angle around the cylinder.
+        {t(locale, 'pages.whatIsOklch.diagramBody', 'The OKLCH color space can be visualized as a cylinder. Lightness (L) runs vertically from black (0%) at the bottom to white (100%) at the top. Chroma (C) is the radial distance from the center axis — the center is neutral gray, and the outer edge is the most vivid color possible at that lightness. Hue (H) is the angle around the cylinder.')}
       </p>
 
       <!-- Inline SVG diagram of the OKLCH cylinder -->
@@ -139,148 +138,138 @@ const seo = localizedSeo('/learn/what-is-oklch', locale, {
           <text x="60" y="150" text-anchor="middle" fill="#a3a3a3" font-size="9" font-family="monospace">360°</text>
         </svg>
         <figcaption class="text-[11px] font-mono text-mute text-center">
-          The OKLCH cylinder: Lightness (L) is the vertical axis, Chroma (C) is the radial distance from center, and Hue (H) is the angle around the cylinder.
+          {t(locale, 'pages.whatIsOklch.diagramCaption', 'The OKLCH cylinder: Lightness (L) is the vertical axis, Chroma (C) is the radial distance from center, and Hue (H) is the angle around the cylinder.')}
         </figcaption>
       </figure>
     </section>
 
     <!-- 5. OKLCH in CSS -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">OKLCH in CSS</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH is used in CSS via the <code class="text-ink">oklch()</code> function. The syntax is <code class="text-ink">oklch(L C H)</code> where L is lightness (0% to 100%), C is chroma (0 to 0.4), and H is hue (0 to 360). An optional alpha value can be added after a slash: <code class="text-ink">oklch(0.7 0.15 250 / 50%)</code>.
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.cssTitle', 'OKLCH in CSS')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.whatIsOklch.cssBody', 'OKLCH is used in CSS via the <code class="text-ink">oklch()</code> function. The syntax is <code class="text-ink">oklch(L C H)</code> where L is lightness (0% to 100%), C is chroma (0 to 0.4), and H is hue (0 to 360). An optional alpha value can be added after a slash: <code class="text-ink">oklch(0.7 0.15 250 / 50%)</code>.')} />
 
-      <div class="p-4 rounded-lg dark-scope bg-canvas-sunken border border-hairline font-mono text-sm text-ink">
-        oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-gamut-p3">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-mute">[/ Alpha]</span>)
+      <div class="p-4 rounded-lg dark-scope bg-canvas-sunken border border-hairline font-mono text-sm text-ink" set:html={t(locale, 'pages.whatIsOklch.cssSyntaxLabel', 'oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-gamut-p3">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-mute">[/ Alpha]</span>)')} />
+
+      <div class="space-y-2 text-xs font-mono text-body">
+        <p><strong class="text-ink">{t(locale, 'pages.whatIsOklch.basicSyntaxTitle', 'Basic syntax:')}</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.whatIsOklch.basicSyntaxCode', 'color: oklch(62.3% 0.188 259.8);\ncolor: oklch(0.623 0.188 259.8); /* same, decimal form */')}</code></pre>
       </div>
 
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">Basic syntax:</strong></p>
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>color: oklch(62.3% 0.188 259.8);{'\n'}color: oklch(0.623 0.188 259.8); /* same, decimal form */</code></pre>
+        <p><strong class="text-ink">{t(locale, 'pages.whatIsOklch.alphaSyntaxTitle', 'With alpha:')}</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.whatIsOklch.alphaSyntaxCode', 'color: oklch(62.3% 0.188 259.8 / 0.5); /* 50% opaque */')}</code></pre>
       </div>
 
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">With alpha:</strong></p>
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>color: oklch(62.3% 0.188 259.8 / 0.5); /* 50% opaque */</code></pre>
+        <p><strong class="text-ink">{t(locale, 'pages.whatIsOklch.fallbackTitle', 'Progressive enhancement (fallback first):')}</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.whatIsOklch.fallbackCode', '.button {\n  color: #3b82f6; /* fallback for older browsers */\n  color: oklch(62.3% 0.188 259.8); /* modern browsers */\n}')}</code></pre>
       </div>
 
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">Progressive enhancement (fallback first):</strong></p>
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>.button &#123;{'\n'}  color: #3b82f6; /* fallback for older browsers */{'\n'}  color: oklch(62.3% 0.188 259.8); /* modern browsers */{'\n'}&#125;</code></pre>
+        <p><strong class="text-ink">{t(locale, 'pages.whatIsOklch.supportsTitle', '@supports fallback:')}</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.whatIsOklch.supportsCode', '@supports not (color: oklch(0% 0 0)) {\n  .button { color: #3b82f6; }\n}')}</code></pre>
       </div>
 
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">@supports fallback:</strong></p>
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>@supports not (color: oklch(0% 0 0)) &#123;{'\n'}  .button &#123; color: #3b82f6; &#125;{'\n'}&#125;</code></pre>
-      </div>
-
-      <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">Relative color syntax:</strong></p>
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>/* Lighten a color by 10% lightness */{'\n'}color: oklch(from var(--brand) calc(l + 0.1) c h);{'\n'}{'\n'}/* Shift hue by 30 degrees */{'\n'}color: oklch(from var(--brand) l c calc(h + 30));</code></pre>
+        <p><strong class="text-ink">{t(locale, 'pages.whatIsOklch.relativeTitle', 'Relative color syntax:')}</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.whatIsOklch.relativeCode', '/* Lighten a color by 10% lightness */\ncolor: oklch(from var(--brand) calc(l + 0.1) c h);\n\n/* Shift hue by 30 degrees */\ncolor: oklch(from var(--brand) l c calc(h + 30));')}</code></pre>
         <p class="pt-1">
-          <a href={buildLocalizedPath('/learn/oklch-css-syntax', locale)} class="text-accent-text hover:underline">Full oklch() syntax reference — every value, alpha and fallback pattern →</a>
+          <a href={buildLocalizedPath('/learn/oklch-css-syntax', locale)} class="text-accent-text hover:underline">{t(locale, 'pages.whatIsOklch.relativeLink', 'Full oklch() syntax reference — every value, alpha and fallback pattern →')}</a>
         </p>
       </div>
     </section>
 
     <!-- 6. Why designers moved from RGB and HSL -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Why Designers Moved from RGB and HSL</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        HSL's lightness is not perceptually uniform. Pure yellow (<code class="text-ink">hsl(60, 100%, 50%)</code>) and pure blue (<code class="text-ink">hsl(240, 100%, 50%)</code>) both claim 50% lightness, but the human eye perceives yellow as overwhelmingly bright and blue as very dark. OKLCH fixes this: at 70% lightness, yellow and blue look equally bright.
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.whyMovedTitle', 'Why Designers Moved from RGB and HSL')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.whatIsOklch.whyMovedBody', 'HSL\'s lightness is not perceptually uniform. Pure yellow (<code class="text-ink">hsl(60, 100%, 50%)</code>) and pure blue (<code class="text-ink">hsl(240, 100%, 50%)</code>) both claim 50% lightness, but the human eye perceives yellow as overwhelmingly bright and blue as very dark. OKLCH fixes this: at 70% lightness, yellow and blue look equally bright.')} />
 
       <!-- Visual Comparison Box -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
         <div class="bg-canvas-sunken border border-hairline rounded-lg p-3 space-y-2">
-          <div class="text-[11px] font-mono text-danger-ink font-semibold">❌ Legacy HSL (Flawed Lightness)</div>
+          <div class="text-[11px] font-mono text-danger-ink font-semibold">{t(locale, 'pages.whatIsOklch.hslFlawedLabel', '❌ Legacy HSL (Flawed Lightness)')}</div>
           <div class="flex h-12 rounded overflow-hidden">
             <div class="flex-1 bg-[#ffff00] flex items-center justify-center text-[11px] font-mono text-black font-bold">
-              Yellow (50% L)
+              {t(locale, 'pages.whatIsOklch.hslYellowLabel', 'Yellow (50% L)')}
             </div>
             <div class="flex-1 bg-[#0000ff] flex items-center justify-center text-[11px] font-mono text-white font-bold">
-              Blue (50% L)
+              {t(locale, 'pages.whatIsOklch.hslBlueLabel', 'Blue (50% L)')}
             </div>
           </div>
           <span class="text-[10px] font-mono text-mute block">
-            Notice how blinding yellow is compared to blue despite having the exact same "50% lightness" parameter.
+            {t(locale, 'pages.whatIsOklch.hslNote', 'Notice how blinding yellow is compared to blue despite having the exact same "50% lightness" parameter.')}
           </span>
         </div>
 
         <div class="bg-canvas-sunken border border-hairline rounded-lg p-3 space-y-2">
-          <div class="text-[11px] font-mono text-copy-success font-semibold">✔ Modern OKLCH (Perceptually Uniform)</div>
+          <div class="text-[11px] font-mono text-copy-success font-semibold">{t(locale, 'pages.whatIsOklch.oklchUniformLabel', '✔ Modern OKLCH (Perceptually Uniform)')}</div>
           <div class="flex h-12 rounded overflow-hidden">
             <div
               class="flex-1 flex items-center justify-center text-[11px] font-mono text-black font-bold"
               style="background-color: oklch(70% 0.15 100);"
             >
-              Yellow (70% L)
+              {t(locale, 'pages.whatIsOklch.oklchYellowLabel', 'Yellow (70% L)')}
             </div>
             <div
               class="flex-1 flex items-center justify-center text-[11px] font-mono text-white font-bold"
               style="background-color: oklch(70% 0.15 255);"
             >
-              Blue (70% L)
+              {t(locale, 'pages.whatIsOklch.oklchBlueLabel', 'Blue (70% L)')}
             </div>
           </div>
           <span class="text-[10px] font-mono text-mute block">
-            In OKLCH, 70% lightness produces identical optical luminance across any hue angle.
+            {t(locale, 'pages.whatIsOklch.oklchNote', 'In OKLCH, 70% lightness produces identical optical luminance across any hue angle.')}
           </span>
         </div>
       </div>
 
       <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside pt-2">
-        <li><strong class="text-ink">Predictable palettes:</strong> Equal lightness steps look equally spaced, making 50-950 scales trivial to generate.</li>
-        <li><strong class="text-ink">Accessibility:</strong> Contrast ratios are more predictable because lightness is perceptually uniform.</li>
-        <li><strong class="text-ink">Wide gamut:</strong> OKLCH can describe Display-P3 colors that HSL cannot reach.</li>
-        <li><strong class="text-ink">Smooth gradients:</strong> Interpolating in OKLCH avoids the muddy midtones that RGB interpolation produces.</li>
+        <li set:html={t(locale, 'pages.whatIsOklch.benefit1', '<strong class="text-ink">Predictable palettes:</strong> Equal lightness steps look equally spaced, making 50-950 scales trivial to generate.')} />
+        <li set:html={t(locale, 'pages.whatIsOklch.benefit2', '<strong class="text-ink">Accessibility:</strong> Contrast ratios are more predictable because lightness is perceptually uniform.')} />
+        <li set:html={t(locale, 'pages.whatIsOklch.benefit3', '<strong class="text-ink">Wide gamut:</strong> OKLCH can describe Display-P3 colors that HSL cannot reach.')} />
+        <li set:html={t(locale, 'pages.whatIsOklch.benefit4', '<strong class="text-ink">Smooth gradients:</strong> Interpolating in OKLCH avoids the muddy midtones that RGB interpolation produces.')} />
       </ul>
     </section>
 
     <!-- 7. Can I use OKLCH? Browser support -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Can I use OKLCH?</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.browserSupportTitle', 'Can I use OKLCH?')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.whatIsOklch.browserSupportBody1', 'Yes. <code class="text-ink">oklch()</code> is a <strong class="text-ink">Baseline</strong> feature, meaning it is widely available across all modern browsers. According to MDN, it has been available across browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.')} />
       <p class="text-xs md:text-sm font-mono text-body">
-        Yes. <code class="text-ink">oklch()</code> is a <strong class="text-ink">Baseline</strong> feature, meaning it is widely available across all modern browsers. According to MDN, it has been available across browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
+        {t(locale, 'pages.whatIsOklch.browserSupportBody2', 'For older browsers that do not support OKLCH, use the progressive enhancement pattern: declare a HEX or RGB fallback first, then override with OKLCH. Browsers that do not understand OKLCH will simply ignore the second declaration and use the fallback.')}
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        For older browsers that do not support OKLCH, use the progressive enhancement pattern: declare a HEX or RGB fallback first, then override with OKLCH. Browsers that do not understand OKLCH will simply ignore the second declaration and use the fallback.
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <strong class="text-ink">Verified source:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() browser compatibility</a>
+        <strong class="text-ink">{t(locale, 'pages.whatIsOklch.mdnLinkPrefix', 'Verified source:')}</strong>{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.whatIsOklch.mdnLinkText', 'MDN — oklch() browser compatibility')}</a>
       </p>
     </section>
 
     <!-- 8. When did Tailwind CSS start using OKLCH? -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">When did Tailwind CSS start using OKLCH?</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.tailwindTitle', 'When did Tailwind CSS start using OKLCH?')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.whatIsOklch.tailwindBody1', 'Tailwind CSS v4.0, released on <strong class="text-ink">January 22, 2025</strong>, moved its entire default color palette from RGB to OKLCH. The v4.0 release notes state: "We\'ve upgraded the entire default color palette from rgb to oklch, taking advantage of the wider gamut to make the colors more vivid in places where we were previously limited by the sRGB color space."')} />
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.whatIsOklch.tailwindBody2', 'This means every color in Tailwind\'s default palette — from <code class="text-ink">red-500</code> to <code class="text-ink">blue-600</code> — is now defined in OKLCH. Custom colors defined in the <code class="text-ink">@theme</code> block also use OKLCH by default.')} />
       <p class="text-xs md:text-sm font-mono text-body">
-        Tailwind CSS v4.0, released on <strong class="text-ink">January 22, 2025</strong>, moved its entire default color palette from RGB to OKLCH. The v4.0 release notes state: "We've upgraded the entire default color palette from rgb to oklch, taking advantage of the wider gamut to make the colors more vivid in places where we were previously limited by the sRGB color space."
+        <strong class="text-ink">{t(locale, 'pages.whatIsOklch.tailwindLink1Prefix', 'Verified source:')}</strong>{' '}
+        <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.whatIsOklch.tailwindLink1Text', 'Tailwind CSS v4.0 release blog post')}</a>
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        This means every color in Tailwind's default palette — from <code class="text-ink">red-500</code> to <code class="text-ink">blue-600</code> — is now defined in OKLCH. Custom colors defined in the <code class="text-ink">@theme</code> block also use OKLCH by default.
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <strong class="text-ink">Verified source:</strong> <a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS v4.0 release blog post</a>
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="text-accent-text hover:underline">Read the full Tailwind CSS v4 guide — @theme, migration and opacity modifiers →</a>
+        <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="text-accent-text hover:underline">{t(locale, 'pages.whatIsOklch.tailwindLink2', 'Read the full Tailwind CSS v4 guide — @theme, migration and opacity modifiers →')}</a>
       </p>
     </section>
 
     <!-- 9. OKLCH vs HSL vs RGB -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">OKLCH vs HSL vs RGB</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.comparisonTitle', 'OKLCH vs HSL vs RGB')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        The table below compares the three color models across the properties that matter for design systems.
+        {t(locale, 'pages.whatIsOklch.comparisonBody', 'The table below compares the three color models across the properties that matter for design systems.')}
       </p>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs font-mono">
           <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
             <tr>
-              <th class="p-3">Property</th>
+              <th class="p-3">{t(locale, 'pages.whatIsOklch.tableProperty', 'Property')}</th>
               <th class="p-3">OKLCH</th>
               <th class="p-3">HSL</th>
               <th class="p-3">RGB</th>
@@ -288,37 +277,37 @@ const seo = localizedSeo('/learn/what-is-oklch', locale, {
           </thead>
           <tbody class="divide-y divide-hairline">
             <tr>
-              <td class="p-3 text-ink font-medium">Perceptual uniformity</td>
-              <td class="p-3 text-copy-success">Yes</td>
-              <td class="p-3 text-danger-ink">No</td>
-              <td class="p-3 text-danger-ink">No</td>
+              <td class="p-3 text-ink font-medium">{t(locale, 'pages.whatIsOklch.rowUniformity', 'Perceptual uniformity')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueYes', 'Yes')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueNo', 'No')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueNo', 'No')}</td>
             </tr>
             <tr>
-              <td class="p-3 text-ink font-medium">Lightness accuracy</td>
-              <td class="p-3 text-copy-success">High</td>
-              <td class="p-3 text-danger-ink">Low</td>
-              <td class="p-3 text-danger-ink">None</td>
+              <td class="p-3 text-ink font-medium">{t(locale, 'pages.whatIsOklch.rowLightness', 'Lightness accuracy')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueHigh', 'High')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueLow', 'Low')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueNone', 'None')}</td>
             </tr>
             <tr>
-              <td class="p-3 text-ink font-medium">Wide gamut (Display-P3)</td>
-              <td class="p-3 text-copy-success">Yes</td>
-              <td class="p-3 text-danger-ink">No</td>
-              <td class="p-3 text-danger-ink">No</td>
+              <td class="p-3 text-ink font-medium">{t(locale, 'pages.whatIsOklch.rowWideGamut', 'Wide gamut (Display-P3)')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueYes', 'Yes')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueNo', 'No')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueNo', 'No')}</td>
             </tr>
             <tr>
-              <td class="p-3 text-ink font-medium">Predictable gradients</td>
-              <td class="p-3 text-copy-success">Yes</td>
-              <td class="p-3 text-gamut-warning">Partial</td>
-              <td class="p-3 text-danger-ink">No</td>
+              <td class="p-3 text-ink font-medium">{t(locale, 'pages.whatIsOklch.rowGradients', 'Predictable gradients')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueYes', 'Yes')}</td>
+              <td class="p-3 text-gamut-warning">{t(locale, 'pages.whatIsOklch.valuePartial', 'Partial')}</td>
+              <td class="p-3 text-danger-ink">{t(locale, 'pages.whatIsOklch.valueNo', 'No')}</td>
             </tr>
             <tr>
-              <td class="p-3 text-ink font-medium">Browser support</td>
-              <td class="p-3 text-copy-success">Baseline</td>
-              <td class="p-3 text-copy-success">Universal</td>
-              <td class="p-3 text-copy-success">Universal</td>
+              <td class="p-3 text-ink font-medium">{t(locale, 'pages.whatIsOklch.rowBrowserSupport', 'Browser support')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueBaseline', 'Baseline')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueUniversal', 'Universal')}</td>
+              <td class="p-3 text-copy-success">{t(locale, 'pages.whatIsOklch.valueUniversal', 'Universal')}</td>
             </tr>
             <tr>
-              <td class="p-3 text-ink font-medium">CSS syntax</td>
+              <td class="p-3 text-ink font-medium">{t(locale, 'pages.whatIsOklch.rowCssSyntax', 'CSS syntax')}</td>
               <td class="p-3 text-body">oklch(L C H)</td>
               <td class="p-3 text-body">hsl(H S% L%)</td>
               <td class="p-3 text-body">rgb(R G B)</td>
@@ -328,68 +317,66 @@ const seo = localizedSeo('/learn/what-is-oklch', locale, {
       </div>
 
       <p class="text-xs md:text-sm font-mono text-body">
-        <a href={buildLocalizedPath('/learn/oklch-vs-hsl-vs-rgb', locale)} class="text-accent-text hover:underline">Read the full comparison guide →</a>
+        <a href={buildLocalizedPath('/learn/oklch-vs-hsl-vs-rgb', locale)} class="text-accent-text hover:underline">{t(locale, 'pages.whatIsOklch.comparisonLink', 'Read the full comparison guide →')}</a>
       </p>
     </section>
 
     <!-- 10. Try it -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Try it: OKLCH Converters</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.tryTitle', 'Try it: OKLCH Converters')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        The best way to understand OKLCH is to use it. Convert any color to OKLCH and see how the perceptual values work:
+        {t(locale, 'pages.whatIsOklch.tryBody', 'The best way to understand OKLCH is to use it. Convert any color to OKLCH and see how the perceptual values work:')}
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <a href={buildLocalizedPath('/', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">OKLCH Color Picker</span>
-          <span class="text-xs font-mono text-body">Interactive picker with live L, C, H sliders</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.whatIsOklch.tryPickerTitle', 'OKLCH Color Picker')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.whatIsOklch.tryPickerBody', 'Interactive picker with live L, C, H sliders')}</span>
         </a>
         <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">HEX to OKLCH</span>
-          <span class="text-xs font-mono text-body">Convert any HEX code to oklch()</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.whatIsOklch.tryHexTitle', 'HEX to OKLCH')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.whatIsOklch.tryHexBody', 'Convert any HEX code to oklch()')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-to-hex', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">OKLCH to HEX</span>
-          <span class="text-xs font-mono text-body">Convert oklch() back to HEX</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.whatIsOklch.tryOklchTitle', 'OKLCH to HEX')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.whatIsOklch.tryOklchBody', 'Convert oklch() back to HEX')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">Palette Generator</span>
-          <span class="text-xs font-mono text-body">Generate accessible 50-950 scales</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.whatIsOklch.tryGeneratorTitle', 'Palette Generator')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.whatIsOklch.tryGeneratorBody', 'Generate accessible 50-950 scales')}</span>
         </a>
       </div>
     </section>
 
     <!-- 11. FAQ -->
     <section class="space-y-4">
-      <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.whatIsOklch.faqTitle', 'Frequently Asked Questions')}</h2>
       <div class="space-y-3 font-mono text-xs">
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">What is the difference between OKLCH and HSL?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.whatIsOklch.faq1Question', 'What is the difference between OKLCH and HSL?')}</h3>
           <p class="text-body leading-relaxed">
-            HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.
+            {t(locale, 'pages.whatIsOklch.faq1Answer', 'HSL distorts perceived brightness: yellow at 50% lightness looks almost white, while blue at 50% lightness looks dark. OKLCH fixes this with mathematically modeled human visual perception, ensuring lightness is uniform regardless of hue.')}
           </p>
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Do all modern browsers support CSS oklch()?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.whatIsOklch.faq2Question', 'Do all modern browsers support CSS oklch()?')}</h3>
           <p class="text-body leading-relaxed">
-            Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
+            {t(locale, 'pages.whatIsOklch.faq2Answer', 'Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.')}
           </p>
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Can I use OKLCH in Tailwind CSS v4?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.whatIsOklch.faq3Question', 'Can I use OKLCH in Tailwind CSS v4?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.whatIsOklch.faq3Answer', 'Yes. Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your <code class="text-ink">@theme</code> block using <code class="text-ink">--color-{name}: oklch(...)</code> and Tailwind generates utilities automatically.')} />
+        </div>
+        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.whatIsOklch.faq4Question', 'What happens when an OKLCH color is out of sRGB gamut?')}</h3>
           <p class="text-body leading-relaxed">
-            Yes. Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your <code class="text-ink">@theme</code> block using <code class="text-ink">--color-{'{name}'}: oklch(...)</code> and Tailwind generates utilities automatically.
+            {t(locale, 'pages.whatIsOklch.faq4Answer', 'On sRGB displays, the browser automatically tone-maps the color to the nearest displayable equivalent. On wide-gamut Display-P3 monitors, the color appears more vivid. Use the progressive enhancement pattern to provide a HEX fallback for older browsers.')}
           </p>
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">What happens when an OKLCH color is out of sRGB gamut?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.whatIsOklch.faq5Question', 'Is OKLCH the same as OKLab?')}</h3>
           <p class="text-body leading-relaxed">
-            On sRGB displays, the browser automatically tone-maps the color to the nearest displayable equivalent. On wide-gamut Display-P3 monitors, the color appears more vivid. Use the progressive enhancement pattern to provide a HEX fallback for older browsers.
-          </p>
-        </div>
-        <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Is OKLCH the same as OKLab?</h3>
-          <p class="text-body leading-relaxed">
-            OKLCH is the cylindrical form of OKLab. OKLab uses Cartesian coordinates (L, a, b) while OKLCH uses cylindrical coordinates (L, C, H). They describe the same color space — OKLCH is simply more intuitive for most design tasks.
+            {t(locale, 'pages.whatIsOklch.faq5Answer', 'OKLCH is the cylindrical form of OKLab. OKLab uses Cartesian coordinates (L, a, b) while OKLCH uses cylindrical coordinates (L, C, H). They describe the same color space — OKLCH is simply more intuitive for most design tasks.')}
           </p>
         </div>
       </div>
@@ -397,12 +384,12 @@ const seo = localizedSeo('/learn/what-is-oklch', locale, {
 
     <!-- 12. Sources -->
     <section class="space-y-3 pt-6 border-t border-hairline">
-      <h2 class="text-sm font-semibold text-ink">Sources</h2>
+      <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.whatIsOklch.sourcesTitle', 'Sources')}</h2>
       <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
-        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">Björn Ottosson — Oklab: a perceptual color space</a></li>
-        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">W3C — CSS Color Module Level 4</a></li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() CSS function</a></li>
-        <li><a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">Tailwind CSS — v4.0 release</a></li>
+        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.whatIsOklch.source1', 'Björn Ottosson — Oklab: a perceptual color space')}</a></li>
+        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.whatIsOklch.source2', 'W3C — CSS Color Module Level 4')}</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.whatIsOklch.source3', 'MDN — oklch() CSS function')}</a></li>
+        <li><a href="https://tailwindcss.com/blog/tailwindcss-v4" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.whatIsOklch.source4', 'Tailwind CSS — v4.0 release')}</a></li>
       </ul>
     </section>
   </div>

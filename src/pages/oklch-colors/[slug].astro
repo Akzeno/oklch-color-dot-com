@@ -9,6 +9,7 @@ import {
   oklchToHslString,
 } from '../../utils/color';
 import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import PaletteDetailIsland from '../../components/palettes/PaletteDetailIsland';
 
 export function getStaticPaths() {
@@ -54,7 +55,17 @@ const description = `${palette.name} OKLCH palette at hue ${hue}. Steps ${aaWhit
 // Unique intro built from real data: character (from data), hue, computed contrast steps.
 const midStep = palette.shades[500];
 const midHex = midStep.hex;
-const intro = `${palette.description} The scale is anchored at hue ${hue} in OKLCH, so every step keeps the same hue while lightness moves in perceptually even steps from 50 to 950. The 500 step (${midHex}) is your base color. Shades ${aaWhite} pass WCAG 2.1 AA against white and shades ${aaBlack} pass against black, so use the light end for backgrounds and the dark end for text on light surfaces (or vice versa). Each value is copy-ready as oklch(), HEX, RGB or HSL.`;
+const paletteDescription = t(locale, `pages.paletteData.${palette.slug}.description`, palette.description);
+const introTail = t(
+  locale,
+  'pages.paletteDetail.introTail',
+  'The scale is anchored at hue {hue} in OKLCH, so every step keeps the same hue while lightness moves in perceptually even steps from 50 to 950. The 500 step ({midHex}) is your base color. Shades {aaWhite} pass WCAG 2.1 AA against white and shades {aaBlack} pass against black, so use the light end for backgrounds and the dark end for text on light surfaces (or vice versa). Each value is copy-ready as oklch(), HEX, RGB or HSL.'
+)
+  .replace('{hue}', String(hue))
+  .replace('{midHex}', midHex)
+  .replace('{aaWhite}', aaWhite)
+  .replace('{aaBlack}', aaBlack);
+const intro = `${paletteDescription} ${introTail}`;
 
 // Related palettes: same category first, then fill with others (deterministic order).
 const sameCategory = PALETTES.filter((p) => p.slug !== palette.slug && p.category === palette.category);
@@ -72,9 +83,9 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
   <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'common.home', 'Home')}</a>
       <span>/</span>
-      <a href={buildLocalizedPath('/oklch-colors', locale)} class="hover:text-ink">Palettes</a>
+      <a href={buildLocalizedPath('/oklch-colors', locale)} class="hover:text-ink">{t(locale, 'pages.paletteDetail.breadcrumbPalettes', 'Palettes')}</a>
       <span>/</span>
       <span class="text-ink">{palette.name}</span>
     </nav>
@@ -86,38 +97,39 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
           {palette.name}
         </h1>
         <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-canvas-raised border border-hairline text-body">
-          {palette.categoryLabel}
+          {t(locale, `pages.paletteCategories.${palette.category}`, palette.categoryLabel)}
         </span>
       </div>
       <p class="text-xs md:text-sm font-mono text-body max-w-2xl leading-relaxed">
-        {palette.description}
+        {paletteDescription}
       </p>
     </div>
 
     <!-- Unique data-driven intro (SEO content) -->
     <section class="max-w-3xl">
-      <h2 class="text-base font-semibold text-ink mb-2">About the {palette.name} palette</h2>
+      <h2 class="text-base font-semibold text-ink mb-2">{t(locale, 'pages.paletteDetail.aboutTitle', 'About the {name} palette').replace('{name}', palette.name)}</h2>
       <p class="text-sm text-body leading-relaxed">{intro}</p>
     </section>
 
     <!-- The scale, as large cards with their own copy / cart actions -->
     <section class="space-y-2">
       <div class="flex items-center justify-between text-xs font-mono text-mute">
-        <span>Shade Steps</span>
-        <span>Copy a value, or save it to a variable of your own</span>
+        <span>{t(locale, 'pages.paletteDetail.shadeSteps', 'Shade Steps')}</span>
+        <span>{t(locale, 'pages.paletteDetail.copyHint', 'Copy a value, or save it to a variable of your own')}</span>
       </div>
       <PaletteDetailIsland
         client:load
         shades={palette.shades}
         paletteName={palette.name}
         paletteSlug={palette.slug}
+        locale={locale}
       />
     </section>
 
     <!-- Detailed 11-step Table Breakdown -->
     <section class="space-y-4">
       <h2 class="text-base font-semibold text-ink">
-        Shade Step Breakdown (50 to 950)
+        {t(locale, 'pages.paletteDetail.tableTitle', 'Shade Step Breakdown (50 to 950)')}
       </h2>
 
       <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
@@ -125,15 +137,15 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
           <table class="w-full text-left text-xs font-mono">
             <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
               <tr>
-                <th class="p-3">Swatch</th>
-                <th class="p-3">Shade Step</th>
-                <th class="p-3">OKLCH CSS Value</th>
-                <th class="p-3">sRGB Fallback</th>
-                <th class="p-3">RGB</th>
-                <th class="p-3">HSL</th>
-                <th class="p-3">WCAG on Black</th>
-                <th class="p-3">WCAG on White</th>
-                <th class="p-3 text-right">Gamut</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thSwatch', 'Swatch')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thStep', 'Shade Step')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thOklch', 'OKLCH CSS Value')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thFallback', 'sRGB Fallback')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thRgb', 'RGB')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thHsl', 'HSL')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thWcagBlack', 'WCAG on Black')}</th>
+                <th class="p-3">{t(locale, 'pages.paletteDetail.thWcagWhite', 'WCAG on White')}</th>
+                <th class="p-3 text-right">{t(locale, 'pages.paletteDetail.thGamut', 'Gamut')}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-hairline">
@@ -190,9 +202,9 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
     <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold text-ink">
-          Tailwind v4 @theme Snippet for {palette.name}
+          {t(locale, 'pages.paletteDetail.snippetTitle', 'Tailwind v4 @theme Snippet for {name}').replace('{name}', palette.name)}
         </h2>
-        <span class="text-[11px] font-mono text-mute">Copy into global.css</span>
+        <span class="text-[11px] font-mono text-mute">{t(locale, 'pages.paletteDetail.snippetHint', 'Copy into global.css')}</span>
       </div>
 
       <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
@@ -201,30 +213,29 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
 
     <!-- Converters -->
     <section class="space-y-3">
-      <h2 class="text-base font-semibold text-ink">Convert {palette.name} shades</h2>
+      <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.paletteDetail.convertersTitle', 'Convert {name} shades').replace('{name}', palette.name)}</h2>
       <p class="text-sm text-body max-w-3xl leading-relaxed">
-        Working with these shades in another format? Use the matching converter — the same
-        values you see above, converted instantly with live gamut detection.
+        {t(locale, 'pages.paletteDetail.convertersBody', 'Working with these shades in another format? Use the matching converter — the same values you see above, converted instantly with live gamut detection.')}
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
-          HEX to OKLCH converter
+          {t(locale, 'pages.paletteDetail.linkHexToOklch', 'HEX to OKLCH converter')}
         </a>
         <a href={buildLocalizedPath('/oklch-to-hex', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
-          OKLCH to HEX converter
+          {t(locale, 'pages.paletteDetail.linkOklchToHex', 'OKLCH to HEX converter')}
         </a>
         <a href={buildLocalizedPath('/rgb-to-oklch', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
-          RGB to OKLCH converter
+          {t(locale, 'pages.paletteDetail.linkRgbToOklch', 'RGB to OKLCH converter')}
         </a>
         <a href={buildLocalizedPath('/oklch-color-palette-generator', locale)} class="block p-4 rounded-xl bg-canvas-card border border-hairline hover:bg-canvas-elevated transition-colors text-sm font-semibold text-ink">
-          Build your own palette
+          {t(locale, 'pages.paletteDetail.linkBuild', 'Build your own palette')}
         </a>
       </div>
     </section>
 
     <!-- Related palettes -->
     <section class="space-y-3">
-      <h2 class="text-base font-semibold text-ink">Related palettes</h2>
+      <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.paletteDetail.relatedTitle', 'Related palettes')}</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {relatedPalettes.map((related) => (
           <a
@@ -236,7 +247,7 @@ const relatedPalettes = [...sameCategory, ...otherPalettes].slice(0, 4);
               class="block h-6 rounded border border-white/20"
               style={`background-color: ${formatOklch(related.shades[500])};`}
             />
-            <span class="text-xs font-mono text-body">{related.categoryLabel}</span>
+            <span class="text-xs font-mono text-body">{t(locale, `pages.paletteCategories.${related.category}`, related.categoryLabel)}</span>
           </a>
         ))}
       </div>

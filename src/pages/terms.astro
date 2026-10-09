@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -27,10 +28,10 @@ const seo = localizedSeo('/terms', locale, {
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label={t(locale, 'pages.terms.breadcrumbLabel', 'Breadcrumb')}>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'pages.terms.breadcrumbHome', 'Home')}</a>
       <span>/</span>
-      <span class="text-ink">Terms & Conditions</span>
+      <span class="text-ink">{t(locale, 'pages.terms.breadcrumbTerms', 'Terms & Conditions')}</span>
     </nav>
 
     <!-- Header Section -->
@@ -39,157 +40,155 @@ const seo = localizedSeo('/terms', locale, {
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-body">
-        These Terms & Conditions govern your use of OKLCH Color Tools. By using our website and services, you agree to these terms. If you do not agree, please do not use the Service.
+        {t(locale, 'pages.terms.subtitle', 'These Terms & Conditions govern your use of OKLCH Color Tools. By using our website and services, you agree to these terms. If you do not agree, please do not use the Service.')}
       </p>
       <p class="text-xs font-mono text-mute">
-        Last updated: 2026-10-07
+        {t(locale, 'pages.terms.lastUpdated', 'Last updated: 2026-10-07')}
       </p>
     </div>
 
     <!-- 1. Acceptance of Terms -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">1. Acceptance of Terms</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s1Title', '1. Acceptance of Terms')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body">{t(locale, 'pages.terms.s1Body1a', 'By accessing or using OKLCH Color Tools ("the Service"), you agree to be bound by these Terms & Conditions and our ')}<a href={buildLocalizedPath('/privacy', locale)} class="text-accent-text hover:underline">{t(locale, 'pages.terms.s1PrivacyLink', 'Privacy Policy')}</a>{t(locale, 'pages.terms.s1Body1b', '. If you do not agree to these terms, you must not use the Service.')}</p>
       <p class="text-xs md:text-sm font-mono text-body">
-        By accessing or using OKLCH Color Tools ("the Service"), you agree to be bound by these Terms & Conditions and our <a href={buildLocalizedPath('/privacy', locale)} class="text-accent-text hover:underline">Privacy Policy</a>. If you do not agree to these terms, you must not use the Service.
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the modified terms.
+        {t(locale, 'pages.terms.s1Body2', 'We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the modified terms.')}
       </p>
     </section>
 
     <!-- 2. Description of Service -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">2. Description of Service</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s2Title', '2. Description of Service')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH Color Tools provides free online color tools including:
+        {t(locale, 'pages.terms.s2Intro', 'OKLCH Color Tools provides free online color tools including:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>OKLCH color picker with live sliders and gamut detection</li>
-        <li>Bidirectional converters between OKLCH, HEX, RGB, and HSL</li>
-        <li>OKLCH palette generator for accessible 50-950 color scales</li>
-        <li>Curated palette library with 16 pre-built color scales</li>
-        <li>UI preview tool with WCAG and APCA contrast checking</li>
-        <li>Design token export for Tailwind CSS v4 and CSS custom properties</li>
+        <li>{t(locale, 'pages.terms.s2Item1', 'OKLCH color picker with live sliders and gamut detection')}</li>
+        <li>{t(locale, 'pages.terms.s2Item2', 'Bidirectional converters between OKLCH, HEX, RGB, and HSL')}</li>
+        <li>{t(locale, 'pages.terms.s2Item3', 'OKLCH palette generator for accessible 50-950 color scales')}</li>
+        <li>{t(locale, 'pages.terms.s2Item4', 'Curated palette library with 16 pre-built color scales')}</li>
+        <li>{t(locale, 'pages.terms.s2Item5', 'UI preview tool with WCAG and APCA contrast checking')}</li>
+        <li>{t(locale, 'pages.terms.s2Item6', 'Design token export for Tailwind CSS v4 and CSS custom properties')}</li>
       </ul>
       <p class="text-xs md:text-sm font-mono text-body">
-        The Service is provided "as is" for personal and commercial use. All tools run client-side in your browser.
+        {t(locale, 'pages.terms.s2Note', 'The Service is provided "as is" for personal and commercial use. All tools run client-side in your browser.')}
       </p>
     </section>
 
     <!-- 3. Acceptable Use -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">3. Acceptable Use</h2>
-      <p class="text-xs md:text-sm font-mono text-body">You agree to use the Service only for lawful purposes. You must not:</p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s3Title', '3. Acceptable Use')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body">{t(locale, 'pages.terms.s3Intro', 'You agree to use the Service only for lawful purposes. You must not:')}</p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Use the Service for any illegal activity or purpose</li>
-        <li>Attempt to gain unauthorized access to our servers, systems, or networks</li>
-        <li>Interfere with or disrupt the Service or its infrastructure</li>
-        <li>Use automated tools (bots, scrapers) to access the Service at scale</li>
-        <li>Reverse engineer, decompile, or disassemble any part of the Service</li>
-        <li>Remove, alter, or obscure any copyright or attribution notices</li>
-        <li>Misrepresent your affiliation with OKLCH Color Tools</li>
-        <li>Use the Service to distribute malware, spam, or harmful content</li>
+        <li>{t(locale, 'pages.terms.s3Item1', 'Use the Service for any illegal activity or purpose')}</li>
+        <li>{t(locale, 'pages.terms.s3Item2', 'Attempt to gain unauthorized access to our servers, systems, or networks')}</li>
+        <li>{t(locale, 'pages.terms.s3Item3', 'Interfere with or disrupt the Service or its infrastructure')}</li>
+        <li>{t(locale, 'pages.terms.s3Item4', 'Use automated tools (bots, scrapers) to access the Service at scale')}</li>
+        <li>{t(locale, 'pages.terms.s3Item5', 'Reverse engineer, decompile, or disassemble any part of the Service')}</li>
+        <li>{t(locale, 'pages.terms.s3Item6', 'Remove, alter, or obscure any copyright or attribution notices')}</li>
+        <li>{t(locale, 'pages.terms.s3Item7', 'Misrepresent your affiliation with OKLCH Color Tools')}</li>
+        <li>{t(locale, 'pages.terms.s3Item8', 'Use the Service to distribute malware, spam, or harmful content')}</li>
       </ul>
     </section>
 
     <!-- 4. Intellectual Property -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">4. Intellectual Property</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s4Title', '4. Intellectual Property')}</h2>
 
-      <h3 class="text-sm font-semibold text-ink">Our Content</h3>
+      <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.terms.s4OurTitle', 'Our Content')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        The Service, including its design, code, text, graphics, and color palettes, is owned by OKLCH Color Tools and is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works from our content without written permission.
+        {t(locale, 'pages.terms.s4OurBody', 'The Service, including its design, code, text, graphics, and color palettes, is owned by OKLCH Color Tools and is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works from our content without written permission.')}
       </p>
 
-      <h3 class="text-sm font-semibold text-ink pt-2">Your Content</h3>
+      <h3 class="text-sm font-semibold text-ink pt-2">{t(locale, 'pages.terms.s4YourTitle', 'Your Content')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        You retain all rights to the color values, palettes, and design tokens you create using the Service. We claim no ownership over your output. Since all processing happens client-side, we never receive or store your color data.
+        {t(locale, 'pages.terms.s4YourBody', 'You retain all rights to the color values, palettes, and design tokens you create using the Service. We claim no ownership over your output. Since all processing happens client-side, we never receive or store your color data.')}
       </p>
 
-      <h3 class="text-sm font-semibold text-ink pt-2">Open Source</h3>
+      <h3 class="text-sm font-semibold text-ink pt-2">{t(locale, 'pages.terms.s4OssTitle', 'Open Source')}</h3>
       <p class="text-xs md:text-sm font-mono text-body">
-        Our source code is available under an open source license. The color palettes in our library are inspired by open source projects like Radix Colors and Tailwind CSS. We credit our sources and encourage attribution when using palette designs.
+        {t(locale, 'pages.terms.s4OssBody', 'Our source code is available under an open source license. The color palettes in our library are inspired by open source projects like Radix Colors and Tailwind CSS. We credit our sources and encourage attribution when using palette designs.')}
       </p>
     </section>
 
     <!-- 5. Disclaimer of Warranties -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">5. Disclaimer of Warranties</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s5Title', '5. Disclaimer of Warranties')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        The Service is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied. We do not warrant that:
+        {t(locale, 'pages.terms.s5Intro', 'The Service is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied. We do not warrant that:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>The Service will be uninterrupted, error-free, or free of viruses</li>
-        <li>The results obtained from the Service will be accurate or reliable</li>
-        <li>Any defects in the Service will be corrected</li>
-        <li>The Service will meet your specific requirements or expectations</li>
+        <li>{t(locale, 'pages.terms.s5Item1', 'The Service will be uninterrupted, error-free, or free of viruses')}</li>
+        <li>{t(locale, 'pages.terms.s5Item2', 'The results obtained from the Service will be accurate or reliable')}</li>
+        <li>{t(locale, 'pages.terms.s5Item3', 'Any defects in the Service will be corrected')}</li>
+        <li>{t(locale, 'pages.terms.s5Item4', 'The Service will meet your specific requirements or expectations')}</li>
       </ul>
       <p class="text-xs md:text-sm font-mono text-body">
-        Color conversions are mathematically accurate within the limits of floating-point arithmetic and browser rendering. However, we cannot guarantee that colors will appear identically across all devices, browsers, and displays due to hardware differences and color management variations.
+        {t(locale, 'pages.terms.s5Note', 'Color conversions are mathematically accurate within the limits of floating-point arithmetic and browser rendering. However, we cannot guarantee that colors will appear identically across all devices, browsers, and displays due to hardware differences and color management variations.')}
       </p>
     </section>
 
     <!-- 6. Limitation of Liability -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">6. Limitation of Liability</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s6Title', '6. Limitation of Liability')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        To the fullest extent permitted by law, OKLCH Color Tools shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:
+        {t(locale, 'pages.terms.s6Intro', 'To the fullest extent permitted by law, OKLCH Color Tools shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Loss of profits, revenue, or business opportunities</li>
-        <li>Loss of data or color work</li>
-        <li>Design system failures or accessibility violations</li>
-        <li>Damages arising from the use of exported color values</li>
-        <li>Any damages resulting from reliance on conversion results</li>
+        <li>{t(locale, 'pages.terms.s6Item1', 'Loss of profits, revenue, or business opportunities')}</li>
+        <li>{t(locale, 'pages.terms.s6Item2', 'Loss of data or color work')}</li>
+        <li>{t(locale, 'pages.terms.s6Item3', 'Design system failures or accessibility violations')}</li>
+        <li>{t(locale, 'pages.terms.s6Item4', 'Damages arising from the use of exported color values')}</li>
+        <li>{t(locale, 'pages.terms.s6Item5', 'Any damages resulting from reliance on conversion results')}</li>
       </ul>
       <p class="text-xs md:text-sm font-mono text-body">
-        Our total liability for any claim arising from the Service shall not exceed the amount you paid to use the Service (which is $0, since the Service is free).
+        {t(locale, 'pages.terms.s6Note', 'Our total liability for any claim arising from the Service shall not exceed the amount you paid to use the Service (which is $0, since the Service is free).')}
       </p>
     </section>
 
     <!-- 7. Third-Party Links and Services -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">7. Third-Party Links and Services</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s7Title', '7. Third-Party Links and Services')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        The Service may contain links to third-party websites or services (such as MDN, Tailwind CSS documentation, or color science resources). We are not responsible for the content, privacy policies, or practices of these third parties. Your use of third-party services is at your own risk.
+        {t(locale, 'pages.terms.s7Body', 'The Service may contain links to third-party websites or services (such as MDN, Tailwind CSS documentation, or color science resources). We are not responsible for the content, privacy policies, or practices of these third parties. Your use of third-party services is at your own risk.')}
       </p>
     </section>
 
     <!-- 8. Governing Law -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">8. Governing Law</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s8Title', '8. Governing Law')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        These Terms & Conditions are governed by and construed in accordance with the laws of the jurisdiction in which the Service operator is registered, without regard to conflict of law principles. Any disputes arising from these terms shall be resolved in the courts of that jurisdiction.
+        {t(locale, 'pages.terms.s8Body', 'These Terms & Conditions are governed by and construed in accordance with the laws of the jurisdiction in which the Service operator is registered, without regard to conflict of law principles. Any disputes arising from these terms shall be resolved in the courts of that jurisdiction.')}
       </p>
     </section>
 
     <!-- 9. Severability -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">9. Severability</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s9Title', '9. Severability')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        If any provision of these Terms & Conditions is found to be invalid or unenforceable, the remaining provisions will continue in full force and effect. The invalid provision will be modified to the minimum extent necessary to make it enforceable.
+        {t(locale, 'pages.terms.s9Body', 'If any provision of these Terms & Conditions is found to be invalid or unenforceable, the remaining provisions will continue in full force and effect. The invalid provision will be modified to the minimum extent necessary to make it enforceable.')}
       </p>
     </section>
 
     <!-- 10. Contact -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">10. Contact</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.terms.s10Title', '10. Contact')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        If you have any questions about these Terms & Conditions, please contact us:
+        {t(locale, 'pages.terms.s10Intro', 'If you have any questions about these Terms & Conditions, please contact us:')}
       </p>
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">Email:</strong> <a href="mailto:legal@oklchcolor.com" class="text-accent-text hover:underline">legal@oklchcolor.com</a></p>
-        <p><strong class="text-ink">Contact page:</strong> <a href={buildLocalizedPath('/contact', locale)} class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
+        <p><strong class="text-ink">{t(locale, 'pages.terms.s10EmailLabel', 'Email:')}</strong> <a href="mailto:legal@oklchcolor.com" class="text-accent-text hover:underline">legal@oklchcolor.com</a></p>
+        <p><strong class="text-ink">{t(locale, 'pages.terms.s10ContactLabel', 'Contact page:')}</strong> <a href={buildLocalizedPath('/contact', locale)} class="text-accent-text hover:underline">oklchcolor.com/contact</a></p>
       </div>
     </section>
 
     <!-- Internal Links -->
     <section class="space-y-3 pt-6 border-t border-hairline">
-      <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
+      <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.terms.relatedTitle', 'Related Pages')}</h2>
       <div class="flex flex-wrap gap-2">
-        <a href={buildLocalizedPath('/privacy', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
-        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
-        <a href={buildLocalizedPath('/contact', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Contact Us</a>
+        <a href={buildLocalizedPath('/privacy', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.terms.linkPrivacy', 'Privacy Policy')}</a>
+        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.terms.linkAbout', 'About Us')}</a>
+        <a href={buildLocalizedPath('/contact', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.terms.linkContact', 'Contact Us')}</a>
       </div>
     </section>
   </div>

@@ -1,0 +1,134 @@
+{
+  "pages": {
+    "hexToOklch": {
+      "subtitle": "Converta cores hexadecimais de 3, 6 ou 8 dígitos para a notação CSS padrão <code class=\"text-ink\">oklch()</code> com precisão perceptual e detecção de gamut ao vivo.",
+      "toolAriaLabel": "Conversor HEX para OKLCH",
+      "whyTitle": "Por que converter cores HEX para OKLCH?",
+      "whyBody": "Códigos de cor hexadecimais (<code class=\"text-ink\">#RRGGBB</code>) servem à web há décadas, mas estão ligados aos espaços de cor sRGB dependentes do dispositivo. Ao construir design systems dinâmicos, ajustar o brilho de uma cor HEX exige matemática complexa e imprecisa. Em contraste, o OKLCH separa luminosidade, chroma e matiz em parâmetros independentes: você pode mudar a luminosidade de 40% para 80% sem afetar a pureza cromática nem deslocar o ângulo de matiz.",
+      "howTitle": "Como converter HEX para OKLCH",
+      "step1": "Digite ou cole qualquer valor HEX (ex.: <code class=\"text-ink\">#3b82f6</code> ou com alpha <code class=\"text-ink\">#3b82f680</code>) no campo de entrada acima.",
+      "step2": "Nosso motor calcula imediatamente a Luminosidade perceptual exata (<code class=\"text-ink\">L</code>), a Chroma (<code class=\"text-ink\">C</code>) e a Matiz (<code class=\"text-ink\">H</code>).",
+      "step3": "Clique em <strong class=\"text-ink\">Copy</strong> para copiar a saída ou em <strong class=\"text-ink\">+ Cart</strong> para guardar este token na sua coleção de papéis.",
+      "mathPath": "<strong class=\"text-ink\">O caminho matemático:</strong> HEX → sRGB (0-255) → RGB linear (decodificação de gamma) → Oklab (matrizes de resposta de cones LMS) → OKLCH (transformação cilíndrica). O resultado é uma cor perceptualmente uniforme, em que valores iguais de luminosidade parecem igualmente brilhantes em todas as matizes.",
+      "tableTitle": "Códigos HEX populares e seus equivalentes OKLCH",
+      "tableBadge": "Gerado em tempo de build",
+      "thColor": "Cor",
+      "thColorName": "Nome da cor",
+      "thHexInput": "HEX de entrada",
+      "thOklchEquivalent": "Equivalente OKLCH",
+      "thGamutStatus": "Status do gamut",
+      "srgbSafeBadge": "Seguro no sRGB",
+      "cssTitle": "CSS pronto para copiar com aprimoramento progressivo",
+      "cssIntro": "Use o valor HEX como fallback para navegadores antigos e depois sobrescreva com OKLCH para navegadores modernos:",
+      "cssSnippet": ".button-primary {\n  color: #3b82f6;\n  color: {sample};\n}",
+      "themeLabel": "<strong class=\"text-ink\">Tailwind CSS v4 @theme:</strong>",
+      "themeSnippet": "@theme {\n  --color-brand-blue: {sample};\n}\n\n/* Classes utilitárias geradas automaticamente: */\n/* bg-brand-blue, text-brand-blue, border-brand-blue */",
+      "gamutTitle": "Nota sobre o gamut: HEX é sempre seguro no sRGB",
+      "gamutSrgbItem": "<strong class=\"text-ink\">Limites do gamut sRGB:</strong> Como todos os códigos HEX padrão existem dentro do sRGB, converter de HEX para OKLCH é sempre 100% seguro em relação ao gamut e nunca produzirá avisos de recorte fora do gamut.",
+      "gamutAlphaItem": "<strong class=\"text-ink\">Suporte a alpha de 8 dígitos:</strong> Se você inserir um código HEX de 8 caracteres (ex.: <code class=\"text-ink\">#3b82f6cc</code>), o canal alpha é convertido em um parâmetro padrão após a barra: <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.80)</code>.",
+      "gamutP3Item": "<strong class=\"text-ink\">Monitores Display-P3:</strong> Em telas wide-gamut, o mesmo valor OKLCH pode parecer mais vívido que o HEX original, porque o OKLCH descreve cores além do triângulo sRGB. O navegador lida com isso automaticamente.",
+      "faqTitle": "Perguntas frequentes",
+      "faq1Q": "As conversões de HEX para OKLCH são reversíveis sem perdas?",
+      "faq1A": "Sim. Como o sRGB é um subconjunto matemático do OKLCH, converter um valor HEX em OKLCH e depois voltar para HEX produz exatamente o código hexadecimal de 6 dígitos original. A ida e volta é sem perdas para todas as cores sRGB.",
+      "faq2Q": "Posso colar códigos HEX abreviados de 3 dígitos?",
+      "faq2A": "Sim! Nosso conversor analisa nativamente códigos abreviados como <code class=\"text-ink\">#fff</code> ou <code class=\"text-ink\">#f00</code> e os expande corretamente. Cada dígito é duplicado (<code class=\"text-ink\">#f00</code> → <code class=\"text-ink\">#ff0000</code>) antes da conversão.",
+      "faq3Q": "Qual é a diferença entre OKLCH e HEX?",
+      "faq3A": "O HEX é uma notação sRGB dependente de dispositivo que mistura os canais vermelho, verde e azul. O OKLCH é um espaço de cores perceptualmente uniforme que separa luminosidade, chroma e matiz — tornando muito mais fácil criar sistemas de cores acessíveis e consistentes.",
+      "faq4Q": "Todos os navegadores modernos suportam CSS oklch()?",
+      "faq4A": "Sim. oklch() é um recurso do Baseline disponível em todos os navegadores modernos desde maio de 2023. Chrome, Edge, Safari e Firefox o suportam nativamente. Veja a tabela de compatibilidade de navegadores do MDN para detalhes.",
+      "faq5Q": "Como uso OKLCH no Tailwind CSS v4?",
+      "faq5A": "O Tailwind v4 usa OKLCH em toda a sua paleta padrão. Defina cores personalizadas no seu bloco <code class=\"text-ink\">@theme</code> usando <code class=\"text-ink\">--color-{name}: oklch(...)</code> e o Tailwind gera utilities como <code class=\"text-ink\">bg-{name}</code> automaticamente.",
+      "learnMoreLink": "Saiba mais sobre OKLCH →"
+    },
+    "oklchToHex": {
+      "subtitle": "Converta strings CSS <code class=\"text-ink\">oklch()</code> para o formato HEX padrão de 6 ou 8 dígitos, com clamping automático de gamut sRGB e detecção ampla de Display-P3.",
+      "toolAriaLabel": "Conversor OKLCH para HEX",
+      "whyTitle": "Por que converter OKLCH para HEX?",
+      "whyBody": "Embora navegadores modernos e frameworks CSS como o Tailwind v4 suportem OKLCH nativamente, ferramentas legadas — como editores de imagem antigos, templates de e-mail ou renderizadores SVG — ainda exigem valores hexadecimais. Nosso conversor mapeia valores OKLCH para HEX padrão, fornecendo um fallback exato com clamp para cores Display-P3 de gamut amplo.",
+      "howTitle": "Como converter OKLCH para HEX",
+      "step1": "Cole qualquer valor <code class=\"text-ink\">oklch()</code> (ex.: <code class=\"text-ink\">oklch(62.3% 0.188 259.8)</code>) no campo de entrada acima.",
+      "step2": "Nosso motor converte as coordenadas cilíndricas do OKLCH de volta pelo Oklab para RGB linear e depois aplica a codificação de gamma para sRGB.",
+      "step3": "O resultado é um código HEX de 6 dígitos (ou de 8 dígitos com alpha) que você pode copiar ou salvar no seu carrinho.",
+      "mathPath": "<strong class=\"text-ink\">O caminho matemático:</strong> OKLCH → Oklab (cartesiano) → RGB linear (matriz LMS inversa) → sRGB com gamma codificado → HEX. Se a cor ficar fora do sRGB, a chroma é limitada ao valor mais próximo dentro do gamut.",
+      "tableTitle": "Tabela de referência de OKLCH para HEX",
+      "tableBadge": "Calculado em tempo de build",
+      "thSwatch": "Amostra",
+      "thOklchInput": "Valor de entrada OKLCH",
+      "thColorLabel": "Rótulo da cor",
+      "thHexOutput": "HEX calculado",
+      "thGamutStatus": "Status do gamut",
+      "exactMatchBadge": "Correspondência exata",
+      "cssTitle": "CSS pronto para copiar com aprimoramento progressivo",
+      "cssIntro": "Entregue primeiro o fallback HEX e depois sobrescreva com OKLCH para navegadores modernos:",
+      "cssSnippet": ".button-primary {\n  color: #3b82f6; /* fallback */\n  color: {sample}; /* navegadores modernos */\n}",
+      "themeLabel": "<strong class=\"text-ink\">Tailwind CSS v4 @theme:</strong>",
+      "themeSnippet": "@theme {\n  --color-brand-blue: {sample};\n}",
+      "gamutTitle": "Nota sobre o gamut: o que acontece fora do sRGB",
+      "gamutBody": "Como o HEX está fisicamente confinado ao sRGB, cores OKLCH de chroma alta (como cianos vibrantes ou verdes intensos com <code class=\"text-ink\">C &gt; 0.22</code>) não podem ser renderizadas com precisão em HEX. Nossa ferramenta calcula a chroma mais próxima dentro do gamut possível, sem distorcer o ângulo de matiz perceptual, garantindo que suas cores hex de fallback fiquem harmoniosas.",
+      "clampItem": "<strong class=\"text-ink\">Clamping vs. Display-P3:</strong> Em um monitor Display-P3, a cor OKLCH original aparece mais vívida. Em um monitor sRGB, o navegador aplica automaticamente o tone-map. O fallback HEX sempre representa a versão limitada ao sRGB.",
+      "alphaItem": "<strong class=\"text-ink\">Canal alpha:</strong> Um valor OKLCH com alpha (ex.: <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code>) converte para um código HEX de 8 dígitos (ex.: <code class=\"text-ink\">#3b82f680</code>).",
+      "faqTitle": "Perguntas frequentes",
+      "faq1Q": "O que acontece se minha cor OKLCH estiver em Display-P3?",
+      "faq1A": "Se a cor exceder os limites do sRGB, nosso motor avisa você com um selo Display-P3 e fornece automaticamente o código HEX sRGB com clamp ótimo como fallback elegante. A matiz e a luminosidade são preservadas o mais fielmente possível.",
+      "faq2Q": "Como exporto fallbacks HEX em CSS?",
+      "faq2A": "Na nossa página de Exportação, mude para a aba \"HEX Fallback + OKLCH\" para gerar pares de linhas de variáveis, garantindo compatibilidade retroativa total em navegadores legados.",
+      "faq3Q": "A conversão de OKLCH para HEX é com perdas?",
+      "faq3A": "Para cores sRGB, a conversão é sem perdas — você obtém exatamente o mesmo valor HEX de volta. Para cores Display-P3, a conversão para HEX exige clamping para o sRGB, o que é uma etapa com perdas. O OKLCH original permanece como fonte da verdade.",
+      "faq4Q": "Posso converter OKLCH com alpha para HEX de 8 dígitos?",
+      "faq4A": "Sim. Um valor OKLCH como <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code> converte para <code class=\"text-ink\">#3b82f680</code> — os dois últimos dígitos representam o canal alpha em hexadecimal.",
+      "faq5Q": "Por que minha cor HEX parece diferente em telas diferentes?",
+      "faq5A": "Valores HEX são cores sRGB absolutas. Em um monitor Display-P3 wide-gamut, o navegador pode renderizá-las de forma mais vívida do que em um monitor sRGB padrão. Esse é um comportamento esperado — o valor HEX em si não muda.",
+      "learnMoreLink": "Saiba mais sobre OKLCH →"
+    }
+  },
+  "seo": {
+    "hexToOklch": {
+      "faqs": [
+        {
+          "question": "As conversões de HEX para OKLCH são reversíveis sem perdas?",
+          "answer": "Sim. Como o sRGB é um subconjunto matemático do OKLCH, converter um valor HEX em OKLCH e depois voltar para HEX produz exatamente o código hexadecimal de 6 dígitos original. A ida e volta é sem perdas para todas as cores sRGB."
+        },
+        {
+          "question": "Posso colar códigos HEX abreviados de 3 dígitos?",
+          "answer": "Sim! Nosso conversor analisa nativamente códigos abreviados como #fff ou #f00 e os expande corretamente. Cada dígito é duplicado (#f00 → #ff0000) antes da conversão."
+        },
+        {
+          "question": "Qual é a diferença entre OKLCH e HEX?",
+          "answer": "O HEX é uma notação sRGB dependente de dispositivo que mistura os canais vermelho, verde e azul. O OKLCH é um espaço de cores perceptualmente uniforme que separa luminosidade, chroma e matiz — tornando muito mais fácil criar sistemas de cores acessíveis e consistentes."
+        },
+        {
+          "question": "Todos os navegadores modernos suportam CSS oklch()?",
+          "answer": "Sim. oklch() é um recurso do Baseline disponível em todos os navegadores modernos desde maio de 2023. Chrome, Edge, Safari e Firefox o suportam nativamente. Veja a tabela de compatibilidade de navegadores do MDN para detalhes."
+        },
+        {
+          "question": "Como uso OKLCH no Tailwind CSS v4?",
+          "answer": "O Tailwind v4 usa OKLCH em toda a sua paleta padrão. Defina cores personalizadas no seu bloco @theme usando --color-{name}: oklch(...) e o Tailwind gera utilities como bg-{name} automaticamente."
+        }
+      ]
+    },
+    "oklchToHex": {
+      "faqs": [
+        {
+          "question": "O que acontece se minha cor OKLCH estiver em Display-P3?",
+          "answer": "Se a cor exceder os limites do sRGB, nosso motor avisa você com um selo Display-P3 e fornece automaticamente o código HEX sRGB com clamp ótimo como fallback elegante. A matiz e a luminosidade são preservadas o mais fielmente possível."
+        },
+        {
+          "question": "Como exporto fallbacks HEX em CSS?",
+          "answer": "Na nossa página de Exportação, mude para a aba \"HEX Fallback + OKLCH\" para gerar pares de linhas de variáveis, garantindo compatibilidade retroativa total em navegadores legados."
+        },
+        {
+          "question": "A conversão de OKLCH para HEX é com perdas?",
+          "answer": "Para cores sRGB, a conversão é sem perdas — você obtém exatamente o mesmo valor HEX de volta. Para cores Display-P3, a conversão para HEX exige clamping para o sRGB, o que é uma etapa com perdas. O OKLCH original permanece como fonte da verdade."
+        },
+        {
+          "question": "Posso converter OKLCH com alpha para HEX de 8 dígitos?",
+          "answer": "Sim. Um valor OKLCH como oklch(62.3% 0.188 259.8 / 0.5) converte para #3b82f680 — os dois últimos dígitos representam o canal alpha em hexadecimal."
+        },
+        {
+          "question": "Por que minha cor HEX parece diferente em telas diferentes?",
+          "answer": "Valores HEX são cores sRGB absolutas. Em um monitor Display-P3 wide-gamut, o navegador pode renderizá-las de forma mais vívida do que em um monitor sRGB padrão. Esse é um comportamento esperado — o valor HEX em si não muda."
+        }
+      ]
+    }
+  }
+}

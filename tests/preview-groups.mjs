@@ -981,8 +981,8 @@ console.log('\n=== The island resolves every slot once per render ===');
 // cards would redo the whole slot inventory 80-odd times per render — so the
 // island builds both, memoised on the cart, and hands the pair down.
 check('createPaint is memoised on the cart, once per theme',
-  /useMemo\(\(\) => createPaint\(cart, 'dark'\), \[cart\]\)/.test(islandSrc) &&
-    /useMemo\(\(\) => createPaint\(cart, 'light'\), \[cart\]\)/.test(islandSrc),
+  /useMemo\(\(\) => createPaint\(cart, 'dark', locale\), \[cart, locale\]\)/.test(islandSrc) &&
+    /useMemo\(\(\) => createPaint\(cart, 'light', locale\), \[cart, locale\]\)/.test(islandSrc),
   islandSrc.match(/useMemo\(\(\) => createPaint[\s\S]{0,70}/)?.[0]);
 check('the pair the cards read is memoised too',
   /useMemo<PaintPair>/.test(islandSrc));

@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -27,10 +28,10 @@ const seo = localizedSeo('/contact', locale, {
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label={t(locale, 'pages.contact.breadcrumbLabel', 'Breadcrumb')}>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'pages.contact.breadcrumbHome', 'Home')}</a>
       <span>/</span>
-      <span class="text-ink">Contact Us</span>
+      <span class="text-ink">{t(locale, 'pages.contact.breadcrumbContact', 'Contact Us')}</span>
     </nav>
 
     <!-- Header Section -->
@@ -39,73 +40,73 @@ const seo = localizedSeo('/contact', locale, {
         {seo.h1}
       </h1>
       <p class="text-xs md:text-sm font-mono text-body">
-        Have a question, found a bug, or want to suggest a feature? We'd love to hear from you. Reach out using any of the methods below.
+        {t(locale, 'pages.contact.subtitle', 'Have a question, found a bug, or want to suggest a feature? We\'d love to hear from you. Reach out using any of the methods below.')}
       </p>
       <p class="text-xs font-mono text-mute">
-        Last updated: 2026-10-07
+        {t(locale, 'pages.contact.lastUpdated', 'Last updated: 2026-10-07')}
       </p>
     </div>
 
     <!-- 1. Contact Methods -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Get in Touch</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.contact.methodsTitle', 'Get in Touch')}</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <a href="mailto:hello@oklchcolor.com" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">General Inquiries</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.contact.method1Title', 'General Inquiries')}</span>
           <span class="text-xs font-mono text-body">hello@oklchcolor.com</span>
-          <span class="text-[11px] font-mono text-mute block">Questions, feedback, and general communication</span>
+          <span class="text-[11px] font-mono text-mute block">{t(locale, 'pages.contact.method1Desc', 'Questions, feedback, and general communication')}</span>
         </a>
         <a href="mailto:support@oklchcolor.com" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">Support</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.contact.method2Title', 'Support')}</span>
           <span class="text-xs font-mono text-body">support@oklchcolor.com</span>
-          <span class="text-[11px] font-mono text-mute block">Bug reports, technical issues, and troubleshooting</span>
+          <span class="text-[11px] font-mono text-mute block">{t(locale, 'pages.contact.method2Desc', 'Bug reports, technical issues, and troubleshooting')}</span>
         </a>
         <a href="mailto:legal@oklchcolor.com" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">Legal</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.contact.method3Title', 'Legal')}</span>
           <span class="text-xs font-mono text-body">legal@oklchcolor.com</span>
-          <span class="text-[11px] font-mono text-mute block">Privacy concerns, terms questions, and legal matters</span>
+          <span class="text-[11px] font-mono text-mute block">{t(locale, 'pages.contact.method3Desc', 'Privacy concerns, terms questions, and legal matters')}</span>
         </a>
         <a href="mailto:partners@oklchcolor.com" class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">Partnerships</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.contact.method4Title', 'Partnerships')}</span>
           <span class="text-xs font-mono text-body">partners@oklchcolor.com</span>
-          <span class="text-[11px] font-mono text-mute block">Collaboration, sponsorship, and integration inquiries</span>
+          <span class="text-[11px] font-mono text-mute block">{t(locale, 'pages.contact.method4Desc', 'Collaboration, sponsorship, and integration inquiries')}</span>
         </a>
       </div>
     </section>
 
     <!-- 2. What to Include -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">What to Include</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.contact.includeTitle', 'What to Include')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        To help us respond quickly and effectively, please include the following in your message:
+        {t(locale, 'pages.contact.includeIntro', 'To help us respond quickly and effectively, please include the following in your message:')}
       </p>
       <div class="space-y-3">
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-xs font-semibold text-ink block">Bug Reports</span>
+          <span class="text-xs font-semibold text-ink block">{t(locale, 'pages.contact.bugTitle', 'Bug Reports')}</span>
           <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
-            <li>What you were trying to do</li>
-            <li>What happened instead</li>
-            <li>Your browser and operating system</li>
-            <li>The color values or inputs you were working with</li>
-            <li>Screenshots, if applicable</li>
+            <li>{t(locale, 'pages.contact.bug1', 'What you were trying to do')}</li>
+            <li>{t(locale, 'pages.contact.bug2', 'What happened instead')}</li>
+            <li>{t(locale, 'pages.contact.bug3', 'Your browser and operating system')}</li>
+            <li>{t(locale, 'pages.contact.bug4', 'The color values or inputs you were working with')}</li>
+            <li>{t(locale, 'pages.contact.bug5', 'Screenshots, if applicable')}</li>
           </ul>
         </div>
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-xs font-semibold text-ink block">Feature Requests</span>
+          <span class="text-xs font-semibold text-ink block">{t(locale, 'pages.contact.featureTitle', 'Feature Requests')}</span>
           <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
-            <li>The problem you're trying to solve</li>
-            <li>Your proposed solution or idea</li>
-            <li>How it would improve your workflow</li>
-            <li>Any existing workarounds you're using</li>
+            <li>{t(locale, 'pages.contact.feature1', 'The problem you\'re trying to solve')}</li>
+            <li>{t(locale, 'pages.contact.feature2', 'Your proposed solution or idea')}</li>
+            <li>{t(locale, 'pages.contact.feature3', 'How it would improve your workflow')}</li>
+            <li>{t(locale, 'pages.contact.feature4', 'Any existing workarounds you\'re using')}</li>
           </ul>
         </div>
         <div class="bg-canvas-raised border border-hairline p-3 rounded-lg space-y-1">
-          <span class="text-xs font-semibold text-ink block">General Feedback</span>
+          <span class="text-xs font-semibold text-ink block">{t(locale, 'pages.contact.feedbackTitle', 'General Feedback')}</span>
           <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
-            <li>What you like about the tools</li>
-            <li>What could be improved</li>
-            <li>Any confusion or friction you encountered</li>
-            <li>Suggestions for new features or content</li>
+            <li>{t(locale, 'pages.contact.feedback1', 'What you like about the tools')}</li>
+            <li>{t(locale, 'pages.contact.feedback2', 'What could be improved')}</li>
+            <li>{t(locale, 'pages.contact.feedback3', 'Any confusion or friction you encountered')}</li>
+            <li>{t(locale, 'pages.contact.feedback4', 'Suggestions for new features or content')}</li>
           </ul>
         </div>
       </div>
@@ -113,84 +114,80 @@ const seo = localizedSeo('/contact', locale, {
 
     <!-- 3. Response Times -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Response Times</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.contact.responseTitle', 'Response Times')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        We're a small team, but we do our best to respond to every message:
+        {t(locale, 'pages.contact.responseIntro', 'We\'re a small team, but we do our best to respond to every message:')}
       </p>
       <div class="space-y-2 text-xs font-mono text-body">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-copy-success inline-block"></span>
-          <span><strong class="text-ink">Bug reports:</strong> Within 48 hours</span>
+          <span set:html={t(locale, 'pages.contact.response1', '<strong class="text-ink">Bug reports:</strong> Within 48 hours')} />
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-gamut-p3 inline-block"></span>
-          <span><strong class="text-ink">General inquiries:</strong> Within 3 business days</span>
+          <span set:html={t(locale, 'pages.contact.response2', '<strong class="text-ink">General inquiries:</strong> Within 3 business days')} />
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-gamut-warning inline-block"></span>
-          <span><strong class="text-ink">Feature requests:</strong> We review these weekly and respond if we need clarification</span>
+          <span set:html={t(locale, 'pages.contact.response3', '<strong class="text-ink">Feature requests:</strong> We review these weekly and respond if we need clarification')} />
         </div>
       </div>
       <p class="text-xs md:text-sm font-mono text-body">
-        Please note that response times may vary depending on volume. We appreciate your patience.
+        {t(locale, 'pages.contact.responseNote', 'Please note that response times may vary depending on volume. We appreciate your patience.')}
       </p>
     </section>
 
     <!-- 4. Common Questions -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Common Questions</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.contact.faqTitle', 'Common Questions')}</h2>
       <div class="space-y-3 font-mono text-xs">
         <div class="bg-canvas-raised border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Is the Service really free?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.contact.faq1Question', 'Is the Service really free?')}</h3>
           <p class="text-body leading-relaxed">
-            Yes! All of our tools are completely free to use, with no accounts, no paywalls, and no usage limits. We believe good tools should be accessible to everyone.
+            {t(locale, 'pages.contact.faq1Answer', 'Yes! All of our tools are completely free to use, with no accounts, no paywalls, and no usage limits. We believe good tools should be accessible to everyone.')}
           </p>
         </div>
         <div class="bg-canvas-raised border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Can I use the exported colors in commercial projects?</h3>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.contact.faq2Question', 'Can I use the exported colors in commercial projects?')}</h3>
           <p class="text-body leading-relaxed">
-            Absolutely. The color values, palettes, and design tokens you create are yours to use in any project — personal or commercial, with no attribution required.
+            {t(locale, 'pages.contact.faq2Answer', 'Absolutely. The color values, palettes, and design tokens you create are yours to use in any project — personal or commercial, with no attribution required.')}
           </p>
         </div>
         <div class="bg-canvas-raised border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Do you offer custom tool development?</h3>
-          <p class="text-body leading-relaxed">
-            We're a small team focused on maintaining and improving our existing tools. For custom development inquiries, please email <a href="mailto:partners@oklchcolor.com" class="text-accent-text hover:underline">partners@oklchcolor.com</a> and we'll see how we can help.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.contact.faq3Question', 'Do you offer custom tool development?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.contact.faq3Answer', 'We\'re a small team focused on maintaining and improving our existing tools. For custom development inquiries, please email <a href="mailto:partners@oklchcolor.com" class="text-accent-text hover:underline">partners@oklchcolor.com</a> and we\'ll see how we can help.')} />
         </div>
         <div class="bg-canvas-raised border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">How do I report a security issue?</h3>
-          <p class="text-body leading-relaxed">
-            Please email <a href="mailto:security@oklchcolor.com" class="text-accent-text hover:underline">security@oklchcolor.com</a> with details. We take security seriously and will respond as quickly as possible.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.contact.faq4Question', 'How do I report a security issue?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.contact.faq4Answer', 'Please email <a href="mailto:security@oklchcolor.com" class="text-accent-text hover:underline">security@oklchcolor.com</a> with details. We take security seriously and will respond as quickly as possible.')} />
         </div>
       </div>
     </section>
 
     <!-- 5. Community -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Community</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.contact.communityTitle', 'Community')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH Color Tools is an open source project. If you're interested in contributing, reporting bugs, or discussing color science:
+        {t(locale, 'pages.contact.communityIntro', 'OKLCH Color Tools is an open source project. If you\'re interested in contributing, reporting bugs, or discussing color science:')}
       </p>
       <ul class="space-y-1.5 text-xs font-mono text-body list-disc list-inside">
-        <li>Check out our open source code and contribute on GitHub</li>
-        <li>Report bugs or request features through our issue tracker</li>
-        <li>Share your OKLCH color systems and palettes with the community</li>
-        <li>Write about your experience using OKLCH in your projects</li>
+        <li>{t(locale, 'pages.contact.community1', 'Check out our open source code and contribute on GitHub')}</li>
+        <li>{t(locale, 'pages.contact.community2', 'Report bugs or request features through our issue tracker')}</li>
+        <li>{t(locale, 'pages.contact.community3', 'Share your OKLCH color systems and palettes with the community')}</li>
+        <li>{t(locale, 'pages.contact.community4', 'Write about your experience using OKLCH in your projects')}</li>
       </ul>
       <p class="text-xs md:text-sm font-mono text-body">
-        We're always looking for ways to improve the Service and make color tools more accessible to everyone.
+        {t(locale, 'pages.contact.communityBody', 'We\'re always looking for ways to improve the Service and make color tools more accessible to everyone.')}
       </p>
     </section>
 
     <!-- Internal Links -->
     <section class="space-y-3 pt-6 border-t border-hairline">
-      <h2 class="text-sm font-semibold text-ink">Related Pages</h2>
+      <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.contact.relatedTitle', 'Related Pages')}</h2>
       <div class="flex flex-wrap gap-2">
-        <a href={buildLocalizedPath('/privacy', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Privacy Policy</a>
-        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">About Us</a>
-        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">Terms & Conditions</a>
+        <a href={buildLocalizedPath('/privacy', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.contact.linkPrivacy', 'Privacy Policy')}</a>
+        <a href={buildLocalizedPath('/about', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.contact.linkAbout', 'About Us')}</a>
+        <a href={buildLocalizedPath('/terms', locale)} class="text-xs font-mono text-body hover:text-ink bg-canvas-card border border-hairline rounded-lg px-3 py-1.5 transition-colors">{t(locale, 'pages.contact.linkTerms', 'Terms & Conditions')}</a>
       </div>
     </section>
   </div>

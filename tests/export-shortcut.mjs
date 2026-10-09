@@ -100,7 +100,7 @@ check('it uses text-xs, matching the panel\'s other action buttons',
 // Half-width was forced by a redundant label that the panel header already covers.
 check('the redundant "Token Roles" label is gone',
   !sidebar.includes('Token Roles'));
-check('the link is full width', /href="\/export"[\s\S]{0,900}?\bw-full\b/.test(sidebar));
+check('the link is full width', /href="\/export"[\s\S]{0,2500}?\bw-full\b/.test(sidebar));
 // The quiet-control palette is the same one the icon buttons use, which is
 // precisely why the button blended in.
 check('it is accent-tinted rather than the quiet-control palette',
@@ -126,7 +126,7 @@ if (panelBg) {
 check('it shows the token count while enabled',
   /\{canExport && <span class="text-\[#60a5fa\]\">\{filledShadesCount\} tokens<\/span>\}/.test(sidebar));
 check('it is still text-xs, not demoted back to a caption size', // regression net
-  /<span>Export & Code<\/span>/.test(sidebar));
+  /<span>\{t\(locale, 'ui\.preview\.sidebar\.exportCode', 'Export & Code'\)\}<\/span>/.test(sidebar));
 
 console.log('\n=== It is a real anchor, so cmd-click and open-in-new-tab work ===');
 check('it uses <a href="/export"> rather than a button + router call',
@@ -148,7 +148,7 @@ check('it suppresses the click while inert',
   /if \(!canExport\) e\.preventDefault\(\);/.test(sidebar));
 check('the two states have different tooltips',
   /Add at least one color before exporting/.test(sidebar) &&
-  /Open Export & Code to copy or download \$\{filledShadesCount\} CSS variable/.test(sidebar));
+  /Open Export & Code to copy or download \{count\} \{variables\}/.test(sidebar));
 // A disabled link that still reports as a link is a lie to assistive tech
 // unless the visible label carries the reason, which the tooltip alone does not.
 check('the inert state is visually distinct',
@@ -193,7 +193,7 @@ check('it mounts the exporter island',
 console.log('\n=== The shortcut is visibly the same destination as the nav item ===');
 check('navigation labels /export as "Export & Code"',
   /id: 'export'[\s\S]{0,200}defaultLabel: 'Export & Code'/.test(navigation));
-check('the button uses that same label', /<span>Export & Code<\/span>/.test(sidebar));
+check('the button uses that same label', /<span>\{t\(locale, 'ui\.preview\.sidebar\.exportCode', 'Export & Code'\)\}<\/span>/.test(sidebar));
 check('the nav points it at the same path', /id: 'export'[\s\S]{0,300}path: '\/export'/.test(navigation));
 
 // Reusing the nav's own Code2 icon paths is the cheapest way to signal "same

@@ -71,6 +71,6 @@ const homeHref = buildLocalizedPath('/', locale);
   <div class="flex items-center gap-1.5">
     {showLanguageSwitcher && <LanguageSwitcher locale={locale} currentPath={currentPath} />}
     <ThemeToggle />
-    <CartTriggerButton client:load transition:persist />
+    <CartTriggerButton client:load transition:persist locale={locale} />
   </div>
 </header>

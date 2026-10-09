@@ -1,0 +1,47 @@
+{
+  "ui": {
+    "picker": {
+      "copied": "{label} copied",
+      "editing": "Editing",
+      "creating": "Creating",
+      "colourSentFrom": "colour sent from {source}",
+      "thisPage": "this page",
+      "back": "Back",
+      "cancelEdit": "Cancel edit",
+      "useColour": "Use colour",
+      "saveAndReturn": "Save & return",
+      "save": "Save",
+      "gamutClipped": "Clipped",
+      "gamutFaqHint": "What does this label mean?",
+      "step": "step {step}",
+      "randomise": "Randomise",
+      "randomiseColour": "Randomise colour",
+      "copyOklch": "Copy oklch()",
+      "copyOklchValue": "Copy oklch value",
+      "lightness": "Lightness",
+      "chroma": "Chroma",
+      "hue": "Hue",
+      "alpha": "Alpha",
+      "maxNote": "max {value}",
+      "valueOf": "{label} value",
+      "copyLabel": "Copy {label}",
+      "copyLabelValue": "Copy {label} value",
+      "variable": "Variable",
+      "variableNameAria": "Custom color variable name",
+      "openTokenDrawer": "Open the token drawer",
+      "tokens": "Tokens",
+      "cart": "Cart",
+      "useColourOn": "Use this colour back on {source}",
+      "pageYouCameFrom": "the page you came from",
+      "writeTo": "Write to {variable}",
+      "saveAs": "Save as {variable}",
+      "addStep": "Add {name}"
+    },
+    "variableName": {
+      "suggestions": "Suggestions",
+      "suggestionsFor": "{label} suggestions",
+      "noVariables": "No variables saved yet — press Enter to use this name",
+      "noMatch": "No match — press Enter to use \"{value}\""
+    }
+  }
+}

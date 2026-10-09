@@ -96,13 +96,13 @@ check('exactly one swatch reports itself as expanded',
 /* ═══════════════ 2. Both destinations are one click away ═══════════════ */
 
 console.log('\n=== The menu offers copy and save as separate choices ===');
-check('the OKLCH value is copyable', /item\('Copy OKLCH', value, Copy/.test(menu));
-check('the hex is copyable', /item\('Copy hex', hex, Copy/.test(menu));
-check('the variable is saveable', /item\('Save to variable', variable, Plus/.test(menu));
-check('both at once is still one click', /item\('Copy and save'/.test(menu));
+check('the OKLCH value is copyable', /item\(t\(locale, 'ui\.swatchMenu\.copyOklch', 'Copy OKLCH'\), value, Copy/.test(menu));
+check('the hex is copyable', /item\(t\(locale, 'ui\.swatchMenu\.copyHex', 'Copy hex'\), hex, Copy/.test(menu));
+check('the variable is saveable', /item\(\s*t\(locale, 'ui\.swatchMenu\.saveToVariable', 'Save to variable'\),\s*variable,\s*Plus/.test(menu));
+check('both at once is still one click', /t\(locale, 'ui\.swatchMenu\.copyAndSave', 'Copy and save'\)/.test(menu));
 check('the destination is named, not described',
   /const variable = `--color-\$\{targetSlug\}-\$\{destination\}`/.test(menu));
-check('every row shows the value it acts on', (menu.match(/item\('[^']+', [a-z`]/g) || []).length === 5);
+check('every row shows the value it acts on', (menu.match(/\bitem\(/g) || []).length === 5);
 
 console.log('\n=== The third destination: collecting a swatch into the palette ===');
 // The scale and the custom palette below it are built the same way, so filing a
@@ -110,11 +110,11 @@ console.log('\n=== The third destination: collecting a swatch into the palette =
 // slot is one step of a generated ramp and needs a role, while a palette row is a
 // standalone variable the user picked. Collecting has to be its own action.
 check('the menu can add the swatch to the custom palette',
-  /item\('Add to custom palette'/.test(menu));
+  /item\(\s*t\(locale, 'ui\.swatchMenu\.addToPalette', 'Add to custom palette'\)/.test(menu));
 check('the action is optional, because not every page has a palette panel',
   /onAddToPalette\?: \(\) => void/.test(menu) && /\{onAddToPalette && \(/.test(menu));
 check('it is the only action that runs without a value of its own',
-  /\{item\('Add to custom palette', `\$\{value\} → new row`, Palette, onAddToPalette\)\}/.test(menu));
+  /\{item\(\s*t\(locale, 'ui\.swatchMenu\.addToPalette', 'Add to custom palette'\),\s*t\(locale, 'ui\.swatchMenu\.newRowDetail', '\{value\} → new row'\)\.replace\('\{value\}', value\),\s*Palette,\s*onAddToPalette\s*\)\}/.test(menu));
 check('the island supplies the handler', /onAddToPalette=\{addToPalette\}/.test(island));
 check('it is a store write, not a clipboard one',
   /addPaletteSlotWithColor\(color\)/.test(island));
@@ -124,7 +124,7 @@ check('it is a store write, not a clipboard one',
 check('it says where the colour went',
   /added to the custom palette/.test(island));
 check('it is undoable, and the undo removes the row it added',
-  /label: 'Undo',[\s\S]*removePaletteSlot\(slotId\)/.test(island));
+  /label: t\(locale, 'ui\.generator\.undo', 'Undo'\),[\s\S]*removePaletteSlot\(slotId\)/.test(island));
 check('the new row is left needing a name, so the caret goes there',
   /setPendingFocusId\(slotId\)/.test(island) &&
     /focusSlot=\{pendingFocusId\}/.test(island) &&

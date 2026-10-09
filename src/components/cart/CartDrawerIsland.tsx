@@ -34,6 +34,12 @@ import {
   Trash2,
   X,
 } from 'lucide-preact';
+import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
+
+interface Props {
+  locale?: LocaleCode;
+}
 
 /**
  * The mobile / wide-screen modal cart.
@@ -61,7 +67,7 @@ import {
  * has a way into the picker from every step of the scale and not just the base.
  */
 
-export default function CartDrawerIsland() {
+export default function CartDrawerIsland({ locale = 'en' }: Props) {
   const cart = useCart();
   // Pinned to the server's value (closed) for the first render — see
   // `useHydratedStore`. `isCartOpenStore` is a module singleton, so opening the
@@ -129,6 +135,11 @@ export default function CartDrawerIsland() {
   // note on the wrapper at the bottom of this component.
 
   const activeRole = cart.roles[cart.activeRoleId] || Object.values(cart.roles)[0];
+  // Localized display name for the active role: seeded roles resolve through
+  // `ui.roles.*`, user-created roles keep the name they were given.
+  const activeRoleLabel = activeRole
+    ? t(locale, 'ui.roles.' + activeRole.id, activeRole.name)
+    : '';
   const filledShadesCount = activeRole ? Object.keys(activeRole.shades).length : 0;
   const totalTokens = Object.values(cart.roles).reduce((sum, r) => sum + Object.keys(r.shades).length, 0);
 
@@ -159,7 +170,7 @@ export default function CartDrawerIsland() {
     const returnTo = window.location.pathname;
     isCartOpenStore.set(false);
     savePickerHandoff({ roleId, step, color, returnTo, reopenCart: true });
-    goTo('/');
+    goTo(buildLocalizedPath('/', locale));
   };
 
   // The root element is rendered unconditionally, closed or not.
@@ -192,17 +203,24 @@ export default function CartDrawerIsland() {
             class="relative z-10 w-full md:max-w-2xl max-h-[85vh] md:max-h-[80vh] bg-canvas-sunken border border-hairline rounded-t-lg md:rounded-lg flex flex-col overflow-hidden animate-dock-in"
             role="dialog"
             aria-modal="true"
-            aria-label="Design Token Cart"
+            aria-label={t(locale, 'ui.cart.dialogLabel', 'Design Token Cart')}
           >
             {/* Header */}
             <div class="px-4 py-3 border-b border-hairline flex items-center justify-between gap-3">
-              <h2 class="text-title text-ink">Design Tokens</h2>
+              <h2 class="text-title text-ink">
+                {t(locale, 'ui.cart.title', 'Design Tokens')}
+              </h2>
               <div class="flex items-center gap-2">
-                <span class="pill">{totalTokens} tokens</span>
+                <span class="pill">
+                  {t(locale, 'ui.cart.tokenCount', '{count} tokens').replace(
+                    '{count}',
+                    String(totalTokens)
+                  )}
+                </span>
                 <button
                   onClick={() => isCartOpenStore.set(false)}
                   class="icon-btn"
-                  aria-label="Close cart"
+                  aria-label={t(locale, 'ui.cart.closeCart', 'Close cart')}
                 >
                   <X class="w-4 h-4" strokeWidth={1.75} aria-hidden="true" />
                 </button>
@@ -222,7 +240,9 @@ export default function CartDrawerIsland() {
              * user is looking at becomes the row that answers it.
              */}
             <div class="px-4 py-3 border-b border-hairline-subtle bg-canvas">
-              <div class="eyebrow mb-2">Roles</div>
+              <div class="eyebrow mb-2">
+                {t(locale, 'ui.cart.rolesLabel', 'Roles')}
+              </div>
 
               {isCreatingRole ? (
                 <div class="flex items-center gap-1.5 mb-2.5">
@@ -231,7 +251,7 @@ export default function CartDrawerIsland() {
                     type="text"
                     name="role"
                     value={newRoleInput}
-                    aria-label="New role name"
+                    aria-label={t(locale, 'ui.cart.newRoleNameLabel', 'New role name')}
                     onInput={(e) => setNewRoleInput((e.target as HTMLInputElement).value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && newRoleInput.trim()) {
@@ -258,7 +278,7 @@ export default function CartDrawerIsland() {
                     }}
                     class="btn btn-quiet btn-lg"
                   >
-                    Create
+                    {t(locale, 'ui.cart.create', 'Create')}
                   </button>
                 </div>
               ) : (
@@ -268,7 +288,7 @@ export default function CartDrawerIsland() {
                   aria-expanded={isCreatingRole}
                 >
                   <Plus class="w-4 h-4 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                  <span>New role</span>
+                  <span>{t(locale, 'ui.cart.newRole', 'New role')}</span>
                 </button>
               )}
 
@@ -282,7 +302,7 @@ export default function CartDrawerIsland() {
                       aria-pressed={role.id === cart.activeRoleId}
                       class={`chip ${role.id === cart.activeRoleId ? '' : 'text-body'}`}
                     >
-                      <span>{role.name}</span>
+                      <span>{t(locale, 'ui.roles.' + role.id, role.name)}</span>
                       {count > 0 && (
                         <span
                           class={`font-mono text-micro ${
@@ -310,7 +330,11 @@ export default function CartDrawerIsland() {
                           type="text"
                           name="role"
                           value={roleInputName}
-                          aria-label={`Rename ${activeRole.name}`}
+                          aria-label={t(
+                            locale,
+                            'ui.cart.renameRoleInputAria',
+                            'Rename {name}'
+                          ).replace('{name}', activeRoleLabel)}
                           onInput={(e) => setRoleInputName((e.target as HTMLInputElement).value)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
@@ -332,20 +356,24 @@ export default function CartDrawerIsland() {
                           }}
                           class="btn btn-quiet h-8"
                         >
-                          Save
+                          {t(locale, 'ui.cart.save', 'Save')}
                         </button>
                       </div>
                     ) : (
                       <div class="flex items-center gap-2 min-w-0">
-                        <span class="text-card text-ink truncate">{activeRole.name}</span>
+                        <span class="text-card text-ink truncate">{activeRoleLabel}</span>
                         <button
                           onClick={() => {
                             setRoleInputName(activeRole.name);
                             setEditingRoleId(activeRole.id);
                           }}
                           class="icon-btn icon-btn-sm"
-                          title="Rename role"
-                          aria-label={`Rename role ${activeRole.name}`}
+                          title={t(locale, 'ui.cart.renameRole', 'Rename role')}
+                          aria-label={t(
+                            locale,
+                            'ui.cart.renameRoleButtonAria',
+                            'Rename role {name}'
+                          ).replace('{name}', activeRoleLabel)}
                         >
                           <Pencil class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
                         </button>
@@ -356,9 +384,13 @@ export default function CartDrawerIsland() {
                       <button
                         onClick={() => deleteRole(activeRole.id)}
                         class="link-hud text-danger-ink"
-                        title={`Delete role ${activeRole.name}`}
+                        title={t(
+                          locale,
+                          'ui.cart.deleteRoleTitle',
+                          'Delete role {name}'
+                        ).replace('{name}', activeRoleLabel)}
                       >
-                        Delete role
+                        {t(locale, 'ui.cart.deleteRole', 'Delete role')}
                       </button>
                     )}
                   </div>
@@ -366,7 +398,9 @@ export default function CartDrawerIsland() {
                   <div class="mt-1.5 font-mono text-micro text-mute">
                     --color-{activeRole.id}-*
                     <span class="mx-1.5 text-faint">·</span>
-                    {filledShadesCount}/{SHADE_STEPS.length} filled
+                    {t(locale, 'ui.cart.filled', '{filled}/{total} filled')
+                      .replace('{filled}', String(filledShadesCount))
+                      .replace('{total}', String(SHADE_STEPS.length))}
                   </div>
 
                   {/* Generate / Clear Full Scale */}
@@ -374,15 +408,18 @@ export default function CartDrawerIsland() {
                     {confirmingClearScale ? (
                       <div class="rounded-md border border-hairline bg-canvas-sunken p-2.5 space-y-2">
                         <p class="font-mono text-micro text-body leading-tight">
-                          Delete {filledShadesCount} color{filledShadesCount === 1 ? '' : 's'} from{' '}
-                          <span class="text-ink">{activeRole.name}</span>?
+                          {t(locale, 'ui.cart.deleteScaleConfirmPrefix', 'Delete {count} color{s} from')
+                            .replace('{count}', String(filledShadesCount))
+                            .replace('{s}', filledShadesCount === 1 ? '' : 's')}{' '}
+                          <span class="text-ink">{activeRoleLabel}</span>
+                          {t(locale, 'ui.cart.deleteScaleConfirmSuffix', '?')}
                         </p>
                         <div class="grid grid-cols-2 gap-1.5">
                           <button
                             onClick={() => setConfirmingClearScale(false)}
                             class="btn btn-quiet h-8"
                           >
-                            Cancel
+                            {t(locale, 'ui.cart.cancel', 'Cancel')}
                           </button>
                           <button
                             onClick={() => {
@@ -391,7 +428,7 @@ export default function CartDrawerIsland() {
                             }}
                             class="btn btn-danger h-8"
                           >
-                            Delete scale
+                            {t(locale, 'ui.cart.deleteScale', 'Delete scale')}
                           </button>
                         </div>
                       </div>
@@ -401,19 +438,21 @@ export default function CartDrawerIsland() {
                           onClick={() => generateFullScaleForRole(activeRole.id)}
                           disabled={filledShadesCount === 0}
                           class="btn btn-quiet h-8"
-                          title="Generate the full 50–950 scale from the base color"
+                          title={t(locale, 'ui.cart.generateScaleTitle', 'Generate the full 50–950 scale from the base color')}
                         >
                           <Sparkles class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                          <span class="truncate">Generate scale</span>
+                          <span class="truncate">{t(locale, 'ui.cart.generateScale', 'Generate scale')}</span>
                         </button>
                         <button
                           onClick={() => setConfirmingClearScale(true)}
                           disabled={filledShadesCount === 0}
                           class="btn btn-quiet h-8"
-                          title={`Delete all ${filledShadesCount} colors of ${activeRole.name}`}
+                          title={t(locale, 'ui.cart.deleteScaleTitle', 'Delete all {count} colors of {role}')
+                            .replace('{count}', String(filledShadesCount))
+                            .replace('{role}', activeRoleLabel)}
                         >
                           <Trash2 class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                          <span class="truncate">Delete scale</span>
+                          <span class="truncate">{t(locale, 'ui.cart.deleteScale', 'Delete scale')}</span>
                         </button>
                       </div>
                     )}
@@ -447,8 +486,10 @@ export default function CartDrawerIsland() {
                           key={step}
                           type="button"
                           onClick={() => openPicker(activeRole.id, step, null)}
-                          title={`Author --color-${activeRole.id}-${step} in the color picker`}
-                          aria-label={`Author --color-${activeRole.id}-${step}`}
+                          title={t(locale, 'ui.cart.authorSlotTitle', 'Author {variable} in the color picker')
+                            .replace('{variable}', `--color-${activeRole.id}-${step}`)}
+                          aria-label={t(locale, 'ui.cart.authorSlotAria', 'Author {variable}')
+                            .replace('{variable}', `--color-${activeRole.id}-${step}`)}
                           class="group flex flex-col rounded-lg border border-dashed border-hairline bg-canvas-card/40 hover:border-border-focus transition-colors duration-150"
                         >
                           <span class="h-14 w-full flex items-center justify-center">
@@ -488,8 +529,10 @@ export default function CartDrawerIsland() {
                             <button
                               type="button"
                               class="absolute inset-0 z-0 cursor-pointer"
-                              aria-label={`Edit --color-${activeRole.id}-${step} in the color picker`}
-                              title={`${oklchCss} · click to edit, right-click to remove`}
+                              aria-label={t(locale, 'ui.cart.editSlotPickerAria', 'Edit {variable} in the color picker')
+                                .replace('{variable}', `--color-${activeRole.id}-${step}`)}
+                              title={t(locale, 'ui.cart.swatchTitle', '{value} · click to edit, right-click to remove')
+                                .replace('{value}', oklchCss)}
                               onClick={() => openPicker(activeRole.id, step, token.color)}
                               onContextMenu={(e) => {
                                 e.preventDefault();
@@ -501,7 +544,7 @@ export default function CartDrawerIsland() {
                           {token.color.inP3 && !token.color.inSRGB && (
                             <span
                               class="absolute top-1 right-1 font-mono text-[9px] leading-none px-1 py-0.5 rounded bg-badge-surface text-gamut-p3"
-                              title="Inside Display-P3, outside sRGB — browsers will clamp it"
+                              title={t(locale, 'ui.cart.p3Title', 'Inside Display-P3, outside sRGB — browsers will clamp it')}
                             >
                               P3
                             </span>
@@ -513,7 +556,8 @@ export default function CartDrawerIsland() {
                                 type="text"
                                 name="value"
                                 value={editor.value}
-                                aria-label={`Value of --color-${activeRole.id}-${step}`}
+                                aria-label={t(locale, 'ui.cart.valueAria', 'Value of {variable}')
+                                  .replace('{variable}', `--color-${activeRole.id}-${step}`)}
                                 onInput={(e) =>
                                   editor.changeValue(activeRole.id, step, (e.target as HTMLInputElement).value)
                                 }
@@ -553,7 +597,9 @@ export default function CartDrawerIsland() {
                                 onChange={(e) =>
                                   editor.changeAxis(activeRole.id, step, axis, (e.target as HTMLInputElement).value)
                                 }
-                                aria-label={`${axis.toUpperCase()} of --color-${activeRole.id}-${step}`}
+                                aria-label={t(locale, 'ui.cart.axisAria', '{axis} of {variable}')
+                                  .replace('{axis}', axis.toUpperCase())
+                                  .replace('{variable}', `--color-${activeRole.id}-${step}`)}
                                 class="w-full min-w-0 px-1.5 py-1 rounded bg-canvas-raised border border-hairline font-mono text-micro text-ink focus:outline-none focus:border-border-focus [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                               />
                             ))}
@@ -566,12 +612,14 @@ export default function CartDrawerIsland() {
                                 onClick={() => {
                                   if (oklchCss) {
                                     navigator.clipboard.writeText(oklchCss);
-                                    showToast(`Copied ${oklchCss}`);
+                                    showToast(
+                                      t(locale, 'ui.cart.copied', 'Copied {value}').replace('{value}', oklchCss)
+                                    );
                                   }
                                 }}
                                 class="icon-btn icon-btn-xs"
-                                title={`Copy ${oklchCss}`}
-                                aria-label={`Copy ${step} value`}
+                                title={t(locale, 'ui.cart.copyTitle', 'Copy {value}').replace('{value}', oklchCss)}
+                                aria-label={t(locale, 'ui.cart.copyStepAria', 'Copy {step} value').replace('{step}', String(step))}
                               >
                                 <Copy class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                               </button>
@@ -584,16 +632,16 @@ export default function CartDrawerIsland() {
                               <button
                                 onClick={() => openPicker(activeRole.id, step, token.color)}
                                 class="icon-btn icon-btn-xs"
-                                title={`Edit ${oklchCss} in the color picker`}
-                                aria-label={`Edit ${step} in the color picker`}
+                                title={t(locale, 'ui.cart.editInPickerTitle', 'Edit {value} in the color picker').replace('{value}', oklchCss)}
+                                aria-label={t(locale, 'ui.cart.editInPickerAria', 'Edit {step} in the color picker').replace('{step}', String(step))}
                               >
                                 <Paintbrush class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                               </button>
                               <button
                                 onClick={() => editor.beginEdit(activeRole.id, step, oklchCss)}
                                 class="icon-btn icon-btn-xs"
-                                title={`Edit ${oklchCss} in place`}
-                                aria-label={`Edit ${step} in place`}
+                                title={t(locale, 'ui.cart.editInPlaceTitle', 'Edit {value} in place').replace('{value}', oklchCss)}
+                                aria-label={t(locale, 'ui.cart.editInPlaceAria', 'Edit {step} in place').replace('{step}', String(step))}
                               >
                                 <Pencil class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                               </button>
@@ -607,8 +655,8 @@ export default function CartDrawerIsland() {
                               <button
                                 onClick={() => removeShadeWithUndo(activeRole.id, step)}
                                 class="icon-btn icon-btn-xs"
-                                title="Remove shade (undoable)"
-                                aria-label={`Remove ${step}`}
+                                title={t(locale, 'ui.cart.removeShadeTitle', 'Remove shade (undoable)')}
+                                aria-label={t(locale, 'ui.cart.removeShadeAria', 'Remove {step}').replace('{step}', String(step))}
                               >
                                 <Trash2 class="w-3 h-3" strokeWidth={1.75} aria-hidden="true" />
                               </button>
@@ -630,11 +678,11 @@ export default function CartDrawerIsland() {
                 {filledShadesCount === 0 && (
                   <button
                     onClick={() => openPicker(activeRole.id, BASE_SHADE_STEP, null)}
-                    title={`Author the base shade (${BASE_SHADE_STEP}) in the color picker`}
+                    title={t(locale, 'ui.cart.authorBaseTitle', 'Author the base shade ({step}) in the color picker').replace('{step}', String(BASE_SHADE_STEP))}
                     class="btn btn-quiet w-full h-8"
                   >
                     <Plus class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                    <span>Add color</span>
+                    <span>{t(locale, 'ui.cart.addColor', 'Add color')}</span>
                   </button>
                 )}
               </div>
@@ -643,19 +691,19 @@ export default function CartDrawerIsland() {
             {/* Footer CTAs */}
             <div class="px-4 py-3 border-t border-hairline grid grid-cols-2 gap-2">
               <a
-                href="/ui-preview"
+                href={buildLocalizedPath('/ui-preview', locale)}
                 onClick={() => isCartOpenStore.set(false)}
                 class="btn btn-quiet"
               >
                 <LayoutTemplate class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                <span>Live Preview</span>
+                <span>{t(locale, 'ui.cart.livePreview', 'Live Preview')}</span>
               </a>
               <a
-                href="/export"
+                href={buildLocalizedPath('/export', locale)}
                 onClick={() => isCartOpenStore.set(false)}
                 class="btn btn-primary"
               >
-                <span>Export Code</span>
+                <span>{t(locale, 'ui.cart.exportCode', 'Export Code')}</span>
                 <ArrowRight class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
               </a>
             </div>

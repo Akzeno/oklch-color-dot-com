@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'preact/hooks';
 import { isCartOpenStore, getCartTotalCount } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
+
+interface Props {
+  locale?: LocaleCode;
+}
 
 /**
  * Opens the token drawer.
@@ -43,7 +49,7 @@ import { useCart } from '../../hooks/useCart';
  * clears 4.5:1 against white at small sizes). A lighter red would pop harder
  * but would fail the numeral, and the numeral is content, not trim.
  */
-export default function CartTriggerButton() {
+export default function CartTriggerButton({ locale = 'en' }: Props) {
   const cart = useCart();
   const totalCount = getCartTotalCount(cart);
   const hasColors = totalCount > 0;
@@ -74,7 +80,9 @@ export default function CartTriggerButton() {
     <button
       onClick={() => isCartOpenStore.set(true)}
       class="group flex items-center gap-2 h-9 pl-3 pr-3 rounded-full border border-hairline bg-canvas-card hover:border-border-focus transition-colors duration-150"
-      aria-label={`Open design token cart, ${totalCount} token${totalCount === 1 ? '' : 's'}`}
+      aria-label={t(locale, 'ui.cart.openCartAria', 'Open design token cart, {count} token{s}')
+        .replace('{count}', String(totalCount))
+        .replace('{s}', totalCount === 1 ? '' : 's')}
       id="cart-trigger-btn"
     >
       {/* The icon is the badge's anchor: the dot pins to its top-right corner,
@@ -105,7 +113,7 @@ export default function CartTriggerButton() {
         )}
       </span>
       <span class="hidden sm:inline font-mono text-label text-body group-hover:text-ink transition-colors">
-        Tokens
+        {t(locale, 'ui.cart.triggerLabel', 'Tokens')}
       </span>
     </button>
   );

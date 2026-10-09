@@ -3,6 +3,8 @@ import { useState } from 'preact/hooks';
 import { Swatch, unsetStyle } from './Swatch';
 import { FIXTURE_NEUTRALS, STAGE, type Paint, type Theme } from './slots';
 import { usePaintPair } from './theme';
+import { t } from '../../../i18n/translations';
+import type { LocaleCode } from '../../../i18n/config';
 
 /**
  * The rail and the card each dummy component is mounted on.
@@ -60,6 +62,7 @@ export function Rail({
   hint,
   hintTitle,
   children,
+  locale = 'en',
 }: {
   label: string;
   description?: string;
@@ -68,6 +71,8 @@ export function Rail({
   /** The pair that ratio belongs to, so the number is never a stray figure. */
   hintTitle?: string;
   children: ComponentChildren;
+  /** Locale for the composed hint tooltip. */
+  locale?: LocaleCode;
 }) {
   return (
     <section class="space-y-2.5">
@@ -88,7 +93,13 @@ export function Rail({
           */
           <span
             class="pill shrink-0"
-            title={hintTitle ? `${hint} · weakest pair: ${hintTitle}` : undefined}
+            title={
+              hintTitle
+                ? t(locale, 'ui.preview.rail.weakestPair', '{hint} · weakest pair: {hintTitle}')
+                    .replace('{hint}', hint)
+                    .replace('{hintTitle}', hintTitle)
+                : undefined
+            }
           >
             {hint}
           </span>
@@ -129,6 +140,7 @@ function ThemeToggle({
   onInk,
   edge,
   onPick,
+  locale,
 }: {
   theme: Theme;
   active: boolean;
@@ -139,13 +151,22 @@ function ThemeToggle({
   /** The card's hairline, for the inactive state's edge. */
   edge: string;
   onPick: (t: Theme) => void;
+  locale: LocaleCode;
 }) {
   return (
     <button
       type="button"
       aria-pressed={active}
-      aria-label={`Paint this card with the ${theme} theme`}
-      title={`Paint this card with the ${theme} theme — this card only, the rest of the page follows the Dark/Light control above`}
+      aria-label={t(
+        locale,
+        'ui.preview.specimen.themeCardAria',
+        'Paint this card with the {theme} theme'
+      ).replace('{theme}', theme)}
+      title={t(
+        locale,
+        'ui.preview.specimen.themeCardTitle',
+        'Paint this card with the {theme} theme — this card only, the rest of the page follows the Dark/Light control above'
+      ).replace('{theme}', theme)}
       onClick={(e) => {
         // The card's own edge is a swatch, and every click in the preview
         // column routes through `closest('[data-context-role]')` — without
@@ -170,7 +191,9 @@ function ThemeToggle({
         color: active ? onInk : ink,
       }}
     >
-      {theme === 'dark' ? 'Dark' : 'Light'}
+      {theme === 'dark'
+        ? t(locale, 'ui.preview.specimen.themeDark', 'Dark')
+        : t(locale, 'ui.preview.specimen.themeLight', 'Light')}
     </button>
   );
 }
@@ -229,9 +252,11 @@ export function Specimen({
   // What the active pill writes *on* its ink fill: the bar's surface when one
   // is set, the fixture's stand-in when it is not — never the host's chrome.
   const onInk = f.surface?.css ?? FIXTURE_NEUTRALS.surface[theme];
+  /** The catalogue name, e.g. `Button · Classic`, reused in the chrome. */
+  const displayName = `${name}${variant ? ` · ${variant}` : ''}`;
 
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={f.border}
       role="background"
       step={f.border?.requested ?? STAGE.border.steps[theme]}
@@ -245,7 +270,7 @@ export function Specimen({
         The component's own backdrop. `flex-1` rather than a fixed height so the
         card stays exactly one size whether the caption is one line or two.
       */}
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={f.canvas}
         role="background"
         step={f.canvas?.requested ?? STAGE.canvas.steps[theme]}
@@ -267,7 +292,7 @@ export function Specimen({
       </Swatch>
 
       {/* The caption bar. A surface behind the ink, so the two stack visibly. */}
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={f.surface}
         role="background"
         step={f.surface?.requested ?? STAGE.surface.steps[theme]}
@@ -284,7 +309,11 @@ export function Specimen({
         <span
           class="fixture-caption flex-1 min-w-0"
           style={{ color: f.ink }}
-          title={`${name}${variant ? ` · ${variant}` : ''} — click any part to edit its token`}
+          title={t(
+            paint.locale,
+            'ui.preview.specimen.captionTitle',
+            '{name} — click any part to edit its token'
+          ).replace('{name}', displayName)}
         >
           {name}
           {variant && <span class="opacity-60"> · {variant}</span>}
@@ -293,17 +322,22 @@ export function Specimen({
         <span
           class="flex items-center gap-1 shrink-0"
           role="group"
-          aria-label={`Theme for ${name}${variant ? ` · ${variant}` : ''}`}
+          aria-label={t(
+            paint.locale,
+            'ui.preview.specimen.themeGroupAria',
+            'Theme for {name}'
+          ).replace('{name}', displayName)}
         >
-          {(['dark', 'light'] as const).map((t) => (
+          {(['dark', 'light'] as const).map((th) => (
             <ThemeToggle
-              key={t}
-              theme={t}
-              active={theme === t}
+              key={th}
+              theme={th}
+              active={theme === th}
               ink={f.ink}
               onInk={onInk}
               edge={f.border?.css ?? 'transparent'}
               onPick={(picked) => setPin({ theme: picked, base: pair.globalTheme })}
+              locale={paint.locale}
             />
           ))}
         </span>

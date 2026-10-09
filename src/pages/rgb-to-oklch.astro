@@ -6,6 +6,7 @@ import { getBuildTimeColorTable } from '../utils/seoTables';
 import { parseAnyToOklch, formatOklch } from '../utils/color';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -40,49 +41,45 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Convert <code class="text-ink">rgb(r, g, b)</code> and <code class="text-ink">rgba(r, g, b, a)</code> into CSS OKLCH format with live gamut boundary checks.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.rgbToOklch.subtitle', 'Convert <code class="text-ink">rgb(r, g, b)</code> and <code class="text-ink">rgba(r, g, b, a)</code> into CSS OKLCH format with live gamut boundary checks.')} />
     </div>
 
-    <section aria-label="RGB to OKLCH Converter Tool">
-      <ConverterIsland client:load initialMode="rgb-to-oklch" />
+    <section aria-label={t(locale, 'pages.rgbToOklch.toolAriaLabel', 'RGB to OKLCH Converter Tool')}>
+      <ConverterIsland client:load initialMode="rgb-to-oklch" locale={locale} />
     </section>
 
     <div class="space-y-10 pt-8 border-t border-hairline">
       <!-- 1. Intro -->
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-ink">Why Convert RGB to OKLCH?</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.rgbToOklch.whyTitle', 'Why Convert RGB to OKLCH?')}</h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          RGB mixes red, green, and blue light components, but it is completely non-linear with respect to human vision. Mixing equal parts RGB produces irregular visual steps. By converting into OKLCH, you gain access to linear perceptual lightness, enabling harmonious tints and shades for modern design systems.
+          {t(locale, 'pages.rgbToOklch.whyBody', 'RGB mixes red, green, and blue light components, but it is completely non-linear with respect to human vision. Mixing equal parts RGB produces irregular visual steps. By converting into OKLCH, you gain access to linear perceptual lightness, enabling harmonious tints and shades for modern design systems.')}
         </p>
       </section>
 
       <!-- 2. How to Convert -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
-        <h2 class="text-base font-semibold text-ink">How to Convert RGB to OKLCH</h2>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.rgbToOklch.howTitle', 'How to Convert RGB to OKLCH')}</h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li>Paste any <code class="text-ink">rgb()</code> or <code class="text-ink">rgba()</code> value (e.g. <code class="text-ink">rgb(59, 130, 246)</code>) into the input field above.</li>
-          <li>Our engine normalizes the 0-255 channels to 0-1, applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.</li>
-          <li>The result is a perceptually uniform OKLCH value with exact Lightness, Chroma, and Hue.</li>
+          <li set:html={t(locale, 'pages.rgbToOklch.step1', 'Paste any <code class="text-ink">rgb()</code> or <code class="text-ink">rgba()</code> value (e.g. <code class="text-ink">rgb(59, 130, 246)</code>) into the input field above.')} />
+          <li>{t(locale, 'pages.rgbToOklch.step2', 'Our engine normalizes the 0-255 channels to 0-1, applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.')}</li>
+          <li>{t(locale, 'pages.rgbToOklch.step3', 'The result is a perceptually uniform OKLCH value with exact Lightness, Chroma, and Hue.')}</li>
         </ol>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">The math path:</strong> RGB (0-255) → normalized sRGB (0-1) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.rgbToOklch.mathPath', '<strong class="text-ink">The math path:</strong> RGB (0-255) → normalized sRGB (0-1) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).')} />
       </section>
 
       <!-- 3. Reference Table -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">RGB to OKLCH Reference Values</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.rgbToOklch.tableTitle', 'RGB to OKLCH Reference Values')}</h2>
         <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-canvas-elevated border-b border-hairline text-mute text-[11px] uppercase">
                 <tr>
-                  <th class="p-3">Swatch</th>
-                  <th class="p-3">Color</th>
-                  <th class="p-3">RGB Code</th>
-                  <th class="p-3">OKLCH Value</th>
+                  <th class="p-3">{t(locale, 'pages.rgbToOklch.thSwatch', 'Swatch')}</th>
+                  <th class="p-3">{t(locale, 'pages.rgbToOklch.thColor', 'Color')}</th>
+                  <th class="p-3">{t(locale, 'pages.rgbToOklch.thRgbCode', 'RGB Code')}</th>
+                  <th class="p-3">{t(locale, 'pages.rgbToOklch.thOklchValue', 'OKLCH Value')}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-hairline">
@@ -104,57 +101,49 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
 
       <!-- 4. CSS Snippet -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
-        <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
+        <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.rgbToOklch.cssTitle', 'Copy-Ready CSS with Progressive Enhancement')}</h2>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>.alert &#123;{'\n'}  color: rgb(239, 68, 68); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
-        </p>
+          <code>{t(locale, 'pages.rgbToOklch.cssSnippet', '.alert {\n  color: rgb(239, 68, 68); /* fallback */\n  color: {sample}; /* modern browsers */\n}').replace('{sample}', sampleOklch)}</code></pre>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.rgbToOklch.themeLabel', '<strong class="text-ink">Tailwind CSS v4 @theme:</strong>')} />
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>@theme &#123;{'\n'}  --color-alert-red: {sampleOklch};{'\n'}&#125;</code></pre>
+          <code>{t(locale, 'pages.rgbToOklch.themeSnippet', '@theme {\n  --color-alert-red: {sample};\n}').replace('{sample}', sampleOklch)}</code></pre>
       </section>
 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
-        <h2 class="text-base font-semibold text-ink">Gamut Note: RGB is Always sRGB</h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          Standard <code class="text-ink">rgb()</code> values are confined to the sRGB gamut by definition. Converting from RGB to OKLCH is therefore always gamut-safe — the resulting OKLCH value will never exceed sRGB boundaries. However, if you paste a <code class="text-ink">color(display-p3 ...)</code> value, the converter will detect the wider gamut and flag it accordingly.
-        </p>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.rgbToOklch.gamutTitle', 'Gamut Note: RGB is Always sRGB')}</h2>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.rgbToOklch.gamutBody', 'Standard <code class="text-ink">rgb()</code> values are confined to the sRGB gamut by definition. Converting from RGB to OKLCH is therefore always gamut-safe — the resulting OKLCH value will never exceed sRGB boundaries. However, if you paste a <code class="text-ink">color(display-p3 ...)</code> value, the converter will detect the wider gamut and flag it accordingly.')} />
       </section>
 
       <!-- 6. FAQ -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.rgbToOklch.faqTitle', 'Frequently Asked Questions')}</h2>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Can I convert rgba() with alpha to OKLCH?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.rgbToOklch.faq1Q', 'Can I convert rgba() with alpha to OKLCH?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.rgbToOklch.faq1A', 'Yes. <code class="text-ink">rgba(59, 130, 246, 0.5)</code> converts to <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> — the alpha channel is preserved as a slash parameter.')} />
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.rgbToOklch.faq2Q', 'What is the difference between RGB and OKLCH?')}</h3>
             <p class="text-body leading-relaxed">
-              Yes. <code class="text-ink">rgba(59, 130, 246, 0.5)</code> converts to <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> — the alpha channel is preserved as a slash parameter.
+              {t(locale, 'pages.rgbToOklch.faq2A', 'RGB is a device-dependent additive color model. OKLCH is a perceptually uniform color space where equal lightness values look equally bright. OKLCH makes it far easier to create accessible, consistent color systems.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What is the difference between RGB and OKLCH?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.rgbToOklch.faq3Q', 'Is RGB to OKLCH conversion reversible?')}</h3>
             <p class="text-body leading-relaxed">
-              RGB is a device-dependent additive color model. OKLCH is a perceptually uniform color space where equal lightness values look equally bright. OKLCH makes it far easier to create accessible, consistent color systems.
+              {t(locale, 'pages.rgbToOklch.faq3A', 'Yes, for sRGB colors. Converting RGB → OKLCH → RGB yields the original values. The round-trip is lossless within the sRGB gamut.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Is RGB to OKLCH conversion reversible?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.rgbToOklch.faq4Q', 'Do all browsers support oklch()?')}</h3>
             <p class="text-body leading-relaxed">
-              Yes, for sRGB colors. Converting RGB → OKLCH → RGB yields the original values. The round-trip is lossless within the sRGB gamut.
+              {t(locale, 'pages.rgbToOklch.faq4A', 'Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Do all browsers support oklch()?</h3>
-            <p class="text-body leading-relaxed">
-              Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
-            </p>
-          </div>
-          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">How do I use OKLCH in Tailwind CSS v4?</h3>
-            <p class="text-body leading-relaxed">
-              Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your <code class="text-ink">@theme</code> block using <code class="text-ink">--color-{'{name}'}: oklch(...)</code> and Tailwind generates utilities automatically.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.rgbToOklch.faq5Q', 'How do I use OKLCH in Tailwind CSS v4?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.rgbToOklch.faq5A', 'Tailwind v4 uses OKLCH for its entire default palette. Define custom colors in your <code class="text-ink">@theme</code> block using <code class="text-ink">--color-{name}: oklch(...)</code> and Tailwind generates utilities automatically.')} />
           </div>
         </div>
       </section>
@@ -165,7 +154,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 8. Learn Link -->
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.rgbToOklch.learnMoreLink', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

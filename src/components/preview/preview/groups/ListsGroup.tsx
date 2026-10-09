@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { scorePair, worstOf } from '../slots';
+import { t } from '../../../../i18n/translations';
 import { KitAvatar, KitBadge, KitEdge, KitListRow, KitMuted, KitText } from '../kit';
 import type { Paint } from '../slots';
 
@@ -30,25 +31,57 @@ import type { Paint } from '../slots';
  */
 export function ListsGroup({ paint }: { paint: Paint }) {
   const worst = worstOf([
-    scorePair('Muted on surface', paint.muted, paint.fixture.surface),
-    scorePair('Text on surface', paint.text, paint.fixture.surface),
+    scorePair(
+      t(paint.locale, 'ui.preview.lists.pairMutedOnSurface', 'Muted on surface'),
+      paint.muted,
+      paint.fixture.surface
+    ),
+    scorePair(
+      t(paint.locale, 'ui.preview.lists.pairTextOnSurface', 'Text on surface'),
+      paint.text,
+      paint.fixture.surface
+    ),
   ]);
 
   const rows = [
-    { title: 'Trusty Blue', meta: 'Generated · 4m ago', trailing: '11' },
-    { title: 'Crimson Danger', meta: 'Imported · 2h ago', trailing: '11' },
-    { title: 'Forest Calm', meta: 'Generated · 1d ago', trailing: '11' },
+    {
+      title: 'Trusty Blue',
+      meta: t(paint.locale, 'ui.preview.lists.metaRow1', 'Generated · 4m ago'),
+      trailing: '11',
+    },
+    {
+      title: 'Crimson Danger',
+      meta: t(paint.locale, 'ui.preview.lists.metaRow2', 'Imported · 2h ago'),
+      trailing: '11',
+    },
+    {
+      title: 'Forest Calm',
+      meta: t(paint.locale, 'ui.preview.lists.metaRow3', 'Generated · 1d ago'),
+      trailing: '11',
+    },
   ];
 
   return (
     <div class="space-y-8">
       <Rail
-        label="Lists"
-        description="Title, meta and a trailing number — three ink levels stacked in one row, on a hairline."
-        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        label={t(paint.locale, 'ui.preview.lists.listsTitle', 'Lists')}
+        description={t(
+          paint.locale,
+          'ui.preview.lists.listsDesc',
+          'Title, meta and a trailing number — three ink levels stacked in one row, on a hairline.'
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.lists.hintBgText', 'set background + text to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
-        <Specimen name="List" variant="Plain">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameList', 'List')}
+          variant={t(paint.locale, 'ui.preview.lists.variantPlain', 'Plain')}
+        >
           {(paint) => (
             <div class="w-full">
               {rows.map((row, i) => (
@@ -61,7 +94,10 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="List" variant="With meta">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameList', 'List')}
+          variant={t(paint.locale, 'ui.preview.lists.variantWithMeta', 'With meta')}
+        >
           {(paint) => (
             <div class="w-full">
               {rows.map((row, i) => (
@@ -74,7 +110,10 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="List" variant="Striped">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameList', 'List')}
+          variant={t(paint.locale, 'ui.preview.lists.variantStriped', 'Striped')}
+        >
           {(paint) => (
             <div class="w-full rounded-xl overflow-hidden">
               {rows.map((row, i) => (
@@ -90,7 +129,10 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="List" variant="Selected">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameList', 'List')}
+          variant={t(paint.locale, 'ui.preview.lists.variantSelected', 'Selected')}
+        >
           {(paint) => (
             <div class="w-full rounded-xl overflow-hidden">
               {rows.map((row, i) => (
@@ -110,7 +152,10 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="List" variant="Bordered">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameList', 'List')}
+          variant={t(paint.locale, 'ui.preview.lists.variantBordered', 'Bordered')}
+        >
           {(paint) => (
             <>
               {/* A bare `border` has no colour — it would inherit `currentColor`
@@ -135,15 +180,23 @@ export function ListsGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Data"
-        description="Tables, key/value blocks and a timeline — the shapes where a caption sits *under* the thing it explains."
+        label={t(paint.locale, 'ui.preview.lists.dataTitle', 'Data')}
+        description={t(
+          paint.locale,
+          'ui.preview.lists.dataDesc',
+          'Tables, key/value blocks and a timeline — the shapes where a caption sits *under* the thing it explains.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Table" variant="Three rows">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameTable', 'Table')}
+          variant={t(paint.locale, 'ui.preview.lists.variantThreeRows', 'Three rows')}
+        >
           {(paint) => (
             <table class="w-full text-[11px] border-collapse">
               <thead>
                 <tr>
-                  {['Token', 'L', 'C'].map((h) => (
+                  {[t(paint.locale, 'ui.preview.lists.headerToken', 'Token'), 'L', 'C'].map((h) => (
                     <th
                       key={h}
                       class="text-left py-1 px-1.5 font-medium uppercase tracking-wide text-[9px]"
@@ -177,13 +230,16 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Definition" variant="Pairs">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameDefinition', 'Definition')}
+          variant={t(paint.locale, 'ui.preview.lists.variantPairs', 'Pairs')}
+        >
           {(paint) => (
             <dl class="w-full space-y-1.5">
               {[
-                ['Model', 'OKLCH'],
-                ['Steps', '50–950'],
-                ['Gamma', 'sRGB'],
+                [t(paint.locale, 'ui.preview.lists.defModel', 'Model'), 'OKLCH'],
+                [t(paint.locale, 'ui.preview.lists.defSteps', 'Steps'), '50–950'],
+                [t(paint.locale, 'ui.preview.lists.defGamma', 'Gamma'), 'sRGB'],
               ].map(([k, v]) => (
                 <div key={k} class="flex items-baseline justify-between gap-3">
                   <dt>
@@ -202,13 +258,16 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Timeline" variant="Events">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameTimeline', 'Timeline')}
+          variant={t(paint.locale, 'ui.preview.lists.variantEvents', 'Events')}
+        >
           {(paint) => (
             <ol class="w-full space-y-2">
               {[
-                ['Scale generated', '4m'],
-                ['Exported to JSON', '2h'],
-                ['Role renamed', '1d'],
+                [t(paint.locale, 'ui.preview.lists.eventScaleGenerated', 'Scale generated'), '4m'],
+                [t(paint.locale, 'ui.preview.lists.eventExportedJson', 'Exported to JSON'), '2h'],
+                [t(paint.locale, 'ui.preview.lists.eventRoleRenamed', 'Role renamed'), '1d'],
               ].map(([event, when], i) => (
                 <li key={event} class="flex items-center gap-2">
                   <span
@@ -232,30 +291,50 @@ export function ListsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Row" variant="With badge">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameRow', 'Row')}
+          variant={t(paint.locale, 'ui.preview.lists.variantWithBadge', 'With badge')}
+        >
           {(paint) => (
             <div class="w-full">
-              <KitListRow paint={paint} title="Crimson Danger" meta="Imported" trailing="2h" />
+              <KitListRow
+                paint={paint}
+                title="Crimson Danger"
+                meta={t(paint.locale, 'ui.preview.lists.contentImported', 'Imported')}
+                trailing="2h"
+              />
               <div class="pt-2 flex items-center gap-1.5">
                 <KitAvatar paint={paint} role="danger" initials="CD" size={22} />
-                <KitBadge paint={paint} role="danger" label="Out of P3" variant="soft" />
+                <KitBadge
+                  paint={paint}
+                  role="danger"
+                  label={t(paint.locale, 'ui.preview.lists.badgeOutOfP3', 'Out of P3')}
+                  variant="soft"
+                />
               </div>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Table" variant="Caption">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.lists.nameTable', 'Table')}
+          variant={t(paint.locale, 'ui.preview.lists.variantCaption', 'Caption')}
+        >
           {(paint) => (
             <div class="w-full space-y-1.5">
               <KitText paint={paint} class="block text-[15px] font-semibold tabular-nums">
                 1,284
               </KitText>
               <KitMuted paint={paint} class="block text-[10px]">
-                Tokens across 9 roles
+                {t(paint.locale, 'ui.preview.lists.contentTokensAcross', 'Tokens across 9 roles')}
               </KitMuted>
               <KitEdge paint={paint} side="top" class="block" />
               <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                A 15px figure over a 10px caption. The gap is the whole design.
+                {t(
+                  paint.locale,
+                  'ui.preview.lists.contentGapDesign',
+                  'A 15px figure over a 10px caption. The gap is the whole design.'
+                )}
               </KitMuted>
             </div>
           )}

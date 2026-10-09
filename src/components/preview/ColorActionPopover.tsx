@@ -8,6 +8,8 @@ import {
 } from '../../utils/color';
 import { PALETTES } from '../../data/palettes';
 import { useCart } from '../../hooks/useCart';
+import { t } from '../../i18n/translations';
+import type { LocaleCode } from '../../i18n/config';
 import { Paintbrush, Palette as PaletteIcon, Sparkles, Trash2, X } from 'lucide-preact';
 import ColorSwatch from '../common/ColorSwatch';
 
@@ -30,6 +32,8 @@ interface ColorActionPopoverProps {
    */
   onOpenInPicker: (color: ColorModel | null) => void;
   onClose: () => void;
+  /** Locale for human-facing chrome. */
+  locale?: LocaleCode;
 }
 
 type Tab = 'tokens' | 'palettes';
@@ -59,8 +63,12 @@ export default function ColorActionPopover({
   onDeleteFullScale,
   onOpenInPicker,
   onClose,
+  locale = 'en',
 }: ColorActionPopoverProps) {
   const cart = useCart();
+  /** Human-facing name for a role: the localized override, or its stored name. */
+  const roleName = (role: { id: string; name: string } | undefined) =>
+    role ? t(locale, `ui.roles.${role.id}`, role.name) : targetRoleId;
   const panelRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<Tab>('tokens');
   const [paletteQuery, setPaletteQuery] = useState('');
@@ -166,7 +174,7 @@ export default function ColorActionPopover({
       <p class="font-mono text-micro text-body leading-tight">{label}</p>
       <div class="grid grid-cols-2 gap-1.5">
         <button onClick={() => setPendingDelete(null)} class="btn btn-quiet h-8">
-          Cancel
+          {t(locale, 'ui.preview.popover.cancel', 'Cancel')}
         </button>
         <button
           onClick={() => {
@@ -176,7 +184,7 @@ export default function ColorActionPopover({
           }}
           class="btn btn-danger h-8"
         >
-          Delete
+          {t(locale, 'ui.preview.popover.delete', 'Delete')}
         </button>
       </div>
     </div>
@@ -188,7 +196,13 @@ export default function ColorActionPopover({
       class="fixed z-[9999] dock w-[340px] max-w-[calc(100vw-1.5rem)] overflow-hidden flex flex-col max-h-[min(78vh,620px)] animate-popover-in"
       style={{ left: `${pos.left}px`, top: `${pos.top}px` }}
       role="dialog"
-      aria-label={`Actions for ${targetRole?.name ?? targetRoleId} ${targetStep}`}
+      aria-label={t(
+        locale,
+        'ui.preview.popover.dialogAria',
+        'Actions for {role} {step}'
+      )
+        .replace('{role}', roleName(targetRole))
+        .replace('{step}', String(targetStep))}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header: what am I acting on? */}
@@ -200,24 +214,58 @@ export default function ColorActionPopover({
           class="w-7 h-7 rounded-md border border-hairline flex-shrink-0 hover:border-border-focus focus-visible:border-border-focus focus-visible:outline-none"
           title={
             targetColor
-              ? `${formatOklch(targetColor)} — click to edit in the color picker`
-              : `Click to author --color-${targetRoleId}-${targetStep}`
+              ? t(
+                  locale,
+                  'ui.preview.popover.swatchEditTitle',
+                  '{value} — click to edit in the color picker'
+                ).replace('{value}', formatOklch(targetColor))
+              : t(
+                  locale,
+                  'ui.preview.popover.swatchAuthorTitle',
+                  'Click to author --color-{role}-{step}'
+                )
+                  .replace('{role}', targetRoleId)
+                  .replace('{step}', String(targetStep))
           }
           ariaLabel={
             targetColor
-              ? `Edit ${targetRole?.name ?? targetRoleId} ${targetStep} in the color picker`
-              : `Create ${targetRole?.name ?? targetRoleId} ${targetStep} in the color picker`
+              ? t(
+                  locale,
+                  'ui.preview.popover.editAria',
+                  'Edit {role} {step} in the color picker'
+                )
+                  .replace('{role}', roleName(targetRole))
+                  .replace('{step}', String(targetStep))
+              : t(
+                  locale,
+                  'ui.preview.popover.createAria',
+                  'Create {role} {step} in the color picker'
+                )
+                  .replace('{role}', roleName(targetRole))
+                  .replace('{step}', String(targetStep))
           }
         />
         <div class="min-w-0 flex-1">
           <p class="text-label text-ink truncate">
-            {targetRole?.name ?? targetRoleId} · {targetStep}
+            {roleName(targetRole)} · {targetStep}
           </p>
           <p class="font-mono text-micro text-mute truncate">
-            {targetColor ? formatOklch(targetColor) : `--color-${targetRoleId}-${targetStep} · not set`}
+            {targetColor
+              ? formatOklch(targetColor)
+              : t(
+                  locale,
+                  'ui.preview.popover.notSet',
+                  '--color-{role}-{step} · not set'
+                )
+                  .replace('{role}', targetRoleId)
+                  .replace('{step}', String(targetStep))}
           </p>
         </div>
-        <button onClick={onClose} class="icon-btn icon-btn-sm" aria-label="Close">
+        <button
+          onClick={onClose}
+          class="icon-btn icon-btn-sm"
+          aria-label={t(locale, 'ui.preview.popover.close', 'Close')}
+        >
           <X class="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
         </button>
       </div>
@@ -225,8 +273,8 @@ export default function ColorActionPopover({
       {/* Tabs */}
       <div class="grid grid-cols-2 gap-1 p-1.5 border-b border-hairline shrink-0">
         {([
-          ['tokens', 'Cart'],
-          ['palettes', 'Palettes'],
+          ['tokens', t(locale, 'ui.preview.popover.tabCart', 'Cart')],
+          ['palettes', t(locale, 'ui.preview.popover.tabPalettes', 'Palettes')],
         ] as const).map(([id, label]) => (
           <button
             key={id}
@@ -246,7 +294,7 @@ export default function ColorActionPopover({
         {tab === 'tokens' ? (
           rolesWithShades.length === 0 ? (
             <p class="prose-hud px-1 py-4 text-center">
-              No colors in your cart yet.
+              {t(locale, 'ui.preview.popover.emptyCart', 'No colors in your cart yet.')}
             </p>
           ) : (
             <div class="space-y-2">
@@ -254,7 +302,7 @@ export default function ColorActionPopover({
                 const shades = SHADE_STEPS.filter((s) => role.shades[s]);
                 return (
                   <div key={role.id}>
-                    <p class="eyebrow block px-1 mb-1">{role.name}</p>
+                    <p class="eyebrow block px-1 mb-1">{roleName(role)}</p>
                     <div class="grid grid-cols-6 gap-1">
                       {shades.map((step) => {
                         const token = role.shades[step]!;
@@ -263,13 +311,26 @@ export default function ColorActionPopover({
                         return (
                           <button
                             key={step}
-                            onClick={() => onApplyColor(token.color, `${role.name} ${step}`)}
-                            aria-label={`Apply ${role.name} ${step} to --color-${targetRoleId}-${targetStep}`}
+                            onClick={() => onApplyColor(token.color, `${roleName(role)} ${step}`)}
+                            aria-label={t(
+                              locale,
+                              'ui.preview.popover.applyAria',
+                              'Apply {source} to --color-{role}-{step}'
+                            )
+                              .replace('{source}', `${roleName(role)} ${step}`)
+                              .replace('{role}', targetRoleId)
+                              .replace('{step}', String(targetStep))}
                             class={`h-8 rounded-md border transition-transform duration-150 hover:scale-110 ${
                               isTarget ? 'border-ink ring-1 ring-ink/50' : 'border-hairline hover:border-border-focus'
                             }`}
                             style={{ backgroundColor: css }}
-                            title={`${role.name} ${step}: ${css}`}
+                            title={t(
+                              locale,
+                              'ui.preview.popover.optionTitle',
+                              '{source}: {value}'
+                            )
+                              .replace('{source}', `${roleName(role)} ${step}`)
+                              .replace('{value}', css)}
                           />
                         );
                       })}
@@ -286,14 +347,24 @@ export default function ColorActionPopover({
               type="text"
               name="palette-filter"
               value={paletteQuery}
-              aria-label="Filter palettes"
+              aria-label={t(locale, 'ui.preview.popover.filterPalettesAria', 'Filter palettes')}
               onInput={(e) => setPaletteQuery((e.target as HTMLInputElement).value)}
-              placeholder="Filter palettes…"
+              placeholder={t(
+                locale,
+                'ui.preview.popover.filterPalettesPlaceholder',
+                'Filter palettes…'
+              )}
               class="w-full px-2.5 py-1.5 rounded-md bg-canvas border border-hairline font-mono text-micro text-ink placeholder:text-faint focus:outline-none focus:border-border-focus transition-colors duration-150"
             />
 
             {filteredPalettes.length === 0 ? (
-              <p class="prose-hud px-1 py-4 text-center">No palettes match “{paletteQuery}”.</p>
+              <p class="prose-hud px-1 py-4 text-center">
+                {t(
+                  locale,
+                  'ui.preview.popover.noMatch',
+                  'No palettes match “{query}”.'
+                ).replace('{query}', paletteQuery)}
+              </p>
             ) : (
               filteredPalettes.map((palette) => (
                 <div key={palette.id}>
@@ -309,12 +380,25 @@ export default function ColorActionPopover({
                         <button
                           key={step}
                           onClick={() => onApplyColor(color, `${palette.name} ${step}`)}
-                          aria-label={`Apply ${palette.name} ${step} to --color-${targetRoleId}-${targetStep}`}
+                          aria-label={t(
+                            locale,
+                            'ui.preview.popover.applyAria',
+                            'Apply {source} to --color-{role}-{step}'
+                          )
+                            .replace('{source}', `${palette.name} ${step}`)
+                            .replace('{role}', targetRoleId)
+                            .replace('{step}', String(targetStep))}
                           class={`h-8 rounded-md border transition-transform duration-150 hover:scale-110 ${
                             isTargetStep ? 'border-ink ring-1 ring-ink/30' : 'border-hairline hover:border-border-focus'
                           }`}
                           style={{ backgroundColor: formatOklch(color) }}
-                          title={`${palette.name} ${step}: ${formatOklch(color)}`}
+                          title={t(
+                            locale,
+                            'ui.preview.popover.optionTitle',
+                            '{source}: {value}'
+                          )
+                            .replace('{source}', `${palette.name} ${step}`)
+                            .replace('{value}', formatOklch(color))}
                         />
                       );
                     })}
@@ -335,32 +419,73 @@ export default function ColorActionPopover({
             class="btn btn-quiet h-8"
             title={
               targetColor
-                ? 'Open the full color picker preloaded with this color'
-                : `Open the full color picker to create --color-${targetRoleId}-${targetStep}`
+                ? t(
+                    locale,
+                    'ui.preview.popover.pickerPreloadedTitle',
+                    'Open the full color picker preloaded with this color'
+                  )
+                : t(
+                    locale,
+                    'ui.preview.popover.pickerCreateTitle',
+                    'Open the full color picker to create --color-{role}-{step}'
+                  )
+                    .replace('{role}', targetRoleId)
+                    .replace('{step}', String(targetStep))
             }
           >
             <Paintbrush class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            <span class="truncate">{targetColor ? 'Picker' : 'New color'}</span>
+            <span class="truncate">
+              {targetColor
+                ? t(locale, 'ui.preview.popover.picker', 'Picker')
+                : t(locale, 'ui.preview.popover.newColor', 'New color')}
+            </span>
           </button>
           <button
             onClick={() => setTab('palettes')}
             class="btn btn-quiet h-8"
-            title="Choose a color from the palette library"
+            title={t(
+              locale,
+              'ui.preview.popover.choosePaletteTitle',
+              'Choose a color from the palette library'
+            )}
           >
             <PaletteIcon class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            <span class="truncate">Palettes</span>
+            <span class="truncate">
+              {t(locale, 'ui.preview.popover.tabPalettes', 'Palettes')}
+            </span>
           </button>
         </div>
 
         {/* Delete row */}
         {pendingDelete === 'shade'
           ? confirmRow(
-              <>Delete <span class="text-ink">--color-{targetRoleId}-{targetStep}</span>?</>,
+              <>
+                {t(locale, 'ui.preview.popover.deleteShadePrefix', 'Delete')}{' '}
+                <span class="text-ink">--color-{targetRoleId}-{targetStep}</span>
+                {t(locale, 'ui.preview.popover.deleteShadeSuffix', '?')}
+              </>,
               onDeleteShade
             )
           : pendingDelete === 'scale'
             ? confirmRow(
-                <>Delete the full scale of <span class="text-ink">{targetRole?.name ?? targetRoleId}</span> ({scaleCount} colors)?</>,
+                <>
+                  {t(
+                    locale,
+                    'ui.preview.popover.deleteScaleConfirmPrefix',
+                    'Delete the full scale of'
+                  )}{' '}
+                  <span class="text-ink">{roleName(targetRole)}</span>{' '}
+                  {t(
+                    locale,
+                    'ui.preview.popover.deleteScaleConfirmSuffix',
+                    '({count} {color})?'
+                  )
+                    .replace('{count}', String(scaleCount))
+                    .replace(
+                      '{color}',
+                      t(locale, 'ui.preview.common.colorPlural', 'colors')
+                    )}
+                </>,
                 onDeleteFullScale
               )
             : (
@@ -369,19 +494,39 @@ export default function ColorActionPopover({
                   onClick={() => setPendingDelete('shade')}
                   disabled={!targetToken}
                   class="btn btn-quiet h-8"
-                  title={`Remove only --color-${targetRoleId}-${targetStep}`}
+                  title={t(
+                    locale,
+                    'ui.preview.popover.removeShadeTitle',
+                    'Remove only --color-{role}-{step}'
+                  )
+                    .replace('{role}', targetRoleId)
+                    .replace('{step}', String(targetStep))}
                 >
                   <Trash2 class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                  <span class="truncate">Delete color</span>
+                  <span class="truncate">
+                    {t(locale, 'ui.preview.popover.deleteColor', 'Delete color')}
+                  </span>
                 </button>
                 <button
                   onClick={() => setPendingDelete('scale')}
                   disabled={scaleCount === 0}
                   class="btn btn-quiet h-8"
-                  title={`Delete all ${scaleCount} colors of ${targetRole?.name ?? targetRoleId}`}
+                  title={t(
+                    locale,
+                    'ui.preview.popover.deleteScaleTitle',
+                    'Delete all {count} {color} of {role}'
+                  )
+                    .replace('{count}', String(scaleCount))
+                    .replace(
+                      '{color}',
+                      t(locale, 'ui.preview.common.colorPlural', 'colors')
+                    )
+                    .replace('{role}', roleName(targetRole))}
                 >
                   <Sparkles class="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                  <span class="truncate">Delete scale</span>
+                  <span class="truncate">
+                    {t(locale, 'ui.preview.popover.deleteScale', 'Delete scale')}
+                  </span>
                 </button>
               </div>
             )}

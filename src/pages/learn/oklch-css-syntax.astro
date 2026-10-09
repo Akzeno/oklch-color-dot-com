@@ -1,5 +1,6 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
+import { t } from '../../i18n/translations';
 import { localizedSeo } from '../../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
 
@@ -28,12 +29,12 @@ const seo = localizedSeo('/learn/oklch-css-syntax', locale, {
 >
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label="Breadcrumb">
-      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">Home</a>
+    <nav class="flex items-center gap-2 text-xs font-mono text-mute" aria-label={t(locale, 'pages.cssSyntax.breadcrumbLabel', 'Breadcrumb')}>
+      <a href={buildLocalizedPath('/', locale)} class="hover:text-ink">{t(locale, 'pages.cssSyntax.breadcrumbHome', 'Home')}</a>
       <span>/</span>
-      <span class="text-body">Learn</span>
+      <span class="text-body">{t(locale, 'pages.cssSyntax.breadcrumbLearn', 'Learn')}</span>
       <span>/</span>
-      <span class="text-ink">CSS oklch() Syntax</span>
+      <span class="text-ink">{t(locale, 'pages.cssSyntax.breadcrumbCurrent', 'CSS oklch() Syntax')}</span>
     </nav>
 
     <!-- Header -->
@@ -41,254 +42,214 @@ const seo = localizedSeo('/learn/oklch-css-syntax', locale, {
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <code class="text-ink">oklch()</code> takes three values — Lightness, Chroma and Hue — optionally followed by a slash and an alpha value. This page is the complete syntax reference: what each slot accepts, how the parts interact, and the patterns that keep older browsers working.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.intro', '<code class="text-ink">oklch()</code> takes three values — Lightness, Chroma and Hue — optionally followed by a slash and an alpha value. This page is the complete syntax reference: what each slot accepts, how the parts interact, and the patterns that keep older browsers working.')} />
       <p class="text-xs font-mono text-mute">
-        Last updated: 2026-10-07 · Maintained by the OKLCH Colors team
+        {t(locale, 'pages.cssSyntax.lastUpdated', 'Last updated: 2026-10-07 · Maintained by the OKLCH Colors team')}
       </p>
     </div>
 
     <!-- 1. Anatomy -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">oklch() Syntax at a Glance</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.anatomyTitle', 'oklch() Syntax at a Glance')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        The function has one required form and one optional addition — the alpha channel, which appears after a slash rather than as a fourth space-separated value:
+        {t(locale, 'pages.cssSyntax.anatomyBody', 'The function has one required form and one optional addition — the alpha channel, which appears after a slash rather than as a fourth space-separated value:')}
       </p>
 
-      <div class="p-4 rounded-lg dark-scope bg-canvas-sunken border border-hairline font-mono text-sm text-ink">
-        oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-gamut-p3">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-mute">[/ Alpha]</span>)
-      </div>
+      <div class="p-4 rounded-lg dark-scope bg-canvas-sunken border border-hairline font-mono text-sm text-ink" set:html={t(locale, 'pages.cssSyntax.anatomyDiagram', 'oklch(<span class="text-[#fde047]">Lightness</span> <span class="text-gamut-p3">Chroma</span> <span class="text-[#a78bfa]">Hue</span> <span class="text-mute">[/ Alpha]</span>)')} />
 
       <div class="space-y-2 text-xs font-mono text-body">
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>color: oklch(62.3% 0.188 259.8);{'\n'}color: oklch(0.623 0.188 259.8);   /* decimal form — identical */{'\n'}color: oklch(62.3% 0.188 259.8 / 0.4);  /* with alpha */{'\n'}color: oklch(62.3% 0.188 259.8 / 40%); /* alpha as percent */</code></pre>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.cssSyntax.anatomyCode', 'color: oklch(62.3% 0.188 259.8);\ncolor: oklch(0.623 0.188 259.8);   /* decimal form — identical */\ncolor: oklch(62.3% 0.188 259.8 / 0.4);  /* with alpha */\ncolor: oklch(62.3% 0.188 259.8 / 40%); /* alpha as percent */')}</code></pre>
       </div>
 
-      <p class="text-xs md:text-sm font-mono text-body">
-        The three space-separated values must appear in exactly that order — L, then C, then H. There is no named-argument form and no default for any of them; a value that could not be parsed invalidates the whole declaration, which is why an unsupported or malformed <code class="text-ink">oklch()</code> line falls through to the previous declaration rather than rendering a broken color.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.anatomyNote', 'The three space-separated values must appear in exactly that order — L, then C, then H. There is no named-argument form and no default for any of them; a value that could not be parsed invalidates the whole declaration, which is why an unsupported or malformed <code class="text-ink">oklch()</code> line falls through to the previous declaration rather than rendering a broken color.')} />
     </section>
 
     <!-- 2. Value reference -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">What Each Value Accepts</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.valuesTitle', 'What Each Value Accepts')}</h2>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs font-mono">
           <thead class="bg-canvas-elevated border-b border-hairline text-mute uppercase tracking-wider text-[11px]">
             <tr>
-              <th class="p-3">Slot</th>
-              <th class="p-3">Accepted forms</th>
-              <th class="p-3">Range &amp; meaning</th>
-              <th class="p-3">Example</th>
+              <th class="p-3">{t(locale, 'pages.cssSyntax.thSlot', 'Slot')}</th>
+              <th class="p-3">{t(locale, 'pages.cssSyntax.thForms', 'Accepted forms')}</th>
+              <th class="p-3">{t(locale, 'pages.cssSyntax.thRange', 'Range & meaning')}</th>
+              <th class="p-3">{t(locale, 'pages.cssSyntax.thExample', 'Example')}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-hairline">
             <tr>
-              <td class="p-3 text-[#fde047] font-semibold">Lightness</td>
-              <td class="p-3 text-body">percentage or number</td>
-              <td class="p-3 text-body">0% (black) – 100% (white). <code class="text-ink">0.623</code> and <code class="text-ink">62.3%</code> are the same value.</td>
+              <td class="p-3 text-[#fde047] font-semibold">{t(locale, 'pages.cssSyntax.cellLightnessLabel', 'Lightness')}</td>
+              <td class="p-3 text-body">{t(locale, 'pages.cssSyntax.cellLightnessForms', 'percentage or number')}</td>
+              <td class="p-3 text-body" set:html={t(locale, 'pages.cssSyntax.cellLightnessRange', '0% (black) – 100% (white). <code class="text-ink">0.623</code> and <code class="text-ink">62.3%</code> are the same value.')} />
               <td class="p-3 text-ink">62.3%</td>
             </tr>
             <tr>
-              <td class="p-3 text-gamut-p3 font-semibold">Chroma</td>
-              <td class="p-3 text-body">number (with optional %)</td>
-              <td class="p-3 text-body">0 is neutral gray; saturation increases with the value. Typical sRGB colors sit between 0 and about 0.4.</td>
+              <td class="p-3 text-gamut-p3 font-semibold">{t(locale, 'pages.cssSyntax.cellChromaLabel', 'Chroma')}</td>
+              <td class="p-3 text-body">{t(locale, 'pages.cssSyntax.cellChromaForms', 'number (with optional %)')}</td>
+              <td class="p-3 text-body">{t(locale, 'pages.cssSyntax.cellChromaRange', '0 is neutral gray; saturation increases with the value. Typical sRGB colors sit between 0 and about 0.4.')}</td>
               <td class="p-3 text-ink">0.188</td>
             </tr>
             <tr>
-              <td class="p-3 text-[#a78bfa] font-semibold">Hue</td>
-              <td class="p-3 text-body">angle — number or deg</td>
-              <td class="p-3 text-body">0–360° around the color wheel. Values wrap: 390 is the same hue as 30.</td>
+              <td class="p-3 text-[#a78bfa] font-semibold">{t(locale, 'pages.cssSyntax.cellHueLabel', 'Hue')}</td>
+              <td class="p-3 text-body">{t(locale, 'pages.cssSyntax.cellHueForms', 'angle — number or deg')}</td>
+              <td class="p-3 text-body">{t(locale, 'pages.cssSyntax.cellHueRange', '0–360° around the color wheel. Values wrap: 390 is the same hue as 30.')}</td>
               <td class="p-3 text-ink">259.8</td>
             </tr>
             <tr>
-              <td class="p-3 text-mute font-semibold">Alpha (optional)</td>
-              <td class="p-3 text-body">after a slash — number or %</td>
-              <td class="p-3 text-body">0 (transparent) – 1 (opaque). <code class="text-ink">0.5</code> and <code class="text-ink">50%</code> are equal.</td>
+              <td class="p-3 text-mute font-semibold">{t(locale, 'pages.cssSyntax.cellAlphaLabel', 'Alpha (optional)')}</td>
+              <td class="p-3 text-body">{t(locale, 'pages.cssSyntax.cellAlphaForms', 'after a slash — number or %')}</td>
+              <td class="p-3 text-body" set:html={t(locale, 'pages.cssSyntax.cellAlphaRange', '0 (transparent) – 1 (opaque). <code class="text-ink">0.5</code> and <code class="text-ink">50%</code> are equal.')} />
               <td class="p-3 text-ink">/ 0.5</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p class="text-xs md:text-sm font-mono text-body">
-        <strong class="text-ink">Lightness is a percentage or its decimal equivalent.</strong> <code class="text-ink">50%</code> and <code class="text-ink">0.5</code> parse to the same lightness — the percentage form is the one you will read in documentation and the one this site's converters emit, because it maps directly onto the 0–100% scale the value is described in.
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <strong class="text-ink">Chroma is not a percentage of anything.</strong> It is an absolute distance from the neutral axis, so <code class="text-ink">0.1</code> in a dark color and <code class="text-ink">0.1</code> in a light color carry the same absolute colorfulness — but the dark color will look duller because low lightness limits how much chroma the eye resolves. The maximum chroma a lightness/hue pair can hold before leaving the sRGB gamut varies across the wheel; roughly 0.4 is the outer bound for sRGB.
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <strong class="text-ink">Hue wraps, it does not clamp.</strong> <code class="text-ink">oklch(70% 0.15 390)</code> is perfectly valid and identical to <code class="text-ink">oklch(70% 0.15 30)</code>. Negative hue values wrap the other direction. This matters in relative color syntax, where a calculation can easily push the angle past 360.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.lightnessNote', '<strong class="text-ink">Lightness is a percentage or its decimal equivalent.</strong> <code class="text-ink">50%</code> and <code class="text-ink">0.5</code> parse to the same lightness — the percentage form is the one you will read in documentation and the one this site\'s converters emit, because it maps directly onto the 0–100% scale the value is described in.')} />
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.chromaNote', '<strong class="text-ink">Chroma is not a percentage of anything.</strong> It is an absolute distance from the neutral axis, so <code class="text-ink">0.1</code> in a dark color and <code class="text-ink">0.1</code> in a light color carry the same absolute colorfulness — but the dark color will look duller because low lightness limits how much chroma the eye resolves. The maximum chroma a lightness/hue pair can hold before leaving the sRGB gamut varies across the wheel; roughly 0.4 is the outer bound for sRGB.')} />
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.hueNote', '<strong class="text-ink">Hue wraps, it does not clamp.</strong> <code class="text-ink">oklch(70% 0.15 390)</code> is perfectly valid and identical to <code class="text-ink">oklch(70% 0.15 30)</code>. Negative hue values wrap the other direction. This matters in relative color syntax, where a calculation can easily push the angle past 360.')} />
     </section>
 
     <!-- 3. Alpha -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Alpha and the Slash</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Transparency is the one optional part, and it always follows a slash. This matches the syntax <code class="text-ink">rgb()</code> and <code class="text-ink">hsl()</code> adopted in CSS Color Level 4, so an existing <code class="text-ink">rgb(59 130 246 / 40%)</code> converts to OKLCH by swapping the function name and the first three values:
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.alphaTitle', 'Alpha and the Slash')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.alphaBody1', 'Transparency is the one optional part, and it always follows a slash. This matches the syntax <code class="text-ink">rgb()</code> and <code class="text-ink">hsl()</code> adopted in CSS Color Level 4, so an existing <code class="text-ink">rgb(59 130 246 / 40%)</code> converts to OKLCH by swapping the function name and the first three values:')} />
       <div class="space-y-2 text-xs font-mono text-body">
         <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>.overlay &#123;{'\n'}  background: rgb(59 130 246 / 40%);{'\n'}  background: oklch(62.3% 0.188 259.8 / 40%);{'\n'}&#125;</code></pre>
       </div>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Alpha compositing is unchanged from other color functions: two layers at 50% opacity stack to 75% coverage, and <code class="text-ink">currentColor</code>, <code class="text-ink">inherit</code> and custom-property substitution all behave the same way they do for any other color value.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.alphaBody2', 'Alpha compositing is unchanged from other color functions: two layers at 50% opacity stack to 75% coverage, and <code class="text-ink">currentColor</code>, <code class="text-ink">inherit</code> and custom-property substitution all behave the same way they do for any other color value.')} />
     </section>
 
     <!-- 4. Relative color syntax -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Relative Color Syntax</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        With <code class="text-ink">oklch(from ...)</code> the function takes an existing color apart and rebuilds it channel by channel. Inside the brackets, the source color's own <code class="text-ink">l</code>, <code class="text-ink">c</code> and <code class="text-ink">h</code> are available as free values, which makes derived colors one line of CSS instead of a hand-computed second value:
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.relativeTitle', 'Relative Color Syntax')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.relativeBody1', 'With <code class="text-ink">oklch(from ...)</code> the function takes an existing color apart and rebuilds it channel by channel. Inside the brackets, the source color\'s own <code class="text-ink">l</code>, <code class="text-ink">c</code> and <code class="text-ink">h</code> are available as free values, which makes derived colors one line of CSS instead of a hand-computed second value:')} />
       <div class="space-y-2 text-xs font-mono text-body">
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>/* Lighter by 10 percentage points of lightness */{'\n'}color: oklch(from var(--brand) calc(l + 0.1) c h);{'\n'}{'\n'}/* Shifted 30 degrees around the wheel */{'\n'}color: oklch(from var(--brand) l c calc(h + 30));{'\n'}{'\n'}/* Desaturated to 60% of its original chroma */{'\n'}color: oklch(from var(--brand) l calc(c * 0.6) h);{'\n'}{'\n'}/* Fully transparent version of the same color */{'\n'}color: oklch(from var(--brand) l c h / 0%);</code></pre>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.cssSyntax.relativeCode', '/* Lighter by 10 percentage points of lightness */\ncolor: oklch(from var(--brand) calc(l + 0.1) c h);\n\n/* Shifted 30 degrees around the wheel */\ncolor: oklch(from var(--brand) l c calc(h + 30));\n\n/* Desaturated to 60% of its original chroma */\ncolor: oklch(from var(--brand) l calc(c * 0.6) h);\n\n/* Fully transparent version of the same color */\ncolor: oklch(from var(--brand) l c h / 0%);')}</code></pre>
       </div>
       <p class="text-xs md:text-sm font-mono text-body">
-        This is the pattern behind most OKLCH design-system tricks — hover states, tonal ramps, and derived overlays — because it changes exactly one perceptual channel and leaves the others untouched. A HEX-based equivalent cannot do this: its channels do not map to perception, so "same color, a bit lighter" is guesswork.
+        {t(locale, 'pages.cssSyntax.relativeBody2', 'This is the pattern behind most OKLCH design-system tricks — hover states, tonal ramps, and derived overlays — because it changes exactly one perceptual channel and leaves the others untouched. A HEX-based equivalent cannot do this: its channels do not map to perception, so "same color, a bit lighter" is guesswork.')}
       </p>
     </section>
 
     <!-- 5. Gradients -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Gradients: Choosing the Interpolation Space</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        A gradient between two OKLCH colors does not automatically interpolate in OKLCH — you choose the space explicitly with the <code class="text-ink">in</code> keyword. Specify it and the ramp travels through perceptually even color, avoiding the gray, muddy midpoint that channel-by-channel RGB interpolation produces between saturated colors:
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.gradientsTitle', 'Gradients: Choosing the Interpolation Space')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.gradientsBody1', 'A gradient between two OKLCH colors does not automatically interpolate in OKLCH — you choose the space explicitly with the <code class="text-ink">in</code> keyword. Specify it and the ramp travels through perceptually even color, avoiding the gray, muddy midpoint that channel-by-channel RGB interpolation produces between saturated colors:')} />
       <div class="space-y-2 text-xs font-mono text-body">
         <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>.sunset &#123;{'\n'}  background: linear-gradient(in oklch, oklch(65% 0.2 25), oklch(55% 0.18 290));{'\n'}&#125;</code></pre>
       </div>
-      <p class="text-xs md:text-sm font-mono text-body">
-        The same <code class="text-ink">in</code> keyword works in <code class="text-ink">conic-gradient()</code>, in <code class="text-ink">color-mix()</code> (e.g. <code class="text-ink">color-mix(in oklch, red 30%, blue)</code>), and in the CSS <code class="text-ink">transition</code> of custom properties registered with <code class="text-ink">@property</code> — the four places where colors get blended.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.gradientsBody2', 'The same <code class="text-ink">in</code> keyword works in <code class="text-ink">conic-gradient()</code>, in <code class="text-ink">color-mix()</code> (e.g. <code class="text-ink">color-mix(in oklch, red 30%, blue)</code>), and in the CSS <code class="text-ink">transition</code> of custom properties registered with <code class="text-ink">@property</code> — the four places where colors get blended.')} />
     </section>
 
     <!-- 6. Fallbacks -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Progressive Enhancement Patterns</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <code class="text-ink">oklch()</code> is a Baseline feature (see browser support below), so fallbacks are belt-and-braces rather than daily necessity. Two patterns cover the remaining edge cases — a stale browser and a feature query for code that must not even ship when support is missing:
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.fallbacksTitle', 'Progressive Enhancement Patterns')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.fallbacksBody1', '<code class="text-ink">oklch()</code> is a Baseline feature (see browser support below), so fallbacks are belt-and-braces rather than daily necessity. Two patterns cover the remaining edge cases — a stale browser and a feature query for code that must not even ship when support is missing:')} />
       <div class="space-y-2 text-xs font-mono text-body">
-        <p><strong class="text-ink">1. Cascade override — the browser picks the last declaration it understands:</strong></p>
-        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>.button &#123;{'\n'}  color: #3b82f6;             /* older browsers */{'\n'}  color: oklch(62.3% 0.188 259.8); /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="pt-2"><strong class="text-ink">2. <code class="text-ink">@supports</code> — gate everything OKLCH-specific, including derived rules:</strong></p>
+        <p><strong class="text-ink">{t(locale, 'pages.cssSyntax.fallbackStep1', '1. Cascade override — the browser picks the last declaration it understands:')}</strong></p>
+        <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>{t(locale, 'pages.cssSyntax.fallbackCode1', '.button {\n  color: #3b82f6;             /* older browsers */\n  color: oklch(62.3% 0.188 259.8); /* modern browsers */\n}')}</code></pre>
+        <p class="pt-2"><strong class="text-ink" set:html={t(locale, 'pages.cssSyntax.fallbackStep2', '2. <code class="text-ink">@supports</code> — gate everything OKLCH-specific, including derived rules:')} /></p>
         <pre class="bg-canvas-sunken border border-hairline p-3 rounded-lg overflow-x-auto"><code>@supports not (color: oklch(0% 0 0)) &#123;{'\n'}  .button &#123; color: #3b82f6; &#125;{'\n'}  .hero &#123; background: linear-gradient(#f97316, #7c3aed); &#125;{'\n'}&#125;</code></pre>
       </div>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Because an unparsable color invalidates only its own declaration, pattern 1 works even when the fallback and the OKLCH value sit on the same property. Pattern 2 is the right tool when the OKLCH path also carries rules a legacy browser should not receive — relative color syntax, <code class="text-ink">color-mix()</code>, or wide-gamut gradients.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.fallbackBody2', 'Because an unparsable color invalidates only its own declaration, pattern 1 works even when the fallback and the OKLCH value sit on the same property. Pattern 2 is the right tool when the OKLCH path also carries rules a legacy browser should not receive — relative color syntax, <code class="text-ink">color-mix()</code>, or wide-gamut gradients.')} />
     </section>
 
     <!-- 7. Out of gamut -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Out-of-Gamut Values</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.outOfGamutTitle', 'Out-of-Gamut Values')}</h2>
       <p class="text-xs md:text-sm font-mono text-body">
-        OKLCH can describe colors that no sRGB screen can display. When a value falls outside the display's gamut, the browser maps it to the nearest displayable color: on an sRGB display the result is subtly compressed toward the edge of the gamut, while a wide-gamut Display-P3 display shows more of the original chroma. The syntax is the same either way — out-of-gamut is a rendering concern, not a parse error, so the declaration stays valid.
+        {t(locale, 'pages.cssSyntax.outOfGamutBody1', 'OKLCH can describe colors that no sRGB screen can display. When a value falls outside the display\'s gamut, the browser maps it to the nearest displayable color: on an sRGB display the result is subtly compressed toward the edge of the gamut, while a wide-gamut Display-P3 display shows more of the original chroma. The syntax is the same either way — out-of-gamut is a rendering concern, not a parse error, so the declaration stays valid.')}
       </p>
       <p class="text-xs md:text-sm font-mono text-body">
-        If you need the exact in-gamut value before it ever reaches a browser — for a code review, a token file, or a tool that only reads HEX — clamp it with a converter rather than eyeballing it. Our OKLCH to HEX, OKLCH to RGB and OKLCH to HSL converters all reduce chroma to the nearest in-gamut color while preserving lightness and hue.
+        {t(locale, 'pages.cssSyntax.outOfGamutBody2', 'If you need the exact in-gamut value before it ever reaches a browser — for a code review, a token file, or a tool that only reads HEX — clamp it with a converter rather than eyeballing it. Our OKLCH to HEX, OKLCH to RGB and OKLCH to HSL converters all reduce chroma to the nearest in-gamut color while preserving lightness and hue.')}
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
         <a href={buildLocalizedPath('/oklch-to-hex', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
           <span class="text-ink font-semibold block">OKLCH → HEX</span>
-          <span class="text-body">Exact sRGB hex</span>
+          <span class="text-body">{t(locale, 'pages.cssSyntax.convHexSub', 'Exact sRGB hex')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-to-rgb', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
           <span class="text-ink font-semibold block">OKLCH → RGB</span>
-          <span class="text-body">0-255 channels</span>
+          <span class="text-body">{t(locale, 'pages.cssSyntax.convRgbSub', '0-255 channels')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-to-hsl', locale)} class="p-3 rounded-lg bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors text-xs font-mono">
           <span class="text-ink font-semibold block">OKLCH → HSL</span>
-          <span class="text-body">Legacy systems</span>
+          <span class="text-body">{t(locale, 'pages.cssSyntax.convHslSub', 'Legacy systems')}</span>
         </a>
       </div>
     </section>
 
     <!-- 8. Browser support -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Browser Support for oklch()</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.browserSupportTitle', 'Browser Support for oklch()')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.browserSupportBody', '<code class="text-ink">oklch()</code> is <strong class="text-ink">Baseline</strong> widely available: per MDN it has been supported across Chrome, Edge, Firefox and Safari since <strong class="text-ink">May 2023</strong>. Every syntax described on this page — including relative color syntax where supported, <code class="text-ink">in oklch</code> interpolation, and the slash alpha form — parses in current browsers.')} />
       <p class="text-xs md:text-sm font-mono text-body">
-        <code class="text-ink">oklch()</code> is <strong class="text-ink">Baseline</strong> widely available: per MDN it has been supported across Chrome, Edge, Firefox and Safari since <strong class="text-ink">May 2023</strong>. Every syntax described on this page — including relative color syntax where supported, <code class="text-ink">in oklch</code> interpolation, and the slash alpha form — parses in current browsers.
-      </p>
-      <p class="text-xs md:text-sm font-mono text-body">
-        <strong class="text-ink">Verified source:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() browser compatibility</a>
+        <strong class="text-ink">{t(locale, 'pages.cssSyntax.verifiedSource', 'Verified source:')}</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.cssSyntax.mdnCompatLink', 'MDN — oklch() browser compatibility')}</a>
       </p>
     </section>
 
     <!-- 9. FAQ -->
     <section class="space-y-4">
-      <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.faqTitle', 'Frequently Asked Questions')}</h2>
       <div class="space-y-3 font-mono text-xs">
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">What is the correct order of values in oklch()?</h3>
-          <p class="text-body leading-relaxed">
-            Lightness first, Chroma second, Hue third — always space-separated — with an optional slash and alpha value at the end: <code class="text-ink">oklch(L C H / A)</code>. There is no alternative ordering and no named parameters.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.cssSyntax.faq1Question', 'What is the correct order of values in oklch()?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.cssSyntax.faq1Answer', 'Lightness first, Chroma second, Hue third — always space-separated — with an optional slash and alpha value at the end: <code class="text-ink">oklch(L C H / A)</code>. There is no alternative ordering and no named parameters.')} />
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Do lightness values have to be percentages?</h3>
-          <p class="text-body leading-relaxed">
-            No. <code class="text-ink">oklch(0.623 0.188 259.8)</code> and <code class="text-ink">oklch(62.3% 0.188 259.8)</code> are identical — the number form is simply the same value written 0–1 instead of 0–100. The percentage form is more common in documentation because the scale is described in percent.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.cssSyntax.faq2Question', 'Do lightness values have to be percentages?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.cssSyntax.faq2Answer', 'No. <code class="text-ink">oklch(0.623 0.188 259.8)</code> and <code class="text-ink">oklch(62.3% 0.188 259.8)</code> are identical — the number form is simply the same value written 0–1 instead of 0–100. The percentage form is more common in documentation because the scale is described in percent.')} />
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">How do I write transparency in oklch()?</h3>
-          <p class="text-body leading-relaxed">
-            Add a slash after the hue, then an alpha number or percentage: <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.4)</code> or <code class="text-ink">... / 40%</code>. The slash form is required — a fourth space-separated number is not valid syntax.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.cssSyntax.faq3Question', 'How do I write transparency in oklch()?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.cssSyntax.faq3Answer', 'Add a slash after the hue, then an alpha number or percentage: <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.4)</code> or <code class="text-ink">... / 40%</code>. The slash form is required — a fourth space-separated number is not valid syntax.')} />
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Why does my oklch() declaration seem to do nothing?</h3>
-          <p class="text-body leading-relaxed">
-            An unparsable color invalidates only that declaration, so the browser falls back to the previous one (or the inherited value). Typical causes: a missing value, a comma instead of a space separator, or the alpha without its slash. Commas are the old CSS Color 3 syntax and are not accepted in <code class="text-ink">oklch()</code>.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.cssSyntax.faq4Question', 'Why does my oklch() declaration seem to do nothing?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.cssSyntax.faq4Answer', 'An unparsable color invalidates only that declaration, so the browser falls back to the previous one (or the inherited value). Typical causes: a missing value, a comma instead of a space separator, or the alpha without its slash. Commas are the old CSS Color 3 syntax and are not accepted in <code class="text-ink">oklch()</code>.')} />
         </div>
         <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-          <h3 class="text-sm font-semibold text-ink">Can I interpolate between two oklch() colors in a gradient?</h3>
-          <p class="text-body leading-relaxed">
-            Yes — state the interpolation space explicitly: <code class="text-ink">linear-gradient(in oklch, ...)</code>. The same <code class="text-ink">in oklch</code> keyword works in <code class="text-ink">color-mix()</code> and conic gradients, and produces evenly spaced ramps without muddy midpoints.
-          </p>
+          <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.cssSyntax.faq5Question', 'Can I interpolate between two oklch() colors in a gradient?')}</h3>
+          <p class="text-body leading-relaxed" set:html={t(locale, 'pages.cssSyntax.faq5Answer', 'Yes — state the interpolation space explicitly: <code class="text-ink">linear-gradient(in oklch, ...)</code>. The same <code class="text-ink">in oklch</code> keyword works in <code class="text-ink">color-mix()</code> and conic gradients, and produces evenly spaced ramps without muddy midpoints.')} />
         </div>
       </div>
     </section>
 
     <!-- 10. Converters -->
     <section class="space-y-4 bg-canvas-card border border-hairline rounded-xl p-6">
-      <h2 class="text-lg font-semibold text-ink">Practice: Convert a Color</h2>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Syntax sticks fastest with real values. Convert a color you use every day into <code class="text-ink">oklch()</code> and read the L, C and H numbers back off the reference table above:
-      </p>
+      <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.cssSyntax.practiceTitle', 'Practice: Convert a Color')}</h2>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.cssSyntax.practiceBody', 'Syntax sticks fastest with real values. Convert a color you use every day into <code class="text-ink">oklch()</code> and read the L, C and H numbers back off the reference table above:')} />
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <a href={buildLocalizedPath('/hex-to-oklch', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">HEX to OKLCH</span>
-          <span class="text-xs font-mono text-body">Paste any hex, get oklch()</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.cssSyntax.convHexToTitle', 'HEX to OKLCH')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.cssSyntax.convHexToSub', 'Paste any hex, get oklch()')}</span>
         </a>
         <a href={buildLocalizedPath('/oklch-converter', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">All Six Converters</span>
-          <span class="text-xs font-mono text-body">Pick any direction between formats</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.cssSyntax.convAllTitle', 'All Six Converters')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.cssSyntax.convAllSub', 'Pick any direction between formats')}</span>
         </a>
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">What is OKLCH?</span>
-          <span class="text-xs font-mono text-body">The concepts behind the syntax</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.cssSyntax.convWhatTitle', 'What is OKLCH?')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.cssSyntax.convWhatSub', 'The concepts behind the syntax')}</span>
         </a>
         <a href={buildLocalizedPath('/learn/oklch-in-tailwind-css-v4', locale)} class="p-4 rounded-xl bg-canvas-raised border border-hairline hover:bg-canvas-elevated transition-colors space-y-1">
-          <span class="text-sm font-semibold text-ink block">OKLCH in Tailwind v4</span>
-          <span class="text-xs font-mono text-body">Using oklch() in @theme</span>
+          <span class="text-sm font-semibold text-ink block">{t(locale, 'pages.cssSyntax.convTailwindTitle', 'OKLCH in Tailwind v4')}</span>
+          <span class="text-xs font-mono text-body">{t(locale, 'pages.cssSyntax.convTailwindSub', 'Using oklch() in @theme')}</span>
         </a>
       </div>
     </section>
 
     <!-- 11. Sources -->
     <section class="space-y-3 pt-6 border-t border-hairline">
-      <h2 class="text-sm font-semibold text-ink">Sources</h2>
+      <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.cssSyntax.sourcesTitle', 'Sources')}</h2>
       <ul class="space-y-1 text-xs font-mono text-body list-disc list-inside">
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — oklch() CSS color function</a></li>
-        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">W3C — CSS Color Module Level 4</a></li>
-        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">Björn Ottosson — Oklab: a perceptual color space</a></li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rule/@supports" class="text-accent-text hover:underline" target="_blank" rel="noopener">MDN — @supports feature queries</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.cssSyntax.sourceMdn', 'MDN — oklch() CSS color function')}</a></li>
+        <li><a href="https://www.w3.org/TR/css-color-4/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.cssSyntax.sourceW3C', 'W3C — CSS Color Module Level 4')}</a></li>
+        <li><a href="https://bottosson.github.io/posts/oklab/" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.cssSyntax.sourceOttosson', 'Björn Ottosson — Oklab: a perceptual color space')}</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rule/@supports" class="text-accent-text hover:underline" target="_blank" rel="noopener">{t(locale, 'pages.cssSyntax.sourceSupports', 'MDN — @supports feature queries')}</a></li>
       </ul>
     </section>
   </div>

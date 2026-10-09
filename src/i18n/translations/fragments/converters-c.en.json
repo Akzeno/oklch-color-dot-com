@@ -1,0 +1,159 @@
+{
+  "pages": {
+    "hslToOklch": {
+      "subtitle": "Convert <code class=\"text-ink\">hsl(h, s%, l%)</code> strings to CSS OKLCH format and eliminate non-uniform perceptual lightness distortion.",
+      "toolAriaLabel": "HSL to OKLCH Converter Tool",
+      "flawTitle": "The Flaw in HSL Lightness",
+      "flawBody": "HSL calculates lightness as a crude geometric average of maximum and minimum RGB channels: <code class=\"text-ink\">(max(R,G,B) + min(R,G,B)) / 2</code>. This ignores the biological reality of human eyes, which are 30 times more sensitive to green and yellow light than blue light. Converting to OKLCH solves this permanently.",
+      "howTitle": "How to Convert HSL to OKLCH",
+      "step1": "Paste any <code class=\"text-ink\">hsl()</code> value (e.g. <code class=\"text-ink\">hsl(217, 91%, 60%)</code>) into the input field above.",
+      "step2": "Our engine converts HSL to RGB, then applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.",
+      "step3": "The result is a perceptually uniform OKLCH value where equal lightness looks equally bright across all hues.",
+      "mathPath": "<strong class=\"text-ink\">The math path:</strong> HSL → RGB (cylindrical to Cartesian) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).",
+      "referenceTitle": "HSL to OKLCH Reference Values",
+      "thSwatch": "Swatch",
+      "thColor": "Color",
+      "thHslCode": "HSL Code",
+      "thOklchValue": "OKLCH Value",
+      "cssSnippetTitle": "Copy-Ready CSS with Progressive Enhancement",
+      "cssSnippet": ".link {\n  color: hsl(217, 91%, 60%); /* fallback */\n  color: {sample}; /* modern browsers */\n}",
+      "gamutTitle": "Gamut Note: HSL is Always sRGB",
+      "gamutBody": "Standard <code class=\"text-ink\">hsl()</code> values are confined to the sRGB gamut by definition. Converting from HSL to OKLCH is therefore always gamut-safe. However, the perceptual improvement is significant: HSL's uneven lightness means that <code class=\"text-ink\">hsl(60, 100%, 50%)</code> (yellow) looks almost white while <code class=\"text-ink\">hsl(240, 100%, 50%)</code> (blue) looks very dark, despite both having 50% lightness. OKLCH fixes this.",
+      "faqTitle": "Frequently Asked Questions",
+      "faq1Question": "What is the main difference between HSL and OKLCH?",
+      "faq1Answer": "HSL's lightness is not perceptually uniform — yellow at 50% lightness looks almost white, while blue at 50% looks dark. OKLCH's lightness is perceptually uniform: 50% lightness looks equally bright regardless of hue.",
+      "faq2Question": "Can I convert HSL with alpha to OKLCH?",
+      "faq2Answer": "Yes. <code class=\"text-ink\">hsla(217, 91%, 60%, 0.5)</code> converts to <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code> — the alpha channel is preserved.",
+      "faq3Question": "Is HSL to OKLCH conversion reversible?",
+      "faq3Answer": "Yes, for sRGB colors. Converting HSL → OKLCH → HSL yields the original values. The round-trip is lossless within the sRGB gamut.",
+      "faq4Question": "Why should I switch from HSL to OKLCH?",
+      "faq4Answer": "OKLCH gives you perceptually uniform lightness, predictable palettes, and access to wide-gamut Display-P3 colors. It makes accessible, consistent color systems far easier to build.",
+      "faq5Question": "Do all browsers support oklch()?",
+      "faq5Answer": "Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.",
+      "learnMore": "Learn more about OKLCH →"
+    },
+    "oklchToHsl": {
+      "subtitle": "Convert CSS <code class=\"text-ink\">oklch()</code> colors to standard <code class=\"text-ink\">hsl(h, s%, l%)</code> strings with automated gamut mapping.",
+      "toolAriaLabel": "OKLCH to HSL Converter Tool",
+      "whyTitle": "Why Convert OKLCH to HSL?",
+      "whyBody": "While modern front-end workflows embrace OKLCH, certain legacy CSS preprocessors, email clients, or native apps continue to mandate HSL formats. Our engine translates OKLCH into standard 360-degree HSL values with graceful gamut clamping.",
+      "howTitle": "How to Convert OKLCH to HSL",
+      "step1": "Paste any <code class=\"text-ink\">oklch()</code> value (e.g. <code class=\"text-ink\">oklch(62.3% 0.188 259.8)</code>) into the input field above.",
+      "step2": "Our engine converts OKLCH to Oklab, then through the inverse LMS matrix to linear RGB, then gamma-encodes to sRGB.",
+      "step3": "sRGB is converted to HSL cylindrical coordinates: hue (0-360), saturation (0-100%), lightness (0-100%).",
+      "mathPath": "<strong class=\"text-ink\">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS) → gamma-encoded sRGB → HSL (cylindrical transform).",
+      "referenceTitle": "OKLCH to HSL Reference Values",
+      "thSwatch": "Swatch",
+      "thOklchInput": "OKLCH Input",
+      "thColorName": "Color Name",
+      "thHslOutput": "HSL Output",
+      "cssSnippetTitle": "Copy-Ready CSS with Progressive Enhancement",
+      "cssSnippet": ".link {\n  color: hsl(217, 91%, 60%); /* fallback */\n  color: {sample}; /* modern browsers */\n}",
+      "gamutTitle": "Gamut Note: Automatic sRGB Mapping",
+      "gamutBody": "When an OKLCH color falls outside the sRGB gamut, our engine automatically clamps chroma to the nearest in-gamut value while preserving hue. The resulting HSL value is always valid and renders consistently across all displays.",
+      "gamutLi1": "<strong class=\"text-ink\">Display-P3 Colors:</strong> On wide-gamut monitors, the original OKLCH color appears more vivid. The HSL output represents the sRGB-clamped version.",
+      "gamutLi2": "<strong class=\"text-ink\">Alpha Preservation:</strong> An OKLCH value with alpha converts to <code class=\"text-ink\">hsla(h, s%, l%, a)</code> with the alpha channel intact.",
+      "faqTitle": "Frequently Asked Questions",
+      "faq1Question": "Why do I need HSL if I have OKLCH?",
+      "faq1Answer": "Legacy tools — email clients, older CSS preprocessors, native apps, and some design tools — only understand HSL. Converting OKLCH to HSL ensures compatibility with these tools.",
+      "faq2Question": "Is the OKLCH to HSL conversion lossy?",
+      "faq2Answer": "For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth.",
+      "faq3Question": "Can I use OKLCH alpha in hsla()?",
+      "faq3Answer": "Yes. <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code> converts to <code class=\"text-ink\">hsla(217, 91%, 60%, 0.5)</code> — the alpha channel is preserved.",
+      "faq4Question": "What happens with out-of-gamut colors?",
+      "faq4Answer": "The engine clamps chroma to the nearest in-gamut value while preserving hue. You will see a gamut badge indicating the color was clamped.",
+      "faq5Question": "How do I use HSL values in email templates?",
+      "faq5Answer": "Many email clients only support HSL or HEX. Use the HSL output directly in your inline styles — it will render consistently across email clients.",
+      "learnMore": "Learn more about OKLCH →"
+    },
+    "converterHub": {
+      "subtitle": "Six converters around one color space: move any web color into CSS <code class=\"text-ink\">oklch()</code> notation, or move <code class=\"text-ink\">oklch()</code> back out into HEX, RGB, or HSL. Pick your direction below.",
+      "directionPickerAriaLabel": "Choose a conversion direction",
+      "directionsTitle": "Choose Your Conversion Direction",
+      "hexDetail": "#3b82f6 from CSS, design tools, or color pickers",
+      "rgbDetail": "rgb(59 130 246) from legacy CSS or JavaScript",
+      "hslDetail": "hsl(217 91% 60%) from older stylesheets",
+      "toHexDetail": "oklch(62.3% 0.188 259.8) when a tool only accepts HEX",
+      "toRgbDetail": "for canvas, WebGL, or any API taking 0-255 channels",
+      "toHslDetail": "for systems that still read hue-saturation-lightness",
+      "tableTitle": "The Same Colors in HEX, RGB, HSL and OKLCH",
+      "buildTimeLabel": "Build-Time Generated",
+      "tableIntro": "Every row is one color written four ways. If you already know one notation, find your value in its column and read across to the <code class=\"text-ink\">oklch()</code> equivalent — no single-purpose tool visit required.",
+      "thColor": "Color",
+      "thName": "Name",
+      "howItWorksTitle": "How OKLCH Conversion Works",
+      "howItWorksBody": "All six converters run the same core pipeline, just entered or exited at different points. Incoming colors are decoded into sRGB channel values, gamma-decoded to linear light, transformed through the Oklab cone-response matrices, and expressed as lightness (L), chroma (C), and hue (H) for <code class=\"text-ink\">oklch()</code>. Conversions in the other direction reverse those exact steps. Because the transformations are deterministic math rather than a lookup table, converting a color to OKLCH and straight back returns the original value for any color inside the sRGB gamut.",
+      "whichTitle": "Which Direction Do You Need?",
+      "whichDir1": "<strong class=\"text-ink\">Writing new CSS or a Tailwind v4 theme?</strong> Convert <em>into</em> OKLCH. Once your values are <code class=\"text-ink\">oklch()</code>, you can shift L or C independently to build scales and hover states without disturbing hue.",
+      "whichDir2": "<strong class=\"text-ink\">Handing a color to a tool that only reads HEX?</strong> Convert <em>out of</em> OKLCH with the OKLCH to HEX converter. The result is the exact sRGB hex the color came from.",
+      "whichDir3": "<strong class=\"text-ink\">Feeding canvas, WebGL, or a charting library?</strong> Use OKLCH to RGB — those APIs want 0-255 channel numbers, not a CSS string.",
+      "whichDir4": "<strong class=\"text-ink\">Maintaining an older stylesheet built on HSL?</strong> Convert HSL to OKLCH to modernize values, or OKLCH to HSL when a legacy system has to keep parsing hue-saturation-lightness.",
+      "gamutTitle": "Gamut Notes Across All Six Converters",
+      "gamut1": "<strong class=\"text-ink\">Into OKLCH is always safe.</strong> HEX, RGB, and HSL inputs are sRGB colors by definition, so their OKLCH results never need gamut clipping.",
+      "gamut2": "<strong class=\"text-ink\">Out of OKLCH may clamp.</strong> OKLCH can describe colors wider than sRGB. When you convert an out-of-gamut <code class=\"text-ink\">oklch()</code> value to HEX, RGB, or HSL, chroma is reduced to the nearest in-gamut color — the hue and lightness are preserved.",
+      "gamut3": "<strong class=\"text-ink\">Alpha travels with the color.</strong> Transparency converts across every direction and lands in the standard CSS slash syntax, e.g. <code class=\"text-ink\">oklch(62.3% 0.188 259.8 / 0.5)</code>.",
+      "faqTitle": "Frequently Asked Questions",
+      "faq1Question": "What is an OKLCH converter?",
+      "faq1Answer": "An OKLCH converter translates a color between CSS <code class=\"text-ink\">oklch()</code> notation and another notation such as HEX, RGB, or HSL. It is useful whenever one end of your pipeline speaks perceptual OKLCH and the other end still speaks channel-based or legacy color formats.",
+      "faq2Question": "Is converting to OKLCH and back lossless?",
+      "faq2Answer": "Yes, for every sRGB color. The conversion pipeline is deterministic math with no rounding table behind it, so a HEX value round-trips to the identical 6-digit code. The one exception is converting an out-of-gamut <code class=\"text-ink\">oklch()</code> value down to sRGB, where chroma must be clamped — by definition an approximation.",
+      "faq3Question": "Do browsers support oklch() without conversion?",
+      "faq3Answer": "Yes. <code class=\"text-ink\">oklch()</code> is a Baseline feature available in all major browsers since May 2023, so modern stylesheets can use it directly. Conversion is for the boundaries of your toolchain — exports, legacy systems, and APIs — not for the browser itself. See the MDN compatibility table for details.",
+      "faq4Question": "Does Tailwind CSS v4 need OKLCH conversion?",
+      "faq4Answer": "Tailwind v4 ships its default palette as OKLCH values, so custom colors defined in <code class=\"text-ink\">@theme</code> can be written directly as <code class=\"text-ink\">oklch()</code> with no conversion step. Use a converter only when your source values are still HEX, RGB, or HSL.",
+      "faq5Question": "What do the three OKLCH numbers mean?",
+      "faq5Answer": "Lightness (L) runs from 0% to 100% and behaves like perceptual brightness; Chroma (C) is saturation, starting at 0 for gray; Hue (H) is the angle in degrees around the color wheel. Keeping them in separate channels is what lets you adjust brightness without shifting the color.",
+      "learnMore": "Learn more about OKLCH →"
+    }
+  },
+  "seo": {
+    "hslToOklch": {
+      "faqs": [
+        {
+          "question": "What is the main difference between HSL and OKLCH?",
+          "answer": "HSL's lightness is not perceptually uniform — yellow at 50% lightness looks almost white, while blue at 50% looks dark. OKLCH's lightness is perceptually uniform: 50% lightness looks equally bright regardless of hue."
+        },
+        {
+          "question": "Can I convert HSL with alpha to OKLCH?",
+          "answer": "Yes. hsla(217, 91%, 60%, 0.5) converts to oklch(62.3% 0.188 259.8 / 0.5) — the alpha channel is preserved."
+        },
+        {
+          "question": "Is HSL to OKLCH conversion reversible?",
+          "answer": "Yes, for sRGB colors. Converting HSL → OKLCH → HSL yields the original values. The round-trip is lossless within the sRGB gamut."
+        },
+        {
+          "question": "Why should I switch from HSL to OKLCH?",
+          "answer": "OKLCH gives you perceptually uniform lightness, predictable palettes, and access to wide-gamut Display-P3 colors. It makes accessible, consistent color systems far easier to build."
+        },
+        {
+          "question": "Do all browsers support oklch()?",
+          "answer": "Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively."
+        }
+      ]
+    },
+    "oklchToHsl": {
+      "faqs": [
+        {
+          "question": "Why do I need HSL if I have OKLCH?",
+          "answer": "Legacy tools — email clients, older CSS preprocessors, native apps, and some design tools — only understand HSL. Converting OKLCH to HSL ensures compatibility with these tools."
+        },
+        {
+          "question": "Is the OKLCH to HSL conversion lossy?",
+          "answer": "For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth."
+        },
+        {
+          "question": "Can I use OKLCH alpha in hsla()?",
+          "answer": "Yes. oklch(62.3% 0.188 259.8 / 0.5) converts to hsla(217, 91%, 60%, 0.5) — the alpha channel is preserved."
+        },
+        {
+          "question": "What happens with out-of-gamut colors?",
+          "answer": "The engine clamps chroma to the nearest in-gamut value while preserving hue. You will see a gamut badge indicating the color was clamped."
+        },
+        {
+          "question": "How do I use HSL values in email templates?",
+          "answer": "Many email clients only support HSL or HEX. Use the HSL output directly in your inline styles — it will render consistently across email clients."
+        }
+      ]
+    }
+  }
+}

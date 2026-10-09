@@ -5,6 +5,7 @@ import RelatedTools from '../components/common/RelatedTools.astro';
 import { getBuildTimeColorTable } from '../utils/seoTables';
 import { parseAnyToOklch, formatOklch } from '../utils/color';
 import { localizedSeo } from '../i18n/seo';
+import { t } from '../i18n/translations';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
 
 interface Props {
@@ -25,6 +26,12 @@ const examplesTable = getBuildTimeColorTable('hsl-to-oklch');
 
 const sampleColor = parseAnyToOklch('#3b82f6');
 const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 259.8)';
+
+const cssSnippet = t(
+  locale,
+  'pages.hslToOklch.cssSnippet',
+  '.link {\n  color: hsl(217, 91%, 60%); /* fallback */\n  color: {sample}; /* modern browsers */\n}'
+).replace('{sample}', sampleOklch);
 ---
 
 <AppLayout
@@ -40,49 +47,43 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Convert <code class="text-ink">hsl(h, s%, l%)</code> strings to CSS OKLCH format and eliminate non-uniform perceptual lightness distortion.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.hslToOklch.subtitle', 'Convert <code class="text-ink">hsl(h, s%, l%)</code> strings to CSS OKLCH format and eliminate non-uniform perceptual lightness distortion.')} />
     </div>
 
-    <section aria-label="HSL to OKLCH Converter Tool">
-      <ConverterIsland client:load initialMode="hsl-to-oklch" />
+    <section aria-label={t(locale, 'pages.hslToOklch.toolAriaLabel', 'HSL to OKLCH Converter Tool')}>
+      <ConverterIsland client:load initialMode="hsl-to-oklch" locale={locale} />
     </section>
 
     <div class="space-y-10 pt-8 border-t border-hairline">
       <!-- 1. Intro -->
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-ink">The Flaw in HSL Lightness</h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          HSL calculates lightness as a crude geometric average of maximum and minimum RGB channels: <code class="text-ink">(max(R,G,B) + min(R,G,B)) / 2</code>. This ignores the biological reality of human eyes, which are 30 times more sensitive to green and yellow light than blue light. Converting to OKLCH solves this permanently.
-        </p>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.hslToOklch.flawTitle', 'The Flaw in HSL Lightness')}</h2>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.hslToOklch.flawBody', 'HSL calculates lightness as a crude geometric average of maximum and minimum RGB channels: <code class="text-ink">(max(R,G,B) + min(R,G,B)) / 2</code>. This ignores the biological reality of human eyes, which are 30 times more sensitive to green and yellow light than blue light. Converting to OKLCH solves this permanently.')} />
       </section>
 
       <!-- 2. How to Convert -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
-        <h2 class="text-base font-semibold text-ink">How to Convert HSL to OKLCH</h2>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.hslToOklch.howTitle', 'How to Convert HSL to OKLCH')}</h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li>Paste any <code class="text-ink">hsl()</code> value (e.g. <code class="text-ink">hsl(217, 91%, 60%)</code>) into the input field above.</li>
-          <li>Our engine converts HSL to RGB, then applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.</li>
-          <li>The result is a perceptually uniform OKLCH value where equal lightness looks equally bright across all hues.</li>
+          <li set:html={t(locale, 'pages.hslToOklch.step1', 'Paste any <code class="text-ink">hsl()</code> value (e.g. <code class="text-ink">hsl(217, 91%, 60%)</code>) into the input field above.')} />
+          <li>{t(locale, 'pages.hslToOklch.step2', 'Our engine converts HSL to RGB, then applies gamma decoding to get linear RGB, then transforms through the Oklab LMS cone response matrices.')}</li>
+          <li>{t(locale, 'pages.hslToOklch.step3', 'The result is a perceptually uniform OKLCH value where equal lightness looks equally bright across all hues.')}</li>
         </ol>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">The math path:</strong> HSL → RGB (cylindrical to Cartesian) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.hslToOklch.mathPath', '<strong class="text-ink">The math path:</strong> HSL → RGB (cylindrical to Cartesian) → linear RGB (gamma decode) → Oklab (LMS matrices) → OKLCH (cylindrical transform).')} />
       </section>
 
       <!-- 3. Reference Table -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">HSL to OKLCH Reference Values</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.hslToOklch.referenceTitle', 'HSL to OKLCH Reference Values')}</h2>
         <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-canvas-elevated border-b border-hairline text-mute text-[11px] uppercase">
                 <tr>
-                  <th class="p-3">Swatch</th>
-                  <th class="p-3">Color</th>
-                  <th class="p-3">HSL Code</th>
-                  <th class="p-3">OKLCH Value</th>
+                  <th class="p-3">{t(locale, 'pages.hslToOklch.thSwatch', 'Swatch')}</th>
+                  <th class="p-3">{t(locale, 'pages.hslToOklch.thColor', 'Color')}</th>
+                  <th class="p-3">{t(locale, 'pages.hslToOklch.thHslCode', 'HSL Code')}</th>
+                  <th class="p-3">{t(locale, 'pages.hslToOklch.thOklchValue', 'OKLCH Value')}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-hairline">
@@ -104,9 +105,9 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
 
       <!-- 4. CSS Snippet -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
-        <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
+        <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.hslToOklch.cssSnippetTitle', 'Copy-Ready CSS with Progressive Enhancement')}</h2>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>.link &#123;{'\n'}  color: hsl(217, 91%, 60%); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
+          <code>{cssSnippet}</code></pre>
         <p class="text-xs md:text-sm font-mono text-body pt-2">
           <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
         </p>
@@ -116,44 +117,40 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
-        <h2 class="text-base font-semibold text-ink">Gamut Note: HSL is Always sRGB</h2>
-        <p class="text-xs md:text-sm font-mono text-body">
-          Standard <code class="text-ink">hsl()</code> values are confined to the sRGB gamut by definition. Converting from HSL to OKLCH is therefore always gamut-safe. However, the perceptual improvement is significant: HSL's uneven lightness means that <code class="text-ink">hsl(60, 100%, 50%)</code> (yellow) looks almost white while <code class="text-ink">hsl(240, 100%, 50%)</code> (blue) looks very dark, despite both having 50% lightness. OKLCH fixes this.
-        </p>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.hslToOklch.gamutTitle', 'Gamut Note: HSL is Always sRGB')}</h2>
+        <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.hslToOklch.gamutBody', 'Standard <code class="text-ink">hsl()</code> values are confined to the sRGB gamut by definition. Converting from HSL to OKLCH is therefore always gamut-safe. However, the perceptual improvement is significant: HSL\'s uneven lightness means that <code class="text-ink">hsl(60, 100%, 50%)</code> (yellow) looks almost white while <code class="text-ink">hsl(240, 100%, 50%)</code> (blue) looks very dark, despite both having 50% lightness. OKLCH fixes this.')} />
       </section>
 
       <!-- 6. FAQ -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.hslToOklch.faqTitle', 'Frequently Asked Questions')}</h2>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What is the main difference between HSL and OKLCH?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.hslToOklch.faq1Question', 'What is the main difference between HSL and OKLCH?')}</h3>
             <p class="text-body leading-relaxed">
-              HSL's lightness is not perceptually uniform — yellow at 50% lightness looks almost white, while blue at 50% looks dark. OKLCH's lightness is perceptually uniform: 50% lightness looks equally bright regardless of hue.
+              {t(locale, 'pages.hslToOklch.faq1Answer', "HSL's lightness is not perceptually uniform — yellow at 50% lightness looks almost white, while blue at 50% looks dark. OKLCH's lightness is perceptually uniform: 50% lightness looks equally bright regardless of hue.")}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Can I convert HSL with alpha to OKLCH?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.hslToOklch.faq2Question', 'Can I convert HSL with alpha to OKLCH?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.hslToOklch.faq2Answer', 'Yes. <code class="text-ink">hsla(217, 91%, 60%, 0.5)</code> converts to <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> — the alpha channel is preserved.')} />
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.hslToOklch.faq3Question', 'Is HSL to OKLCH conversion reversible?')}</h3>
             <p class="text-body leading-relaxed">
-              Yes. <code class="text-ink">hsla(217, 91%, 60%, 0.5)</code> converts to <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> — the alpha channel is preserved.
+              {t(locale, 'pages.hslToOklch.faq3Answer', 'Yes, for sRGB colors. Converting HSL → OKLCH → HSL yields the original values. The round-trip is lossless within the sRGB gamut.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Is HSL to OKLCH conversion reversible?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.hslToOklch.faq4Question', 'Why should I switch from HSL to OKLCH?')}</h3>
             <p class="text-body leading-relaxed">
-              Yes, for sRGB colors. Converting HSL → OKLCH → HSL yields the original values. The round-trip is lossless within the sRGB gamut.
+              {t(locale, 'pages.hslToOklch.faq4Answer', 'OKLCH gives you perceptually uniform lightness, predictable palettes, and access to wide-gamut Display-P3 colors. It makes accessible, consistent color systems far easier to build.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Why should I switch from HSL to OKLCH?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.hslToOklch.faq5Question', 'Do all browsers support oklch()?')}</h3>
             <p class="text-body leading-relaxed">
-              OKLCH gives you perceptually uniform lightness, predictable palettes, and access to wide-gamut Display-P3 colors. It makes accessible, consistent color systems far easier to build.
-            </p>
-          </div>
-          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Do all browsers support oklch()?</h3>
-            <p class="text-body leading-relaxed">
-              Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.
+              {t(locale, 'pages.hslToOklch.faq5Answer', 'Yes. oklch() is a Baseline feature available across all modern browsers since May 2023. Chrome, Edge, Safari, and Firefox all support it natively.')}
             </p>
           </div>
         </div>
@@ -165,7 +162,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 8. Learn Link -->
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.hslToOklch.learnMore', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

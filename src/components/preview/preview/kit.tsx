@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { Swatch, unsetStyle } from './Swatch';
 import { ACCENT, STAGE, tint, type AccentRole, type Paint, type SlotValue } from './slots';
+import { t } from '../../../i18n/translations';
 
 /**
  * The dummy component kit.
@@ -77,7 +78,7 @@ export function KitText({
 }) {
   const ink = labelInk(paint);
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={ink.slot}
       role="text"
       step={ink.slot?.requested ?? STAGE.text.steps[paint.theme]}
@@ -107,7 +108,7 @@ export function KitMuted({
 }) {
   const slot = paint.muted;
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={slot}
       role="text"
       step={slot?.requested ?? STAGE.muted.steps[paint.theme]}
@@ -139,7 +140,7 @@ export function KitSurface({
 }) {
   const slot = level === 'raised' ? paint.fixture.raised : paint.fixture.surface;
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={slot}
       role="background"
       step={slot?.requested ?? STAGE[level].steps[paint.theme]}
@@ -189,7 +190,7 @@ export function KitEdge({
   const sides =
     side === 'all' ? '' : side === 'top' ? 'border-t' : 'border-b';
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={edge}
       role="background"
       step={edge?.requested ?? STAGE.border.steps[paint.theme]}
@@ -254,7 +255,7 @@ export function KitButton({
         radius="0.75rem"
         class={`${base} border ${pair.fill ? '' : 'border-dashed'}`}
       >
-        <Swatch
+        <Swatch locale={paint.locale}
           slot={pair.fill}
           role={role}
           step={ACCENT.fill[paint.theme]}
@@ -271,7 +272,7 @@ export function KitButton({
 
   if (variant === 'ghost') {
     return (
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={pair.fill}
         role={role}
         step={ACCENT.fill[paint.theme]}
@@ -291,7 +292,7 @@ export function KitButton({
   const soft = variant === 'soft';
 
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={pair.fill}
       role={role}
       step={ACCENT.fill[paint.theme]}
@@ -315,7 +316,7 @@ export function KitButton({
         ...(!pair.fill ? unsetStyle(paint.theme) : {}),
       }}
     >
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={pair.on}
         role={role}
         step={onStep(paint)}
@@ -370,7 +371,7 @@ export function KitIconButton({
 }) {
   const pair = paint.accents[role];
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={pair.fill}
       role={role}
       step={ACCENT.fill[paint.theme]}
@@ -436,7 +437,7 @@ export function KitSwitch({ paint, role = 'primary', on = true }: { paint: Paint
   const pair = paint.accents[role];
   const track = on ? pair.fill : paint.fixture.border;
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={track}
       role={on ? role : 'background'}
       step={on ? ACCENT.fill[paint.theme] : (paint.fixture.border?.requested ?? 800)}
@@ -459,10 +460,11 @@ export function KitSwitch({ paint, role = 'primary', on = true }: { paint: Paint
 }
 
 /** A switch with its label — the form control people actually ship. */
-export function KitSwitchRow({ paint, role = 'primary', label = 'Notify me' }: { paint: Paint; role?: AccentRole; label?: string }) {
+export function KitSwitchRow({ paint, role = 'primary', label }: { paint: Paint; role?: AccentRole; label?: string }) {
+  const text = label ?? t(paint.locale, 'ui.preview.forms.labelNotifyMe', 'Notify me');
   return (
     <div class="flex items-center justify-between gap-3 w-full">
-      <KitText paint={paint}>{label}</KitText>
+      <KitText paint={paint}>{text}</KitText>
       <KitSwitch paint={paint} role={role} on />
     </div>
   );
@@ -472,7 +474,7 @@ export function KitSwitchRow({ paint, role = 'primary', label = 'Notify me' }: {
 export function KitCheckbox({ paint, role = 'primary', checked = true }: { paint: Paint; role?: AccentRole; checked?: boolean }) {
   const pair = paint.accents[role];
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={pair.fill}
       role={role}
       step={ACCENT.fill[paint.theme]}
@@ -512,7 +514,7 @@ export function KitCheckboxRow({ paint, label, role = 'primary', checked = true 
 export function KitRadio({ paint, role = 'primary', selected = true }: { paint: Paint; role?: AccentRole; selected?: boolean }) {
   const pair = paint.accents[role];
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={pair.fill}
       role={role}
       step={ACCENT.fill[paint.theme]}
@@ -556,7 +558,7 @@ export function KitSlider({ paint, role = 'primary', at = 0.5 }: { paint: Paint;
   return (
     <div class="w-full py-4" aria-hidden="true">
       <div class="relative h-3 rounded-full overflow-hidden" style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
-        <Swatch
+        <Swatch locale={paint.locale}
           slot={pair.fill}
           role={role}
           step={ACCENT.fill[paint.theme]}
@@ -602,7 +604,7 @@ export function KitBadge({
   if (variant === 'outline') {
     return (
       <KitEdge paint={paint} slot={pair.fill} radius="9999px" class={base}>
-        <Swatch slot={pair.fill} role={role} step={ACCENT.fill[paint.theme]} pending={!pair.fill} part="text" as="span" style={pair.fill ? undefined : unsetStyle(paint.theme)}>
+        <Swatch locale={paint.locale} slot={pair.fill} role={role} step={ACCENT.fill[paint.theme]} pending={!pair.fill} part="text" as="span" style={pair.fill ? undefined : unsetStyle(paint.theme)}>
           {label}
         </Swatch>
       </KitEdge>
@@ -610,7 +612,7 @@ export function KitBadge({
   }
 
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={pair.fill}
       role={role}
       step={ACCENT.fill[paint.theme]}
@@ -622,7 +624,7 @@ export function KitBadge({
         ...(!pair.fill ? unsetStyle(paint.theme) : {}),
       }}
     >
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={pair.on}
         role={role}
         step={onStep(paint)}
@@ -669,7 +671,7 @@ export function KitAvatar({
       class="rounded-full shrink-0 flex items-center justify-center font-semibold"
       style={{ ...box, fontSize: textSize }}
     >
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={pair.fill}
         role={role}
         step={ACCENT.fill[paint.theme]}
@@ -685,7 +687,7 @@ export function KitAvatar({
           ...(!pair.fill ? unsetStyle(paint.theme) : {}),
         }}
       >
-        <Swatch
+        <Swatch locale={paint.locale}
           slot={pair.on}
           role={role}
           step={onStep(paint)}
@@ -764,7 +766,7 @@ export function KitField({
         {label}
       </KitText>
 
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={edge}
         role={invalid ? 'danger' : 'background'}
         step={edge?.requested ?? 800}
@@ -778,7 +780,7 @@ export function KitField({
           ...(edge ? {} : unsetStyle(paint.theme)),
         }}
       >
-        <Swatch
+        <Swatch locale={paint.locale}
           slot={paint.text}
           role="text"
           step={paint.text?.requested ?? STAGE.text.steps[paint.theme]}
@@ -798,7 +800,7 @@ export function KitField({
       </Swatch>
 
       {invalid ? (
-        <Swatch
+        <Swatch locale={paint.locale}
           slot={paint.accents.danger.fill}
           role="danger"
           step={ACCENT.fill[paint.theme]}
@@ -809,7 +811,7 @@ export function KitField({
           class="block text-[11px]"
           style={paint.accents.danger.fill ? undefined : unsetStyle(paint.theme)}
         >
-          {hint ?? 'That value is not a valid OKLCH triple.'}
+          {hint ?? t(paint.locale, 'ui.preview.kit.invalidHint', 'That value is not a valid OKLCH triple.')}
         </Swatch>
       ) : hint ? (
         <KitMuted paint={paint} class="block text-[11px]">
@@ -840,7 +842,7 @@ export function KitTabs({ paint, items, active = 0 }: { paint: Paint; items: str
           const on = i === active;
           return (
             <div key={item} class={`px-3 py-2.5 text-[13px] font-medium whitespace-nowrap ${on ? '' : ''}`}>
-              <Swatch
+              <Swatch locale={paint.locale}
                 slot={on ? pair.fill : paint.text}
                 role={on ? 'primary' : 'text'}
                 step={on ? ACCENT.fill[paint.theme] : (paint.text?.requested ?? 100)}
@@ -874,9 +876,10 @@ export function KitTabs({ paint, items, active = 0 }: { paint: Paint; items: str
  * magnifier and the query look the same is the classic way a de-emphasis role
  * quietly stops working.
  */
-export function KitSearch({ paint, placeholder = 'Search palettes' }: { paint: Paint; placeholder?: string }) {
+export function KitSearch({ paint, placeholder }: { paint: Paint; placeholder?: string }) {
+  const text = placeholder ?? t(paint.locale, 'ui.preview.kit.searchPlaceholder', 'Search palettes');
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={paint.fixture.border}
       role="background"
       step={paint.fixture.border?.requested ?? 800}
@@ -890,7 +893,7 @@ export function KitSearch({ paint, placeholder = 'Search palettes' }: { paint: P
         <path stroke-linecap="round" d="m20 20-3.5-3.5" />
       </svg>
       <KitMuted paint={paint} class="text-[12px] flex-1">
-        {placeholder}
+        {text}
       </KitMuted>
     </Swatch>
   );
@@ -947,7 +950,7 @@ export function KitProgress({ paint, role = 'primary', at = 0.62 }: { paint: Pai
   return (
     <div class="w-full space-y-1.5">
       <div class="h-2.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: paint.fixture.raised?.css ?? 'transparent' }}>
-        <Swatch
+        <Swatch locale={paint.locale}
           slot={pair.fill}
           role={role}
           step={ACCENT.fill[paint.theme]}
@@ -958,7 +961,10 @@ export function KitProgress({ paint, role = 'primary', at = 0.62 }: { paint: Pai
         />
       </div>
       <KitMuted paint={paint} class="text-[11px]">
-        Converting · {Math.round(at * 100)}%
+        {t(paint.locale, 'ui.preview.kit.converting', 'Converting · {pct}%').replace(
+          '{pct}',
+          String(Math.round(at * 100))
+        )}
       </KitMuted>
     </div>
   );
@@ -982,7 +988,7 @@ export function KitAlert({
 }) {
   const pair = paint.accents[role];
   return (
-    <Swatch
+    <Swatch locale={paint.locale}
       slot={pair.fill}
       role={role}
       step={ACCENT.fill[paint.theme]}
@@ -995,7 +1001,7 @@ export function KitAlert({
         borderWidth: 1,
       }}
     >
-      <Swatch
+      <Swatch locale={paint.locale}
         slot={pair.fill}
         role={role}
         step={ACCENT.fill[paint.theme]}
@@ -1038,7 +1044,7 @@ export function KitStat({
           {value}
         </KitText>
         {delta && (
-          <Swatch
+          <Swatch locale={paint.locale}
             slot={paint.accents[deltaRole].fill}
             role={deltaRole}
             step={ACCENT.fill[paint.theme]}
@@ -1072,7 +1078,7 @@ export function KitBars({ paint, values }: { paint: Paint; values?: number[] }) 
     <div class="w-full space-y-2">
       <div class="flex items-end gap-1.5 h-28" aria-hidden="true">
         {roles.map((role, i) => (
-          <Swatch
+          <Swatch locale={paint.locale}
             key={role}
             slot={paint.accents[role].fill}
             role={role}
@@ -1098,7 +1104,7 @@ export function KitBars({ paint, values }: { paint: Paint; values?: number[] }) 
         ))}
       </div>
       <KitMuted paint={paint} class="block text-center text-[10px]">
-        One bar per accent role
+        {t(paint.locale, 'ui.preview.kit.barsCaption', 'One bar per accent role')}
       </KitMuted>
     </div>
   );
@@ -1258,12 +1264,12 @@ export function KitEmptyState({ paint }: { paint: Paint }) {
         </svg>
       </div>
       <KitText paint={paint} class="text-[12px] font-semibold">
-        Nothing saved yet
+        {t(paint.locale, 'ui.preview.kit.nothingSaved', 'Nothing saved yet')}
       </KitText>
       <KitMuted paint={paint} class="text-[10px] leading-[14px]">
-        Collections you pin will show up here.
+        {t(paint.locale, 'ui.preview.kit.emptyStateBody', 'Collections you pin will show up here.')}
       </KitMuted>
-      <KitButton paint={paint} role="trusty-button" label="New palette" variant="soft" size="sm" />
+      <KitButton paint={paint} role="trusty-button" label={t(paint.locale, 'ui.preview.kit.newPalette', 'New palette')} variant="soft" size="sm" />
     </div>
   );
 }
@@ -1305,7 +1311,7 @@ export function KitSurfaceish({
           {children}
         </KitText>
         <KitMuted paint={paint} class="block text-[10px] mt-0.5">
-          just now
+          {t(paint.locale, 'ui.preview.kit.justNow', 'just now')}
         </KitMuted>
       </div>
     </div>

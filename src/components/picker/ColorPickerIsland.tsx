@@ -13,6 +13,8 @@ import {
   type ColorModel,
 } from '../../utils/color';
 import { goTo } from '../../utils/navigate';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import {
   addColorToCart,
   cartStore,
@@ -34,12 +36,16 @@ import ColorSwatch from '../common/ColorSwatch';
 import VariableNameInput from '../common/VariableNameInput';
 
 /** Copies then confirms, so the flash is tied to the value that was copied. */
-function copyValue(value: string, label: string) {
+function copyValue(locale: LocaleCode, value: string, label: string) {
   navigator.clipboard.writeText(value);
-  showToast(`${label} copied`);
+  showToast(t(locale, 'ui.picker.copied', '{label} copied').replace('{label}', label));
 }
 
-export default function ColorPickerIsland() {
+interface Props {
+  locale?: LocaleCode;
+}
+
+export default function ColorPickerIsland({ locale = 'en' }: Props) {
   const cart = useCart();
 
   const [l, setL] = useState(0.62);
@@ -263,13 +269,23 @@ export default function ColorPickerIsland() {
 
   /** 'free' handoffs have no slot to name, so they get their own wording. */
   const handoffIsFree = handoff?.mode === 'free';
-  const handoffActionLabel = handoffIsFree ? 'Use colour' : handoffReturnTo ? 'Save & return' : 'Save';
+  const handoffActionLabel = handoffIsFree
+    ? t(locale, 'ui.picker.useColour', 'Use colour')
+    : handoffReturnTo
+      ? t(locale, 'ui.picker.saveAndReturn', 'Save & return')
+      : t(locale, 'ui.picker.save', 'Save');
 
   const gamut = color.inSRGB
     ? { dot: 'bg-copy-success', text: 'sRGB', faq: 'faq-gamut-srgb' }
     : color.inP3
       ? { dot: 'bg-gamut-p3', text: 'Display-P3', faq: 'faq-gamut-p3' }
-      : { dot: 'bg-gamut-warning', text: 'Clipped', faq: 'faq-gamut-clipped' };
+      : {
+          dot: 'bg-gamut-warning',
+          // sRGB / Display-P3 are proper gamut names and stay untranslated;
+          // "Clipped" is ordinary prose (pt.json renders it "Recortado").
+          text: t(locale, 'ui.picker.gamutClipped', 'Clipped'),
+          faq: 'faq-gamut-clipped',
+        };
 
   /*
    * The badge is the only place on this page where gamut jargon lands with no
@@ -348,14 +364,28 @@ export default function ColorPickerIsland() {
           <span class="font-mono text-label text-body min-w-0 truncate">
             {handoffIsFree ? (
               <>
-                Editing{' '}
-                <span class="text-ink">colour sent from {handoffReturnTo ?? 'this page'}</span>
+                {t(locale, 'ui.picker.editing', 'Editing')}{' '}
+                <span class="text-ink">
+                  {t(locale, 'ui.picker.colourSentFrom', 'colour sent from {source}').replace(
+                    '{source}',
+                    handoffReturnTo ?? t(locale, 'ui.picker.thisPage', 'this page')
+                  )}
+                </span>
               </>
             ) : (
               <>
-                {handoff.color ? 'Editing' : 'Creating'}{' '}
+                {handoff.color
+                  ? t(locale, 'ui.picker.editing', 'Editing')
+                  : t(locale, 'ui.picker.creating', 'Creating')}{' '}
                 <span class="text-ink">--color-{handoff.roleId}-{handoff.step}</span>
-                <span class="text-faint"> · {handoffRole?.name ?? handoff.roleId}</span>
+                <span class="text-faint">
+                  {' · '}
+                  {t(
+                    locale,
+                    'ui.roles.' + handoff.roleId,
+                    handoffRole?.name ?? handoff.roleId
+                  )}
+                </span>
               </>
             )}
           </span>
@@ -365,10 +395,14 @@ export default function ColorPickerIsland() {
                 instead of the browser performing a full document load. */}
             {handoffReturnTo && (
               <a href={handoffReturnTo} class="btn btn-quiet !min-h-8 !px-2.5">
-                Back
+                {t(locale, 'ui.picker.back', 'Back')}
               </a>
             )}
-            <button onClick={cancelHandoff} class="btn btn-quiet !min-h-8 !px-2.5" aria-label="Cancel edit">
+            <button
+              onClick={cancelHandoff}
+              class="btn btn-quiet !min-h-8 !px-2.5"
+              aria-label={t(locale, 'ui.picker.cancelEdit', 'Cancel edit')}
+            >
               <X class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
             </button>
             <button onClick={handleAddToCart} class="btn btn-primary !min-h-8 !px-3">
@@ -412,19 +446,19 @@ export default function ColorPickerIsland() {
                 type="button"
                 onClick={() => showGamutFaq(gamut.faq)}
                 class="pill pill-link dark-scope !bg-black/60 backdrop-blur-md !border-white/10 hover:!bg-black/80 transition-colors"
-                title="What does this label mean?"
+                title={t(locale, 'ui.picker.gamutFaqHint', 'What does this label mean?')}
               >
                 <span class={`w-1.5 h-1.5 rounded-full ${gamut.dot}`} />
                 {gamut.text}
                 <span class="text-faint">·</span>
-                step {nearestStep}
+                {t(locale, 'ui.picker.step', 'step {step}').replace('{step}', String(nearestStep))}
               </button>
 
               <button
                 onClick={randomizeColor}
                 class="icon-btn dark-scope !h-7 !w-7 !bg-black/60 backdrop-blur-md !border !border-white/10 hover:!bg-black/80"
-                title="Randomise"
-                aria-label="Randomise colour"
+                title={t(locale, 'ui.picker.randomise', 'Randomise')}
+                aria-label={t(locale, 'ui.picker.randomiseColour', 'Randomise colour')}
               >
                 <Dices class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
               </button>
@@ -434,10 +468,10 @@ export default function ColorPickerIsland() {
             <div class="absolute bottom-2 left-2 right-2 dock !rounded-md flex items-center gap-2 !px-2.5 !py-1.5">
               <span class="flex-1 min-w-0 font-mono text-hud text-ink truncate">{oklchString}</span>
               <button
-                onClick={() => copyValue(oklchString, 'OKLCH')}
+                onClick={() => copyValue(locale, oklchString, 'OKLCH')}
                 class="icon-btn !h-6 !w-6 hover:!bg-ink/10"
-                title="Copy oklch()"
-                aria-label="Copy oklch value"
+                title={t(locale, 'ui.picker.copyOklch', 'Copy oklch()')}
+                aria-label={t(locale, 'ui.picker.copyOklchValue', 'Copy oklch value')}
               >
                 <Copy class="w-3.5 h-3.5 text-ink" aria-hidden="true" strokeWidth={2} />
               </button>
@@ -458,21 +492,24 @@ export default function ColorPickerIsland() {
         <div class="lg:col-span-5 card space-y-4">
           {(
             [
-              { key: 'L', label: 'Lightness', value: `${(l * 100).toFixed(1)}%`, min: 0, max: 1, step: 0.005, track: lTrack, set: setL },
+              { key: 'L', label: t(locale, 'ui.picker.lightness', 'Lightness'), value: `${(l * 100).toFixed(1)}%`, min: 0, max: 1, step: 0.005, track: lTrack, set: setL },
               {
                 key: 'C',
-                label: 'Chroma',
+                label: t(locale, 'ui.picker.chroma', 'Chroma'),
                 value: c.toFixed(3),
                 // Sub-label marks the in-gamut ceiling on the ramp itself.
-                note: `max ${maxChroma.toFixed(3)}`,
+                note: t(locale, 'ui.picker.maxNote', 'max {value}').replace(
+                  '{value}',
+                  maxChroma.toFixed(3)
+                ),
                 min: 0,
                 max: 0.37,
                 step: 0.002,
                 track: cTrack,
                 set: setC,
               },
-              { key: 'H', label: 'Hue', value: `${h.toFixed(1)}°`, min: 0, max: 360, step: 1, track: hTrack, set: setH },
-              { key: 'A', label: 'Alpha', value: `${Math.round(alpha * 100)}%`, min: 0, max: 1, step: 0.01, track: alphaTrack, set: setAlpha },
+              { key: 'H', label: t(locale, 'ui.picker.hue', 'Hue'), value: `${h.toFixed(1)}°`, min: 0, max: 360, step: 1, track: hTrack, set: setH },
+              { key: 'A', label: t(locale, 'ui.picker.alpha', 'Alpha'), value: `${Math.round(alpha * 100)}%`, min: 0, max: 1, step: 0.01, track: alphaTrack, set: setAlpha },
             ] as const
           ).map((s) => (
             <div key={s.key}>
@@ -525,15 +562,18 @@ export default function ColorPickerIsland() {
                 value={f.value}
                 spellcheck={false}
                 autocomplete="off"
-                aria-label={`${f.label} value`}
+                aria-label={t(locale, 'ui.picker.valueOf', '{label} value').replace('{label}', f.label)}
                 onChange={(e) => handleInputChange((e.target as HTMLInputElement).value)}
                 class="flex-1 min-w-0 bg-transparent font-mono text-hud text-ink focus:outline-none"
               />
               <button
-                onClick={() => copyValue(f.value, f.label)}
+                onClick={() => copyValue(locale, f.value, f.label)}
                 class="icon-btn !h-6 !w-6 shrink-0"
-                title={`Copy ${f.label}`}
-                aria-label={`Copy ${f.label} value`}
+                title={t(locale, 'ui.picker.copyLabel', 'Copy {label}').replace('{label}', f.label)}
+                aria-label={t(locale, 'ui.picker.copyLabelValue', 'Copy {label} value').replace(
+                  '{label}',
+                  f.label
+                )}
               >
                 <Copy class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
               </button>
@@ -549,7 +589,7 @@ export default function ColorPickerIsland() {
       <div class="sticky bottom-4 z-20">
         <div class="dock flex items-center gap-2 flex-wrap !px-3 !py-2.5">
           <label class="flex items-center gap-2 min-w-0" htmlFor="picker-variable-name">
-            <span class="eyebrow shrink-0">Variable</span>
+            <span class="eyebrow shrink-0">{t(locale, 'ui.picker.variable', 'Variable')}</span>
             {/*
               A text field with a suggestion menu of the cart's roles, not a
               `<select>` and not a `<datalist>` anymore. It has to accept a name
@@ -566,13 +606,17 @@ export default function ColorPickerIsland() {
             <VariableNameInput
               id="picker-variable-name"
               name="variable"
+              locale={locale}
               value={varNameEdit ?? cart.activeRoleId}
               onChange={setVarNameEdit}
               onCommit={resolveTargetRole}
-              suggestions={Object.values(cart.roles).map((r) => ({ value: r.id, label: r.name }))}
+              suggestions={Object.values(cart.roles).map((r) => ({
+                value: r.id,
+                label: t(locale, 'ui.roles.' + r.id, r.name),
+              }))}
               class="min-w-0 max-w-[16rem]"
               inputClass="hud !py-3 !px-3 font-mono text-label w-full min-w-0 cursor-text"
-              ariaLabel="Custom color variable name"
+              ariaLabel={t(locale, 'ui.picker.variableNameAria', 'Custom color variable name')}
               placeholder="brand-accent"
             />
           </label>
@@ -585,10 +629,10 @@ export default function ColorPickerIsland() {
           <button
             onClick={() => isCartOpenStore.set(true)}
             class="btn btn-quiet !min-h-9"
-            title="Open the token drawer"
+            title={t(locale, 'ui.picker.openTokenDrawer', 'Open the token drawer')}
           >
-            <span class="hidden sm:inline">Tokens</span>
-            <span class="sm:hidden">Cart</span>
+            <span class="hidden sm:inline">{t(locale, 'ui.picker.tokens', 'Tokens')}</span>
+            <span class="sm:hidden">{t(locale, 'ui.picker.cart', 'Cart')}</span>
           </button>
 
           <button
@@ -598,13 +642,32 @@ export default function ColorPickerIsland() {
             title={
               handoff
                 ? handoffIsFree
-                  ? `Use this colour back on ${handoffReturnTo ?? 'the page you came from'}`
-                  : `Write to --color-${handoff.roleId}-${handoff.step}`
-                : `Save as --color-${pendingRoleId}-${nearestStep}`
+                  ? t(
+                      locale,
+                      'ui.picker.useColourOn',
+                      'Use this colour back on {source}'
+                    ).replace(
+                      '{source}',
+                      handoffReturnTo ??
+                        t(locale, 'ui.picker.pageYouCameFrom', 'the page you came from')
+                    )
+                  : t(locale, 'ui.picker.writeTo', 'Write to {variable}').replace(
+                      '{variable}',
+                      `--color-${handoff.roleId}-${handoff.step}`
+                    )
+                : t(locale, 'ui.picker.saveAs', 'Save as {variable}').replace(
+                    '{variable}',
+                    `--color-${pendingRoleId}-${nearestStep}`
+                  )
             }
           >
             <Plus class="w-4 h-4" aria-hidden="true" strokeWidth={2.5} />
-            {handoff ? handoffActionLabel : `Add ${pendingRoleId}-${nearestStep}`}
+            {handoff
+              ? handoffActionLabel
+              : t(locale, 'ui.picker.addStep', 'Add {name}').replace(
+                  '{name}',
+                  `${pendingRoleId}-${nearestStep}`
+                )}
           </button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'preact/hooks';
 import { Check, Copy, Download, Plus } from 'lucide-preact';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import { formatOklch, SHADE_STEPS, type ColorModel, type ShadeStep } from '../../utils/color';
 import { ensureRole, setRoleShade, showToast, slugifyRoleName } from '../../stores/cartStore';
 import { useCart } from '../../hooks/useCart';
@@ -8,6 +10,7 @@ interface PaletteDetailIslandProps {
   shades: Record<ShadeStep, ColorModel>;
   paletteName: string;
   paletteSlug: string;
+  locale?: LocaleCode;
 }
 
 /**
@@ -36,6 +39,7 @@ export default function PaletteDetailIsland({
   shades,
   paletteName,
   paletteSlug,
+  locale = 'en',
 }: PaletteDetailIslandProps) {
   const cart = useCart();
   const [copied, setCopied] = useState(false);
@@ -57,7 +61,7 @@ export default function PaletteDetailIsland({
   const copyValue = (color: ColorModel) => {
     const value = formatOklch(color);
     navigator.clipboard.writeText(value);
-    showToast(`Copied ${value}`);
+    showToast(t(locale, 'ui.paletteDetail.copiedValue', 'Copied {value}').replace('{value}', value));
   };
 
   /**
@@ -72,11 +76,22 @@ export default function PaletteDetailIsland({
   const addToCart = (color: ColorModel, step: ShadeStep) => {
     const roleId = ensureRole(varNameInput, { silent: true }) ?? cart.activeRoleId;
     if (!setRoleShade(roleId, step, color, { silent: true })) {
-      showToast(`Could not write to --color-${roleId}-${step}`, 'info');
+      showToast(
+        t(locale, 'ui.paletteDetail.writeFailed', 'Could not write to {token}').replace(
+          '{token}',
+          `--color-${roleId}-${step}`
+        ),
+        'info'
+      );
       return;
     }
     const roleName = cart.roles[roleId]?.name ?? roleId;
-    showToast(`${roleName} ${step} → --color-${roleId}-${step}`);
+    showToast(
+      t(locale, 'ui.paletteDetail.cartSaved', '{role} {step} → {token}')
+        .replace('{role}', t(locale, `ui.roles.${roleId}`, roleName))
+        .replace('{step}', String(step))
+        .replace('{token}', `--color-${roleId}-${step}`)
+    );
   };
 
   const cssBlock = `@theme {\n${SHADE_STEPS.map(
@@ -86,7 +101,7 @@ export default function PaletteDetailIsland({
   const copyCss = () => {
     navigator.clipboard.writeText(cssBlock);
     setCopied(true);
-    showToast('@theme block copied');
+    showToast(t(locale, 'ui.paletteDetail.themeCopied', '@theme block copied'));
     setTimeout(() => setCopied(false), 1400);
   };
 
@@ -103,7 +118,12 @@ export default function PaletteDetailIsland({
     a.download = `${paletteSlug}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast(`${paletteSlug}.json downloaded`);
+    showToast(
+      t(locale, 'ui.paletteDetail.jsonDownloaded', '{file} downloaded').replace(
+        '{file}',
+        `${paletteSlug}.json`
+      )
+    );
   };
 
   return (
@@ -111,15 +131,22 @@ export default function PaletteDetailIsland({
       {/* ── Controls for the whole scale ── */}
       <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
         <div class="space-y-1">
-          <span class="eyebrow">{paletteName} scale</span>
+          <span class="eyebrow">
+            {t(locale, 'ui.paletteDetail.scaleEyebrow', '{name} scale').replace('{name}', paletteName)}
+          </span>
           <p class="font-mono text-label text-body">
-            {SHADE_STEPS.length} colors &middot; click a card to copy
+            {t(locale, 'ui.paletteDetail.stepCountHint', '{count} colors · click a card to copy').replace(
+              '{count}',
+              String(SHADE_STEPS.length)
+            )}
           </p>
         </div>
 
         <div class="flex items-end gap-2 flex-wrap">
           <label class="flex items-center gap-2 min-w-0">
-            <span class="eyebrow shrink-0">Variable</span>
+            <span class="eyebrow shrink-0">
+              {t(locale, 'ui.paletteDetail.variableLabel', 'Variable')}
+            </span>
             {/*
               A text field with a datalist of the cart's existing roles, not a
               `<select>`: the destination is usually a variable that does not
@@ -134,7 +161,7 @@ export default function PaletteDetailIsland({
               value={varNameInput}
               spellcheck={false}
               autocomplete="off"
-              aria-label="Custom color variable name"
+              aria-label={t(locale, 'ui.paletteDetail.variableAria', 'Custom color variable name')}
               onInput={(e) => setVarNameInput((e.target as HTMLInputElement).value)}
               class="hud !py-1.5 font-mono text-label w-40 min-w-0 cursor-text"
               placeholder="brand-accent"
@@ -142,21 +169,33 @@ export default function PaletteDetailIsland({
             <datalist id={suggestionId}>
               {Object.values(cart.roles).map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.name}
+                  {t(locale, `ui.roles.${r.id}`, r.name)}
                 </option>
               ))}
             </datalist>
           </label>
 
-          <button onClick={copyCss} class="btn btn-quiet" title="Copy as a Tailwind v4 @theme block">
+          <button
+            onClick={copyCss}
+            class="btn btn-quiet"
+            title={t(locale, 'ui.paletteDetail.copyCssTitle', 'Copy as a Tailwind v4 @theme block')}
+          >
             {copied ? (
               <Check class="w-3.5 h-3.5 text-copy-success" aria-hidden="true" strokeWidth={2.5} />
             ) : (
               <Copy class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
             )}
-            <span>{copied ? 'Copied' : 'Copy CSS'}</span>
+            <span>
+              {copied
+                ? t(locale, 'ui.paletteDetail.copied', 'Copied')
+                : t(locale, 'ui.paletteDetail.copyCss', 'Copy CSS')}
+            </span>
           </button>
-          <button onClick={downloadJson} class="btn btn-quiet" title="Download as JSON tokens">
+          <button
+            onClick={downloadJson}
+            class="btn btn-quiet"
+            title={t(locale, 'ui.paletteDetail.downloadJsonTitle', 'Download as JSON tokens')}
+          >
             <Download class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
             <span>JSON</span>
           </button>
@@ -166,7 +205,8 @@ export default function PaletteDetailIsland({
       {/* Where the Cart action writes. Shown live so a typed name is never a leap
           of faith: `--color-Brand Accent-*` is not a variable anyone can write. */}
       <p class="font-mono text-micro text-faint">
-        cart writes to <span class="text-mute">--color-{targetSlug}-*</span>
+        {t(locale, 'ui.paletteDetail.cartWritesTo', 'cart writes to')}{' '}
+        <span class="text-mute">{`--color-${targetSlug}-*`}</span>
       </p>
 
       {/* ── The scale ── */}
@@ -191,8 +231,13 @@ export default function PaletteDetailIsland({
                 type="button"
                 class="absolute inset-0 z-0 cursor-pointer"
                 onClick={() => copyValue(color)}
-                aria-label={`Copy ${value}, hex ${color.hex}`}
-                title={`Copy ${value}`}
+                aria-label={t(locale, 'ui.paletteDetail.copyCardAria', 'Copy {value}, hex {hex}')
+                  .replace('{value}', value)
+                  .replace('{hex}', color.hex)}
+                title={t(locale, 'ui.paletteDetail.copyValueTitle', 'Copy {value}').replace(
+                  '{value}',
+                  value
+                )}
               />
 
               {/*
@@ -206,21 +251,37 @@ export default function PaletteDetailIsland({
                   type="button"
                   onClick={() => copyValue(color)}
                   class="btn btn-quiet !min-h-0 !py-1.5 !px-2.5 !text-micro"
-                  aria-label={`Copy ${value}`}
-                  title="Copy this value to the clipboard"
+                  aria-label={t(locale, 'ui.paletteDetail.copyValueTitle', 'Copy {value}').replace(
+                    '{value}',
+                    value
+                  )}
+                  title={t(
+                    locale,
+                    'ui.paletteDetail.copyClipboardTitle',
+                    'Copy this value to the clipboard'
+                  )}
                 >
                   <Copy class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2} />
-                  <span>Copy</span>
+                  <span>{t(locale, 'ui.paletteDetail.copy', 'Copy')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => addToCart(color, step)}
                   class="btn btn-primary !min-h-0 !py-1.5 !px-2.5 !text-micro"
-                  title={`Save as --color-${targetSlug}-${step}`}
-                  aria-label={`Save step ${step} to the color cart as --color-${targetSlug}-${step}`}
+                  title={t(locale, 'ui.paletteDetail.saveAsTitle', 'Save as {token}').replace(
+                    '{token}',
+                    `--color-${targetSlug}-${step}`
+                  )}
+                  aria-label={t(
+                    locale,
+                    'ui.paletteDetail.saveStepAria',
+                    'Save step {step} to the color cart as {token}'
+                  )
+                    .replace('{step}', String(step))
+                    .replace('{token}', `--color-${targetSlug}-${step}`)}
                 >
                   <Plus class="w-3.5 h-3.5" aria-hidden="true" strokeWidth={2.5} />
-                  <span>Cart</span>
+                  <span>{t(locale, 'ui.paletteDetail.cart', 'Cart')}</span>
                 </button>
               </div>
 
@@ -232,7 +293,11 @@ export default function PaletteDetailIsland({
                 {isP3 && (
                   <span
                     class="font-mono text-[9px] leading-none px-1 py-0.5 rounded bg-badge-surface text-gamut-p3"
-                    title="Inside Display-P3, outside sRGB — browsers will clamp it"
+                    title={t(
+                      locale,
+                      'ui.paletteDetail.p3Title',
+                      'Inside Display-P3, outside sRGB — browsers will clamp it'
+                    )}
                   >
                     P3
                   </span>

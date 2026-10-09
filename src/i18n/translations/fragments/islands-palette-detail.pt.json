@@ -1,0 +1,31 @@
+{
+  "ui": {
+    "paletteDetail": {
+      "scaleEyebrow": "Escala {name}",
+      "stepCountHint": "{count} cores · clique em um cartão para copiar",
+      "variableLabel": "Variável",
+      "variableAria": "Nome personalizado da variável de cor",
+      "copyCssTitle": "Copiar como bloco @theme do Tailwind v4",
+      "copied": "Copiado",
+      "copyCss": "Copiar CSS",
+      "downloadJsonTitle": "Baixar como tokens JSON",
+      "cartWritesTo": "o carrinho grava em",
+      "copiedValue": "Copiado: {value}",
+      "writeFailed": "Não foi possível gravar em {token}",
+      "cartSaved": "{role} {step} → {token}",
+      "themeCopied": "Bloco @theme copiado",
+      "jsonDownloaded": "{file} baixado",
+      "copyCardAria": "Copiar {value}, hex {hex}",
+      "copyValueTitle": "Copiar {value}",
+      "copyClipboardTitle": "Copiar este valor para a área de transferência",
+      "copy": "Copiar",
+      "saveAsTitle": "Salvar como {token}",
+      "saveStepAria": "Salvar a etapa {step} no carrinho de cores como {token}",
+      "cart": "Carrinho",
+      "p3Title": "Dentro do Display-P3, fora do sRGB — os navegadores vão fazer o clamp"
+    },
+    "swatchStrip": {
+      "stepAria": "Etapa {step}: {value}, hex {hex}"
+    }
+  }
+}

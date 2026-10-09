@@ -6,6 +6,7 @@ import { getBuildTimeColorTable } from '../utils/seoTables';
 import { parseAnyToOklch, formatOklch } from '../utils/color';
 import { localizedSeo } from '../i18n/seo';
 import { buildLocalizedPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
 
 interface Props {
   locale?: LocaleCode;
@@ -40,49 +41,45 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-ink">
         {seo.h1}
       </h1>
-      <p class="text-xs md:text-sm font-mono text-body">
-        Convert modern CSS OKLCH values into standard <code class="text-ink">rgb(r, g, b)</code> syntax for legacy CSS and canvas rendering contexts.
-      </p>
+      <p class="text-xs md:text-sm font-mono text-body" set:html={t(locale, 'pages.oklchToRgb.subtitle', 'Convert modern CSS OKLCH values into standard <code class="text-ink">rgb(r, g, b)</code> syntax for legacy CSS and canvas rendering contexts.')} />
     </div>
 
-    <section aria-label="OKLCH to RGB Converter Tool">
-      <ConverterIsland client:load initialMode="oklch-to-rgb" />
+    <section aria-label={t(locale, 'pages.oklchToRgb.toolAriaLabel', 'OKLCH to RGB Converter Tool')}>
+      <ConverterIsland client:load initialMode="oklch-to-rgb" locale={locale} />
     </section>
 
     <div class="space-y-10 pt-8 border-t border-hairline">
       <!-- 1. Intro -->
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-ink">Why Convert OKLCH to RGB?</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.oklchToRgb.whyTitle', 'Why Convert OKLCH to RGB?')}</h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          When interfacing with legacy JavaScript libraries or 2D HTML Canvas graphics that lack native color space awareness, converting OKLCH to RGB strings is essential. Our engine applies exact matrix transformations through the Oklab LMS cone response matrices.
+          {t(locale, 'pages.oklchToRgb.whyBody', 'When interfacing with legacy JavaScript libraries or 2D HTML Canvas graphics that lack native color space awareness, converting OKLCH to RGB strings is essential. Our engine applies exact matrix transformations through the Oklab LMS cone response matrices.')}
         </p>
       </section>
 
       <!-- 2. How to Convert -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-6">
-        <h2 class="text-base font-semibold text-ink">How to Convert OKLCH to RGB</h2>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.oklchToRgb.howTitle', 'How to Convert OKLCH to RGB')}</h2>
         <ol class="space-y-2 text-xs font-mono text-body list-decimal list-inside">
-          <li>Paste any <code class="text-ink">oklch()</code> value (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8)</code>) into the input field above.</li>
-          <li>Our engine converts the cylindrical OKLCH coordinates to Cartesian Oklab, then through the inverse LMS matrix to linear RGB.</li>
-          <li>Linear RGB is gamma-encoded to sRGB and formatted as <code class="text-ink">rgb(r, g, b)</code> or <code class="text-ink">rgba(r, g, b, a)</code>.</li>
+          <li set:html={t(locale, 'pages.oklchToRgb.step1', 'Paste any <code class="text-ink">oklch()</code> value (e.g. <code class="text-ink">oklch(62.3% 0.188 259.8)</code>) into the input field above.')} />
+          <li>{t(locale, 'pages.oklchToRgb.step2', 'Our engine converts the cylindrical OKLCH coordinates to Cartesian Oklab, then through the inverse LMS matrix to linear RGB.')}</li>
+          <li set:html={t(locale, 'pages.oklchToRgb.step3', 'Linear RGB is gamma-encoded to sRGB and formatted as <code class="text-ink">rgb(r, g, b)</code> or <code class="text-ink">rgba(r, g, b, a)</code>.')} />
         </ol>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS matrix) → gamma-encoded sRGB → rgb() string.
-        </p>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.oklchToRgb.mathPath', '<strong class="text-ink">The math path:</strong> OKLCH → Oklab (Cartesian) → linear RGB (inverse LMS matrix) → gamma-encoded sRGB → rgb() string.')} />
       </section>
 
       <!-- 3. Reference Table -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">OKLCH to RGB Reference Values</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.oklchToRgb.tableTitle', 'OKLCH to RGB Reference Values')}</h2>
         <div class="bg-canvas-card border border-hairline rounded-xl overflow-hidden shadow-lg">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-canvas-elevated border-b border-hairline text-mute text-[11px] uppercase">
                 <tr>
-                  <th class="p-3">Swatch</th>
-                  <th class="p-3">OKLCH Input</th>
-                  <th class="p-3">Color Name</th>
-                  <th class="p-3">RGB Output</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToRgb.thSwatch', 'Swatch')}</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToRgb.thOklchInput', 'OKLCH Input')}</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToRgb.thColorName', 'Color Name')}</th>
+                  <th class="p-3">{t(locale, 'pages.oklchToRgb.thRgbOutput', 'RGB Output')}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-hairline">
@@ -104,65 +101,55 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
 
       <!-- 4. CSS Snippet -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5">
-        <h2 class="text-sm font-semibold text-ink">Copy-Ready CSS with Progressive Enhancement</h2>
+        <h2 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToRgb.cssTitle', 'Copy-Ready CSS with Progressive Enhancement')}</h2>
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>.canvas-fill &#123;{'\n'}  color: rgb(59, 130, 246); /* fallback */{'\n'}  color: {sampleOklch}; /* modern browsers */{'\n'}&#125;</code></pre>
-        <p class="text-xs md:text-sm font-mono text-body pt-2">
-          <strong class="text-ink">Tailwind CSS v4 @theme:</strong>
-        </p>
+          <code>{t(locale, 'pages.oklchToRgb.cssSnippet', '.canvas-fill {\n  color: rgb(59, 130, 246); /* fallback */\n  color: {sample}; /* modern browsers */\n}').replace('{sample}', sampleOklch)}</code></pre>
+        <p class="text-xs md:text-sm font-mono text-body pt-2" set:html={t(locale, 'pages.oklchToRgb.themeLabel', '<strong class="text-ink">Tailwind CSS v4 @theme:</strong>')} />
         <pre class="bg-canvas-sunken border border-hairline p-4 rounded-lg font-mono text-xs text-body overflow-x-auto">
-          <code>@theme &#123;{'\n'}  --color-canvas-blue: {sampleOklch};{'\n'}&#125;</code></pre>
+          <code>{t(locale, 'pages.oklchToRgb.themeSnippet', '@theme {\n  --color-canvas-blue: {sample};\n}').replace('{sample}', sampleOklch)}</code></pre>
       </section>
 
       <!-- 5. Gamut Note -->
       <section class="space-y-3 bg-canvas-card border border-hairline rounded-xl p-5 md:p-6">
-        <h2 class="text-base font-semibold text-ink">Gamut Note: Automatic sRGB Mapping</h2>
+        <h2 class="text-base font-semibold text-ink">{t(locale, 'pages.oklchToRgb.gamutTitle', 'Gamut Note: Automatic sRGB Mapping')}</h2>
         <p class="text-xs md:text-sm font-mono text-body">
-          When an OKLCH color falls outside the sRGB gamut (common with high-chroma cyans and greens), our engine automatically clamps chroma to the nearest in-gamut value while preserving hue and lightness. This ensures the RGB output is always valid and renders consistently across all displays.
+          {t(locale, 'pages.oklchToRgb.gamutBody', 'When an OKLCH color falls outside the sRGB gamut (common with high-chroma cyans and greens), our engine automatically clamps chroma to the nearest in-gamut value while preserving hue and lightness. This ensures the RGB output is always valid and renders consistently across all displays.')}
         </p>
         <ul class="space-y-2 text-xs font-mono text-body list-disc list-inside">
-          <li>
-            <strong class="text-ink">Display-P3 Colors:</strong> On wide-gamut monitors, the original OKLCH color appears more vivid. The RGB output represents the sRGB-clamped version.
-          </li>
-          <li>
-            <strong class="text-ink">Alpha Preservation:</strong> An OKLCH value with alpha converts to <code class="text-ink">rgba(r, g, b, a)</code> with the alpha channel intact.
-          </li>
+          <li set:html={t(locale, 'pages.oklchToRgb.p3Item', '<strong class="text-ink">Display-P3 Colors:</strong> On wide-gamut monitors, the original OKLCH color appears more vivid. The RGB output represents the sRGB-clamped version.')} />
+          <li set:html={t(locale, 'pages.oklchToRgb.alphaItem', '<strong class="text-ink">Alpha Preservation:</strong> An OKLCH value with alpha converts to <code class="text-ink">rgba(r, g, b, a)</code> with the alpha channel intact.')} />
         </ul>
       </section>
 
       <!-- 6. FAQ -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Frequently Asked Questions</h2>
+        <h2 class="text-lg font-semibold text-ink">{t(locale, 'pages.oklchToRgb.faqTitle', 'Frequently Asked Questions')}</h2>
         <div class="space-y-3 font-mono text-xs">
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Why do I need RGB if I have OKLCH?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToRgb.faq1Q', 'Why do I need RGB if I have OKLCH?')}</h3>
             <p class="text-body leading-relaxed">
-              Legacy tools — canvas renderers, older JavaScript libraries, email clients, and some image editors — only understand RGB. Converting OKLCH to RGB ensures compatibility with these tools.
+              {t(locale, 'pages.oklchToRgb.faq1A', 'Legacy tools — canvas renderers, older JavaScript libraries, email clients, and some image editors — only understand RGB. Converting OKLCH to RGB ensures compatibility with these tools.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Is the OKLCH to RGB conversion lossy?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToRgb.faq2Q', 'Is the OKLCH to RGB conversion lossy?')}</h3>
             <p class="text-body leading-relaxed">
-              For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth.
+              {t(locale, 'pages.oklchToRgb.faq2A', 'For sRGB colors, the conversion is lossless. For Display-P3 colors, clamping to sRGB is a lossy step. The OKLCH original remains the source of truth.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">Can I use OKLCH alpha in rgba()?</h3>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToRgb.faq3Q', 'Can I use OKLCH alpha in rgba()?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.oklchToRgb.faq3A', 'Yes. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> converts to <code class="text-ink">rgba(59, 130, 246, 0.5)</code> — the alpha channel is preserved.')} />
+          </div>
+          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToRgb.faq4Q', 'What happens with out-of-gamut colors?')}</h3>
             <p class="text-body leading-relaxed">
-              Yes. <code class="text-ink">oklch(62.3% 0.188 259.8 / 0.5)</code> converts to <code class="text-ink">rgba(59, 130, 246, 0.5)</code> — the alpha channel is preserved.
+              {t(locale, 'pages.oklchToRgb.faq4A', 'The engine clamps chroma to the nearest in-gamut value while preserving hue and lightness. You will see a gamut badge indicating the color was clamped.')}
             </p>
           </div>
           <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">What happens with out-of-gamut colors?</h3>
-            <p class="text-body leading-relaxed">
-              The engine clamps chroma to the nearest in-gamut value while preserving hue and lightness. You will see a gamut badge indicating the color was clamped.
-            </p>
-          </div>
-          <div class="bg-canvas-card border border-hairline rounded-lg p-4 space-y-1.5">
-            <h3 class="text-sm font-semibold text-ink">How do I use RGB values in canvas?</h3>
-            <p class="text-body leading-relaxed">
-              Pass the RGB string directly to <code class="text-ink">ctx.fillStyle</code> or <code class="text-ink">ctx.strokeStyle</code>. Canvas 2D only understands sRGB, so the RGB output is always canvas-safe.
-            </p>
+            <h3 class="text-sm font-semibold text-ink">{t(locale, 'pages.oklchToRgb.faq5Q', 'How do I use RGB values in canvas?')}</h3>
+            <p class="text-body leading-relaxed" set:html={t(locale, 'pages.oklchToRgb.faq5A', 'Pass the RGB string directly to <code class="text-ink">ctx.fillStyle</code> or <code class="text-ink">ctx.strokeStyle</code>. Canvas 2D only understands sRGB, so the RGB output is always canvas-safe.')} />
           </div>
         </div>
       </section>
@@ -173,7 +160,7 @@ const sampleOklch = sampleColor ? formatOklch(sampleColor) : 'oklch(62.3% 0.188 
       <!-- 8. Learn Link -->
       <div class="pt-4 border-t border-hairline">
         <a href={buildLocalizedPath('/learn/what-is-oklch', locale)} class="text-xs font-mono text-accent-text hover:text-ink transition-colors">
-          Learn more about OKLCH →
+          {t(locale, 'pages.oklchToRgb.learnMoreLink', 'Learn more about OKLCH →')}
         </a>
       </div>
     </div>

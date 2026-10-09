@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { scorePair, worstOf } from '../slots';
+import { t } from '../../../../i18n/translations';
 import {
   KitAvatar,
   KitBadge,
@@ -38,27 +39,51 @@ import type { Paint } from '../slots';
  */
 export function CardsGroup({ paint }: { paint: Paint }) {
   const worst = worstOf([
-    scorePair('Text on surface', paint.text, paint.fixture.surface),
-    scorePair('Muted on surface', paint.muted, paint.fixture.surface),
-    scorePair('Text on raised', paint.text, paint.fixture.raised),
+    scorePair(
+      t(paint.locale, 'ui.preview.cards.pairTextOnSurface', 'Text on surface'),
+      paint.text,
+      paint.fixture.surface
+    ),
+    scorePair(
+      t(paint.locale, 'ui.preview.cards.pairMutedOnSurface', 'Muted on surface'),
+      paint.muted,
+      paint.fixture.surface
+    ),
+    scorePair(
+      t(paint.locale, 'ui.preview.cards.pairTextOnRaised', 'Text on raised'),
+      paint.text,
+      paint.fixture.raised
+    ),
   ]);
 
   return (
     <div class="space-y-8">
       <Rail
-        label="Depth"
-        description="Surface on canvas, then raised on surface. Each card sits one level deeper than the last."
-        hint={worst ? `${worst.wcag}:1` : 'set background + text to score'}
+        label={t(paint.locale, 'ui.preview.cards.depthTitle', 'Depth')}
+        description={t(
+          paint.locale,
+          'ui.preview.cards.depthDesc',
+          'Surface on canvas, then raised on surface. Each card sits one level deeper than the last.'
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.cards.hintBgText', 'set background + text to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
-        <Specimen name="Card" variant="Flat">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantFlat', 'Flat')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-3 space-y-1.5">
               <KitText paint={paint} class="block text-[13px] font-semibold">
                 Slate
               </KitText>
               <KitMuted paint={paint} class="block text-[11px] leading-[15px]">
-                A cool neutral ramp, generated at hue 250.
+                {t(paint.locale, 'ui.preview.cards.contentRamp', 'A cool neutral ramp, generated at hue 250.')}
               </KitMuted>
               <div class="flex items-center gap-1.5 pt-1">
                 <KitBadge paint={paint} role="info" label="50–950" variant="soft" />
@@ -67,7 +92,10 @@ export function CardsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Toolbar">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantToolbar', 'Toolbar')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border overflow-hidden">
               <KitSurface paint={paint} level="raised" class="flex items-center gap-2 px-3 py-2 border-b">
@@ -75,18 +103,30 @@ export function CardsGroup({ paint }: { paint: Paint }) {
                 <KitText paint={paint} class="text-[11px] font-semibold flex-1 truncate">
                   Slate
                 </KitText>
-                <KitBadge paint={paint} role="success" label="Saved" variant="soft" />
+                <KitBadge
+                  paint={paint}
+                  role="success"
+                  label={t(paint.locale, 'ui.preview.cards.saved', 'Saved')}
+                  variant="soft"
+                />
               </KitSurface>
               <div class="px-3 py-2.5">
                 <KitMuted paint={paint} class="block text-[11px] leading-[15px]">
-                  Nine hundred and fifty steps of the same hue.
+                  {t(
+                    paint.locale,
+                    'ui.preview.cards.contentHueFifty',
+                    'Nine hundred and fifty steps of the same hue.'
+                  )}
                 </KitMuted>
               </div>
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Media">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantMedia', 'Media')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border overflow-hidden">
               <div
@@ -102,33 +142,53 @@ export function CardsGroup({ paint }: { paint: Paint }) {
                   Violet Pulse
                 </KitText>
                 <KitMuted paint={paint} class="block text-[10px]">
-                  11 steps · hue 300
+                  {t(paint.locale, 'ui.preview.cards.contentHue300', '11 steps · hue 300')}
                 </KitMuted>
               </div>
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Stat">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantStat', 'Stat')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-3">
-              <KitStat paint={paint} label="Tokens" value="1,284" delta="+96" />
+              <KitStat
+                paint={paint}
+                label={t(paint.locale, 'ui.preview.cards.statTokens', 'Tokens')}
+                value="1,284"
+                delta="+96"
+              />
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Nested">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantNested', 'Nested')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-2.5 space-y-2">
               <KitText paint={paint} class="block text-[12px] font-semibold px-0.5">
-                Recent
+                {t(paint.locale, 'ui.preview.cards.contentRecent', 'Recent')}
               </KitText>
               <KitSurface paint={paint} level="raised" class="rounded-lg px-2.5 py-1.5">
-                <KitListRow paint={paint} title="Trusty Blue" meta="11 steps" trailing="4d" />
+                <KitListRow
+                  paint={paint}
+                  title="Trusty Blue"
+                  meta={t(paint.locale, 'ui.preview.cards.metaSteps', '{count} steps').replace('{count}', '11')}
+                  trailing="4d"
+                />
               </KitSurface>
               <KitEdge paint={paint} side="bottom" />
               <KitMuted paint={paint} class="block text-[10px] px-0.5">
-                Raised on surface on canvas — three steps, one card.
+                {t(
+                  paint.locale,
+                  'ui.preview.cards.contentRaised',
+                  'Raised on surface on canvas — three steps, one card.'
+                )}
               </KitMuted>
             </KitSurface>
           )}
@@ -136,40 +196,82 @@ export function CardsGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Cards in Context"
-        description="A card with a list in it, and a card with actions in it — where the divider has to separate two things that are the same colour."
+        label={t(paint.locale, 'ui.preview.cards.contextTitle', 'Cards in Context')}
+        description={t(
+          paint.locale,
+          'ui.preview.cards.contextDesc',
+          'A card with a list in it, and a card with actions in it — where the divider has to separate two things that are the same colour.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Card" variant="List">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantList', 'List')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-2.5">
-              {['Trusty Blue', 'Crimson', 'Forest'].map((t, i) => (
-                <div key={t}>
+              {['Trusty Blue', 'Crimson', 'Forest'].map((name, i) => (
+                <div key={name}>
                   {i > 0 && <KitEdge paint={paint} side="top" class="block" />}
-                  <KitListRow paint={paint} title={t} meta={`${11 + i} steps`} trailing={`${i + 2}h`} role={i === 0 ? 'primary' : 'secondary'} />
+                  <KitListRow
+                    paint={paint}
+                    title={name}
+                    meta={t(paint.locale, 'ui.preview.cards.metaSteps', '{count} steps').replace(
+                      '{count}',
+                      String(11 + i)
+                    )}
+                    trailing={t(paint.locale, 'ui.preview.cards.metaHours', '{count}h').replace(
+                      '{count}',
+                      String(i + 2)
+                    )}
+                    role={i === 0 ? 'primary' : 'secondary'}
+                  />
                 </div>
               ))}
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Actions">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantActions', 'Actions')}
+        >
           {(paint) => (
             <KitSurface paint={paint} class="w-full rounded-xl border p-3 space-y-2.5">
               <KitText paint={paint} class="block text-[13px] font-semibold">
-                Upgrade to Pro
+                {t(paint.locale, 'ui.preview.cards.contentUpgradeTitle', 'Upgrade to Pro')}
               </KitText>
               <KitMuted paint={paint} class="block text-[11px] leading-[15px]">
-                Unlimited palettes and a shareable token URL.
+                {t(
+                  paint.locale,
+                  'ui.preview.cards.contentUpgradeBody',
+                  'Unlimited palettes and a shareable token URL.'
+                )}
               </KitMuted>
               <div class="flex items-center gap-1.5">
-                <KitButton paint={paint} role="trusty-button" label="Upgrade" variant="solid" size="sm" />
-                <KitButton paint={paint} role="secondary" label="Later" variant="ghost" size="sm" />
+                <KitButton
+                  paint={paint}
+                  role="trusty-button"
+                  label={t(paint.locale, 'ui.preview.cards.labelUpgrade', 'Upgrade')}
+                  variant="solid"
+                  size="sm"
+                />
+                <KitButton
+                  paint={paint}
+                  role="secondary"
+                  label={t(paint.locale, 'ui.preview.cards.labelLater', 'Later')}
+                  variant="ghost"
+                  size="sm"
+                />
               </div>
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Profile">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantProfile', 'Profile')}
+        >
           {(paint) => (
             <div class="w-full flex flex-col items-center gap-1.5 text-center">
               <KitAvatar paint={paint} role="primary" initials="EV" size={44} variant="gradient" />
@@ -183,7 +285,10 @@ export function CardsGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Pricing">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantPricing', 'Pricing')}
+        >
           {(paint) => (
             <KitSurface paint={paint} level="raised" class="w-full rounded-xl border p-3 space-y-1.5">
               <div class="flex items-baseline gap-1">
@@ -195,14 +300,23 @@ export function CardsGroup({ paint }: { paint: Paint }) {
                 </KitMuted>
               </div>
               <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                Per seat. Cancel any time.
+                {t(paint.locale, 'ui.preview.cards.contentPerSeat', 'Per seat. Cancel any time.')}
               </KitMuted>
-              <KitButton paint={paint} role="trusty-button" label="Choose" variant="classic" size="sm" />
+              <KitButton
+                paint={paint}
+                role="trusty-button"
+                label={t(paint.locale, 'ui.preview.cards.labelChoose', 'Choose')}
+                variant="classic"
+                size="sm"
+              />
             </KitSurface>
           )}
         </Specimen>
 
-        <Specimen name="Card" variant="Skeleton">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.cards.nameCard', 'Card')}
+          variant={t(paint.locale, 'ui.preview.cards.variantSkeleton', 'Skeleton')}
+        >
           {(paint) => (
             <div class="w-full space-y-2">
               {[0, 1, 2].map((i) => (
@@ -216,7 +330,11 @@ export function CardsGroup({ paint }: { paint: Paint }) {
                 />
               ))}
               <KitMuted paint={paint} class="block text-[10px] pt-0.5">
-                Placeholder blocks are a colour too, and the only one nobody checks.
+                {t(
+                  paint.locale,
+                  'ui.preview.cards.contentPlaceholder',
+                  'Placeholder blocks are a colour too, and the only one nobody checks.'
+                )}
               </KitMuted>
             </div>
           )}

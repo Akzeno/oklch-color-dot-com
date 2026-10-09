@@ -2,6 +2,7 @@
 import type { PaletteItem } from '../../data/palettes';
 import { SHADE_STEPS, formatOklch } from '../../utils/color';
 import { buildLocalizedPath, type LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 
 interface Props {
   palette: PaletteItem;
@@ -31,7 +32,7 @@ const href = buildLocalizedPath(`/oklch-colors/${palette.slug}`, locale);
   hover target fight each other, and the linked page names every step.
 */}
 <article class="card !p-0 overflow-hidden hover:border-border-focus transition-colors duration-150">
-  <a href={href} class="flex flex-col group focus-visible:outline-offset-[-2px]" aria-label={`Open the ${palette.name} scale, ${steps.length} colors`}>
+  <a href={href} class="flex flex-col group focus-visible:outline-offset-[-2px]" aria-label={t(locale, 'pages.palettes.cardAria', 'Open the {name} scale, {count} colors').replace('{name}', palette.name).replace('{count}', String(steps.length))}>
     <div class="swatch-strip !rounded-none !border-0" aria-hidden="true">
       {steps.map((step) => (
         <span class="swatch-item" style={`background-color: ${formatOklch(palette.shades[step])};`} />
@@ -42,12 +43,12 @@ const href = buildLocalizedPath(`/oklch-colors/${palette.slug}`, locale);
       <div class="min-w-0">
         <h3 class="text-card text-ink truncate">{palette.name}</h3>
         <span class="block mt-0.5 font-mono text-micro text-mute truncate">
-          {palette.categoryLabel}
+          {t(locale, `pages.paletteCategories.${palette.category}`, palette.categoryLabel)}
         </span>
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
-        <span class="pill">{steps.length} colors</span>
+        <span class="pill">{t(locale, 'pages.palettes.cardColors', '{count} colors').replace('{count}', String(steps.length))}</span>
         {/*
           Not `btn-primary`: a page of twelve cards would then show twelve primary
           buttons, which is exactly the "one primary action per view" rule the
@@ -56,7 +57,7 @@ const href = buildLocalizedPath(`/oklch-colors/${palette.slug}`, locale);
           rather than a second one.
         */}
         <span class="btn btn-quiet !min-h-0 !py-1 !px-2.5 !text-micro group-hover:border-border-focus">
-          View
+          {t(locale, 'pages.palettes.cardView', 'View')}
         </span>
       </div>
     </div>

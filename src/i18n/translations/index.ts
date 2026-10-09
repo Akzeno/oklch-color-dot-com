@@ -14,14 +14,14 @@
  */
 
 import type { LocaleCode } from '../config';
-import en from './en.json';
-import hi from './hi.json';
-import pt from './pt.json';
-import zhCN from './zh-CN.json';
-import zhHK from './zh-HK.json';
-import es from './es.json';
-import fr from './fr.json';
-import de from './de.json';
+import en from './en.json' with { type: 'json' };
+import hi from './hi.json' with { type: 'json' };
+import pt from './pt.json' with { type: 'json' };
+import zhCN from './zh-CN.json' with { type: 'json' };
+import zhHK from './zh-HK.json' with { type: 'json' };
+import es from './es.json' with { type: 'json' };
+import fr from './fr.json' with { type: 'json' };
+import de from './de.json' with { type: 'json' };
 
 export type EnTranslations = typeof en;
 
@@ -43,6 +43,8 @@ export interface SeoOverride {
   metaDescription?: string;
   h1?: string;
   keywords?: string[];
+  /** Localized FAQ pairs for the FAQPage JSON-LD node. */
+  faqs?: Array<{ question: string; answer: string }>;
 }
 
 /**
@@ -54,6 +56,9 @@ export interface LocaleDictionary {
   common?: Partial<EnTranslations['common']>;
   navShort?: Partial<EnTranslations['navShort']>;
   seo?: Record<string, SeoOverride>;
+  pages?: EnTranslations['pages'];
+  /** Interactive-island UI strings (`ui.<island>.*`), localized per island. */
+  ui?: EnTranslations['ui'];
 }
 
 const dictionaries: Record<LocaleCode, LocaleDictionary> = {

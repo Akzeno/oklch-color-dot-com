@@ -9,6 +9,20 @@ import {
   createOklchColor,
   sanitizeColorModel,
 } from '../utils/color';
+import { parseLocaleFromPath, type LocaleCode } from '../i18n/config';
+import { t } from '../i18n/translations';
+
+/** Active UI locale, derived from the URL. Toasts fire client-side only. */
+function uiLocale(): LocaleCode {
+  const pathname = typeof window === 'undefined' ? undefined : window.location?.pathname;
+  if (!pathname) return 'en';
+  return parseLocaleFromPath(pathname).locale.code;
+}
+
+/** Localized display name for a role; custom roles keep the name they were given. */
+function roleLabel(role: ColorRole): string {
+  return t(uiLocale(), 'ui.roles.' + role.id, role.name);
+}
 
 export interface RoleColorToken {
   id: string;
@@ -247,7 +261,11 @@ export function addColorToCart(color: ColorModel, targetRoleId?: string): { role
   });
 
   const varName = `--color-${role.id}-${step}`;
-  showToast(`Added to ${role.name} (${varName})`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.added', 'Added to {role} ({variable})')
+      .replace('{role}', roleLabel(role))
+      .replace('{variable}', varName)
+  );
 
   return { roleId: role.id, step };
 }
@@ -302,7 +320,12 @@ export function generateFullScaleForRole(roleId: string, baseColor?: ColorModel)
     roles: updatedRoles,
   });
 
-  showToast(`Generated full 50-950 scale for ${role.name}`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.generatedScale', 'Generated full 50-950 scale for {role}').replace(
+      '{role}',
+      roleLabel(role)
+    )
+  );
 }
 
 /**
@@ -340,7 +363,12 @@ export function setRoleShade(
   });
 
   if (!options.silent) {
-    showToast(`Applied to ${role.name} ${step} (--color-${roleId}-${step})`);
+    showToast(
+      t(uiLocale(), 'ui.cartStore.applied', 'Applied to {role} {step} ({variable})')
+        .replace('{role}', roleLabel(role))
+        .replace('{step}', String(step))
+        .replace('{variable}', `--color-${roleId}-${step}`)
+    );
   }
   return true;
 }
@@ -387,13 +415,25 @@ export function removeShadeWithUndo(
   removeShadeFromRole(roleId, step);
 
   if (!options.silent) {
-    showToast(`Removed --color-${roleId}-${step}`, 'success', {
-      label: 'Undo',
-      run: () => {
-        setRoleShade(roleId, step, removed.color, { silent: true });
-        showToast(`Restored --color-${roleId}-${step}`);
-      },
-    });
+    showToast(
+      t(uiLocale(), 'ui.cartStore.removed', 'Removed {variable}').replace(
+        '{variable}',
+        `--color-${roleId}-${step}`
+      ),
+      'success',
+      {
+        label: t(uiLocale(), 'ui.cartStore.undo', 'Undo'),
+        run: () => {
+          setRoleShade(roleId, step, removed.color, { silent: true });
+          showToast(
+            t(uiLocale(), 'ui.cartStore.restored', 'Restored {variable}').replace(
+              '{variable}',
+              `--color-${roleId}-${step}`
+            )
+          );
+        },
+      }
+    );
   }
 
   return true;
@@ -408,7 +448,13 @@ export function clearRoleScale(roleId: string) {
 
   const removedCount = Object.keys(role.shades).length;
   if (removedCount === 0) {
-    showToast(`${role.name} has no colors to delete`, 'info');
+    showToast(
+      t(uiLocale(), 'ui.cartStore.noColorsToDelete', '{role} has no colors to delete').replace(
+        '{role}',
+        roleLabel(role)
+      ),
+      'info'
+    );
     return;
   }
 
@@ -420,7 +466,11 @@ export function clearRoleScale(roleId: string) {
     },
   });
 
-  showToast(`Deleted full scale of ${role.name} (${removedCount} colors)`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.deletedScale', 'Deleted full scale of {role} ({count} colors)')
+      .replace('{role}', roleLabel(role))
+      .replace('{count}', String(removedCount))
+  );
 }
 
 // Delete every shade across every role (keeps the role definitions)
@@ -428,7 +478,7 @@ export function clearAllScales() {
   const current = cartStore.get();
   const total = getCartTotalCount(current);
   if (total === 0) {
-    showToast('Cart is already empty', 'info');
+    showToast(t(uiLocale(), 'ui.cartStore.cartEmpty', 'Cart is already empty'), 'info');
     return;
   }
 
@@ -442,7 +492,12 @@ export function clearAllScales() {
     roles: clearedRoles,
   });
 
-  showToast(`Cleared all ${total} colors from every role`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.clearedAll', 'Cleared all {count} colors from every role').replace(
+      '{count}',
+      String(total)
+    )
+  );
 }
 
 /**
@@ -503,7 +558,13 @@ export function renameRole(oldRoleId: string, newName: string): boolean {
   // here rather than in each caller because the export page and the two carts all
   // reach this function, and none of them can undo the overwrite.
   if (current.roles[newRoleId]) {
-    showToast(`A role named ${newRoleId} already exists`, 'info');
+    showToast(
+      t(uiLocale(), 'ui.cartStore.roleNameExists', 'A role named {name} already exists').replace(
+        '{name}',
+        newRoleId
+      ),
+      'info'
+    );
     return false;
   }
 
@@ -520,7 +581,12 @@ export function renameRole(oldRoleId: string, newName: string): boolean {
     roles: updatedRoles,
   });
 
-  showToast(`Renamed role to --color-${newRoleId}-*`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.renamed', 'Renamed role to {variable}').replace(
+      '{variable}',
+      `--color-${newRoleId}-*`
+    )
+  );
   return true;
 }
 
@@ -537,7 +603,10 @@ export function createCustomRole(name: string): string {
     : `custom-${Date.now().toString().slice(-4)}`;
 
   if (current.roles[cleanId]) {
-    showToast(`Role ${cleanId} already exists`, 'info');
+    showToast(
+      t(uiLocale(), 'ui.cartStore.roleExists', 'Role {name} already exists').replace('{name}', cleanId),
+      'info'
+    );
     return cleanId;
   }
 
@@ -556,7 +625,9 @@ export function createCustomRole(name: string): string {
     },
   });
 
-  showToast(`Created role ${name}`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.roleCreated', 'Created role {name}').replace('{name}', name)
+  );
   return cleanId;
 }
 
@@ -609,7 +680,7 @@ export function ensureRole(name: string, options: { silent?: boolean } = {}): st
 export function deleteRole(roleId: string) {
   const current = cartStore.get();
   if (current.roles[roleId]?.isDefault) {
-    showToast('Default roles cannot be deleted', 'info');
+    showToast(t(uiLocale(), 'ui.cartStore.cannotDeleteDefault', 'Default roles cannot be deleted'), 'info');
     return;
   }
 
@@ -621,7 +692,9 @@ export function deleteRole(roleId: string) {
     roles: updatedRoles,
   });
 
-  showToast(`Deleted role ${roleId}`);
+  showToast(
+    t(uiLocale(), 'ui.cartStore.roleDeleted', 'Deleted role {name}').replace('{name}', roleId)
+  );
 }
 
 // Set active role

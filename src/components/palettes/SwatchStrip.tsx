@@ -1,4 +1,6 @@
 import { useState } from 'preact/hooks';
+import type { LocaleCode } from '../../i18n/config';
+import { t } from '../../i18n/translations';
 import { formatOklch, type ColorModel, type ShadeStep } from '../../utils/color';
 
 /**
@@ -37,6 +39,8 @@ interface Props {
    * Omitted by callers that act on click, where both attributes would be lies.
    */
   menu?: { id: string; openStep: ShadeStep | null };
+  /** Locale for the swatch aria-labels. Callers localize `label` themselves. */
+  locale?: LocaleCode;
 }
 
 export default function SwatchStrip({
@@ -45,6 +49,7 @@ export default function SwatchStrip({
   label,
   readout = true,
   menu,
+  locale = 'en',
 }: Props) {
   const [active, setActive] = useState<ShadeStep | null>(null);
   const hovered = active !== null ? shades[active] : null;
@@ -66,7 +71,14 @@ export default function SwatchStrip({
               onFocus={() => setActive(step)}
               onBlur={() => setActive(null)}
               onClick={(e) => onPick(color, step, e.currentTarget)}
-              aria-label={`Step ${step}: ${formatOklch(color)}, hex ${color.hex}`}
+              aria-label={t(
+                locale,
+                'ui.swatchStrip.stepAria',
+                'Step {step}: {value}, hex {hex}'
+              )
+                .replace('{step}', String(step))
+                .replace('{value}', formatOklch(color))
+                .replace('{hex}', color.hex)}
               aria-haspopup={menu ? 'menu' : undefined}
               aria-expanded={menu ? isOpen : undefined}
               aria-controls={isOpen ? menu?.id : undefined}

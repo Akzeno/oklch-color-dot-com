@@ -421,9 +421,9 @@ console.log('\n=== The picker says something true in free mode ===');
 check("a free handoff does not name a --color-* slot it cannot write",
   /handoffIsFree \? \([\s\S]*?colour sent from/.test(pickerIsland));
 check('the button promises the colour goes back, not that a token was saved',
-  /handoffIsFree \? 'Use colour'/.test(pickerIsland));
+  /handoffIsFree\s*\?\s*t\(locale, 'ui\.picker\.useColour', 'Use colour'\)/.test(pickerIsland));
 check("token mode keeps its original wording",
-  /handoffActionLabel = handoffIsFree \? 'Use colour' : handoffReturnTo \? 'Save & return' : 'Save'/.test(pickerIsland));
+  /const handoffActionLabel = handoffIsFree\s*\?\s*t\(locale, 'ui\.picker\.useColour', 'Use colour'\)\s*:\s*handoffReturnTo\s*\?\s*t\(locale, 'ui\.picker\.saveAndReturn', 'Save & return'\)\s*:\s*t\(locale, 'ui\.picker\.save', 'Save'\)/.test(pickerIsland));
 check('the save button branches on free mode before touching the cart', (() => {
   const write = pickerIsland.indexOf(
   'savePickerResult({ color, returnTo: destination, slot: handoff.slot ?? null })'

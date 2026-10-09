@@ -1,5 +1,6 @@
 import { Rail, Specimen } from '../Specimen';
 import { ACCENT, scorePair, worstOf, type AccentRole, type Paint } from '../slots';
+import { t } from '../../../../i18n/translations';
 import { KitBars, KitDonut, KitEdge, KitMuted, KitText } from '../kit';
 
 /**
@@ -35,47 +36,69 @@ import { KitBars, KitDonut, KitEdge, KitMuted, KitText } from '../kit';
  * neutral as an empty slider track, which is what it is: a track. Making it a
  * token would add a stage slot that exists only to be set to a grey.
  */
-const SERIES: { role: AccentRole; label: string }[] = [
-  { role: 'primary', label: 'Primary' },
-  { role: 'secondary', label: 'Secondary' },
-  { role: 'success', label: 'Success' },
-  { role: 'warning', label: 'Warning' },
-  { role: 'danger', label: 'Danger' },
-  { role: 'info', label: 'Info' },
-];
+const SERIES: AccentRole[] = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
 
 export function DataVizGroup({ paint }: { paint: Paint }) {
+  /** A role's own localized name, title-cased — the series label. */
+  const label = (role: AccentRole) =>
+    t(paint.locale, `ui.roles.${role}`, role[0]!.toUpperCase() + role.slice(1));
+
   const worst = worstOf(
-    SERIES.map(({ role, label }) =>
-      scorePair(`${label} series on canvas`, paint.accents[role].fill, paint.fixture.canvas)
+    SERIES.map((role) =>
+      scorePair(
+        t(paint.locale, 'ui.preview.dataviz.seriesPair', '{role} series on canvas').replace(
+          '{role}',
+          label(role)
+        ),
+        paint.accents[role].fill,
+        paint.fixture.canvas
+      )
     )
   );
 
   return (
     <div class="space-y-8">
       <Rail
-        label="Series"
-        description="Six roles, one step each, in a fixed order — so adjacent pairs are the ones you are asked to judge."
-        hint={worst ? `${worst.wcag}:1` : 'set the accent roles to score'}
+        label={t(paint.locale, 'ui.preview.dataviz.seriesTitle', 'Series')}
+        description={t(
+          paint.locale,
+          'ui.preview.dataviz.seriesDesc',
+          'Six roles, one step each, in a fixed order — so adjacent pairs are the ones you are asked to judge.'
+        )}
+        hint={
+          worst
+            ? `${worst.wcag}:1`
+            : t(paint.locale, 'ui.preview.dataviz.scoreHint', 'set the accent roles to score')
+        }
         hintTitle={worst?.label}
+        locale={paint.locale}
       >
-        <Specimen name="Chart" variant="Bars">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameChart', 'Chart')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantBars', 'Bars')}
+        >
           {(paint) => (
             <KitBars paint={paint} />
           )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Donut">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameChart', 'Chart')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantDonut', 'Donut')}
+        >
           {(paint) => (
             <KitDonut paint={paint} />
           )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Stacked">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameChart', 'Chart')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantStacked', 'Stacked')}
+        >
           {(paint) => (
             <div class="w-full space-y-2">
               <div class="flex h-16 rounded-lg overflow-hidden">
-                {SERIES.map(({ role }, i) => (
+                {SERIES.map((role, i) => (
                   <span
                     key={role}
                     class="h-full"
@@ -87,14 +110,20 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
                 ))}
               </div>
               <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                Stacked segments touch, so this is the strictest separation test on
-                the page — no canvas between them.
+                {t(
+                  paint.locale,
+                  'ui.preview.dataviz.contentStacked',
+                  'Stacked segments touch, so this is the strictest separation test on the page — no canvas between them.'
+                )}
               </KitMuted>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Lines">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameChart', 'Chart')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantLines', 'Lines')}
+        >
           {(paint) => (
             <div class="w-full">
               <svg viewBox="0 0 100 40" class="w-full h-20" preserveAspectRatio="none" aria-hidden="true">
@@ -109,7 +138,7 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
                     strokeWidth="0.6"
                   />
                 ))}
-                {SERIES.slice(0, 3).map(({ role }, si) => (
+                {SERIES.slice(0, 3).map((role, si) => (
                   <polyline
                     key={role}
                     fill="none"
@@ -130,17 +159,20 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
                 ))}
               </svg>
               <KitMuted paint={paint} class="block text-[10px]">
-                Three lines, 1.6px, no markers.
+                {t(paint.locale, 'ui.preview.dataviz.contentLines', 'Three lines, 1.6px, no markers.')}
               </KitMuted>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Chart" variant="Heatmap">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameChart', 'Chart')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantHeatmap', 'Heatmap')}
+        >
           {(paint) => (
             <>
               <div class="w-full grid grid-cols-6 gap-1">
-                {SERIES.map(({ role }) =>
+                {SERIES.map((role) =>
                   [0.9, 0.6, 0.3].map((alpha) => (
                     <span
                       key={`${role}-${alpha}`}
@@ -155,8 +187,11 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
               </div>
               <div class="w-full pt-2">
                 <KitMuted paint={paint} class="block text-[10px] leading-[14px]">
-                  Same six hues at three opacities. If the faint row vanishes, the
-                  scale has no room for a tint.
+                  {t(
+                    paint.locale,
+                    'ui.preview.dataviz.contentHeatmap',
+                    'Same six hues at three opacities. If the faint row vanishes, the scale has no room for a tint.'
+                  )}
                 </KitMuted>
               </div>
             </>
@@ -165,10 +200,18 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
       </Rail>
 
       <Rail
-        label="Reading It Back"
-        description="Numbers, deltas and legends — the parts that turn a chart into a sentence someone has to trust."
+        label={t(paint.locale, 'ui.preview.dataviz.readingTitle', 'Reading It Back')}
+        description={t(
+          paint.locale,
+          'ui.preview.dataviz.readingDesc',
+          'Numbers, deltas and legends — the parts that turn a chart into a sentence someone has to trust.'
+        )}
+        locale={paint.locale}
       >
-        <Specimen name="Delta" variant="Up">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameDelta', 'Delta')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantUp', 'Up')}
+        >
           {(paint) => (
             <div class="flex items-baseline gap-2">
               <KitText paint={paint} class="text-[20px] font-semibold leading-none tabular-nums">
@@ -187,7 +230,10 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Delta" variant="Down">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameDelta', 'Delta')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantDown', 'Down')}
+        >
           {(paint) => (
             <div class="flex items-baseline gap-2">
               <KitText paint={paint} class="text-[20px] font-semibold leading-none tabular-nums">
@@ -200,23 +246,26 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
                 <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M6 13l6 6 6-6" />
                 </svg>
-                Fail
+                {t(paint.locale, 'ui.preview.dataviz.fail', 'Fail')}
               </span>
             </div>
           )}
         </Specimen>
 
-        <Specimen name="Legend" variant="Inline">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameLegend', 'Legend')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantInline', 'Inline')}
+        >
           {(paint) => (
             <div class="w-full grid grid-cols-2 gap-x-2 gap-y-1">
-              {SERIES.map(({ role, label }) => (
+              {SERIES.map((role) => (
                 <span key={role} class="flex items-center gap-1.5">
                   <span
                     class="w-2.5 h-2.5 rounded-sm shrink-0"
                     style={{ backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
                   />
                   <KitMuted paint={paint} class="text-[10px] truncate">
-                    {label}
+                    {label(role)}
                   </KitMuted>
                 </span>
               ))}
@@ -224,7 +273,10 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Axis" variant="Labels">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameAxis', 'Axis')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantLabels', 'Labels')}
+        >
           {(paint) => (
             <div class="w-full">
               <div class="flex h-12 items-end gap-1.5" aria-hidden="true">
@@ -234,7 +286,7 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
                     class="flex-1 rounded-t-sm"
                     style={{
                       height: `${h * 100}%`,
-                      backgroundColor: paint.accents[SERIES[i]!.role].fill?.css ?? 'transparent',
+                      backgroundColor: paint.accents[SERIES[i]!].fill?.css ?? 'transparent',
                     }}
                   />
                 ))}
@@ -255,11 +307,14 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
           )}
         </Specimen>
 
-        <Specimen name="Table" variant="In chart">
+        <Specimen
+          name={t(paint.locale, 'ui.preview.dataviz.nameTable', 'Table')}
+          variant={t(paint.locale, 'ui.preview.dataviz.variantInChart', 'In chart')}
+        >
           {(paint) => (
             <table class="w-full text-[10px]">
               <tbody>
-                {SERIES.slice(0, 4).map(({ role, label }) => (
+                {SERIES.slice(0, 4).map((role) => (
                   <tr key={role}>
                     <td class="py-1">
                       <span class="flex items-center gap-1.5">
@@ -267,12 +322,12 @@ export function DataVizGroup({ paint }: { paint: Paint }) {
                           class="w-2 h-2 rounded-sm"
                           style={{ backgroundColor: paint.accents[role].fill?.css ?? 'transparent' }}
                         />
-                        <KitMuted paint={paint}>{label}</KitMuted>
+                        <KitMuted paint={paint}>{label(role)}</KitMuted>
                       </span>
                     </td>
                     <td class="py-1 text-right">
                       <KitText paint={paint} class="tabular-nums">
-                        {`${100 - SERIES.indexOf(SERIES.find((s) => s.role === role)!) * 11}%`}
+                        {`${100 - SERIES.indexOf(role) * 11}%`}
                       </KitText>
                     </td>
                   </tr>

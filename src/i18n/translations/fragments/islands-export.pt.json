@@ -1,0 +1,37 @@
+{
+  "ui": {
+    "export": {
+      "formatGroupAria": "Formato de exportação",
+      "fallbackChipHint": "Emite uma linha HEX antes de cada linha OKLCH para navegadores mais antigos",
+      "formatFallbackLabel": "Fallback",
+      "wrapHint": "Ativar ou desativar a quebra de linha",
+      "wrapLabel": "Quebra de linha",
+      "downloadLabel": "Baixar",
+      "copyAllLabel": "Copiar tudo",
+      "tokenCount": "{count} tokens",
+      "emptyComment": "/* Ainda não há cores no carrinho. Adicione amostras ou gere escalas primeiro! */",
+      "toastCodeCopied": "Bloco de código copiado",
+      "toastLineCopied": "Copiado: {variable}",
+      "toastValueCopied": "Valor copiado",
+      "toastDownloaded": "Arquivo baixado: {file}",
+      "renameInputAria": "Novo nome da variável deste token",
+      "copyHexHint": "Copiar fallback HEX",
+      "copyValueHint": "Copiar valor",
+      "saveNameHint": "Salvar nome",
+      "saveNameAria": "Salvar o novo nome de --color-{role}-*",
+      "cancelHint": "Cancelar",
+      "cancelRenameAria": "Cancelar renomeação",
+      "copyVariable": "Copiar {variable}",
+      "renameTooltipOne": "Renomear --color-{role}-* ({count} variável)",
+      "renameTooltipMany": "Renomear --color-{role}-* ({count} variáveis)",
+      "renameAriaOne": "Renomear --color-{role}-* ({count} variável)",
+      "renameAriaMany": "Renomear --color-{role}-* ({count} variáveis)",
+      "editColourHint": "Editar esta cor no color picker",
+      "editColourAria": "Editar {variable} no color picker",
+      "removeHint": "Remover {variable} (pode ser desfeito)",
+      "removeAria": "Remover {variable}",
+      "tailwindNoteTitle": "Usando estes tokens no Tailwind v4",
+      "tailwindNoteBody": "Tudo que for declarado no <code>@theme</code> como <code>--color-*</code> vira uma utility automaticamente — sem arquivo de configuração, sem plugin."
+    }
+  }
+}

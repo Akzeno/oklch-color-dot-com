@@ -1,4 +1,6 @@
 import type { ComponentChildren } from 'preact';
+import { t } from '../../../i18n/translations';
+import type { LocaleCode } from '../../../i18n/config';
 
 /**
  * The bordered canvas each group variant sits on.
@@ -21,6 +23,8 @@ export interface PreviewFrameProps {
   index: number;
   /** Stretch across both columns of the frames grid. */
   span?: boolean;
+  /** Locale for the composed hint tooltip. */
+  locale?: LocaleCode;
   children: ComponentChildren;
 }
 
@@ -33,6 +37,7 @@ export function PreviewFrame({
   borderCol,
   index,
   span = false,
+  locale = 'en',
   children,
 }: PreviewFrameProps) {
   return (
@@ -58,7 +63,13 @@ export function PreviewFrame({
           */
           <span
             class="pill shrink-0"
-            title={hintTitle ? `${hint} · weakest pair: ${hintTitle}` : undefined}
+            title={
+              hintTitle
+                ? t(locale, 'ui.preview.frame.weakestPair', '{hint} · weakest pair: {hintTitle}')
+                    .replace('{hint}', hint)
+                    .replace('{hintTitle}', hintTitle)
+                : undefined
+            }
           >
             {hint}
           </span>
