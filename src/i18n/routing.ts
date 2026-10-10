@@ -106,7 +106,7 @@ function parseAcceptLanguage(header: string): LocaleConfig | null {
     match = LOCALES.find((l) => l.locale.toLowerCase().startsWith(entry.lang + '-'));
     if (match) return match;
 
-    // Try language code only (e.g., "zh" matches "zh-CN" and "zh-HK")
+    // Try language code only (e.g., "zh" matches "zh-CN")
     const langCode = entry.lang.split('-')[0];
     match = LOCALES.find((l) => l.code.startsWith(langCode));
     if (match) return match;

@@ -8,7 +8,6 @@
 | Hindi | `hi` | `hi-IN` | हिन्दी | `/hi/` |
 | Portuguese | `pt` | `pt-BR` | Português | `/pt/` |
 | Chinese (Mandarin) | `zh-CN` | `zh-CN` | 中文 (简体) | `/zh-cn/` |
-| Chinese (Cantonese) | `zh-HK` | `zh-HK` | 中文 (繁體/香港) | `/zh-hk/` |
 | Spanish | `es` | `es-ES` | Español | `/es/` |
 | French | `fr` | `fr-FR` | Français | `/fr/` |
 | German | `de` | `de-DE` | Deutsch | `/de/` |
@@ -21,7 +20,7 @@
 1. **English URLs**: Stay at root paths (`/`, `/oklch-colors`, etc.) — no `/en/` prefix
 2. **Technical content**: Code snippets, CSS functions (`oklch()`, `rgb()`), token names stay in English
 3. **Translation approach**: Build structure with English fallbacks; translations added incrementally
-4. **Cantonese**: Uses `zh-HK` with Traditional Chinese characters
+4. **Chinese**: Uses `zh-CN` with Simplified Chinese characters
 
 ## Architecture
 
@@ -35,7 +34,6 @@ src/
 │   │   ├── hi.json
 │   │   ├── pt.json
 │   │   ├── zh-CN.json
-│   │   ├── zh-HK.json
 │   │   ├── es.json
 │   │   ├── fr.json
 │   │   ├── de.json
@@ -147,7 +145,6 @@ src/
 - `src/i18n/translations/hi.json` (placeholder)
 - `src/i18n/translations/pt.json` (placeholder)
 - `src/i18n/translations/zh-CN.json` (placeholder)
-- `src/i18n/translations/zh-HK.json` (placeholder)
 - `src/i18n/translations/es.json` (placeholder)
 - `src/i18n/translations/fr.json` (placeholder)
 - `src/i18n/translations/de.json` (placeholder)

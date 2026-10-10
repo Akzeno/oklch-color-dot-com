@@ -8,7 +8,6 @@ export type LocaleCode =
   | 'hi'
   | 'pt'
   | 'zh-CN'
-  | 'zh-HK'
   | 'es'
   | 'fr'
   | 'de'
@@ -59,15 +58,6 @@ export const LOCALES: LocaleConfig[] = [
     englishName: 'Chinese (Mandarin)',
     dir: 'ltr',
     prefix: '/zh-cn',
-    isDefault: false,
-  },
-  {
-    code: 'zh-HK',
-    locale: 'zh-HK',
-    name: '中文 (繁體/香港)',
-    englishName: 'Chinese (Cantonese)',
-    dir: 'ltr',
-    prefix: '/zh-hk',
     isDefault: false,
   },
   {
@@ -128,7 +118,7 @@ export function getLocaleConfig(code: LocaleCode): LocaleConfig {
 
 /**
  * Resolve a LocaleCode from a URL path segment. Astro lowercases route params,
- * so /zh-hk arrives as "zh-hk" while the canonical code is "zh-HK". This maps
+ * so /zh-cn arrives as "zh-cn" while the canonical code is "zh-CN". This maps
  * the lowercase segment back to canonical casing (unmatched -> default).
  */
 export function localeCodeFromParam(param: string | undefined): LocaleCode {

@@ -18,7 +18,6 @@ import en from './en.json' with { type: 'json' };
 import hi from './hi.json' with { type: 'json' };
 import pt from './pt.json' with { type: 'json' };
 import zhCN from './zh-CN.json' with { type: 'json' };
-import zhHK from './zh-HK.json' with { type: 'json' };
 import es from './es.json' with { type: 'json' };
 import fr from './fr.json' with { type: 'json' };
 import de from './de.json' with { type: 'json' };
@@ -67,7 +66,6 @@ const dictionaries: Record<LocaleCode, LocaleDictionary> = {
   hi: hi as LocaleDictionary,
   pt: pt as LocaleDictionary,
   'zh-CN': zhCN as LocaleDictionary,
-  'zh-HK': zhHK as LocaleDictionary,
   es: es as LocaleDictionary,
   fr: fr as LocaleDictionary,
   de: de as LocaleDictionary,
