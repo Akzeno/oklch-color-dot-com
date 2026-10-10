@@ -8,6 +8,9 @@
   # Default HTML cache: Always revalidate to ensure fresh deploys
   Cache-Control: public, max-age=0, must-revalidate
 
+  # Prevent Cloudflare Pages domain (*.pages.dev) from being indexed
+  X-Robots-Tag: noindex, nofollow
+
   # Security headers
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
