@@ -11,7 +11,8 @@ export type LocaleCode =
   | 'zh-HK'
   | 'es'
   | 'fr'
-  | 'de';
+  | 'de'
+  | 'nl';
 
 export interface LocaleConfig {
   code: LocaleCode;
@@ -94,6 +95,15 @@ export const LOCALES: LocaleConfig[] = [
     englishName: 'German',
     dir: 'ltr',
     prefix: '/de',
+    isDefault: false,
+  },
+  {
+    code: 'nl',
+    locale: 'nl-NL',
+    name: 'Nederlands',
+    englishName: 'Dutch',
+    dir: 'ltr',
+    prefix: '/nl',
     isDefault: false,
   },
 ];

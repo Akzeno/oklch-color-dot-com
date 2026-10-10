@@ -12,6 +12,7 @@
 | Spanish | `es` | `es-ES` | Español | `/es/` |
 | French | `fr` | `fr-FR` | Français | `/fr/` |
 | German | `de` | `de-DE` | Deutsch | `/de/` |
+| Dutch | `nl` | `nl-NL` | Nederlands | `/nl/` |
 
 **Strategy**: Path-based routing with English at root. Other languages get `/locale/` prefix.
 
@@ -38,6 +39,7 @@ src/
 │   │   ├── es.json
 │   │   ├── fr.json
 │   │   ├── de.json
+│   │   ├── nl.json
 │   │   └── index.ts           # Barrel export + type-safe translation function
 │   └── middleware.ts          # Locale detection/redirection middleware
 ├── config/

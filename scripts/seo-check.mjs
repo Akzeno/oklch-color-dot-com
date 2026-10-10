@@ -115,8 +115,8 @@ function resolvesInDist(urlPath) {
 // ---------------------------------------------------------------------------
 
 /** URL prefixes of every non-default locale (lowercase, no slash). */
-const LOCALE_PREFIXES = ['hi', 'pt', 'zh-cn', 'zh-hk', 'es', 'fr', 'de'];
-const HREFLANG_CODES = ['en-US', 'hi-IN', 'pt-BR', 'zh-CN', 'zh-HK', 'es-ES', 'fr-FR', 'de-DE'];
+const LOCALE_PREFIXES = ['hi', 'pt', 'zh-cn', 'zh-hk', 'es', 'fr', 'de', 'nl'];
+const HREFLANG_CODES = ['en-US', 'hi-IN', 'pt-BR', 'zh-CN', 'zh-HK', 'es-ES', 'fr-FR', 'de-DE', 'nl-NL'];
 
 /** Route → locale code: /de/hex-to-oklch → 'de', /hex-to-oklch → 'en'. */
 function localeForRoute(route) {
@@ -273,7 +273,7 @@ for (const p of pages) {
 // -- hreflang alternates (i18n) --------------------------------------------
 const CODE_PREFIX = {
   'en-US': '', 'hi-IN': '/hi', 'pt-BR': '/pt', 'zh-CN': '/zh-cn',
-  'zh-HK': '/zh-hk', 'es-ES': '/es', 'fr-FR': '/fr', 'de-DE': '/de',
+  'zh-HK': '/zh-hk', 'es-ES': '/es', 'fr-FR': '/fr', 'de-DE': '/de', 'nl-NL': '/nl',
 };
 function stripLocaleRoute(route) {
   const seg = route.split('/')[1]?.toLowerCase() ?? '';

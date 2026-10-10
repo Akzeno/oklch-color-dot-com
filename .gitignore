@@ -1,6 +1,9 @@
 # build output
 dist/
 
+# translation work files (scripts/i18n-split.mjs output, merged by i18n-merge.mjs)
+i18n-work/
+
 # generated types
 .astro/
 
